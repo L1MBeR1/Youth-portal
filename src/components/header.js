@@ -10,8 +10,8 @@ function Header() {
 
         },[])
   return (
-    <header className='navbar-fixed'>
-        <nav>
+    <header >
+        <nav className='navbar-fixed'>
             <div className="nav-wrapper  grey darken-3">
                 <Link to="/" className="brand-logo">Logo</Link>
                 <a href="#" data-target="mobile-demo" className="sidenav-trigger"><i className="material-icons">menu</i></a>

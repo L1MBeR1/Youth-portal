@@ -34,5 +34,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    
+    'vkontakte' => [
+        'client_id' => env('VKONTAKTE_CLIENT_ID'),
+        'client_secret' => env('VKONTAKTE_CLIENT_SECRET'),
+        'redirect' => env('VKONTAKTE_REDIRECT_URI'),
+    ],
+    
 
 ];

@@ -73,6 +73,7 @@
                                             document.getElementById('background').classList.add('!hidden');
                                         "
                                     />
+                                    ывсвысыв
                                     <img
                                         src="https://laravel.com/assets/img/welcome/docs-dark.svg"
                                         alt="Laravel documentation screenshot"
@@ -166,6 +167,8 @@
                         Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
                     </footer>
                 </div>
+                <a href="{{ route('vkontakte.login') }}">Login with VKontakte</a>
+
             </div>
         </div>
     </body>

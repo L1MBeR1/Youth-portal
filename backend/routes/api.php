@@ -13,6 +13,7 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
     Route::post('/profile', [AuthController::class, 'profile'])->middleware('auth:api');
+    Route::post('/getRolesAndPermissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
 });
 
 // Защищенный маршрут только для администратора

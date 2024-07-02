@@ -39,15 +39,33 @@ const APITestPage = () => {
         }
     };
 
+    // const handleVKLogin = async () => {
+    //     try {
+    //         const response = await axios.post('http://127.0.0.1:8000/api/auth/vkontakte');
+    //         window.location.href = response.data.redirect; // Перенаправляем пользователя на VK
+    //     } catch (error) {
+    //         console.error('Error during VK login:', error);
+    //         setError('Failed to initiate VK login.');
+    //     }
+    // };
+
     const handleVKLogin = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/auth/vkontakte');
+            const response = await axios.get('http://127.0.0.1:8000/api/proxy/vk', {
+                params: {
+                    scope: 'email',
+                    response_type: 'code',
+                    state: 'some_state', // опционально
+                }
+            });
             window.location.href = response.data.redirect; // Перенаправляем пользователя на VK
         } catch (error) {
             console.error('Error during VK login:', error);
             setError('Failed to initiate VK login.');
         }
     };
+    
+    
     
     
 

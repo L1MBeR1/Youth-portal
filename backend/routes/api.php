@@ -25,9 +25,20 @@ Route::group([
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 });
 
-// routes/api.php
+use App\Http\Controllers\ProxyController;
 
-Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
-Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
+Route::get('proxy/vk', [ProxyController::class, 'proxyToVk']);
+
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'    
+], function ($router) {
+    Route::post('vkontakte', [VKAuthController::class, 'redirectToProvider']);
+    Route::get('vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
+});
+
+// Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
+// Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
 
 

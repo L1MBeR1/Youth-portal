@@ -5,9 +5,9 @@ const APITestPage = () => {
     const [url, setUrl] = useState('http://127.0.0.1:8000/api/auth/login');
     const [method, setMethod] = useState('GET');
     const [body, setBody] = useState(
-`{
-"email":"hello@example.com",
-"password":"1111"        
+        `{
+    "email":"hello@example.com",
+    "password":"1111"        
 }`);
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
@@ -38,6 +38,18 @@ const APITestPage = () => {
             setLoading(false);
         }
     };
+
+    const handleVKLogin = async () => {
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/auth/vkontakte');
+            window.location.href = response.data.redirect; // Перенаправляем пользователя на VK
+        } catch (error) {
+            console.error('Error during VK login:', error);
+            setError('Failed to initiate VK login.');
+        }
+    };
+    
+    
 
     return (
         <div>
@@ -79,6 +91,10 @@ const APITestPage = () => {
                 )}
                 <button onClick={handleSendRequest} disabled={loading}>
                     {loading ? 'Loading...' : 'Send Request'}
+                </button>
+                <br />
+                <button onClick={handleVKLogin} style={{ display: 'block', padding: '10px', background: 'blue', color: 'white', marginTop: '10px' }}>
+                    Login with VKontakte
                 </button>
             </div>
             <div style={{ marginTop: '20px' }}>

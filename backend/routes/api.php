@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\Auth\VKAuthController;
 
 Route::group([
     'middleware' => 'api',
@@ -23,3 +24,10 @@ Route::group([
 ], function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 });
+
+// routes/api.php
+
+Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
+Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
+
+

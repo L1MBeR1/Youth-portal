@@ -10,8 +10,8 @@ class ProxyController extends Controller
     public function proxyToVk(Request $request)
     {
         $query = http_build_query([
-            'client_id' => env('VK_CLIENT_ID'),
-            'redirect_uri' => env('VK_REDIRECT_URI'),
+            'client_id' => env('VKONTAKTE_CLIENT_ID'),
+            'redirect_uri' => env('VKONTAKTE_REDIRECT_URI'),
             'response_type' => 'code',
             'scope' => 'email',
             'state' => $request->input('state', null),

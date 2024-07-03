@@ -12,18 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class VKAuthController extends Controller
 {
-    public function redirectToProvider()
+    /*public function redirectToProvider()
     {
         Log::info('Redirecting to VKontakte provider'); // Логируем сообщение о перенаправлении
         return Socialite::driver('vkontakte')->stateless()->redirect();
-    }
+    }*/
 
     public function handleProviderCallback()
     {
         Log::info('Handling VKontakte callback'); // Логируем сообщение о колбэке
 
         try {
-            $vkUser = Socialite::driver('vkontakte')->stateless()->user();
+            //$vkUser = Socialite::driver('vkontakte')->stateless()->user();
+            $vkUser = Socialite::driver('vkontakte')->stateless()->setHttpClient(
+                new \GuzzleHttp\Client(['verify' => false])
+            )->user();
+            
+
+            // Логирование полученных данных
+            Log::info('VK User:', (array)$vkUser);
 
             // Найти или создать пользователя в базе данных
             $user = User::firstOrCreate(

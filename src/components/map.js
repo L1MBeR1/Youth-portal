@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -10,22 +10,23 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-const MapComponent = () => {
+const Map = (props) => {
   return (
     <MapContainer center={[63,90]} zoom={3} attributionControl={false} style={{ height: '60vh', width: '100%' }}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[55.751244, 37.618423]}>
-        <Popup>
-          <h3>Москва</h3>
-          <p>Столица России</p>
-        </Popup>
-      </Marker>
+      {props.markers.map((marker, index) => (
+        <Marker key={index} position={[marker.coordinates.latitude, marker.coordinates.longitude]}>
+          <Popup>
+            <h4>{marker.title}</h4>
+            <p>{marker.description}</p>
+          </Popup>
+        </Marker>
+      ))}
       
     </MapContainer>
   );
 };
 
-export default MapComponent;
+export default Map;

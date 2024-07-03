@@ -1,12 +1,12 @@
-// src/Header.js
-import React,{useEffect}from 'react';
+import React,{useRef,useEffect}from 'react';
 import { Link } from 'react-router-dom';
 import {M} from '../js/materialize';
 
 function Header() {
+    const header  = useRef(null);
     useEffect(() => {
 
-        M.Sidenav.init(document.querySelectorAll('.sidenav'), {});
+        M.Sidenav.init(header.current, {});
 
         },[])
   return (
@@ -22,7 +22,7 @@ function Header() {
             </div>
         </nav>
 
-        <ul className="sidenav" id="mobile-demo">
+        <ul ref={header} className="sidenav" id="mobile-demo">
             <li><Link to="/login">Войти</Link></li>
             <li><Link to="/login">Регистрация</Link></li>
 

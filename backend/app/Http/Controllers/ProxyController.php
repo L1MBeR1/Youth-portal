@@ -15,7 +15,6 @@ class ProxyController extends Controller
             'response_type' => 'code',
             'scope' => 'email',
             'state' => $request->input('state', null),
-            // Добавьте другие необходимые параметры
         ]);
 
         return response()->json(['redirect' => 'https://oauth.vk.com/authorize?' . $query]);

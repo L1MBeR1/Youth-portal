@@ -10,17 +10,66 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
-        // Создание разрешений
-        Permission::create(['name' => 'edit articles']);
-        Permission::create(['name' => 'delete articles']);
-        Permission::create(['name' => 'publish articles']);
-        Permission::create(['name' => 'unpublish articles']);
-        
-        // Создание ролей и назначение разрешений
-        $role = Role::create(['name' => 'writer']);
-        $role->givePermissionTo('edit articles');
+        $su = Role::create(['name' => 'su']);
+        $admin = Role::create(['name' => 'admin']);
+        $author = Role::create(['name' => 'author']);
+        $user = Role::create(['name' => 'user']);
 
-        $role = Role::create(['name' => 'admin']);
-        $role->givePermissionTo(['edit articles', 'delete articles', 'publish articles', 'unpublish articles']);
+        $permissions = [
+            // SU Permissions
+            'manage users',
+            'manage admins',
+            'manage categories',
+            'manage rewards',
+            'manage roles',
+            'manage settings',
+
+            // Admin Permissions
+            'manage posts',
+            'manage comments',
+            'block/unblock users',
+            'view site statistics',
+
+            // Author Permissions
+            'create posts',
+            'edit own posts',
+            'delete own posts',
+            'comment posts',
+            'edit own profile',
+            'view ranking and achievements',
+
+            // User Permissions
+            'view posts',
+            'comment posts',
+            'register and login',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+
+        $su->givePermissionTo(Permission::all());
+
+        $admin->givePermissionTo([
+            'manage posts',
+            'manage comments',
+            'block/unblock users',
+            'view site statistics',
+        ]);
+
+        $author->givePermissionTo([
+            'create posts',
+            'edit own posts',
+            'delete own posts',
+            'comment posts',
+            'edit own profile',
+            'view ranking and achievements',
+        ]);
+
+        $user->givePermissionTo([
+            'view posts',
+            'comment posts',
+            'register and login',
+        ]);
     }
 }

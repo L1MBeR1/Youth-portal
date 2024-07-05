@@ -22,7 +22,7 @@ return new class extends Migration {
 
         Schema::create('user_login_data', function (Blueprint $table) {
             $table->id();
-            $table->text('password')->nullable();
+            $table->text('password');
             $table->text('email')->nullable();
             $table->text('email_verified_at')->nullable();
             $table->text('phone')->nullable();
@@ -61,12 +61,12 @@ return new class extends Migration {
         // });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->text('ip_address')->nullable();
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
-            $table->text('payload')->nullable();
-            $table->timestamp('last_activity')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
 
             $table->foreign('user_id')
                 ->references('id')

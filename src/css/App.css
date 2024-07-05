@@ -1,0 +1,16 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+.full-width{
+    width: 100%;
+}
+.center-content{
+    display: flex;
+    justify-content: center;
+}
+.rounded-block{
+    border-radius: 20px;
+}

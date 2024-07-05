@@ -14,7 +14,7 @@ const MapContainer = () => {
         M.FormSelect.init(regionSelectRef.current, {});
         M.FormSelect.init(citySelectRef.current, {});
         M.FormSelect.init(categorySelectRef.current, {});
-        M.Datepicker.init(datepickerRef.current, {});
+        // M.Datepicker.init(datepickerRef.current, {});
     }, []);
 
     function findEvents() {
@@ -71,10 +71,10 @@ const MapContainer = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="input-field col s12">
+                    {/* <div className="input-field col s12">
                     <input ref={datepickerRef} id="birthdate" type="text" className="datepicker" placeholder="Выберите дату" />
                     <label htmlFor="birthdate">Дата</label>
-                    </div>
+                    </div> */}
                     <div className='row'>
                         <a className="btn-floating btn-small waves-effect waves-light" onClick={findEvents}>
                             <i className="material-icons">search</i>

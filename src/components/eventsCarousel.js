@@ -28,16 +28,24 @@ const PrevArrow = (props) => {
 const Carousel = ({ items }) => {
   const settings = {
     dots: true,
-    infinite: false,
-    speed: 350,
-    slidesToShow: 4,
+    infinite: true,
+    speed: 400,
+    slidesToShow: 5,
     slidesToScroll: 1,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    autoplaySpeed: 1500,
+    autoplay:true,
+    autoplaySpeed: 3500,
     cssEase: "linear",
     pauseOnHover: true,
     responsive: [
+      {
+        breakpoint: 1650,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        },
+      },
       {
         breakpoint: 1500,
         settings: {
@@ -46,14 +54,14 @@ const Carousel = ({ items }) => {
         },
       },
       {
-        breakpoint: 1300,
+        breakpoint: 1350,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
         },
       },
       {
-        breakpoint: 768,
+        breakpoint: 850,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,

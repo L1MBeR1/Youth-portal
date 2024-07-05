@@ -1,6 +1,6 @@
 import React,{useRef,useEffect}from 'react';
 import { Link } from 'react-router-dom';
-import {M} from '../js/materialize';
+import {M} from '../../js/materialize';
 
 function Header() {
     const header  = useRef(null);
@@ -17,14 +17,14 @@ function Header() {
                 <a href="#" data-target="mobile-demo" className="sidenav-trigger"><i className="material-icons">menu</i></a>
                 <ul className="right hide-on-med-and-down">
                     <li><Link to="/login">Войти</Link></li>
-                    <li><Link to="/login">Регистрация</Link></li>
+                    <li><Link to="/registration">Регистрация</Link></li>
                 </ul>
             </div>
         </nav>
 
         <ul ref={header} className="sidenav" id="mobile-demo">
             <li><Link to="/login">Войти</Link></li>
-            <li><Link to="/login">Регистрация</Link></li>
+            <li><Link to="/registration">Регистрация</Link></li>
 
         </ul>
     </header>

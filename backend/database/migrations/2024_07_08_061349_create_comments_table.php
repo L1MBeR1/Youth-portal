@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
-            $table->id();
+        Schema::create('comments', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('user_id')->unsigned()->nullable(false);
+            $table->text('content')->nullable(false);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('comments');
     }
 };

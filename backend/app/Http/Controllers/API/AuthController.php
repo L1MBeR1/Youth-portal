@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserMetadata;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,27 +22,33 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'nullable|email|unique:user_login_data,email',
+            'phone' => 'nullable|string|unique:user_login_data,phone',
             'password' => 'required',
-            'c_password' => 'required|same:password',
-            'role' => 'required',
+            // 'c_password' => 'required|same:password',
+            // 'role' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation Error.', 'messages' => $validator->errors()], 422);
         }
 
+        // Проверка, что есть email или телефон
+        if (empty($request->email) && empty($request->phone)) {
+            return response()->json(['error' => 'Validation Error.', 'messages' => ['email' => 'Either email or phone must be provided.']], 422);
+        }
+
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
 
-        $role = $input['role'];
-        unset($input['role']);
+        // $role = $input['role'];
+        // unset($input['role']);
+        $role = 'user';
 
         $user = User::create($input);
+        $user->assignRole($role);
 
-        // $user->assignRole($role);
-        $user->assignRole('user');
+        UserMetadata::create(['user_id' => $user->id]);
 
         $success['user'] = $user;
 
@@ -76,6 +83,45 @@ class AuthController extends Controller
         // $customToken = JWTAuth::claims($payload)->fromUser($user);
 
         return $this->respondWithToken($token);
+    }
+
+    /**
+     * Update user profile metadata.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'patronymic' => 'nullable|string|max:255',
+            'nickname' => 'nullable|string|max:255',
+            'profile_image_uri' => 'nullable|string',
+            'city' => 'nullable|string|max:255',
+            'gender' => 'nullable|in:м,ж',
+            'birthday' => 'nullable|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Validation Error.', 'messages' => $validator->errors()], 422);
+        }
+
+        $user = Auth::user();
+        $metadata = $user->metadata;
+        if (!$metadata) {
+            $metadata = new UserMetadata();
+            $metadata->user_id = $user->id;
+        }
+
+        $metadata->fill($request->only([
+            'first_name', 'last_name', 'patronymic', 'nickname', 'profile_image_uri', 'city', 'gender', 'birthday'
+        ]));
+
+        $metadata->save();
+
+        return response()->json(['message' => 'Profile updated successfully.', 'metadata' => $metadata], 200);
     }
 
     /**

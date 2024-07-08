@@ -6,25 +6,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject; 
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable, HasRoles;
 
+    protected $table = 'user_login_data';
+
     /**
-     * The attributes that are mass assignable.
+     * Атрибуты, которые могут быть присвоены массово.
      *
      * @var array
      */
     protected $fillable = [
-        'name',
+        'name', //TODO: проверить в 'user_login_data,...'
         'email',
         'password',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Атрибуты, которые должны быть скрыты для сериализации.
      *
      * @var array
      */
@@ -35,7 +37,8 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Get the attributes that should be cast.
-     *
+     * Получить список атрибутов для приведения к типу
+     * 
      * @return array
      */
     protected function casts(): array
@@ -55,7 +58,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->getKey();
     }
- 
+
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.
      *
@@ -63,6 +66,13 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        $permissions = $this->getPermissionsViaRoles();        // Получение коллекции Permission (Spatie)
+        $permissions = $permissions->pluck('name')->toArray(); // Извлечение полей 'name' и преобразование в массив
+
+        return [
+            'email' => $this->email,
+            'roles' => $this->getRoleNames(),
+            'permissions' => $permissions,
+        ];
     }
 }

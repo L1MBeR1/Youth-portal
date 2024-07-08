@@ -12,7 +12,9 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $su = Role::create(['name' => 'su']);
         $admin = Role::create(['name' => 'admin']);
-        $author = Role::create(['name' => 'author']);
+        $blogger = Role::create(['name' => 'blogger']);
+        $guest = Role::create(['name' => 'guest']);
+        $organization = Role::create(['name' => 'organization']);
         $user = Role::create(['name' => 'user']);
 
         $permissions = [
@@ -40,7 +42,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // User Permissions
             'view posts',
-            'comment posts',
+            // 'comment posts',
             'register and login',
         ];
 
@@ -48,16 +50,16 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::create(['name' => $permission]);
         }
 
-        $su->givePermissionTo(Permission::all());
+        $su->syncPermissions(Permission::all());
 
-        $admin->givePermissionTo([
+        $admin->syncPermissions([
             'manage posts',
             'manage comments',
             'block/unblock users',
             'view site statistics',
         ]);
 
-        $author->givePermissionTo([
+        $blogger->syncPermissions([
             'create posts',
             'edit own posts',
             'delete own posts',
@@ -66,7 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view ranking and achievements',
         ]);
 
-        $user->givePermissionTo([
+        $user->syncPermissions([
             'view posts',
             'comment posts',
             'register and login',

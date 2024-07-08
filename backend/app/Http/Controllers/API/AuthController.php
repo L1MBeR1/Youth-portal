@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
 
+// use Illuminate\Http\RedirectResponse;
+// use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -19,7 +21,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            // 'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
@@ -38,7 +40,8 @@ class AuthController extends Controller
 
         $user = User::create($input);
 
-        $user->assignRole($role);
+        // $user->assignRole($role);
+        $user->assignRole('user');
 
         $success['user'] = $user;
 
@@ -58,6 +61,20 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorised'], 401);
         }
 
+        $user = auth()->user();
+        // $user = Auth::user();
+
+        // // Получаем роли пользователя
+        // $roles = $user->getRoleNames();
+
+        // // Добавляем пользовательские поля в токен
+        // $payload = [
+        //     'email' => $user->email,
+        //     'roles' => $roles,
+        // ];
+
+        // $customToken = JWTAuth::claims($payload)->fromUser($user);
+
         return $this->respondWithToken($token);
     }
 
@@ -71,11 +88,8 @@ class AuthController extends Controller
         return response()->json(['user' => Auth::user()], 200);
     }
 
-
     /**
-     * 
-     * 
-     * 
+     * //TODO: Мб удалить, это в токене есть.
      * 
      */
     public function getRolesAndPermissions()
@@ -123,7 +137,6 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
         ]);
     }
 }

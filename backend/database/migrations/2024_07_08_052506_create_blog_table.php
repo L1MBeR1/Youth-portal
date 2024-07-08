@@ -4,25 +4,27 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('blog', function (Blueprint $table) {
+        Schema::create('blogs', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('title')->nullable(false);
+            $table->text('title');
             $table->text('description');
-            $table->text('content')->nullable(false);
-            $table->text('cover');
-            $table->enum('status', ['moderating', 'published', 'archived'])->nullable(false);
-            $table->integer('views')->unsigned();
-            $table->integer('likes')->unsigned();
-            $table->integer('reposts')->unsigned();
+
+            //TODO: Посмотреть про хранение контента в 
+            //      двоичной форме (binary). 
+            $table->text('content');
+            $table->text('cover_uri');
+            $table->enum('status', ['moderating', 'published', 'archived']);
+            $table->integer('views')->unsigned()->default(0);
+            $table->integer('likes')->unsigned()->default(0);
+            $table->integer('reposts')->unsigned()->default(0);
             $table->timestamps();
-            $table->integer('author_id')->unsigned()->nullable(false);
+            $table->integer('author_id')->unsigned();
 
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });
@@ -33,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('blog');
+        Schema::dropIfExists('blogs');
     }
 };

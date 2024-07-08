@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'name', //TODO: проверить в 'user_login_data,...'
         'email',
         'password',
+        'phone',
     ];
 
     /**
@@ -72,11 +73,12 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        $permissions = $this->getPermissionsViaRoles();        // Получение коллекции Permission (Spatie)
-        $permissions = $permissions->pluck('name')->toArray(); // Извлечение полей 'name' и преобразование в массив
+        // Получение массива разрешений для пользователя
+        $permissions = $this->getPermissionsViaRoles()->pluck('name')->toArray();
+        $login = $this->email ?? $this->phone;
 
         return [
-            'email' => $this->email,
+            'login' => $login,
             'roles' => $this->getRoleNames(),
             'permissions' => $permissions,
         ];

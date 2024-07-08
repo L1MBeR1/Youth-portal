@@ -15,11 +15,11 @@ return new class extends Migration
             $table->increments('id');
             $table->integer('user_owner_id')->unsigned();
             $table->integer('project_owner_id')->unsigned();
-            $table->integer('event_id')->unsigned()->nullable(false);
+            $table->integer('event_id')->unsigned();
 
             $table->foreign('user_owner_id')->references('id')->on('user_login_data')->onDelete('cascade');
-            $table->foreign('project_owner_id')->references('id')->on('project')->onDelete('cascade');
-            $table->foreign('event_id')->references('id')->on('event')->onDelete('cascade');
+            $table->foreign('project_owner_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
 
         });
     }

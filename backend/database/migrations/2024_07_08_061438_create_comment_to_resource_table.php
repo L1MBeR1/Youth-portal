@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('comment_to_resource', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('podkast_id')->unsigned();
+            $table->integer('podcast_id')->unsigned();
             $table->integer('blog_id')->unsigned();
             $table->integer('news_id')->unsigned();
-            $table->bigInteger('comment_id')->unsigned()->nullable(false);
+            $table->bigInteger('comment_id')->unsigned();
 
-            $table->foreign('podkast_id')->references('id')->on('podkast')->onDelete('cascade');
-            $table->foreign('blog_id')->references('id')->on('blog')->onDelete('cascade');
+            $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');
+            $table->foreign('blog_id')->references('id')->on('blogs')->onDelete('cascade');
             $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
             $table->foreign('comment_id')->references('id')->on('comments')->onDelete('cascade');
         });

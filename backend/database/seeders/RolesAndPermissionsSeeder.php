@@ -8,6 +8,9 @@ use Spatie\Permission\Models\Permission;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
+    //TODO: Сделать для всех ролей список разрешений
+
+    
     public function run()
     {
         $su = Role::create(['name' => 'su']);
@@ -16,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $guest = Role::create(['name' => 'guest']);
         $organization = Role::create(['name' => 'organization']);
         $user = Role::create(['name' => 'user']);
+        $news_creator = Role::create(['name' => 'news_creator']);
 
         $permissions = [
             // SU Permissions
@@ -44,6 +48,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'view posts',
             // 'comment posts',
             'register and login',
+
+            // Guest Permissions
+
+
+            // Another Permissions
         ];
 
         foreach ($permissions as $permission) {

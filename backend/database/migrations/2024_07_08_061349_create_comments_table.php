@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id')->unsigned()->nullable(false);
-            $table->text('content')->nullable(false);
+            $table->integer('user_id')->unsigned();
+            $table->text('content');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('user_login_data')->onDelete('cascade');

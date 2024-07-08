@@ -43,19 +43,6 @@ class CreateBlogWithComment extends Command
             'body' => 'This is a comment on the blog.',
         ]);
 
-        // Создание статьи
-        $article = Article::create([
-            'title' => 'My First A2rticle',
-            'body' => 'This is the 2body of my first article.',
-        ]);
-
-        // $article = Article::find(1);
-
-        // Добавление комментария к статье
-        $article->comments()->create([
-            'author' => 'Alice2',
-            'body' => 'This is 2a comment on the article.',
-        ]);
 
         $this->info('Блог и комментарий успешно созданы.');
 

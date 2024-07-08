@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('podkast', function (Blueprint $table) {
+        Schema::create('podcasts', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('title')->nullable(false);
+            $table->text('title');
             $table->text('description');
-            $table->text('content')->nullable(false);
-            $table->text('cover');
-            $table->enum('status', ['moderating', 'published', 'archived'])->nullable(false);
+            //TODO: Посмотреть про хранение контента в 
+            //      двоичной форме (binary)
+            $table->text('content');
+            $table->text('cover_uri');
+            $table->enum('status', ['moderating', 'published', 'archived']);
             $table->integer('views')->unsigned();
             $table->integer('likes')->unsigned();
             $table->integer('reposts')->unsigned();
             $table->timestamps();
-            $table->integer('author_id')->unsigned()->nullable(false);
+            $table->integer('author_id')->unsigned();
 
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });
@@ -33,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('podkast');
+        Schema::dropIfExists('podcasts');
     }
 };

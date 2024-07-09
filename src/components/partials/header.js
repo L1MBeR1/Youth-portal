@@ -17,6 +17,7 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 
 function ColorSchemeToggle() {
     const { mode, setMode } = useColorScheme();
@@ -97,6 +98,7 @@ const [open, setOpen] = useState(false);
         >
           <ColorSchemeToggle
           />
+        
           <Link to="/login">
               <Button 
               endDecorator={<KeyboardArrowRight />} 
@@ -111,22 +113,4 @@ const [open, setOpen] = useState(false);
     </header>
   );
 }
-{/* <header >
-        <nav className='navbar-fixed'>
-            <div className="nav-wrapper  grey darken-3">
-                <Link to="/" className="brand-logo">Logo</Link>
-                <a href="#" data-target="mobile-demo" className="sidenav-trigger"><i className="material-icons">menu</i></a>
-                <ul className="right hide-on-med-and-down">
-                    <li><Link to="/login">Войти</Link></li>
-                    <li><Link to="/registration">Регистрация</Link></li>
-                </ul>
-            </div>
-        </nav>
-
-        <ul  className="sidenav" id="mobile-demo">
-            <li><Link to="/login">Войти</Link></li>
-            <li><Link to="/registration">Регистрация</Link></li>
-
-        </ul>
-    </header> */}
 export default Header;

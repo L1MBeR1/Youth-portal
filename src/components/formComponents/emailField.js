@@ -41,7 +41,7 @@ function EmailField({ email, setEmail, setEmailStatus, setEmailError }) {
   };
 
   return (
-    <FormControl error={emailStatus === 'Invalid'}>
+    <FormControl>
       <FormLabel>Почта</FormLabel>
       <Input
         placeholder="Введите почту"

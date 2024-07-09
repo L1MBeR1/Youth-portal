@@ -27,15 +27,15 @@ const PrevArrow = (props) => {
 };
 const Carousel = ({ items }) => {
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
-    speed: 400,
+    speed: 300,
     slidesToShow: 5,
     slidesToScroll: 1,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    autoplay:true,
-    autoplaySpeed: 3500,
+    autoplay:false,
+    autoplaySpeed: 4000,
     cssEase: "linear",
     pauseOnHover: true,
     responsive: [

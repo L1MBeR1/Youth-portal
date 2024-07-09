@@ -1,10 +1,29 @@
 import React from 'react';
+
+import Box from '@mui/joy/Box';
+
 import MapContainer from '../components/mapContainer'
 import EventsCartsContainer from '../components/eventsCartsContainer'
+
+import Blank from '../img/blank.png'
 function Home() {
   return (
     <div>
-      <h2>Страница гостя</h2>
+      <Box 
+      sx={{
+
+        height:{ xs: '50vh', md: '100vh' },
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundImage: `url(${Blank})`, 
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
+        <h2>Домашняя страница</h2>
+      </Box>
+
       <MapContainer/>
       <EventsCartsContainer/>
     </div>

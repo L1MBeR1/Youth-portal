@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
 import Layout from './components/layout';
 import Home from './pages/home';
@@ -8,10 +8,6 @@ import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 import Admin from './pages/admin';
 
-// import PrivateRoute from './components/privateRouter';
-
-
-import Button from '@mui/joy/Button';
 
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
@@ -45,7 +41,6 @@ function App() {
             <Route path="*" element={<Navigate to="/404" />} />
             
             <Route path="/admin" element={<PrivateRoute element={<Admin /> } roles={['admin']}/>} />
-            {/* <PrivateRoute path="/admin" element={<Admin />} roles={['admin']}/> */}
           </Routes>
         </Layout>
       </Router>

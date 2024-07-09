@@ -147,15 +147,19 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function profile()
+    public function getProfile()
     {
-        return response()->json(['user' => Auth::user()], 200);
+        $user = Auth::user();
+        $metadata = $user->metadata;
+        return response()->json($metadata, 200);
     }
 
 
 
 
     /**
+     * Получить список разрешений и ролей пользователя
+     * 
      * //TODO: Мб удалить, это в токене есть.
      * 
      */

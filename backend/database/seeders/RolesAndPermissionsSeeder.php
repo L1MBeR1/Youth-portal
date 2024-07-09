@@ -9,78 +9,56 @@ use Spatie\Permission\Models\Permission;
 class RolesAndPermissionsSeeder extends Seeder
 {
     //TODO: Сделать для всех ролей список разрешений
-
-    
     public function run()
     {
-        $su = Role::create(['name' => 'su']);
-        $admin = Role::create(['name' => 'admin']);
-        $blogger = Role::create(['name' => 'blogger']);
-        $guest = Role::create(['name' => 'guest']);
-        $organization = Role::create(['name' => 'organization']);
-        $user = Role::create(['name' => 'user']);
-        $news_creator = Role::create(['name' => 'news_creator']);
-
-        $permissions = [
-            // SU Permissions
-            'manage users',
-            'manage admins',
-            'manage categories',
-            'manage rewards',
-            'manage roles',
-            'manage settings',
-
-            // Admin Permissions
-            'manage posts',
-            'manage comments',
-            'block/unblock users',
-            'view site statistics',
-
-            // Author Permissions
-            'create posts',
-            'edit own posts',
-            'delete own posts',
-            'comment posts',
-            'edit own profile',
-            'view ranking and achievements',
-
-            // User Permissions
-            'view posts',
-            // 'comment posts',
-            'register and login',
-
-            // Guest Permissions
-
-
-            // Another Permissions
+        $roles = [
+            'su' => [
+                'manage users',
+                'manage admins',
+                'manage roles',
+            ],
+            'admin' => [
+                'manage posts',
+                'manage comments',
+                'block/unblock users',
+            ],
+            'blogger' => [
+                'view posts',
+                'create posts',
+                'edit own posts',
+                'delete own posts',
+                'comment posts',
+                'edit own profile',
+            ],
+            'guest' => [
+                'view posts',
+            ],
+            'organization' => [
+                'view posts',
+                'comment posts',
+            ],
+            'news_creator' => [
+                'view posts',
+                'comment posts',
+            ],
+            'user' => [
+                'view posts',
+                'comment posts',
+            ],
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+        $createdPermissions = [];
+
+        foreach ($roles as $roleName => $permissions) {
+            $role = Role::create(['name' => $roleName]);
+            foreach ($permissions as $permissionName) {
+                if (!in_array($permissionName, $createdPermissions)) {
+                    Permission::create(['name' => $permissionName]);
+                    $createdPermissions[] = $permissionName;
+                }
+                $permission = Permission::where('name', $permissionName)->first();
+                $role->givePermissionTo($permission);
+            }
         }
-
-        $su->syncPermissions(Permission::all());
-
-        $admin->syncPermissions([
-            'manage posts',
-            'manage comments',
-            'block/unblock users',
-            'view site statistics',
-        ]);
-
-        $blogger->syncPermissions([
-            'create posts',
-            'edit own posts',
-            'delete own posts',
-            'comment posts',
-            'edit own profile',
-            'view ranking and achievements',
-        ]);
-
-        $user->syncPermissions([
-            'view posts',
-            'comment posts',
-            'register and login',
-        ]);
     }
 }

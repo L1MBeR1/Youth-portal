@@ -3,15 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Blog extends Model
 {
-    protected $fillable = ['title', 'body'];
+    protected $guarded = [];
+    // protected $fillable = ['title', 'description', 'image'];
 
-    public function comments()
-    {
-        return $this->morphMany(Comment::class, 'model');
-    }
+    use HasFactory;
 }
 
 

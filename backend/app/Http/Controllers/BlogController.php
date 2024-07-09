@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class BlogController extends Controller
 {
@@ -28,7 +30,29 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'content' => 'required|string',
+            'cover_uri' => 'nullable|string',
+            'status' => 'nullable|string|max:255',
+            'views' => 'nullable|integer',
+            'likes' => 'nullable|integer',
+            'reposts' => 'nullable|integer',
+        ]);
+
+        $input = $request->all();
+        Log::info($input);
+        $input['status'] = 'moderating';
+        Log::info('awdaw', $input);
+
+        // Создаем новый блог
+        $blog = new Blog($input);
+        $blog->author_id = Auth::id(); // Устанавливаем автора блога как текущего пользователя
+
+        $blog->save();
+
+        return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocsController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
@@ -17,9 +18,9 @@ Route::group([
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
-    Route::post('/profile', [AuthController::class, 'profile'])->middleware('auth:api');
-    Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-    Route::post('/getRolesAndPermissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
+    Route::post('/get_profile', [AuthController::class, 'getProfile'])->middleware('auth:api');
+    Route::post('/update_profile', [AuthController::class, 'updateProfile']);
+    Route::post('/get_roles_and_permissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
 });
 
 
@@ -62,4 +63,13 @@ Route::group([
     'prefix' => 'docs'
 ], function () {
     Route::get('/all', [DocsController::class, 'index']);
+});
+
+
+// Работа с блогами
+Route::group([
+    'middleware' => ['auth:api', 'role:blogger'],
+    'prefix' => 'blog'
+], function () {
+    Route::post('/create', [BlogController::class, 'store']);
 });

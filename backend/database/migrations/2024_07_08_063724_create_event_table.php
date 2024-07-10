@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('name');
             $table->text('description');
             $table->text('location');
-            $table->integer('views')->unsigned();
+            $table->integer('views')->unsigned()->default(0);;
             $table->timestamp('start_time');
             $table->timestamp('end_time');
             $table->timestamps();

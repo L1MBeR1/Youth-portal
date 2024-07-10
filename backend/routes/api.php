@@ -79,6 +79,8 @@ Route::group([
     'prefix' => 'blog'
 ], function () {
     Route::post('', [BlogController::class, 'store']);
+    Route::get('/index', [BlogController::class, 'index']);
+    Route::delete('/destroy/{id}', [BlogController::class, 'destroy']);
 });
 
 // Работа с новостями

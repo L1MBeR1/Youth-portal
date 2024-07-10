@@ -9,6 +9,7 @@ use Spatie\Permission\Models\Permission;
 class RolesAndPermissionsSeeder extends Seeder
 {
     //TODO: Сделать для всех ролей список разрешений
+    //TODO: Не работает update news Ошибка: 403 THIS ACTION IS UNAUTHORIZED.
     public function run()
     {
         $roles = [
@@ -29,6 +30,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'delete own posts',
                 'comment posts',
                 'edit own profile',
+                'edit news',
             ],
             'guest' => [
                 'view posts',

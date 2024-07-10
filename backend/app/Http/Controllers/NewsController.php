@@ -82,12 +82,12 @@ class NewsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateNewsRequest $request, News $news)
+    public function update(Request $request, News $news, $id)
     {
         $news = News::find($id);
 
         if (!$news) {
-            return response()->json(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'News not found'], Response::HTTP_NOT_FOUND);
         }
 
         $news->title = $request->input('title');
@@ -99,7 +99,7 @@ class NewsController extends Controller
 
         $news->save();
 
-        return response()->json(['success' => 'Entry successfully updated'], Response::HTTP_OK);
+        return response()->json(['success' => 'News successfully updated'], Response::HTTP_OK);
     }
 
 

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('comment_to_resource', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('podcast_id')->unsigned();
-            $table->integer('blog_id')->unsigned();
-            $table->integer('news_id')->unsigned();
+            $table->integer('podcast_id')->unsigned()->nullable();
+            $table->integer('blog_id')->unsigned()->nullable();
+            $table->integer('news_id')->unsigned()->nullable();
+
+            $table->timestamps();
             $table->bigInteger('comment_id')->unsigned();
 
             $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');

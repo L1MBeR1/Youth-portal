@@ -78,7 +78,7 @@ Route::group([
 // Работа с блогами
 Route::group([
     'middleware' => ['auth:api', 'role:blogger'],
-    'prefix' => 'blog'
+    'prefix' => 'blogs'
 ], function () {
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
@@ -90,11 +90,10 @@ Route::group([
     'middleware' => ['auth:api', 'role:news_creator'],
     'prefix' => 'news'
 ], function () {
-    Route::get('/index', [NewsController::class, 'index']);
-    Route::get('/edit', [NewsController::class, 'edit']);
-    Route::post('/create', [NewsController::class, 'store']);
-    Route::post('/update/{id}', [NewsController::class, 'update']);
-    Route::delete('/destroy/{id}', [NewsController::class, 'destroy']);
+     // Route::get('/edit', [NewsController::class, 'edit']);
+     Route::post('', [NewsController::class, 'store']);
+     Route::put('{id}', [NewsController::class, 'update']);
+     Route::delete('{id}', [NewsController::class, 'destroy']);
 });
 
 // Работа с подкастами

@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreNewsRequest;
-use App\Http\Requests\UpdateNewsRequest;
+// use App\Http\Requests\StoreNewsRequest;
+// use App\Http\Requests\UpdateNewsRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Response;
+// use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class NewsController extends Controller
 {
@@ -37,7 +38,7 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         // Валидация данных запроса
-        $validatedData = $request->validate([
+        $this->validateRequest($request, [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'content' => 'required|string',
@@ -60,7 +61,8 @@ class NewsController extends Controller
 
         $news->save();
 
-        return response()->json(['message' => 'News successfully created', 'news' => $news], 201);
+        // return response()->json(['message' => 'Новость успешно создана', 'news' => $news], 201);
+        return $this->successResponse($news, 'Новость успешно создана', 201);
     }
 
     /**
@@ -87,7 +89,7 @@ class NewsController extends Controller
         $news = News::find($id);
 
         if (!$news) {
-            return response()->json(['error' => 'News not found'], Response::HTTP_NOT_FOUND);
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
 
         $news->title = $request->input('title');
@@ -95,11 +97,10 @@ class NewsController extends Controller
         $news->content = $request->input('content');
         $news->cover_uri = $request->input('cover_uri');
         $news->status = $request->input('status');
-        // Добавьте другие поля, которые вы хотите обновить
 
         $news->save();
 
-        return response()->json(['success' => 'News successfully updated'], Response::HTTP_OK);
+        return redirect()->back()->with('success', 'Запись успешно обновлена');
     }
 
 
@@ -112,12 +113,14 @@ class NewsController extends Controller
         $news = News::find($id);
 
         if (!$news) {
-            return response()->json(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+            // return response()->json(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
         }
 
         $news->delete();
 
-        return response()->json(['success' => 'Entry successfully deleted'], Response::HTTP_OK);
+        return $this->successResponse($news, 'Запись успешно удалена', Response::HTTP_OK);
+        // return response()->json(['success' => 'Entry successfully deleted'], Response::HTTP_OK);
     }
 
 

@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->enum('status', ['moderating', 'published', 'archived']);
             $table->integer('views')->unsigned()->default(0);
             $table->integer('likes')->unsigned()->default(0);
-            $table->integer('reposts')->unsigned()->default(0);
+            $table->integer('reposts')->unsigned()->default(0);   
             $table->timestamps();
             $table->integer('author_id')->unsigned();
 

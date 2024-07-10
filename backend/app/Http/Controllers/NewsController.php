@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 // use App\Http\Requests\StoreNewsRequest;
-// use App\Http\Requests\UpdateNewsRequest;
+use App\Http\Requests\UpdateNewsRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 // use Illuminate\Http\Response;
@@ -19,8 +19,8 @@ class NewsController extends Controller
     public function index()
     {
         $news = News::join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
-                ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-                ->get();
+            ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+            ->get();
         return response()->json($news);
     }
 
@@ -84,25 +84,48 @@ class NewsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, News $news, $id)
+    public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user->hasPermissionTo('edit own news')) {
+            return $this->errorResponse('r', [], 403);
+        }
+    
         $news = News::find($id);
-
+    
         if (!$news) {
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
-
-        $news->title = $request->input('title');
-        $news->description = $request->input('description');
-        $news->content = $request->input('content');
-        $news->cover_uri = $request->input('cover_uri');
-        $news->status = $request->input('status');
-
-        $news->save();
-
-        return redirect()->back()->with('success', 'Запись успешно обновлена');
+    
+        $this->validateRequest($request, [
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'cover_uri' => 'nullable|string',
+            'status' => 'nullable|string|max:255',
+            'views' => 'nullable|integer',
+            'likes' => 'nullable|integer',
+            'reposts' => 'nullable|integer',
+        ]);
+    
+        // Фильтрация только тех полей, которые были переданы в запросе
+        $updateData = $request->only([
+            'title',
+            'description',
+            'content',
+            'cover_uri',
+            'status',
+            'views',
+            'likes',
+            'reposts',
+        ]);
+    
+        // Обновление данных новости
+        $news->update($updateData);
+    
+        return $this->successResponse($news, 'Запись успешно обновлена', Response::HTTP_OK);
     }
-
+    
 
     /**
      * Remove the specified resource from storage.

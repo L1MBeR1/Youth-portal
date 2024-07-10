@@ -10,6 +10,12 @@ class Blog extends Model
     // protected $fillable = ['title', 'description', 'image'];
 
     use HasFactory;
+
+
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'blog_id', 'comment_id');
+    }
 }
 
 

@@ -22,6 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'manage posts',
                 'manage comments',
                 'block/unblock users',
+                'edit own news',
             ],
             'blogger' => [
                 'view posts',
@@ -42,6 +43,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'news_creator' => [
                 'view posts',
                 'comment posts',
+                'edit own news'
             ],
             'user' => [
                 'view posts',

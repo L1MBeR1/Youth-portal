@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Comment extends Model
 {
     use HasFactory;
+
+    public function blogs()
+    {
+        return $this->belongsToMany(Blog::class, 'comment_to_resource', 'comment_id', 'blog_id');
+    }
+
+    public function news()
+    {
+        return $this->belongsToMany(Blog::class, 'comment_to_resource', 'comment_id', 'news_id');
+    }
 }

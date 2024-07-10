@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PodcastController;
 use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
@@ -77,12 +78,22 @@ Route::group([
 
 // Работа с новостями
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger'],
+    'middleware' => ['auth:api', 'role:news_creator'],
     'prefix' => 'news'
 ], function () {
+    Route::get('/index', [NewsController::class, 'index']);
     Route::get('/edit', [NewsController::class, 'edit']);
     Route::post('/create', [NewsController::class, 'store']);
     Route::post('/update/{id}', [NewsController::class, 'update']);
     Route::delete('/destroy/{id}', [NewsController::class, 'destroy']);
 });
 
+// Работа с подкастами
+Route::group([
+    'middleware' => ['auth:api', 'role:blogger'],
+    'prefix' => 'podcasts'
+], function () {
+    Route::get('/index', [PodcastController::class, 'index']);
+    Route::post('/create', [PodcastController::class, 'store']);
+    Route::delete('/destroy/{id}', [PodcastController::class, 'destroy']);
+});

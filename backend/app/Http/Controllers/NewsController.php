@@ -17,7 +17,10 @@ class NewsController extends Controller
      */
     public function index()
     {
-        //
+        $news = News::join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
+                ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+                ->get();
+        return response()->json($news);
     }
 
     /**
@@ -25,8 +28,7 @@ class NewsController extends Controller
      */
     public function create()
     {
-        Log::info('В новостях');
-        //
+
     }
 
     /**
@@ -34,7 +36,6 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info('В новостях');
         // Валидация данных запроса
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -59,7 +60,7 @@ class NewsController extends Controller
 
         $news->save();
 
-        return response()->json(['message' => 'Новость успешно создана', 'news' => $news], 201);
+        return response()->json(['message' => 'News successfully created', 'news' => $news], 201);
     }
 
     /**
@@ -86,7 +87,7 @@ class NewsController extends Controller
         $news = News::find($id);
 
         if (!$news) {
-            return redirect()->back()->with('error', 'Запись не найдена');
+            return response()->json(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
         }
 
         $news->title = $request->input('title');
@@ -98,7 +99,7 @@ class NewsController extends Controller
 
         $news->save();
 
-        return redirect()->back()->with('success', 'Запись успешно обновлена');
+        return response()->json(['success' => 'Entry successfully updated'], Response::HTTP_OK);
     }
 
 

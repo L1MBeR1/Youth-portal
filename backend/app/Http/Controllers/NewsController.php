@@ -18,7 +18,10 @@ class NewsController extends Controller
      */
     public function index()
     {
-        //
+        $news = News::join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
+                ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+                ->get();
+        return response()->json($news);
     }
 
     /**
@@ -26,8 +29,7 @@ class NewsController extends Controller
      */
     public function create()
     {
-        Log::info('В новостях');
-        //
+
     }
 
     /**
@@ -35,7 +37,6 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        // Log::info('В новостях');
         // Валидация данных запроса
         $this->validateRequest($request, [
             'title' => 'required|string|max:255',
@@ -99,7 +100,7 @@ class NewsController extends Controller
 
         $news->save();
 
-        return $this->successResponse($news, 'Запись успешно обновлена', Response::HTTP_OK);
+        return redirect()->back()->with('success', 'Запись успешно обновлена');
     }
 
 

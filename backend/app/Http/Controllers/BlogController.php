@@ -6,6 +6,7 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Response;
 
 class BlogController extends Controller
 {
@@ -14,7 +15,10 @@ class BlogController extends Controller
      */
     public function index()
     {
-        //
+        $blog = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
+                ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+                ->get();
+        return response()->json($blog);
     }
 
     /**
@@ -82,8 +86,16 @@ class BlogController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Blog $blog)
+    public function destroy($id)
     {
-        //
+        $blog = Blog::find($id);
+
+        if (!$blog) {
+            return response()->json(['error' => 'Blog not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $blog->delete();
+
+        return response()->json(['success' => 'Blog successfully deleted'], Response::HTTP_OK);
     }
 }

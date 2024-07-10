@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Log;
 // use Illuminate\Http\RedirectResponse;
 // use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
+use Illuminate\Validation\ValidationException;
+use Exception;
+
 class AuthController extends Controller
 {
     /**
@@ -22,37 +25,75 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email|unique:user_login_data,email',
-            'phone' => 'nullable|string|unique:user_login_data,phone',
-            'password' => 'required',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'nullable|email|unique:user_login_data,email',
+                'phone' => 'nullable|string|unique:user_login_data,phone',
+                'password' => 'required',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Validation Error.', 'messages' => $validator->errors()], 422);
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => 'Validation Error',
+                    'messages' => $validator->errors()
+                ], 422);
+            }
+
+            // Проверка, что есть email или телефон
+            if (empty($request->email) && empty($request->phone)) {
+                return response()->json([
+                    'error' => 'Validation Error',
+                    'messages' => [
+                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
+                    ]
+                ], 422);
+            }
+
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+
+            $user = User::create($input);
+            $user->assignRole('user');
+
+            UserMetadata::create(['user_id' => $user->id]);
+
+            $success['user'] = $user;
+
+            // Авторизация
+            $credentials = $request->only('password');
+
+            if ($request->email) {
+                $credentials['email'] = $request->email;
+            } else {
+                $credentials['phone'] = $request->phone;
+            }
+
+            if (!$token = Auth::attempt($credentials)) {
+                return response()->json([
+                    'error' => 'Unauthorised',
+                    'messages' => [
+                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
+                    ]
+                ], 401);
+            }
+
+            return $this->respondWithToken($token);
+
+            // return response()->json(['success' => $success, 'message' => 'User registered successfully.'], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => [$e->errors(), 'description' => '']
+            ], 422);
+        } catch (Exception $e) {
+            Log::error('Registration Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error'], 500);
         }
-
-        // Проверка, что есть email или телефон
-        if (empty($request->email) && empty($request->phone)) {
-            return response()->json(['error' => 'Validation Error.', 'messages' => ['email' => 'Either email or phone must be provided.']], 422);
-        }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-
-        $user = User::create($input);
-        $user->assignRole('user');
-
-        UserMetadata::create(['user_id' => $user->id]);
-
-        $success['user'] = $user;
-
-        return response()->json(['success' => $success, 'message' => 'User registered successfully.'], 201);
     }
 
 
 
-    
+
     /**
      * Get a JWT via given credentials.
      *
@@ -60,34 +101,57 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'password' => 'required|string',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'nullable|email',
+                'phone' => 'nullable|string',
+                'password' => 'required|string',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Validation Error.', 'messages' => $validator->errors()], 422);
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => 'Validation Error',
+                    'messages' => $validator->errors()
+                ], 422);
+            }
+
+            // Проверка, что есть email или телефон
+            if (empty($request->email) && empty($request->phone)) {
+                return response()->json([
+                    'error' => 'Validation Error',
+                    'messages' => [
+                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
+                    ]
+                ], 422);
+            }
+
+            $credentials = $request->only('password');
+
+            if ($request->email) {
+                $credentials['email'] = $request->email;
+            } else {
+                $credentials['phone'] = $request->phone;
+            }
+
+            if (!$token = Auth::attempt($credentials)) {
+                return response()->json([
+                    'error' => 'Unauthorised',
+                    'messages' => [
+                        'description' => 'Предоставленные учетные данные неверны.'
+                    ]
+                ], 401);
+            }
+
+            return $this->respondWithToken($token);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $e->errors()
+            ], 422);
+        } catch (Exception $e) {
+            Log::error('Login Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error.'], 500);
         }
-
-        // Проверка, что есть email или телефон
-        if (empty($request->email) && empty($request->phone)) {
-            return response()->json(['error' => 'Validation Error.', 'messages' => ['email' => 'Either email or phone must be provided.']], 422);
-        }
-
-        $credentials = $request->only('password');
-
-        if ($request->email) {
-            $credentials['email'] = $request->email;
-        } else {
-            $credentials['phone'] = $request->phone;
-        }
-
-        if (!$token = Auth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorised'], 401);
-        }
-
-        return $this->respondWithToken($token);
     }
 
 

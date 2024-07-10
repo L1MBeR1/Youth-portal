@@ -14,13 +14,13 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
-    Route::post('/get_profile', [AuthController::class, 'getProfile'])->middleware('auth:api');
-    Route::post('/update_profile', [AuthController::class, 'updateProfile']);
-    Route::post('/get_roles_and_permissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
+    Route::get('profile', [AuthController::class, 'getProfile'])->middleware('auth:api');
+    Route::put('profile', [AuthController::class, 'updateProfile']);
+    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
 });
 
 
@@ -29,7 +29,12 @@ Route::group([
     'middleware' => ['auth:api', 'role:admin'],
     'prefix' => 'admin'
 ], function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('hello', [AdminController::class, 'hello']);
+    Route::get('users', [AdminController::class, 'listUsers']);
+    Route::get('blogs', [AdminController::class, 'listBlogs']);
+    Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
+    Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
+    Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
 });
 
 
@@ -62,7 +67,7 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'docs'
 ], function () {
-    Route::get('/all', [DocsController::class, 'index']);
+    Route::get('all', [DocsController::class, 'index']);
 });
 
 
@@ -71,5 +76,5 @@ Route::group([
     'middleware' => ['auth:api', 'role:blogger'],
     'prefix' => 'blog'
 ], function () {
-    Route::post('/create', [BlogController::class, 'store']);
+    Route::post('', [BlogController::class, 'store']);
 });

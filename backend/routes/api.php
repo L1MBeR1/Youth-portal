@@ -5,6 +5,8 @@ use App\Http\Controllers\DocsController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PodcastController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentToResourceController;
 use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
@@ -88,11 +90,10 @@ Route::group([
     'middleware' => ['auth:api', 'role:news_creator'],
     'prefix' => 'news'
 ], function () {
-    Route::get('/index', [NewsController::class, 'index']);
-    Route::get('/edit', [NewsController::class, 'edit']);
-    Route::post('', [NewsController::class, 'store']);
-    Route::put('{id}', [NewsController::class, 'update']);
-    Route::delete('{id}', [NewsController::class, 'destroy']);
+     // Route::get('/edit', [NewsController::class, 'edit']);
+     Route::post('', [NewsController::class, 'store']);
+     Route::put('{id}', [NewsController::class, 'update']);
+     Route::delete('{id}', [NewsController::class, 'destroy']);
 });
 
 // Работа с подкастами
@@ -103,4 +104,14 @@ Route::group([
     Route::get('/index', [PodcastController::class, 'index']);
     Route::post('/create', [PodcastController::class, 'store']);
     Route::delete('/destroy/{id}', [PodcastController::class, 'destroy']);
+});
+
+// Работа с комментариями
+Route::group([
+    'middleware' => ['auth:api', 'role:blogger'],
+    'prefix' => 'comments'
+], function () {
+    Route::get('/index', [CommentController::class, 'index']);
+    Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
+
 });

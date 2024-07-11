@@ -8,14 +8,18 @@ class Blog extends Model
 {
     protected $guarded = [];
     // protected $fillable = ['title', 'description', 'image'];
-
     use HasFactory;
-
 
     public function comments()
     {
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'blog_id', 'comment_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }
 
 

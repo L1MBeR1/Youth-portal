@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CommentToResource;
+use Illuminate\Support\Facades\Log;
 
 
 class CommentController extends Controller
@@ -41,20 +42,20 @@ class CommentController extends Controller
             'content' => 'required|string',
         ]);
 
+        // Получаем текущего пользователя
+        $user = Auth::user();
+
+        // Проверяем, имеет ли пользователь право создавать комментарий
+        if (!$user->can('createComment', [Comment::class, $resource_type, $resource_id])) {
+            return response()->json(['message' => 'You do not have permission to create this comment'], 403);
+        }
+
         $input = $request->all();
-        $comment = new Comment($input);
-        $comment->user_id = Auth::id();
-        $comment->save();
-
-       
-        $commentToResource = new CommentToResource();
-        $commentToResource->comment_id = $comment->id;
-        $commentToResource->{$resource_type . '_id'} = $resource_id; 
-
-        $commentToResource->save();
+        $comment = Comment::createComment($input, $resource_type, $resource_id);
 
         return response()->json(['message' => 'Comment created successfully', 'comment' => $comment], 201);
     }
+
 
 
 
@@ -77,16 +78,49 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCommentRequest $request, Comment $comment)
+    public function update(Request $request, $id)
     {
-        //
+        Log::info('Request data:', $request->all()); // Логирование всех данных запроса
+
+        $comment = Comment::find($id);
+
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+
+        if ($comment->user_id !== Auth::id()) {
+            return response()->json(['message' => 'You do not have permission to edit this comment'], 403);
+        }
+
+        $request->validate([
+            'content' => 'required|string',
+        ]);
+        Log::info('$request->content');
+        $comment->updateComment($request->content);
+        
+
+        return response()->json(['message' => 'Comment updated successfully', 'comment' => $comment], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Comment $comment)
+    public function destroy($id)
     {
-        //
+        $comment = Comment::find($id);
+
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+        // Проверка прав доступа через политику
+        if (!Auth::user()->can('delete', $comment)) {
+            return response()->json(['message' => 'You do not have permission to delete this comment'], 403);
+        }
+
+        $comment->delete();
+
+        return response()->json(['message' => 'Comment deleted successfully'], 200);
     }
+
+
 }

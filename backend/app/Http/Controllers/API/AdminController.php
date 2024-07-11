@@ -8,91 +8,86 @@ use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class AdminController extends Controller
 {
-    /**
-     * Returns a JSON response with a message indicating that the user is an admin.
-     */
     public function hello()
     {
-        return response()->json(['message' => 'You are an admin!',], 200);
+        return $this->successResponse([], 'You are an admin!', 200);
     }
 
-    // Управление пользователями
-    public function listUsers()
-    {
-        $users = User::all();
 
-        $response = [];
-        foreach ($users as $index => $user) {
-            $response[] = //[
-                // 'id' => $user->id,
-                /*'metadata' => */ $user->metadata;
-            /*];*/
+    public function createPermission(Request $request)
+    {
+        try {
+            Permission::create(['name' => $request->permission_name]);
+        } catch (\Throwable $exception) {
+            return $this->errorResponse('Произошла ошибка при создании разрешения', $exception->getMessage(), 500);
         }
 
-        return response()->json($response, 200);
+        return $this->successResponse([], 'Разрешение создано', 200);
     }
 
-    // public function createUser()
-    // {
-    //     //
+
+    public function createRole(Request $request)
+    {
+        try {
+            $role = Role::create(['name' => $request->role_name]);
+        } catch (\Throwable $exception) {
+            return $this->errorResponse('Произошла ошибка при создании роли', $exception->getMessage(), 500);
+        }
+
+        return $this->successResponse($role, 'Роль создана', 200);
+    }
+
+
+    public function addPermissionsToRole(Request $request, $role_name)
+    {
+        $permissions = $request->input('permissions');
+        $role = Role::findByName($role_name);
+
+        if ($role) {
+            $role->syncPermissions($permissions);
+            $permissions = $role->permissions->pluck('name');
+            return $this->successResponse([
+                'permissions' => $permissions,
+                // 'role' => $role
+            ], 'Разрешения добавлены', 200);
+        } else {
+            return $this->errorResponse('Произошла ошибка при добавлении разрешений', 500);
+        }
+    }
+
+
+    // public function deleteRole($role_name){
+    //
     // }
 
-    // public function updateUser($userId)
-    // {
-    //     //
+
+    // public function deletePermission($permission_name){
+    //
     // }
 
-    // public function deleteUser($userId)
-    // {
-    //     //
-    // }
 
-    // Управление контентом
-    public function listBlogs()
+    public function listUserWithRole($role_name)
     {
-        $user = Auth::user();
-        return $this->successResponse($user->blogs);
+        $users = User::role($role_name)->get();
+
+        return $this->successResponse($users, 'Список пользователей с ролью [' . $role_name . ']', 200);
     }
 
-    public function listBlogsByUserId($user_id)
-    {
-        $user = User::find($user_id);
 
-        if (!$user) {
-            return $this->errorResponse('User not found', [], 404);
-        }
+    public function listRoles(){
 
-        return $this->successResponse($user->blogs);
+        $roles = Role::all();
+        return $this->successResponse($roles, 'Список ролей', 200);
     }
 
-    public function addRoleToUser($user_id, $role_name)
-    {
-        $user = User::find($user_id);
-        $role = $role_name;
+    public function listPermissions(){
 
-        if (!$user) {
-            return $this->errorResponse('User not found', [], 404);
-        }
-
-        $user->assignRole($role);
-
-        return $this->successResponse([], 'Role added successfully');
-    }
-
-    public function deleteRoleFromUser($user_id, $role_name){
-        $user = User::find($user_id);
-        $role = $role_name;
-
-        if (!$user) {
-            return $this->errorResponse('User not found', [], 404);
-        }
-
-        $user->assignRole($role);
-
-        return $this->successResponse([], 'Role added successfully');
+        $permissions = Permission::all();
+        return $this->successResponse($permissions, 'Список разрешений', 200);
     }
 
 
@@ -111,7 +106,6 @@ class AdminController extends Controller
         //
     }
 
-    // Настройки
     public function updateSettings()
     {
         //

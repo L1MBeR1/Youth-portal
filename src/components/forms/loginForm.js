@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils';
-import { login } from '../../api.js';
+// import { setToken } from '../../localStorage/tokenStorage.js';
+import { login } from '../../api/auth.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
@@ -31,9 +32,11 @@ function LoginForm() {
     try {
       const data = await login(email, password);
       const token = data.access_token;
-      console.log(token)
+      // console.log(token)
       if (token) {
-        setCookie('token', token, { expires: 1 / 12 });
+        // setCookie('token', token, 2, { path: '/', sameSite: 'Lax' });
+        // setToken(token, 2);
+        setCookie('token',token,2)
         const decoded = jwtDecode(token);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');

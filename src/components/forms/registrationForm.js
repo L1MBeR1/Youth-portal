@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils';
-import { register } from '../../api';
+import { register } from '../../api/auth.js';
 import zxcvbn from 'zxcvbn';
 
 import Card from '@mui/joy/Card';
@@ -21,8 +21,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import {jwtDecode} from 'jwt-decode';
 
-import PasswordField from '.././formComponents/passwordField';
-import EmailField from '.././formComponents/emailField';
+import PasswordField from './formComponents/passwordField.js';
+import EmailField from './formComponents/emailField.js';
 
 function RegistrationForm() {
   const [error, setError] = useState('');

@@ -5,7 +5,7 @@ import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 
 import Map from './map';
-import eventsData from '../testFiles/events.json';
+import eventsData from '../../testFiles/events.json';
 
 const MapContainer = () => {
     const [events, setEvents] = useState(eventsData);
@@ -44,7 +44,7 @@ const MapContainer = () => {
     return (
         <Stack
         sx={{
-            margin:'0 50px'
+            margin:{xs:'0 25px',sm:'0 50px'}
           }}>
             <Typography level="h2">
                 Карта мероприятий

@@ -2,7 +2,7 @@ import React from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import '../css/carousel.css'; 
+import '../../css/carousel.css'; 
 
 const NextArrow = (props) => {
   const { className, style,onClick } = props;
@@ -34,7 +34,7 @@ const Carousel = ({ items }) => {
     slidesToScroll: 1,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    autoplay:false,
+    autoplay:true,
     autoplaySpeed: 4000,
     cssEase: "linear",
     pauseOnHover: true,

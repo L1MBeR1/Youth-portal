@@ -1,5 +1,9 @@
 import React,{useState,useEffect}from 'react';
 import { Link } from 'react-router-dom';
+import {getCookie, removeCookie} from '../../cookie/cookieUtils';
+import {jwtDecode} from 'jwt-decode';
+import { getProfile } from '../../api/auth.js';
+import HeaderProfile from './partialsComponents/headerProfile.js';
 
 import { useColorScheme } from '@mui/joy/styles';
 
@@ -11,7 +15,14 @@ import ModalClose from '@mui/joy/ModalClose';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
+import Avatar from '@mui/joy/Avatar';
 import Button from '@mui/joy/Button';
+import Dropdown from '@mui/joy/Dropdown';
+import Menu from '@mui/joy/Menu';
+import MenuButton from '@mui/joy/MenuButton';
+import MenuItem from '@mui/joy/MenuItem';
+import ListDivider from '@mui/joy/ListDivider';
+import Sheet from '@mui/joy/Sheet';
 
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
@@ -20,8 +31,10 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 
 function ColorSchemeToggle() {
+  
     const { mode, setMode } = useColorScheme();
     const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -51,18 +64,21 @@ function ColorSchemeToggle() {
         </Tooltip>
     );
     }
-
+  
 function Header() {
+  
 const [open, setOpen] = useState(false);
   return (
     <header>
-      <Box
+      <Sheet
       sx={{
           display: 'flex',
           flexGrow: 1,
           justifyContent: 'space-between',
-          outline:'1px black solid',
-          background:'primary.main'
+          background:'primary.main',
+          padding:'5px 10px',
+          borderBottom:'1px solid',
+          borderColor: 'divider',
         }}
       >
           <Box sx={{ display: { xs: 'inline-flex', md: 'none' } }}>
@@ -98,18 +114,11 @@ const [open, setOpen] = useState(false);
         >
           <ColorSchemeToggle
           />
+        <HeaderProfile/>
         
-          <Link to="/login">
-              <Button 
-              endDecorator={<KeyboardArrowRight />} 
-              sx={{ borderRadius:'8px' }}
-              >
-              Войти
-          </Button>
-        </Link>
         </Stack>
 
-      </Box>
+      </Sheet>
     </header>
   );
 }

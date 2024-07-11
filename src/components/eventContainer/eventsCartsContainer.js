@@ -7,13 +7,13 @@ import Typography from '@mui/joy/Typography';
 import Carousel from './eventsCarousel';
 import EventCart from './eventCart';
 
-import eventsData from '../testFiles/events.json';
+import eventsData from '../../testFiles/events.json';
 
 const EventsCartsContainer = () => {
   return (
     <Stack
     sx={{
-      margin:'0 50px'
+      margin:{xs:'0 35px',sm:'0 50px'}
     }}
     >
       <Typography level='h2'>

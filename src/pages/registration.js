@@ -9,7 +9,8 @@ function Registration() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        margin: '50px 10px',
+        flexGrow:'1',
+        margin:'20px 10px'
       }}
     >
       <RegistrationForm/>

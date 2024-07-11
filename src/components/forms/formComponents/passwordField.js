@@ -21,7 +21,7 @@ function PasswordField({ error, lable, password, setPassword}) {
   };
 
   return (
-    <FormControl error={error}>
+    <FormControl >
       <FormLabel>{lable}</FormLabel>
       <Input
         type={showPassword ? 'text' : 'password'}

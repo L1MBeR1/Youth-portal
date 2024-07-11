@@ -19,3 +19,16 @@ export const register = async (email, password) => {
       throw new Error('Registration failed');
     }
   };
+
+export const getProfile = async (token) => {
+  try {
+    const response = await axios.get(`${API_URL}/user/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch profile');
+  }
+};

@@ -8,12 +8,12 @@ import Typography from '@mui/joy/Typography';
 import CardActions from '@mui/joy/CardActions';
 import Button from '@mui/joy/Button';
 
-import BlankImage from '../img/blank.png'
+import BlankImage from '../../img/blank.png';
 function EventCart(props) {
     return (
         <Card
         sx={{
-            height:'400px'
+            height:{xs:"400px",sm:'350px'}
          }}>
             <CardOverflow>
             <AspectRatio minHeight="120px" maxHeight="200px">

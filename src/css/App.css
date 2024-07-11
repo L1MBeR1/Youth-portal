@@ -3,6 +3,13 @@
     min-height: 100vh;
     flex-direction: column;
   }
+.layout-main{
+    flex-grow: 1;
+    display: flex;
+    max-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+}
 
 .full-width{
     width: 100%;

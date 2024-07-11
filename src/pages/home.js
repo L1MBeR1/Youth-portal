@@ -2,8 +2,8 @@ import React from 'react';
 
 import Box from '@mui/joy/Box';
 
-import MapContainer from '../components/mapContainer'
-import EventsCartsContainer from '../components/eventsCartsContainer'
+import MapContainer from '../components/map/mapContainer'
+import EventsCartsContainer from '../components/eventContainer/eventsCartsContainer'
 
 import Blank from '../img/blank.png'
 function Home() {

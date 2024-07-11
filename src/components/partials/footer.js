@@ -11,7 +11,8 @@ function Footer() {
             height:'20vh',
             alignItems:'center',
             justifyContent:'center',
-            outline:'1px black solid',
+            borderTop:'1px solid',
+          borderColor: 'divider',
         }}
         >
            <Typography level="h2">Footer Content</Typography> 

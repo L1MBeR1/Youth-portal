@@ -15,16 +15,15 @@ public class MainPage {
     /**
      * определение локатора кнопки входа в аккаунт
      */
-    @FindBy(xpath = "//*[@id=\"root\"]/div/header/nav/div/ul/li[1]")
+    @FindBy(xpath = "//*[@id=\"root\"]/div/header/div/div[2]/a/button")
     private WebElement loginBtn;
     /**
      * определение локатора кнопки регистрации
      */
-    @FindBy(xpath = "//*[@id=\"root\"]/div/header/nav/div/ul/li[2]/a")
-    private WebElement regBtn;
+
 
     public void clickLoginBtn() {
         loginBtn.click(); }
 
-    public void clickRegBtn() {
-        regBtn.click(); } }
+}
+

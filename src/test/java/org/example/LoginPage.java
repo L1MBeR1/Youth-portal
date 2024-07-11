@@ -14,21 +14,24 @@ public class LoginPage {
     /**
      * определение локатора поля ввода логина
      */
-    @FindBy(xpath = "//*[@id=\"email\"]")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[2]/div/input")
     private WebElement loginField;
     /**
      * определение локатора кнопки входа в аккаунт
      */
-    @FindBy(xpath = "//*[@id=\"root\"]/div/main/div/div/form/div/div[5]/button")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/button")
     private WebElement loginBtn;
     /**
      * определение локатора поля ввода пароля
      */
-    @FindBy(xpath = "//*[@id=\"password\"]")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[3]/div[1]/input")
     private WebElement passwdField;
 
-    @FindBy(xpath = "/html/body/div[1]/div/header/nav/div/a[1]")
+    @FindBy(xpath = "//*[@id=\"root\"]/div/header/div/a/div")
     private WebElement logoBtn;
+
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[4]/a")
+    private WebElement regBtn;
 
     public void inputLogin(String login) {
         loginField.sendKeys(login); }
@@ -45,4 +48,7 @@ public class LoginPage {
 
     public void clickLogoBtn() {
         logoBtn.click(); }
+
+    public void clickRegBtn() {
+        regBtn.click(); }
 }

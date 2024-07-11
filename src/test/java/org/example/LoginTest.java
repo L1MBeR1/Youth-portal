@@ -43,26 +43,20 @@ public class LoginTest {
         Thread.sleep(2000);
 
         //нажимаем кнопку входа
-        loginPage.clickLoginBtn();
+        //loginPage.clickLoginBtn();
 
-        loginPage.clickLogoBtn();
-        //получаем отображаемый логин
+        loginPage.clickRegBtn();
+            Thread.sleep(2000);
 
-        Thread.sleep(2000);
+        regPage.inputEmail(ConfProperties.getProperty("email"));
 
-        mainPage.clickRegBtn();
+        regPage.inputPassword(ConfProperties.getProperty("password"));
 
-        regPage.inputSurname(ConfProperties.getProperty("regsurname"));
-        regPage.inputName(ConfProperties.getProperty("regname"));
-        regPage.inputPatronymic(ConfProperties.getProperty("regpatronymic"));
-        regPage.inputBirthdate(ConfProperties.getProperty("regbirthdate"));
-        regPage.inputLogin(ConfProperties.getProperty("reglogin"));
-        regPage.inputEmail(ConfProperties.getProperty("regemail"));
-        regPage.inputPassword(ConfProperties.getProperty("regpassword"));
+        regPage.inputConfPassword(ConfProperties.getProperty("password"));
 
         Thread.sleep(2000);
 
-        regPage.clickRegBtn();
+        //regPage.clickRegBtn();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -14,55 +14,22 @@ public class RegPage {
         this.driver = driver;
     }
 
-    /**
-     * определение локатора меню пользователя
-     */
-    @FindBy(id= "surname")
-    private WebElement surnameField;
 
-    @FindBy(id = "name")
-    private WebElement nameField;
-
-    @FindBy(id = "patronymic")
-    private WebElement patronymicField;
-
-    @FindBy(id = "birthdate")
-    private WebElement birthdateField;
-
-    @FindBy(id = "login")
-    private WebElement loginField;
-
-    @FindBy(id = "email")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[2]/div[1]/input")
     private WebElement emailField;
 
-    @FindBy(id = "password")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[3]/div[1]/div[1]/div[1]/input")
     private WebElement passwordField;
 
-    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[9]/button")
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[4]/div[1]/input")
+    private WebElement confpasswordField;
+
+    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/button")
     private WebElement regBtn;
 
-    @FindBy(xpath = "/html/body/div[1]/div/main/div/div/form/div/div[10]/div/div[2]/a")
+    @FindBy(xpath = "/html/body/div[1]/div/header/div/div[2]/a/button")
     private WebElement loginBtn;
 
-    public void inputSurname(String surname) {
-        surnameField.sendKeys(surname);
-    }
-
-    public void inputName(String name) {
-        nameField.sendKeys(name);
-    }
-
-    public void inputPatronymic(String patronymic) {
-        patronymicField.sendKeys(patronymic);
-    }
-
-    public void inputBirthdate(String birthdate) {
-        birthdateField.sendKeys(birthdate);
-    }
-
-    public void inputLogin(String login) {
-        loginField.sendKeys(login);
-    }
 
     public void inputEmail(String email) {
         emailField.sendKeys(email);
@@ -70,6 +37,10 @@ public class RegPage {
 
     public void inputPassword(String password) {
         passwordField.sendKeys(password);
+    }
+
+    public void inputConfPassword(String confpassword) {
+        confpasswordField.sendKeys(confpassword);
     }
 
     public void clickRegBtn() {

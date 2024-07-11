@@ -11,6 +11,18 @@ use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
+use App\Http\Controllers\UserController;
+
+/**
+ * 
+ * POST   - Сделать новый ресурс                   - /префикс_коллеции/пустая_строка
+ * PUT    - Обновить существующий ресурс полностью - /префикс_коллеции/{идентификатор}
+ * PATCH  - Обновить существующий ресурс частично  - /префикс_коллеции/{идентификатор}
+ * DELETE - Удалить ресурс                         - /префикс_коллеции/{идентификатор}
+ * GET    - Получить ресурс                        - /префикс_коллеции/{идентификатор}
+ * 
+ */
+
 
 
 // Аутентификация
@@ -20,11 +32,11 @@ Route::group([
 ], function ($router) {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
-    Route::get('profile', [AuthController::class, 'getProfile'])->middleware('auth:api');
+    Route::post('logout', [AuthController::class, 'logout']);//->middleware('auth:api');
+    Route::post('refresh', [AuthController::class, 'refresh']);//->middleware('auth:api');
+    Route::get('profile', [AuthController::class, 'getProfile']);//->middleware('auth:api');
     Route::put('profile', [AuthController::class, 'updateProfile']);
-    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions'])->middleware('auth:api');
+    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);//->middleware('auth:api');
 });
 
 
@@ -34,12 +46,32 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-    Route::get('users', [AdminController::class, 'listUsers']);
-    Route::get('blogs', [AdminController::class, 'listBlogs']);
-    Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
+    Route::get('users', [UserController::class, 'listUsers']);
+    Route::get('blogs', [BlogController::class, 'listBlogs']);
+    // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
     Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
     Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
 });
+
+
+// Работа с ролями
+Route::group([
+   'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'roles'
+], function () {
+    Route::get('', [AdminController::class, 'listRoles']);
+   Route::post('', [AdminController::class, 'createRole']);
+   Route::post('{role_name}', [AdminController::class, 'AddPermissionsToRole']); 
+});
+
+// Работа с разрешениями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'permissions'
+ ], function () {
+    Route::get('', [AdminController::class, 'listPermissions']);
+    Route::post('', [AdminController::class, 'createPermission']);
+ });
 
 
 // Прокси (временно, пока нет SSL)
@@ -77,12 +109,14 @@ Route::group([
 
 // Работа с блогами
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger'],
+    'middleware' => ['auth:api', 'role:blogger|admin'],
     'prefix' => 'blogs'
 ], function () {
+    Route::get('', [BlogController::class, 'listBlogs']);
+    // Route::get('', [AdminController::class, 'listBlogsByUserId']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
-    Route::delete('/destroy/{id}', [BlogController::class, 'destroy']);
+    Route::delete('{id}', [BlogController::class, 'destroy']);
 });
 
 // Работа с новостями
@@ -102,8 +136,8 @@ Route::group([
     'prefix' => 'podcasts'
 ], function () {
     Route::get('/index', [PodcastController::class, 'index']);
-    Route::post('/create', [PodcastController::class, 'store']);
-    Route::delete('/destroy/{id}', [PodcastController::class, 'destroy']);
+    Route::post('', [PodcastController::class, 'store']);
+    Route::delete('{id}', [PodcastController::class, 'destroy']);
 });
 
 // Работа с комментариями

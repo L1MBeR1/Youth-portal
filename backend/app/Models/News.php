@@ -11,4 +11,9 @@ class News extends Model
 
     protected $table = 'news';
     protected $guarded = [];
+
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'news_id', 'comment_id');
+    }
 }

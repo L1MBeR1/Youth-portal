@@ -108,10 +108,12 @@ Route::group([
 
 // Работа с комментариями
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger'],
+    'middleware' => ['auth:api'],
     'prefix' => 'comments'
 ], function () {
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
+    Route::delete('/destroy/{id}', [CommentController::class, 'destroy']);
+    Route::put('/comments/{id}', [CommentController::class, 'update']);
 
 });

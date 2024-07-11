@@ -23,14 +23,17 @@ class BlogController extends Controller
         return response()->json($blog);
     }
 
-    /**
+    /** 
      * Получить блоги на основе предоставленных параметров запроса.
      */
     public function listBlogs(Request $request)
     {
-        // Параметры запроса: userId, currentUser
+        // Параметры запроса: userId, currentUser 
+        // TODO: добавить имя автора
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
+        $response = [];
+        
 
         if ($userId) {
             $user = User::find($userId);
@@ -38,11 +41,16 @@ class BlogController extends Controller
             if (!$user) {
                 return $this->errorResponse('User not found', [], 404);
             }
+            
 
-            return $this->successResponse($user->blogs);
+            $response[] = $user->blogs;
+            $response[] = $user->metadata;
+
+            return $this->successResponse($response);
         } else if ($currentUser) {
-            return $this->successResponse(Auth::user()->blogs);
+            return $this->successResponse([Auth::user()->blogs, Auth::user()->metadata]);
         } else {
+            
             return $this->successResponse(Blog::all(), '', 200);
         }
     }

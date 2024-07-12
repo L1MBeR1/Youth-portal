@@ -3,10 +3,62 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    protected function validateRequest(Request $request, array $rules)
+    {
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
+    }
+
+    protected function successResponse($data, $message = 'Success', $status = 200)
+    {
+        return response()->json([
+            'message' => $message,
+            'data' => $data
+        ], $status);
+    }
+
+    protected function errorResponse($message, $errors = [], $status = 400)
+    {
+        return response()->json([
+            'error' => $message,
+            'messages' => $errors
+        ], $status);
+    }
+
+    protected function handleException(Exception $e)
+    {
+        Log::error($e->getMessage());
+        if ($e instanceof ValidationException) {
+            return $this->errorResponse('Validation Error', $e->errors(), 422);
+        }
+
+        if ($e instanceof NotFoundHttpException) {
+            return $this->errorResponse('Not Found', ['description' => 'The requested resource was not found.'], 404);
+        }
+
+        if ($e instanceof AccessDeniedHttpException) {
+            return $this->errorResponse('Access Denied', ['description' => 'You do not have permission to access this resource.'], 403);
+        }
+
+        Log::error($e->getMessage());
+        return $this->errorResponse('Server Error', [], 500);
+    }
 }

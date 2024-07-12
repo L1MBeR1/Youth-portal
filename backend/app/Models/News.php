@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class News extends Model
 {
     use HasFactory;
+
+    protected $table = 'news';
+    protected $guarded = [];
+
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'news_id', 'comment_id');
+    }
 }

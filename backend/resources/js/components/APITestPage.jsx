@@ -13,6 +13,11 @@ const APITestPage = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    const [projectName, setProjectName] = useState('');
+    const [projectDescription, setProjectDescription] = useState('');
+    const [projectDeadline, setProjectDeadline] = useState('');
+    const [projectBudget, setProjectBudget] = useState('');
+
     const handleSendRequest = async () => {
         setLoading(true);
         setError(null);
@@ -39,16 +44,6 @@ const APITestPage = () => {
         }
     };
 
-    // const handleVKLogin = async () => {
-    //     try {
-    //         const response = await axios.post('http://127.0.0.1:8000/api/auth/vkontakte');
-    //         window.location.href = response.data.redirect; // Перенаправляем пользователя на VK
-    //     } catch (error) {
-    //         console.error('Error during VK login:', error);
-    //         setError('Failed to initiate VK login.');
-    //     }
-    // };
-
     const handleVKLogin = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/api/proxy/vk', {
@@ -64,10 +59,28 @@ const APITestPage = () => {
             setError('Failed to initiate VK login.');
         }
     };
-    
-    
-    
-    
+
+    const handleCreateProject = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/news/create', {
+                name: projectName,
+                description: projectDescription,
+                deadline: projectDeadline,
+                budget: projectBudget
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            setResponse(response.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div>
@@ -115,6 +128,50 @@ const APITestPage = () => {
                     Login with VKontakte
                 </button>
             </div>
+
+            <div style={{ marginTop: '20px' }}>
+                <h3>Create Project</h3>
+                <label htmlFor="projectName">Project Name:</label>
+                <input
+                    id="projectName"
+                    type="text"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    style={{ width: '80%', marginBottom: '10px' }}
+                />
+                <br />
+                <label htmlFor="projectDescription">Project Description:</label>
+                <input
+                    id="projectDescription"
+                    type="text"
+                    value={projectDescription}
+                    onChange={(e) => setProjectDescription(e.target.value)}
+                    style={{ width: '80%', marginBottom: '10px' }}
+                />
+                <br />
+                <label htmlFor="projectDeadline">Project Deadline:</label>
+                <input
+                    id="projectDeadline"
+                    type="text"
+                    value={projectDeadline}
+                    onChange={(e) => setProjectDeadline(e.target.value)}
+                    style={{ width: '80%', marginBottom: '10px' }}
+                />
+                <br />
+                <label htmlFor="projectBudget">Project Budget:</label>
+                <input
+                    id="projectBudget"
+                    type="text"
+                    value={projectBudget}
+                    onChange={(e) => setProjectBudget(e.target.value)}
+                    style={{ width: '80%', marginBottom: '10px' }}
+                />
+                <br />
+                <button onClick={handleCreateProject} disabled={loading}>
+                    {loading ? 'Loading...' : 'Create Project'}
+                </button>
+            </div>
+
             <div style={{ marginTop: '20px' }}>
                 <h3>Response:</h3>
                 {loading && <p>Loading...</p>}

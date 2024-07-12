@@ -9,7 +9,8 @@ function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        margin: '50px 10px',
+        flexGrow:'1',
+        mx:'10px'
       }}
     >
     <LoginForm/>

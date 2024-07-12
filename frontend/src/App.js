@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
-import Layout from './components/layout';
+import MainLayout from './components/layouts/mainLayout';
+import WorkLayout from './components/layouts/workLayout';
 import Home from './pages/home';
 import Login from './pages/login';
 import Registration from './pages/registration';
@@ -13,10 +14,10 @@ import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 
 import {jwtDecode} from 'jwt-decode';
-import Cookies from 'js-cookie';
+import {getCookie} from './cookie/cookieUtils';
 function App() {
   const PrivateRoute = ({ element, roles  }) => {
-    const token = Cookies.get('token');
+    const token = getCookie('token');
     if (token) {
       const decoded = jwtDecode(token);
       console.log(decoded)
@@ -31,18 +32,20 @@ function App() {
     <CssVarsProvider>
       <CssBaseline />
       <Router>
-        <Layout>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registration" element={<Registration />} />
-            <Route path="/recovery" element={<Recovery />} />
-            <Route path="/404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registration" element={<Registration />} />
+              <Route path="/recovery" element={<Recovery />} />
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" />} />
+            </Route>
             
-            <Route path="/admin" element={<PrivateRoute element={<Admin /> } roles={['admin']}/>} />
-          </Routes>
-        </Layout>
+            <Route element={<WorkLayout />}>
+              <Route path="/admin" element={<PrivateRoute element={<Admin/>} roles={['admin']}/>} />
+            </Route>
+          </Routes>   
       </Router>
     </CssVarsProvider>
   );

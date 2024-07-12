@@ -26,27 +26,14 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $this->validateRequest($request, [
                 'email' => 'nullable|email|unique:user_login_data,email',
                 'phone' => 'nullable|string|unique:user_login_data,phone',
                 'password' => 'required',
             ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => 'Validation Error',
-                    'messages' => $validator->errors()
-                ], 422);
-            }
-
-            // Проверка, что есть email или телефон
             if (empty($request->email) && empty($request->phone)) {
-                return response()->json([
-                    'error' => 'Validation Error',
-                    'messages' => [
-                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
-                    ]
-                ], 422);
+                return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
             }
 
             $input = $request->all();
@@ -57,37 +44,16 @@ class AuthController extends Controller
 
             UserMetadata::create(['user_id' => $user->id]);
 
-            $success['user'] = $user;
-
-            // Авторизация
             $credentials = $request->only('password');
-
-            if ($request->email) {
-                $credentials['email'] = $request->email;
-            } else {
-                $credentials['phone'] = $request->phone;
-            }
+            $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
 
             if (!$token = Auth::attempt($credentials)) {
-                return response()->json([
-                    'error' => 'Unauthorised',
-                    'messages' => [
-                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
-                    ]
-                ], 401);
+                return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
             }
 
             return $this->respondWithToken($token);
-
-            // return response()->json(['success' => $success, 'message' => 'User registered successfully.'], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Validation Error',
-                'messages' => [$e->errors(), 'description' => '']
-            ], 422);
         } catch (Exception $e) {
-            Log::error('Registration Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error'], 500);
+            return $this->handleException($e);
         }
     }
 
@@ -102,55 +68,26 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $this->validateRequest($request, [
                 'email' => 'nullable|email',
                 'phone' => 'nullable|string',
                 'password' => 'required|string',
             ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => 'Validation Error',
-                    'messages' => $validator->errors()
-                ], 422);
-            }
-
-            // Проверка, что есть email или телефон
             if (empty($request->email) && empty($request->phone)) {
-                return response()->json([
-                    'error' => 'Validation Error',
-                    'messages' => [
-                        'description' => 'По крайней мере одно из [email, phone] должны быть предоставлены.'
-                    ]
-                ], 422);
+                return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
             }
 
             $credentials = $request->only('password');
-
-            if ($request->email) {
-                $credentials['email'] = $request->email;
-            } else {
-                $credentials['phone'] = $request->phone;
-            }
+            $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
 
             if (!$token = Auth::attempt($credentials)) {
-                return response()->json([
-                    'error' => 'Unauthorised',
-                    'messages' => [
-                        'description' => 'Предоставленные учетные данные неверны.'
-                    ]
-                ], 401);
+                return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
             }
 
             return $this->respondWithToken($token);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Validation Error',
-                'messages' => $e->errors()
-            ], 422);
         } catch (Exception $e) {
-            Log::error('Login Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error.'], 500);
+            return $this->handleException($e);
         }
     }
 
@@ -165,46 +102,43 @@ class AuthController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'patronymic' => 'nullable|string|max:255',
-            'nickname' => 'nullable|string|max:255',
-            'profile_image_uri' => 'nullable|string',
-            'city' => 'nullable|string|max:255',
-            'gender' => 'nullable|in:м,ж',
-            'birthday' => 'nullable|date',
-        ]);
+        try {
+            $this->validateRequest($request, [
+                'first_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'patronymic' => 'nullable|string|max:255',
+                'nickname' => 'nullable|string|max:255',
+                'profile_image_uri' => 'nullable|string',
+                'city' => 'nullable|string|max:255',
+                'gender' => 'nullable|in:м,ж',
+                'birthday' => 'nullable|date',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Validation Error.', 'messages' => $validator->errors()], 422);
+            $user = Auth::user();
+            $metadata = $user->metadata;
+            if (!$metadata) {
+                $metadata = new UserMetadata();
+                $metadata->user_id = $user->id;
+            }
+
+            $metadata->fill($request->only([
+                'first_name',
+                'last_name',
+                'patronymic',
+                'nickname',
+                'profile_image_uri',
+                'city',
+                'gender',
+                'birthday'
+            ]));
+
+            $metadata->save();
+
+            return $this->successResponse($metadata, 'Profile updated successfully.');
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
-
-        $user = Auth::user();
-        $metadata = $user->metadata;
-        if (!$metadata) {
-            $metadata = new UserMetadata();
-            $metadata->user_id = $user->id;
-        }
-
-        $metadata->fill($request->only([
-            'first_name',
-            'last_name',
-            'patronymic',
-            'nickname',
-            'profile_image_uri',
-            'city',
-            'gender',
-            'birthday'
-        ]));
-
-        $metadata->save();
-
-        return response()->json(['message' => 'Profile updated successfully.', 'metadata' => $metadata], 200);
     }
-
-
-
 
     /**
      * Get the authenticated User.
@@ -213,30 +147,15 @@ class AuthController extends Controller
      */
     public function getProfile()
     {
-        $user = Auth::user();
-        $metadata = $user->metadata;
-        return response()->json($metadata, 200);
+        try {
+            $user = Auth::user();
+            $metadata = $user->metadata;
+
+            return $this->successResponse($metadata, 'Profile retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
-
-
-
-
-    /**
-     * Получить список разрешений и ролей пользователя
-     * 
-     * //TODO: Мб удалить, это в токене есть.
-     * 
-     */
-    public function getRolesAndPermissions()
-    {
-        $user = Auth::user();
-        $roles = $user->getRoleNames();
-        $permissions = $user->getPermissionNames();
-
-        return response()->json(['roles' => $roles, 'permissions' => $permissions], 200);
-    }
-
-
 
 
     /**
@@ -246,13 +165,14 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        Auth::logout();
+        try {
+            Auth::logout();
 
-        return response()->json(['message' => 'Successfully logged out.'], 200);
+            return $this->successResponse([], 'Successfully logged out.');
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
-
-
-
 
     /**
      * Refresh a token.
@@ -261,17 +181,17 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(Auth::refresh());
+        try {
+            return $this->respondWithToken(Auth::refresh());
+        } catch (Exception $e) {
+            return $this->handleException($e);
+        }
     }
-
-
-
 
     /**
      * Get the token array structure.
      *
      * @param  string $token
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     protected function respondWithToken($token)

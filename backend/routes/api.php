@@ -132,12 +132,13 @@ Route::group([
 
 // Работа с подкастами
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger'],
+    'middleware' => ['auth:api'],
     'prefix' => 'podcasts'
 ], function () {
     Route::get('/index', [PodcastController::class, 'index']);
-    Route::post('', [PodcastController::class, 'store']);
+    Route::post('/create', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
+    Route::put('up/{id}', [PodcastController::class, 'update']);
 });
 
 // Работа с комментариями
@@ -148,6 +149,6 @@ Route::group([
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('/destroy/{id}', [CommentController::class, 'destroy']);
-    Route::put('/comments/{id}', [CommentController::class, 'update']);
+    Route::put('/update/{id}', [CommentController::class, 'update']);
 
 });

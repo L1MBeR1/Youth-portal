@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils';
-import { register } from '../../api/auth.js';
+import { register,getProfile } from '../../api/auth.js';
+import { useQueryClient } from '@tanstack/react-query';
 import zxcvbn from 'zxcvbn';
 
 import Card from '@mui/joy/Card';
@@ -25,6 +26,7 @@ import PasswordField from './formComponents/passwordField.js';
 import EmailField from './formComponents/emailField.js';
 
 function RegistrationForm() {
+  const queryClient = useQueryClient();
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
@@ -120,6 +122,8 @@ function RegistrationForm() {
 
       if (token) {
         setCookie('token', token, { expires: 1 / 12 });
+        const profileData = await getProfile(token);
+        queryClient.setQueryData(['profile'], profileData.data);
         const decoded = jwtDecode(token);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');

@@ -75,6 +75,7 @@ const [open, setOpen] = useState(false);
           display: 'flex',
           flexGrow: 1,
           justifyContent: 'space-between',
+          alignItems:'center',
           background:'primary.main',
           padding:'5px 10px',
           borderBottom:'1px solid',
@@ -111,6 +112,7 @@ const [open, setOpen] = useState(false);
         justifyContent="center"
         alignItems="center"
         spacing={1}
+        height='100%'
         >
           <ColorSchemeToggle
           />

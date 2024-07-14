@@ -1,82 +1,111 @@
-import React,{useState,useEffect}from 'react';
+import React,{useState,useEffect,useMemo}from 'react';
 import { Link,useNavigate} from 'react-router-dom';
 import {getCookie, removeCookie} from '../../../cookie/cookieUtils.js';
-// import { getToken,removeToken } from '../../localStorage/tokenStorage.js'
+import { getProfile } from '../../../api/auth.js';
 import {jwtDecode} from 'jwt-decode';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 
-import { useColorScheme } from '@mui/joy/styles';
 
-import Tooltip from '@mui/joy/Tooltip';
 import IconButton from '@mui/joy/IconButton';
 import Box from '@mui/joy/Box';
-import Drawer from '@mui/joy/Drawer';
-import ModalClose from '@mui/joy/ModalClose';
-import DialogTitle from '@mui/joy/DialogTitle';
-import Typography from '@mui/joy/Typography';
-import Stack from '@mui/joy/Stack';
-import Avatar from '@mui/joy/Avatar';
-import Button from '@mui/joy/Button';
 import Dropdown from '@mui/joy/Dropdown';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import ListDivider from '@mui/joy/ListDivider';
-import Sheet from '@mui/joy/Sheet';
+import Avatar from '@mui/joy/Avatar';
+import CircularProgress from '@mui/joy/CircularProgress';
 
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+
+import profileBlank from '../../../img/profile-blank.png'
 
   
 function HeaderProfile() {
-const navigate = useNavigate();
-  const [isAuth, setIsAuth] = useState(false);
-  useEffect(() => {
-    const token = getCookie('token');
-    // console.log(token)
-    if (token) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const { data: profileData, isFetching } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const token = getCookie('token');
+      if (token) {
         const decoded = jwtDecode(token);
-      if (decoded) {
-        setIsAuth(true);
+        if (decoded) {
+          const profileData = await getProfile(token);
+          console.log(profileData)
+          return profileData.data;
+        }
       }
-      else{
-        setIsAuth(false)
+      return null;
+    },
+    initialData: () => {
+      const cachedProfileData = queryClient.getQueryData('profile');
+      if (cachedProfileData) {
+        return cachedProfileData;
+      } else {
+        return undefined;
       }
-    }
-    else{
-      setIsAuth(false)
-    }
-}, []);
+    },
+    staleTime: 3600000,
+  });
+
 const handleLogout = () => {
     removeCookie('token');
-    setIsAuth(false); 
-    navigate('/')
+    navigate('/login');
+    queryClient.removeQueries(['profile']);
   };
+
   return (
-    <Box>
-        {isAuth ?(
-          <Dropdown>
+    <Box
+    sx={{
+      display:'flex',
+      flexGrow:1,
+      height:'100%',
+      minWidth:'39px',
+      justifyContent:'center',
+      alignContent:'center'
+    }}
+    >
+      {/* <CircularProgress color="neutral"size="sm" variant="solid" /> */}
+      {isFetching ? (
+        <CircularProgress color="neutral"size="sm" variant="solid" 
+        sx={{ '--CircularProgress-size': '30px' }}
+        />
+      ) : profileData ? (
+        <Dropdown>
           <MenuButton
-          slots={{ root: IconButton }}
-          slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+            slots={{ root: Avatar }}
+            slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
           >
-              <PermIdentityIcon />
+            <Avatar size="sm" src={profileData.profile_image_uri || profileBlank} />
           </MenuButton>
-          <Menu
-          placement="bottom-end"
-          >
-            <MenuItem>Профиль</MenuItem>
+          <Menu size="sm" placement="bottom-end">
+            <MenuItem>
+              <PersonIcon />
+              Профиль
+            </MenuItem>
             <ListDivider />
-            <MenuItem onClick={handleLogout}>Выйти</MenuItem>
+            <MenuItem
+              onClick={handleLogout}
+              variant="soft"
+              color="danger"
+            >
+              <LogoutIcon />
+              Выйти
+            </MenuItem>
           </Menu>
         </Dropdown>
-        ):(
-          <Link to="/login">
+      ) : (
+        <Link to="/login">
           <IconButton variant='outlined'>
             <PermIdentityIcon />
           </IconButton>
-          </Link>
-        )}
-        
-        </Box>
+        </Link>
+      )}
+    </Box>
   );
 }
 export default HeaderProfile;

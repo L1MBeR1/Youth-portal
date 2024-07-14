@@ -22,7 +22,7 @@ export const register = async (email, password) => {
 
 export const getProfile = async (token) => {
   try {
-    const response = await axios.get(`${API_URL}/user/profile`, {
+    const response = await axios.get(`${API_URL}/auth/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

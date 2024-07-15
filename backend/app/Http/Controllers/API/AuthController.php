@@ -86,15 +86,13 @@ class AuthController extends Controller
 
         $credentials = $request->only('password');
         $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
+        
 
-        $remember = $request->has('remember');
-
-        if (!$token = Auth::attempt($credentials, $remember)) {
+        if (!$token = Auth::attempt($credentials)) {
             return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
         }
 
         return $this->respondWithToken($token);
-
     }
 
 

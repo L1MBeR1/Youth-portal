@@ -150,5 +150,4 @@ Route::group([
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('/destroy/{id}', [CommentController::class, 'destroy']);
     Route::put('/update/{id}', [CommentController::class, 'update']);
-
 });

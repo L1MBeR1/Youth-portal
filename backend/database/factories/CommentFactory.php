@@ -16,8 +16,9 @@ class CommentFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            //
+        return [       
+            'content' => $this->faker->paragraph,
+            'user_id' => $this->faker->numberBetween(1, 50),
         ];
     }
 }

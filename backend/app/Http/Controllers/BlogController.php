@@ -45,6 +45,7 @@ class BlogController extends Controller
         // TODO: добавить имя автора
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
+        $blogId = $request->query('blogId');
         $response = [];
 
 
@@ -62,7 +63,10 @@ class BlogController extends Controller
             return $this->successResponse($response);
         } else if ($currentUser) {
             return $this->successResponse([Auth::user()->blogs, Auth::user()->metadata]);
-        } else {
+        } else if($blogId)
+        {
+            return $this->successResponse(Blog::find($blogId));
+        }else {
 
             return $this->successResponse(Blog::all(), '', 200);
         }

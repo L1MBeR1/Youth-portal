@@ -11,7 +11,7 @@ class StorePodcastRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,10 +19,17 @@ class StorePodcastRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            //
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'content' => 'required|string',
+            'cover_uri' => 'nullable|string',
+            'status' => 'nullable|string|max:255',
+            'views' => 'nullable|integer',
+            'likes' => 'nullable|integer',
+            'reposts' => 'nullable|integer',
         ];
     }
 }

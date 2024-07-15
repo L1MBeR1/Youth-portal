@@ -45,6 +45,7 @@ class Controller extends BaseController
 
     protected function handleException(Exception $e)
     {
+        Log::error($e->getMessage());
         if ($e instanceof ValidationException) {
             return $this->errorResponse('Validation Error', $e->errors(), 422);
         }

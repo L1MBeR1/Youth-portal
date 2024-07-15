@@ -36,25 +36,29 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $resource_type, $resource_id)
+    public function store(StoreCommentRequest $request, $resource_type, $resource_id)
     {
-        $request->validate([
-            'content' => 'required|string',
-        ]);
-
         // Получаем текущего пользователя
         $user = Auth::user();
 
         // Проверяем, имеет ли пользователь право создавать комментарий
         if (!$user->can('createComment', [Comment::class, $resource_type, $resource_id])) {
-            return response()->json(['message' => 'You do not have permission to create this comment'], 403);
+            return $this->errorResponse('You do not have permission to create this comment', [], 403);
         }
 
-        $input = $request->all();
-        $comment = Comment::createComment($input, $resource_type, $resource_id);
+        // Валидация данных запроса
+        $this->validateRequest($request, [
+            'content' => 'required|string',
+        ]);
 
-        return response()->json(['message' => 'Comment created successfully', 'comment' => $comment], 201);
+        // Создаем комментарий на основе проверенных данных
+        $comment = Comment::createComment($request->validated(), $resource_type, $resource_id);
+
+        // Возвращаем успешный ответ JSON
+        return $this->successResponse(['comment' => $comment], 'Comment created successfully', 201);
     }
+
+
 
 
 
@@ -78,29 +82,33 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCommentRequest $request, $id)
     {
-        Log::info('Request data:', $request->all()); // Логирование всех данных запроса
-
+        // Найти комментарий по идентификатору
         $comment = Comment::find($id);
 
         if (!$comment) {
-            return response()->json(['message' => 'Comment not found'], 404);
+            return $this->errorResponse('Comment not found', [], 404);
         }
 
-        if ($comment->user_id !== Auth::id()) {
-            return response()->json(['message' => 'You do not have permission to edit this comment'], 403);
+        // Проверка прав пользователя на обновление комментария
+        if (!Auth::user()->can('update', $comment)) {
+            return $this->errorResponse('You do not have permission to update this comment', [], 403);
         }
 
-        $request->validate([
+        // Валидация данных запроса с использованием метода validateRequest
+        $this->validateRequest($request, [
             'content' => 'required|string',
         ]);
-        Log::info('$request->content');
-        $comment->updateComment($request->content);
-        
 
-        return response()->json(['message' => 'Comment updated successfully', 'comment' => $comment], 200);
+        // Обновление комментария с использованием проверенных данных
+        $comment->content = $request->validated();
+        $comment->save();
+
+        // Возвращаем успешный ответ JSON
+        return $this->successResponse(['comment' => $comment], 'Comment updated successfully', 200);
     }
+
 
     /**
      * Remove the specified resource from storage.

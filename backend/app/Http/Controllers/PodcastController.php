@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePodcastRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class PodcastController extends Controller
 {
@@ -33,33 +34,20 @@ class PodcastController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePodcastRequest $request)
     {
-        // Валидация данных запроса
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
-        ]);
+        // Проверка прав пользователя
+        if (!Auth::user()->can('create', Podcast::class)) {
+            return response()->json(['message' => 'You do not have permission to create a podcast'], 403);
+        }
 
-        // Запись данных запроса в переменную $input
-        $input = $request->all();
+        // Создание нового подкаста с использованием проверенных данных
+        $podcast = Podcast::create(array_merge($request->validated(), [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]));
 
-        // Установка значения 'status' в 'moderating'
-        $input['status'] = 'moderating';
-
-        // Создание нового блога
-        $podcasts = new Podcast($input);
-        $podcasts->author_id = Auth::id(); // Установка автора блога как текущего пользователя
-
-        $podcasts->save();
-
-        return response()->json(['message' => 'Podcast successfully created', 'podcasts' => $podcasts], 201);
+        return response()->json(['message' => 'Podcast successfully created', 'podcast' => $podcast], 201);
     }
 
 
@@ -82,9 +70,18 @@ class PodcastController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePodcastRequest $request, Podcast $podcast)
+    public function update(UpdatePodcastRequest $request, $id)
     {
-        //
+        $podcast = Podcast::find($id);
+        if(!Auth::user()->can('update', $podcast)) {
+            Log::info('User ' . Auth::id() . ' does not have permission to update podcast ' . $podcast->id);
+            return response()->json(['message' => 'You do not have permission to update this podcast'], 403);
+        }
+
+        $validatedData = $request->validated();
+        $podcast->update($validatedData);
+
+        return response()->json(['message' => 'Podcast updated successfully', 'podcast' => $podcast], Response::HTTP_OK);
     }
 
     /**
@@ -92,13 +89,22 @@ class PodcastController extends Controller
      */
     public function destroy($id)
     {
-        $podcasts = Podcast::find($id);
+        $podcast = Podcast::find($id);
 
-        if (!$podcasts) {
+        if (!$podcast) {
             return response()->json(['error' => 'Podcast not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $podcasts->delete();
+        Log::info('Checking permission for user ' . Auth::id());
+
+        // Проверка прав пользователя
+        if (!Auth::user()->can('delete', $podcast)) {
+            Log::info('User ' . Auth::id() . ' does not have permission to delete podcast ' . $podcast->id);
+            return response()->json(['message' => 'You do not have permission to delete this podcast'], 403);
+        }
+
+        Log::info('User ' . Auth::id() . ' is deleting podcast ' . $podcast->id);
+        $podcast->delete();
 
         return response()->json(['success' => 'Podcast successfully deleted'], Response::HTTP_OK);
     }

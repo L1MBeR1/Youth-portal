@@ -51,9 +51,13 @@ class CommentPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Comment $comment): bool
+    public function update(User $user, Comment $comment)
     {
-        //
+        if ($user->hasRole('guest')){
+            return false;
+        }
+        // Only the author of the comment can update it
+        return $user->id === $comment->user_id;
     }
 
     /**

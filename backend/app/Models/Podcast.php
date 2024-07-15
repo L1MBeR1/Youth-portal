@@ -16,8 +16,13 @@ class Podcast extends Model
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id');
     }
 
-    public function user()
+    /*public function user()
     {
         return $this->belongsTo(User::class);
+    }*/
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

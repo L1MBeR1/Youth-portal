@@ -14,13 +14,20 @@ class BlogController extends Controller
     /**
      * Получить все блоги с информацией об авторах.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $blog = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
-            ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-            ->get();
+        // $blog = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
+        //     ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+        //     ->get();
 
-        return response()->json($blog);
+        // return response()->json($blog);
+
+        $perPage = $request->get('per_page', 10);
+        $blogs = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
+            ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+            ->paginate($perPage);
+
+        return response()->json($blogs);
     }
 
     /** 

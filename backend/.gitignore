@@ -8,6 +8,7 @@
 /vendor
 .env
 .scribe
+/.scribe
 .env.backup
 .env.production
 .phpactor.json
@@ -22,3 +23,4 @@ yarn-error.log
 /.vscode
 .vscode
 lang
+.scribe

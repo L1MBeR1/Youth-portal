@@ -32,11 +32,11 @@ Route::group([
 ], function ($router) {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);//->middleware('auth:api');
-    Route::post('refresh', [AuthController::class, 'refresh']);//->middleware('auth:api');
-    Route::get('profile', [AuthController::class, 'getProfile']);//->middleware('auth:api');
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
-    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);//->middleware('auth:api');
+    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
 });
 
 
@@ -113,7 +113,6 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('', [BlogController::class, 'listBlogs']);
-    // Route::get('', [AdminController::class, 'listBlogsByUserId']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);

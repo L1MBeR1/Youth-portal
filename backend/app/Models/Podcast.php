@@ -13,7 +13,7 @@ class Podcast extends Model
 
     public function comments()
     {
-        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id');
+        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id')->withTimestamps();
     }
 
     /*public function user()

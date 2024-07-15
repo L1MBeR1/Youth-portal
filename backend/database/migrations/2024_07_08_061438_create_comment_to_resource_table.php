@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('blog_id')->unsigned()->nullable();
             $table->integer('news_id')->unsigned()->nullable();
             $table->bigInteger('comment_id')->unsigned();
+            $table->timestamps();
 
             $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');
             $table->foreign('blog_id')->references('id')->on('blogs')->onDelete('cascade');

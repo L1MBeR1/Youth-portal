@@ -37,7 +37,7 @@ class CommentPolicy
 
     }
 
-    public function createComment(User $user, $resource_type, $resource_id)
+    public function createComment(User $user, $resource_type, $resource_id): bool
     {
         // Гости не могут создавать комментарии
         if ($user->hasRole('guest')) {

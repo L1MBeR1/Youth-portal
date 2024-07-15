@@ -46,11 +46,21 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-    Route::get('users', [UserController::class, 'listUsers']);
-    Route::get('blogs', [BlogController::class, 'listBlogs']);
+    // Route::get('users', [UserController::class, 'listUsers']);
+    // Route::get('blogs', [BlogController::class, 'listBlogs']);
     // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
-    Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
-    Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+    // Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
+    // Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+});
+
+// Работа с пользователями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'users'
+], function () {
+    Route::get('', [UserController::class, 'listUsers']);
+    Route::post('{user_id}/roles/{role_name}', [UserController::class, 'addRoleToUser']);
+    Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
 });
 
 
@@ -96,15 +106,6 @@ Route::group([
 // Маршруты для VK
 // Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
 // Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
-
-
-// Документация
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'docs'
-], function () {
-    Route::get('all', [DocsController::class, 'index']);
-});
 
 
 // Работа с блогами

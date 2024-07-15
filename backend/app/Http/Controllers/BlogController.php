@@ -24,16 +24,22 @@ class BlogController extends Controller
     }
 
     /** 
-     * Получить блоги на основе предоставленных параметров запроса.
+     * @group Блоги
+     * 
+     * Получить блоги
+     * 
+     * @bodyParam userId int ID пользователя.
+     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
+     * 
+     * 
      */
     public function listBlogs(Request $request)
     {
-        // Параметры запроса: userId, currentUser 
         // TODO: добавить имя автора
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
         $response = [];
-        
+
 
         if ($userId) {
             $user = User::find($userId);
@@ -41,7 +47,7 @@ class BlogController extends Controller
             if (!$user) {
                 return $this->errorResponse('User not found', [], 404);
             }
-            
+
 
             $response[] = $user->blogs;
             $response[] = $user->metadata;
@@ -50,7 +56,7 @@ class BlogController extends Controller
         } else if ($currentUser) {
             return $this->successResponse([Auth::user()->blogs, Auth::user()->metadata]);
         } else {
-            
+
             return $this->successResponse(Blog::all(), '', 200);
         }
     }
@@ -59,16 +65,24 @@ class BlogController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
+    // public function create()
+    // {
+    //     //
+    // }
 
     /**
-     * Store a newly created resource in storage.
+     * @group Блоги
+     * Создать
+     * @authenticated
+     * 
+     * 
      */
     public function store(Request $request)
     {
+        if (!Auth::user()->can('create')) {
+            return $this->errorResponse('Нет прав', [], 403);
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -81,9 +95,7 @@ class BlogController extends Controller
         ]);
 
         $input = $request->all();
-        Log::info($input);
         $input['status'] = 'moderating';
-        Log::info('awdaw', $input);
 
         // Создаем новый блог
         $blog = new Blog($input);
@@ -97,32 +109,31 @@ class BlogController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Blog $blog)
-    {
-        //
-    }
+    // public function show(Blog $blog)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Blog $blog)
-    {
-        //
-    }
+    // public function edit(Blog $blog)
+    // {
+    //     //
+    // }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
-        if (!$user->hasPermissionTo('edit own news')) {
-            return $this->errorResponse('r', [], 403);
+        if (!Auth::user()->can('update', Blog::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
 
-        $blogs = Blog::find($id);
+        $blog = Blog::find($id);
 
-        if (!$blogs) {
+        if (!$blog) {
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
 
@@ -137,7 +148,6 @@ class BlogController extends Controller
             'reposts' => 'nullable|integer',
         ]);
 
-        // Фильтрация только тех полей, которые были переданы в запросе
         $updateData = $request->only([
             'title',
             'description',
@@ -149,10 +159,9 @@ class BlogController extends Controller
             'reposts',
         ]);
 
-        // Обновление данных новости
-        $blogs->update($updateData);
+        $blog->update($updateData);
 
-        return $this->successResponse($blogs, 'Запись успешно обновлена', Response::HTTP_OK);
+        return $this->successResponse($blog, 'Запись успешно обновлена', Response::HTTP_OK);
     }
 
     /**
@@ -163,11 +172,17 @@ class BlogController extends Controller
         $blog = Blog::find($id);
 
         if (!$blog) {
-            return response()->json(['error' => 'Blog not found'], Response::HTTP_NOT_FOUND);
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('delete', $blog)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+
 
         $blog->delete();
 
-        return response()->json(['success' => 'Blog successfully deleted'], Response::HTTP_OK);
+        return $this->successResponse(null, 'Запись удалена', Response::HTTP_OK);
     }
 }

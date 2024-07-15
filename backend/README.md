@@ -21,3 +21,7 @@
 ## FakerPHP
 
 <https://fakerphp.org/>
+
+## Scribe
+
+<https://scribe.knuckles.wtf/>

@@ -138,14 +138,16 @@ class BlogController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('update', Blog::class)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
-        }
-
         $blog = Blog::find($id);
+        
+
 
         if (!$blog) {
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('update', $blog)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
 
         $this->validateRequest($request, [
@@ -168,6 +170,36 @@ class BlogController extends Controller
             'views',
             'likes',
             'reposts',
+        ]);
+
+        
+
+        $blog->update($updateData);
+
+        return $this->successResponse($blog, 'Запись успешно обновлена', Response::HTTP_OK);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function setStatus(Request $request, $id)
+    {
+        $blog = Blog::find($id);
+
+        if (!$blog) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('changeStatus', $blog)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $this->validateRequest($request, [
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        $updateData = $request->only([
+            'status',
         ]);
 
         $blog->update($updateData);

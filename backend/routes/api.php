@@ -33,7 +33,8 @@ Route::group([
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
+    // Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
@@ -117,6 +118,8 @@ Route::group([
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);
+    Route::put('{id}', [BlogController::class, 'update']);
+    Route::put('{id}/status', [BlogController::class, 'setStatus']);
 });
 
 // Работа с новостями

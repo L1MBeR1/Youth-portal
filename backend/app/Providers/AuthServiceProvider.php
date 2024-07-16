@@ -10,6 +10,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Comment::class => CommentPolicy::class,
         Podcast::class => PodcastPolicy::class,
+        Blog::class => BlogPolicy::class,
+        News::class => NewsPolicy::class,
     ];
 
     public function boot()

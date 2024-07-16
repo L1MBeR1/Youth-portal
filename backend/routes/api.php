@@ -125,10 +125,11 @@ Route::group([
 
 // Работа с новостями
 Route::group([
-    'middleware' => ['auth:api', 'role:news_creator'],
+    'middleware' => ['auth:api'],
     'prefix' => 'news'
 ], function () {
      // Route::get('/edit', [NewsController::class, 'edit']);
+     Route::get('/index', [NewsController::class, 'index']);
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
@@ -140,9 +141,9 @@ Route::group([
     'prefix' => 'podcasts'
 ], function () {
     Route::get('/index', [PodcastController::class, 'index']);
-    Route::post('/create', [PodcastController::class, 'store']);
+    Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
-    Route::put('up/{id}', [PodcastController::class, 'update']);
+    Route::put('{id}', [PodcastController::class, 'update']);
 });
 
 // Работа с комментариями
@@ -152,6 +153,6 @@ Route::group([
 ], function () {
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
-    Route::delete('/destroy/{id}', [CommentController::class, 'destroy']);
-    Route::put('/update/{id}', [CommentController::class, 'update']);
+    Route::delete('{id}', [CommentController::class, 'destroy']);
+    Route::put('{id}', [CommentController::class, 'update']);
 });

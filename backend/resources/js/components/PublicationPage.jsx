@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../../css/app.css';
+import BlogDetail from './BlogDetail';
 
 const APITestPage = () => {
     const [url, setUrl] = useState('http://127.0.0.1:8000/api/blogs');
     const [method, setMethod] = useState('GET');
     const [token, setToken] = useState('');
     const [blogs, setBlogs] = useState([]);
-    const [comments, setComments] = useState([]);
+    const [selectedBlog, setSelectedBlog] = useState(null);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -31,17 +31,8 @@ const APITestPage = () => {
         }
     }, [url, method, token]);
 
-    const fetchComments = async (blogId) => {
-        try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/blogs/${blogId}/comments`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setComments(response.data.data);
-        } catch (error) {
-            setError('Error fetching comments');
-        }
+    const handleBlogClick = (blog) => {
+        setSelectedBlog(blog);
     };
 
     return (
@@ -84,43 +75,14 @@ const APITestPage = () => {
 
             {error && <p className="error">{error}</p>}
 
-            {blogs.map((blog) => (
-                <article className="blog" key={blog.id}>
-                    <div className="blog-header">
-                        <h1>{blog.title}</h1>
-                        <div className="blog-meta">
-                            <div className="blog-author">
-                                <span>{blog.authorName}</span>
-                            </div>
-                            <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                    <p>{blog.content}</p>
-                    <button className="show-comments" onClick={() => fetchComments(blog.id)}>
-                        Show Comments
-                    </button>
-
-                    <div className="comments">
-                        <h2>Comments</h2>
-                        {comments.filter(comment => comment.blog_id === blog.id).map((comment) => (
-                            <div className="comment" key={comment.id}>
-                                <div className="comment-author">
-                                     
-                                    <div>
-                                        <span>{comment.userName}</span>
-                                        <span className="comment-date">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                                <p>{comment.content}</p>
-                                <div className="comment-actions">
-                                    <button className="reply">Reply</button>
-                                    <button className="like">Like</button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </article>
+            {!selectedBlog && blogs.map((blog) => (
+                <div key={blog.id} className="blog-summary" onClick={() => handleBlogClick(blog)}>
+                    <h2>{blog.title}</h2>
+                    <p>{blog.excerpt}</p>
+                </div>
             ))}
+
+            {selectedBlog && <BlogDetail blog={selectedBlog} token={token} onClose={() => setSelectedBlog(null)} />}
         </div>
     );
 };

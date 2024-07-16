@@ -6,8 +6,8 @@ const APITestPage = () => {
     const [method, setMethod] = useState('GET');
     const [body, setBody] = useState(
         `{
-    "email":"hello@example.com",
-    "password":"1111"        
+    "email":"admin@example.org",
+    "password":"password"        
 }`);
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);

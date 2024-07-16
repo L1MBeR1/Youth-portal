@@ -42,7 +42,7 @@ class UserController extends Controller
 
 
     /**
-     * Добавить роль пользователю
+     * Добавить
      * 
      * Добавить роль пользователю с ID `user_id` и названием роли `role_name`.
      *
@@ -67,7 +67,7 @@ class UserController extends Controller
 
 
     /**
-     * Удалить роль у пользователя
+     * Удалить
      * 
      * Удалить роль у пользователя с ID `user_id` и названием роли `role_name`.
      * 

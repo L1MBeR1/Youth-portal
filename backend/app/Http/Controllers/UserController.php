@@ -2,27 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserMetadata;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    /**
+     * Получить список всех пользователей
+     * 
+     * Получение списка всех пользователей с пагинацией, по 10 пользователей на страницу.
+     * Страницы передаются в параметре `page`.
+     *
+     * @group Пользователи
+     * @bodyParam page int номер страницы.
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function listUsers()
     {
-        $users = User::all();
+        $users = User::paginate(10);
 
-        $response = [];
-        foreach ($users as $index => $user) {
-            $response[] = //[
-                // 'id' => $user->id,
-                /*'metadata' => */ $user->metadata;
-            /*];*/
-        }
+        $response = $users->map(function ($user) {
+            return [
+                'metadata' => $user->metadata,
+            ];
+        });
 
-        return $this->successResponse($response, '', 200);
+        return $this->successResponse($response, [
+            'pagination' => [
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'next_page_url' => $users->nextPageUrl(),
+                'prev_page_url' => $users->previousPageUrl(),
+            ],
+        ]);
     }
 
+
+    /**
+     * Добавить роль пользователю
+     * 
+     * Добавить роль пользователю с ID `user_id` и названием роли `role_name`.
+     *
+     * @group Пользователи
+     * @subgroup Роли
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addRoleToUser($user_id, $role_name)
     {
         $user = User::find($user_id);
@@ -37,7 +65,19 @@ class UserController extends Controller
         return $this->successResponse([], 'Role added successfully');
     }
 
-    public function deleteRoleFromUser($user_id, $role_name){
+
+    /**
+     * Удалить роль у пользователя
+     * 
+     * Удалить роль у пользователя с ID `user_id` и названием роли `role_name`.
+     * 
+     * @group Пользователи
+     * @subgroup Роли
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteRoleFromUser($user_id, $role_name)
+    {
         $user = User::find($user_id);
         $role = $role_name;
 

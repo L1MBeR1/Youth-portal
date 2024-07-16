@@ -19,7 +19,7 @@ return new class extends Migration
             //      двоичной форме (binary)
             $table->text('content');
             $table->text('cover_uri');
-            $table->enum('status', ['moderating', 'published', 'archived']);
+            $table->enum('status', ['moderating', 'published', 'archived', 'pending']);
             $table->integer('views')->unsigned()->default(0);;
             $table->integer('likes')->unsigned()->default(0);;
             $table->integer('reposts')->unsigned()->default(0);;

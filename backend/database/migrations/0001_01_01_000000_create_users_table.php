@@ -19,7 +19,8 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->text('phone')->nullable()->unique();
             $table->timestamp('phone_verified_at')->nullable();
-            $table->text('remember_token')->nullable();
+            // $table->text('remember_token')->nullable();
+            $table->rememberToken();
             $table->timestamps();
             $table->timestamp('blocked_at')->nullable();
         });

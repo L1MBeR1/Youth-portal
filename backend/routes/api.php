@@ -33,7 +33,8 @@ Route::group([
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
+    // Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
@@ -46,11 +47,21 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-    Route::get('users', [UserController::class, 'listUsers']);
-    Route::get('blogs', [BlogController::class, 'listBlogs']);
+    // Route::get('users', [UserController::class, 'listUsers']);
+    // Route::get('blogs', [BlogController::class, 'listBlogs']);
     // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
-    Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
-    Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+    // Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
+    // Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+});
+
+// Работа с пользователями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'users'
+], function () {
+    Route::get('', [UserController::class, 'listUsers']);
+    Route::post('{user_id}/roles/{role_name}', [UserController::class, 'addRoleToUser']);
+    Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
 });
 
 
@@ -98,15 +109,6 @@ Route::group([
 // Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
 
 
-// Документация
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'docs'
-], function () {
-    Route::get('all', [DocsController::class, 'index']);
-});
-
-
 // Работа с блогами
 Route::group([
     'middleware' => ['auth:api', 'role:blogger|admin'],
@@ -116,6 +118,8 @@ Route::group([
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);
+    Route::put('{id}', [BlogController::class, 'update']);
+    Route::put('{id}/status', [BlogController::class, 'setStatus']);
 });
 
 // Работа с новостями

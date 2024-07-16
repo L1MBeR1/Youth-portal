@@ -61,34 +61,38 @@ class AuthController extends Controller
 
 
     /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Логин
+     * 
+     * Авторизация с помощью [email, phone]
+     * 
+     * @group Авторизация
+     * @bodyParam email string required email
+     * @bodyParam phone string optional phone
+     * @bodyParam password string required password
+     * 
      */
     public function login(Request $request)
     {
-        try {
-            $this->validateRequest($request, [
-                'email' => 'nullable|email',
-                'phone' => 'nullable|string',
-                'password' => 'required|string',
-            ]);
+        $this->validateRequest($request, [
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+            'password' => 'required|string',
+        ]);
 
-            if (empty($request->email) && empty($request->phone)) {
-                return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
-            }
 
-            $credentials = $request->only('password');
-            $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
-
-            if (!$token = Auth::attempt($credentials)) {
-                return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
-            }
-
-            return $this->respondWithToken($token);
-        } catch (Exception $e) {
-            return $this->handleException($e);
+        if (empty($request->email) && empty($request->phone)) {
+            return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
         }
+
+        $credentials = $request->only('password');
+        $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
+        
+
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+        }
+
+        return $this->respondWithToken($token);
     }
 
 

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Podcast;
-use App\Http\Requests\StorePodcastRequest;
+use App\Http\Requests\StorePodcastRequest;   
 use App\Http\Requests\UpdatePodcastRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class PodcastController extends Controller
 {
@@ -36,18 +40,24 @@ class PodcastController extends Controller
      */
     public function store(StorePodcastRequest $request)
     {
-        // Проверка прав пользователя
-        if (!Auth::user()->can('create', Podcast::class)) {
-            return response()->json(['message' => 'You do not have permission to create a podcast'], 403);
+        try {
+            // Проверка прав пользователя
+            if (!Auth::user()->can('create', Podcast::class)) {
+                throw new AccessDeniedHttpException('You do not have permission to create a podcast');
+            }
+
+            $this->validateRequest($request, $request->rules());
+
+            // Создание нового подкаста с использованием проверенных данных
+            $podcast = Podcast::create(array_merge($request->validated(), [
+                'status' => 'moderating',
+                'author_id' => Auth::id(),
+            ]));
+            return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
+        } catch (Exception $e) {
+            // Обработка исключений через централизованную функцию
+            return $this->handleException($e);
         }
-
-        // Создание нового подкаста с использованием проверенных данных
-        $podcast = Podcast::create(array_merge($request->validated(), [
-            'status' => 'moderating',
-            'author_id' => Auth::id(),
-        ]));
-
-        return response()->json(['message' => 'Podcast successfully created', 'podcast' => $podcast], 201);
     }
 
 
@@ -72,16 +82,27 @@ class PodcastController extends Controller
      */
     public function update(UpdatePodcastRequest $request, $id)
     {
-        $podcast = Podcast::find($id);
-        if(!Auth::user()->can('update', $podcast)) {
-            Log::info('User ' . Auth::id() . ' does not have permission to update podcast ' . $podcast->id);
-            return response()->json(['message' => 'You do not have permission to update this podcast'], 403);
+        try{
+
+            $podcast = Podcast::find($id);
+
+            if (!$podcast) {
+                throw new NotFoundHttpException('Podcast not found');
+            }
+
+            if(!Auth::user()->can('update', $podcast)) {
+                throw new AccessDeniedHttpException('You do not have permission to update this podcast');
+            }
+
+            $this->validateRequest($request, $request->rules());
+            $validatedData = $request->validated();
+            $podcast->update($validatedData);
+
+            return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
+        } catch (Exception $e) {
+            // Обработка исключений через централизованную функцию
+            return $this->handleException($e);
         }
-
-        $validatedData = $request->validated();
-        $podcast->update($validatedData);
-
-        return response()->json(['message' => 'Podcast updated successfully', 'podcast' => $podcast], Response::HTTP_OK);
     }
 
     /**
@@ -89,23 +110,24 @@ class PodcastController extends Controller
      */
     public function destroy($id)
     {
-        $podcast = Podcast::find($id);
+        try{
+            $podcast = Podcast::find($id);
 
-        if (!$podcast) {
-            return response()->json(['error' => 'Podcast not found'], Response::HTTP_NOT_FOUND);
+            if (!$podcast) {
+                throw new NotFoundHttpException('Podcast not found');
+            }
+
+            // Проверка прав пользователя
+            if (!Auth::user()->can('delete', $podcast)) {
+                throw new AccessDeniedHttpException('You do not have permission to delete this podcast');
+            }
+
+            $podcast->delete();
+
+            return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
+        }catch (Exception $e) {
+            // Обработка исключений через централизованную функцию
+            return $this->handleException($e);
         }
-
-        Log::info('Checking permission for user ' . Auth::id());
-
-        // Проверка прав пользователя
-        if (!Auth::user()->can('delete', $podcast)) {
-            Log::info('User ' . Auth::id() . ' does not have permission to delete podcast ' . $podcast->id);
-            return response()->json(['message' => 'You do not have permission to delete this podcast'], 403);
-        }
-
-        Log::info('User ' . Auth::id() . ' is deleting podcast ' . $podcast->id);
-        $podcast->delete();
-
-        return response()->json(['success' => 'Podcast successfully deleted'], Response::HTTP_OK);
     }
 }

@@ -48,14 +48,31 @@ function Toggler({ defaultExpanded = false, renderToggle, children }) {
   );
 }
 
-function AdminSidebar({selectedSection, setSection} ) {
+function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
   return (
+    <>
+    <Sheet
+    sx={{
+      position: { xs: 'fixed', md: 'sticky' },
+      transform: {
+        xs: `translateX(calc(100% * (${open ? 1 : 0} - 1)))`,
+        md: 'none',
+      },
+      transition: 'transform 0.4s, width 0.4s',
+      zIndex: 1000,
+      height: '100dvh',
+      top: 0,
+      flexShrink: 0,
+      display: 'flex',
+      borderRight: '1px solid',
+      borderColor: 'divider',
+    }}
+  > 
+
       <Sheet
       sx={{
-        maxWidth:'250px',
+        maxWidth:'fit-content',
         flexGrow:1,
-        borderRight: '1px solid',
-        borderColor: 'divider',
         p: 2,
         flexShrink: 0,
         display: 'flex',
@@ -148,6 +165,24 @@ function AdminSidebar({selectedSection, setSection} ) {
             </ListItem>
           </List>
       </Sheet>
+    </Sheet>
+          <Box
+          sx={{
+            display: open ? { xs: 'block', md: 'none' } : 'none',
+            position: 'fixed',
+            zIndex: 999,
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            opacity: open ? 0.2 : 0,
+            backgroundColor: 'black',
+            transition: 'opacity 0.4s',
+            // transform: open ? 'translateX(250px)' : 'translateX(-50%)',
+          }}
+          onClick={() => setOpen(false)}
+        />
+        </>
   );
 }
 

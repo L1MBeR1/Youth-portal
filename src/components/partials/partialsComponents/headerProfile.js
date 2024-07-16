@@ -26,7 +26,7 @@ import profileBlank from '../../../img/profile-blank.png'
 function HeaderProfile() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
+  console.log(1)
   const { data: profileData, isFetching } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
@@ -49,7 +49,9 @@ function HeaderProfile() {
         return undefined;
       }
     },
-    staleTime: 3600000,
+    staleTime: 3600000, 
+    cacheTime: 86400000,
+    keepPreviousData: true
   });
 
 const handleLogout = () => {

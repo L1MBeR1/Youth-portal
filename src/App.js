@@ -1,15 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
+
 import MainLayout from './components/layouts/mainLayout';
 import WorkLayout from './components/layouts/workLayout';
+
 import Home from './pages/home';
 import Login from './pages/login';
 import Registration from './pages/registration';
 import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
+
 import Admin from './pages/admin';
 
-
+import './css/App.css'
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 
@@ -33,18 +36,18 @@ function App() {
       <CssBaseline />
       <Router>
           <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registration" element={<Registration />} />
-              <Route path="/recovery" element={<Recovery />} />
-              <Route path="/404" element={<NotFound />} />
+            
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="login" element={<Login />} />
+              <Route path="registration" element={<Registration />} />
+              <Route path="recovery" element={<Recovery />} />
+              <Route path="404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" />} />
             </Route>
             
-            <Route element={<WorkLayout />}>
-              <Route path="/admin" element={<PrivateRoute element={<Admin/>} roles={['admin']}/>} />
-            </Route>
+            <Route path="/admin" element={<PrivateRoute element={<Admin/>} roles={['admin']}/>}/>
+            
           </Routes>   
       </Router>
     </CssVarsProvider>

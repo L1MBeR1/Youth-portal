@@ -1,38 +1,44 @@
-import React, {useState}from 'react';
+import React,{useState} from 'react';
 
-import Card from '@mui/joy/Card';
-import Box from '@mui/joy/Box';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Typography from '@mui/joy/Typography';
-import Button from '@mui/joy/Button';
-import FormHelperText from '@mui/joy/FormHelperText';
-import IconButton from '@mui/joy/IconButton';
 
-import AdminSidebar from '../components/pageComponents/adminPage/adminSidebar';
+import Header from '../components/pageComponents/adminPage/adminHeader';
+import { Outlet } from 'react-router-dom';
+import AdminSidebar from '../components/pageComponents/adminPage/adminSidebar'
 import AdminMain from '../components/pageComponents/adminPage/adminMain';
-function Admin() {
-  const [section, setSection] = useState('statistics');
+function WorkLayout() {
+const [section, setSection] = useState('statistics');
+const [open, setOpen] = useState(false);
   return (
-    <Stack
-    direction="row"
+    <Stack 
     sx={{
-      flexGrow:1,
+      minHeight:'100vh',
       overflow:'hidden',
+      maxHeight:'100vh',
     }}
     >
-      <AdminSidebar
-      selectedSection={section} 
-      setSection={setSection}
-      />
-      <AdminMain
-      section={section}
-      />
+      <Header setOpen={setOpen} open={open}/>
+      <main className='layout-main'
+      >
+        <Stack
+            direction="row"
+            sx={{
+            flexGrow:1,
+            overflow:'hidden',
+            }}
+            >
+            <AdminSidebar
+            selectedSection={section} 
+            setSection={setSection}
+            open={open}
+            setOpen={setOpen}
+            />
+            <AdminMain section={section}/>
+        </Stack>
+      </main>
     </Stack>
   );
 }
 
-export default Admin;
+export default WorkLayout;

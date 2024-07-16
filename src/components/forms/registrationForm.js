@@ -27,6 +27,7 @@ import EmailField from './formComponents/emailField.js';
 
 function RegistrationForm() {
   const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
@@ -104,7 +105,7 @@ function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     if (!passwordCriteria.length || !passwordCriteria.specialChar) {
       setError('Пароль не соответствует требованиям');
       return;
@@ -133,9 +134,11 @@ function RegistrationForm() {
           navigate('/');
         }
       }
+      setIsLoading(false);
     } catch (error) {
       setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');
       console.error('Registration failed', error);
+      setIsLoading(false);
     }
   };
 
@@ -211,7 +214,7 @@ function RegistrationForm() {
               setPassword={setPasswordRepeat}
               error={passwordRepeatError}
             />
-            <Button type="submit">Зарегистрироваться</Button>
+            <Button loading={Boolean(isLoading)} type="submit">Зарегистрироваться</Button>
             <Box
               sx={{
                 display: 'flex',

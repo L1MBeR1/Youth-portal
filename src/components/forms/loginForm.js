@@ -23,6 +23,7 @@ import {jwtDecode} from 'jwt-decode';
 function LoginForm() {
   const queryClient = useQueryClient();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +31,7 @@ function LoginForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       const data = await login(email, password);
@@ -47,9 +49,11 @@ function LoginForm() {
           navigate('/');
         }
       }
+      setIsLoading(false);
     } catch (error) {
       setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');
       console.error('Login failed', error);
+      setIsLoading(false);
     }
   };
 
@@ -108,7 +112,7 @@ function LoginForm() {
                 <Link to="/recovery">Забыли пароль?</Link>
               </FormHelperText>
             </FormControl>
-            <Button type="submit">Войти</Button>
+            <Button loading={Boolean(isLoading)} type="submit">Войти</Button>
             <Box
               sx={{
                 display: 'flex',

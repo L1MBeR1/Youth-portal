@@ -19,7 +19,14 @@ use Exception;
 class AuthController extends Controller
 {
     /**
-     * Register a User.
+     * Регистрация 
+     * 
+     * Регистрация нового пользователя с использованием [email, phone].
+     * 
+     * @group Авторизация
+     * @bodyParam email string required email
+     * @bodyParam phone string optional phone
+     * @bodyParam password string required password
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -51,7 +58,9 @@ class AuthController extends Controller
                 return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
             }
 
-            return $this->respondWithToken($token);
+            $refreshToken = $this->generateRefreshToken($user);
+
+            return $this->respondWithToken($token, $refreshToken);
         } catch (Exception $e) {
             return $this->handleException($e);
         }
@@ -61,9 +70,9 @@ class AuthController extends Controller
 
 
     /**
-     * Логин
+     * Аутентификация
      * 
-     * Авторизация с помощью [email, phone]
+     * Аутентификация пользователя с помощью [email, phone]
      * 
      * @group Авторизация
      * @bodyParam email string required email
@@ -79,27 +88,106 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-
         if (empty($request->email) && empty($request->phone)) {
             return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
         }
 
         $credentials = $request->only('password');
         $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
-        
 
         if (!$token = Auth::attempt($credentials)) {
             return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
         }
 
-        return $this->respondWithToken($token);
+        $user = Auth::user();
+        $refreshToken = $this->generateRefreshToken($user);
+
+        return $this->respondWithToken($token, $refreshToken);
     }
 
 
 
 
     /**
-     * Update user profile metadata.
+     * Генерация uuid v4
+     */
+    protected function uuidv4()
+    {
+        $data = random_bytes(16);
+
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+
+
+    /**
+     * Генерация уникального токена для запоминания пользователя
+     */
+    protected function generateRefreshToken($user)
+    {
+        $refreshToken = $this->uuidv4();
+        $user->remember_token = $refreshToken;
+        $user->save();
+
+        return $refreshToken;
+    }
+
+
+
+    /**
+     * Обновление токенов
+     * 
+     * Обновление токенов пользователя с использованием refresh_token.
+     * Будет возвращена новая пара токенов access_token и refresh_token.
+     * 
+     * @group Авторизация
+     * @bodyParam refresh_token string required refresh_token
+     * 
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function refresh(Request $request)
+    {
+        $request->validate([
+            'refresh_token' => 'required|string'
+        ]);
+
+        $user = User::where('remember_token', $request->refresh_token)->first();
+
+        if (!$user) {
+            return $this->errorResponse('Invalid refresh token', [], 401);
+        }
+
+        Auth::login($user);
+
+        $newToken = Auth::refresh();
+        $newRefreshToken = $this->generateRefreshToken($user);
+
+        return $this->respondWithToken($newToken, $newRefreshToken);
+    }
+
+
+
+
+    /**
+     * Обновление профиля
+     * 
+     * Обновление профиля пользователя. 
+     * Поля, которые не переданы в запросе будут оставлены без изменения.
+     * 
+     * @group Авторизация
+     * @bodyParam first_name string optional first_name
+     * @bodyParam last_name string optional last_name
+     * @bodyParam patronymic string optional patronymic
+     * @bodyParam nickname string optional nickname
+     * @bodyParam profile_image_uri string optional profile_image_uri
+     * @bodyParam city string optional city
+     * @bodyParam gender string optional gender
+     * @bodyParam birthday date optional birthday
      *
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -145,7 +233,12 @@ class AuthController extends Controller
     }
 
     /**
-     * Get the authenticated User.
+     * Получение профиля
+     * 
+     * Получение информации о пользователе. 
+     * 
+     * @group Авторизация
+     * 
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -163,13 +256,22 @@ class AuthController extends Controller
 
 
     /**
-     * Log the user out (Invalidate the token).
+     * Выход из аккаунта
+     * 
+     * Выход из аккаунта (удаление токенов).
+     * 
+     * @group Авторизация
+     * 
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout()
     {
         try {
+            $user = Auth::user();
+            $user->remember_token = null;
+            $user->save();
+
             Auth::logout();
 
             return $this->successResponse([], 'Successfully logged out.');
@@ -178,30 +280,20 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
-    {
-        try {
-            return $this->respondWithToken(Auth::refresh());
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
+
+
 
     /**
-     * Get the token array structure.
+     * Получение структуры токена для ответа
      *
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token)
+    protected function respondWithToken($token, $refreshToken = null)
     {
         return response()->json([
             'access_token' => $token,
+            'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
         ]);
     }

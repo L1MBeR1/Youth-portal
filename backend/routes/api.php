@@ -33,8 +33,8 @@ Route::group([
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
-    // Route::post('refresh', [AuthController::class, 'refresh']);
+    // Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
+    Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);

@@ -60,11 +60,11 @@ return new class extends Migration {
             $table->longText('payload');
             $table->integer('last_activity')->index();
 
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('user_login_data')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            // $table->foreign('user_id')
+            //     ->references('id')
+            //     ->on('user_login_data')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
         });
 
         Schema::create('user_metadata', function (Blueprint $table) {
@@ -76,7 +76,7 @@ return new class extends Migration {
             $table->text('nickname')->nullable();
             $table->text('profile_image_uri')->nullable();
             $table->text('city')->nullable();
-            $table->enum('gender', ['м', 'ж'])->nullable();
+            $table->enum('gender', ['m', 'f'])->nullable();
             $table->date('birthday')->nullable();
 
             $table->foreign('user_id')

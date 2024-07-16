@@ -12,12 +12,34 @@ use Spatie\Permission\Models\Permission;
 
 class AdminController extends Controller
 {
+    /**
+     * Приветствие
+     * 
+     * Проверка на админку
+     * 
+     * @group Администрирование
+     * @header Authorization Bearer {token}
+     * @authenticated
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function hello()
     {
         return $this->successResponse([], 'You are an admin!', 200);
     }
 
-
+    /**
+     * Создать
+     * 
+     * Создание нового разрешения
+     * 
+     * @group Администрирование
+     * @subgroup Разрешения
+     * @subgroupDescription Управление разрешениями
+     * @header Authorization Bearer {token}
+     * @authenticated
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createPermission(Request $request)
     {
         try {
@@ -29,7 +51,18 @@ class AdminController extends Controller
         return $this->successResponse([], 'Разрешение создано', 200);
     }
 
-
+    /**
+     * Создать
+     * 
+     * Создание новой роли
+     *      
+     * @group Администрирование
+     * @subgroup Роли
+     * @subgroupDescription Управление ролями
+     * @authenticated
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createRole(Request $request)
     {
         try {
@@ -41,7 +74,20 @@ class AdminController extends Controller
         return $this->successResponse($role, 'Роль создана', 200);
     }
 
-
+    /**
+     * Добавить разрешение
+     * 
+     * Добавить разрешение к роли
+     * 
+     * @group Администрирование
+     * @subgroup Роли
+     * 
+     * @bodyParam permissions array[] массив разрешений 
+     * @authenticated
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $role_name
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function addPermissionsToRole(Request $request, $role_name)
     {
         $permissions = $request->input('permissions');
@@ -69,7 +115,17 @@ class AdminController extends Controller
     //
     // }
 
-
+    /**
+     * Получить пользователей по роли
+     * 
+     * Получить пользователей по роли `role_name`
+     * 
+     * @group Администрирование
+     * 
+     * 
+     * @param mixed $role_name
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function listUserWithRole($role_name)
     {
         $users = User::role($role_name)->get();
@@ -77,37 +133,36 @@ class AdminController extends Controller
         return $this->successResponse($users, 'Список пользователей с ролью [' . $role_name . ']', 200);
     }
 
-
+    /**
+     * Список
+     * 
+     * Получить список всех ролей
+     * 
+     * @group Администрирование
+     * 
+     * @subgroup Роли
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function listRoles(){
 
         $roles = Role::all();
         return $this->successResponse($roles, 'Список ролей', 200);
     }
 
+
+    /**
+     * Список
+     * 
+     * Получить список всех разрешений
+     * 
+     * @group Администрирование
+     * 
+     * @subgroup Разрешения
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function listPermissions(){
 
         $permissions = Permission::all();
         return $this->successResponse($permissions, 'Список разрешений', 200);
-    }
-
-
-    public function createBlog()
-    {
-        //
-    }
-
-    public function updateBlog($postId)
-    {
-        //
-    }
-
-    public function deleteBlog($postId)
-    {
-        //
-    }
-
-    public function updateSettings()
-    {
-        //
     }
 }

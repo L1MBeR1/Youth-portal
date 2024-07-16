@@ -40,6 +40,14 @@ class BlogPolicy
     }
 
     /**
+     * 
+     */
+    public function changeStatus(User $user, Blog $blog): bool
+    {
+        return $user->hasRole('admin') || $user->hasRole('moderator');
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Blog $blog): bool

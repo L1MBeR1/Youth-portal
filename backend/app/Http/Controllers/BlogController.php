@@ -12,16 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 class BlogController extends Controller
 {
     /**
-     * Получить все блоги с информацией об авторах.
+     * Список с авторами
+     * 
+     * @group Блоги
+     * @authenticated
      */
     public function index(Request $request)
     {
-        // $blog = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
-        //     ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-        //     ->get();
-
-        // return response()->json($blog);
-
         $perPage = $request->get('per_page', 10);
         $blogs = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
             ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
@@ -31,18 +28,19 @@ class BlogController extends Controller
     }
 
     /** 
-     * @group Блоги
+     * Список
      * 
-     * Получить блоги
+     * Получение списка блогов
+     * 
+     * @group Блоги
      * 
      * @bodyParam userId int ID пользователя.
      * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
-     * 
+     * @bodyParam blogId int ID блога.
      * 
      */
     public function listBlogs(Request $request)
     {
-        // TODO: добавить имя автора
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
         $blogId = $request->query('blogId');
@@ -63,10 +61,9 @@ class BlogController extends Controller
             return $this->successResponse($response);
         } else if ($currentUser) {
             return $this->successResponse([Auth::user()->blogs, Auth::user()->metadata]);
-        } else if($blogId)
-        {
+        } else if ($blogId) {
             return $this->successResponse(Blog::find($blogId));
-        }else {
+        } else {
 
             return $this->successResponse(Blog::all(), '', 200);
         }
@@ -74,18 +71,76 @@ class BlogController extends Controller
 
 
     /**
-     * Show the form for creating a new resource.
-     */
-    // public function create()
-    // {
-    //     //
-    // }
-
-    /**
+     * Список (новый)
+     * 
+     * Получение списка блогов (новый. использовать этот метод)
+     * 
      * @group Блоги
-     * Создать
      * @authenticated
      * 
+     * @bodyParam userId int ID пользователя.
+     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
+     * @bodyParam blogId int ID блога.
+     * @urlParam withAuthors bool Включать авторов в ответ.
+     * @urlParam page int Номер страницы.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getBlogs(Request $request)
+    {
+        $perPage = $request->get('per_page', 5);
+        $userId = $request->query('userId');
+        $currentUser = $request->query('currentUser');
+        $blogId = $request->query('blogId');
+        $withAuthors = $request->query('withAuthors', false);
+        $query = Blog::query();
+
+        if ($withAuthors) {
+            $query->join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
+                ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+        }
+
+        if ($userId) {
+            $user = User::find($userId);
+            if (!$user) {
+                return $this->errorResponse('User not found', [], 404);
+            }
+            $query->where('author_id', $userId);
+        } elseif ($currentUser) {
+            $currentUser = Auth::user();
+            if ($currentUser) {
+                $query->where('author_id', $currentUser->id);
+            } else {
+                return $this->errorResponse('Current user not found', [], 404);
+            }
+        } elseif ($blogId) {
+            $query->where('id', $blogId);
+        }
+
+        $blogs = $query->paginate($perPage);
+
+        $paginationData = [
+            'current_page' => $blogs->currentPage(),
+            'from' => $blogs->firstItem(),
+            'last_page' => $blogs->lastPage(),
+            'per_page' => $blogs->perPage(),
+            'to' => $blogs->lastItem(),
+            'total' => $blogs->total(),
+        ];
+
+        return $this->successResponse($blogs->items(), $paginationData, 200);
+    }
+
+
+
+    /**
+     * Создать
+     * 
+     * Создание нового блога
+     * 
+     * @group Блоги
+     * @authenticated
      * 
      */
     public function store(Request $request)
@@ -117,29 +172,18 @@ class BlogController extends Controller
         return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    // public function show(Blog $blog)
-    // {
-    //     //
-    // }
+
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(Blog $blog)
-    // {
-    //     //
-    // }
-
-    /**
-     * Update the specified resource in storage.
+     * Обновить
+     * 
+     * @authenticated
+     * @group Блоги
      */
     public function update(Request $request, $id)
     {
         $blog = Blog::find($id);
-        
+
 
 
         if (!$blog) {
@@ -172,7 +216,7 @@ class BlogController extends Controller
             'reposts',
         ]);
 
-        
+
 
         $blog->update($updateData);
 
@@ -180,7 +224,12 @@ class BlogController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Сменить статус
+     * 
+     * @group Блоги
+     * @authenticated
+     * 
+     * 
      */
     public function setStatus(Request $request, $id)
     {
@@ -208,7 +257,11 @@ class BlogController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Удалить
+     * 
+     * @group Блоги
+     * @authenticated
+     * 
      */
     public function destroy($id)
     {

@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
+use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Event>
- */
 class EventFactory extends Factory
 {
     /**
@@ -16,8 +15,23 @@ class EventFactory extends Factory
      */
     public function definition(): array
     {
+        $userIds = User::pluck('id');
+        $userId = $this->faker->randomElement($userIds->toArray());
+        $projects = Project::where('author_id', '=', $userId)->pluck('id')->toArray();
+
         return [
-            //
+            'name' => $this->faker->company(),
+            'description' => $this->faker->realText(100),
+            'location' => 'задать(EVENT_FACTORY.PHP)',
+            'views' => $this->faker->numberBetween(0, 1000),
+            'author_id' => $this->faker->randomElement($userIds->toArray()),
+            'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
+            'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'start_time' => $this->faker->dateTimeBetween('-2 year', 'now'),
+            'end_time' => $this->faker->dateTimeBetween('-1 year', 'now'),
+
+            'project_id' => $this->faker->randomElement($projects),
         ];
     }
+
 }

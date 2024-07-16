@@ -115,6 +115,7 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('', [BlogController::class, 'listBlogs']);
+    Route::get('/test', [BlogController::class, 'getBlogs']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);

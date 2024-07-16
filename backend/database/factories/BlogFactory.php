@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Faker\Factory as FakerFactory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Blog>
@@ -16,15 +18,17 @@ class BlogFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = FakerFactory::create('ru_RU');
+        $userIds = User::pluck('id')->toArray();
         return [
-            'title' => $this->faker->sentence(3),
-            'description' => $this->faker->text(100),
-            'content' => $this->faker->text(240),
+            'title' => $this->faker->company(),
+            'description' => $this->faker->realText(100),
+            'content' => $this->faker->realText(100),
             'cover_uri' => $this->faker->imageUrl(),
-            'status' => $this->faker->randomElement(['moderating', 'published', 'archived']),
+            'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'author_id' => $this->faker->numberBetween(1, 10),
+            'author_id' => $this->faker->randomElement($userIds),
         ];
     }
 }

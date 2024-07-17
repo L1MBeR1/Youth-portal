@@ -1,9 +1,9 @@
 import React,{useState,useEffect}from 'react';
 import { Link } from 'react-router-dom';
-import {getCookie, removeCookie} from '../../cookie/cookieUtils';
+import {getCookie, removeCookie} from '../../cookie/cookieUtils.js';
 import {jwtDecode} from 'jwt-decode';
 import { getProfile } from '../../api/auth.js';
-import HeaderProfile from './partialsComponents/headerProfile.js';
+import HeaderProfile from './partialsComponents/headerProfile.jsx';
 
 import { useColorScheme } from '@mui/joy/styles';
 

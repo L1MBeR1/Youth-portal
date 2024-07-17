@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils';
+import { setCookie} from '../../cookie/cookieUtils.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { login,getProfile } from '../../api/auth.js';
 

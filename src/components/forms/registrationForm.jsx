@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils';
+import { setCookie} from '../../cookie/cookieUtils.js';
 import { register,getProfile } from '../../api/auth.js';
 import { useQueryClient } from '@tanstack/react-query';
 import zxcvbn from 'zxcvbn';
@@ -22,8 +22,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import {jwtDecode} from 'jwt-decode';
 
-import PasswordField from './formComponents/passwordField.js';
-import EmailField from './formComponents/emailField.js';
+import PasswordField from './formComponents/passwordField.jsx';
+import EmailField from './formComponents/emailField.jsx';
 
 function RegistrationForm() {
   const queryClient = useQueryClient();

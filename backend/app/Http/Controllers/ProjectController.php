@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Project;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 
@@ -15,6 +18,111 @@ class ProjectController extends Controller
     {
         //
     }
+
+
+    /**
+     * Получение списка проектов
+     * 
+     * Возвращает список проектов с поддержкой пагинации и фильтрации.
+     * 
+     * @group Проекты
+     * @authenticated
+     * 
+     * @urlParam userId int ID пользователя, чтобы отфильтровать проекты по автору.
+     * @urlParam currentUser bool Флаг для поиска проектов текущего пользователя.
+     * @urlParam projectId int ID проекта, чтобы получить конкретный проект.
+     * @urlParam withAuthors bool Включить авторов в ответ.
+     * @urlParam page int Номер страницы для пагинации.
+     * @urlParam per_page int Количество элементов на странице.
+     * 
+     * @response 200 {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "Название проекта",
+     *      "description": "Описание проекта",
+     *      "location": "Местоположение проекта",
+     *      "author_id": 1,
+     *      "created_at": "2024-01-01T00:00:00.000000Z",
+     *      "updated_at": "2024-01-01T00:00:00.000000Z",
+     *      "first_name": "Имя автора",
+     *      "last_name": "Фамилия автора",
+     *      "patronymic": "Отчество автора",
+     *      "nickname": "Ник автора"
+     *    }
+     *  ],
+     *  "meta": {
+     *    "current_page": 1,
+     *    "from": 1,
+     *    "last_page": 1,
+     *    "per_page": 10,
+     *    "to": 1,
+     *    "total": 1
+     *  }
+     * }
+     * 
+     * @response 403 {
+     *  "message": "Нет прав на просмотр"
+     * }
+     * 
+     * @response 404 {
+     *  "message": "User not found"
+     * }
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getProjects(Request $request)
+    {
+        if (!Auth::user()->can('view', Project::class)) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+
+        $perPage = $request->get('per_page', 5);
+        $userId = $request->query('userId');
+        $currentUser = $request->query('currentUser');
+        $projectId = $request->query('projectId');
+        $withAuthors = $request->query('withAuthors', false);
+        $query = Project::query();
+
+        if ($withAuthors) {
+            $query->join('user_metadata', 'projects.author_id', '=', 'user_metadata.user_id')
+                ->select('projects.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+        }
+
+        if ($userId) {
+            $user = User::find($userId);
+            if (!$user) {
+                return $this->errorResponse('User not found', [], 404);
+            }
+            $query->where('author_id', $userId);
+        } elseif ($currentUser) {
+            $currentUser = Auth::user();
+            if ($currentUser) {
+                $query->where('author_id', $currentUser->id);
+            } else {
+                return $this->errorResponse('Current user not found', [], 404);
+            }
+        } elseif ($projectId) {
+            $query->where('id', $projectId);
+        }
+
+        $projects = $query->paginate($perPage);
+
+        $paginationData = [
+            'current_page' => $projects->currentPage(),
+            'from' => $projects->firstItem(),
+            'last_page' => $projects->lastPage(),
+            'per_page' => $projects->perPage(),
+            'to' => $projects->lastItem(),
+            'total' => $projects->total(),
+        ];
+
+        return $this->successResponse($projects->items(), $paginationData, 200);
+    }
+
+
+
 
     /**
      * Show the form for creating a new resource.

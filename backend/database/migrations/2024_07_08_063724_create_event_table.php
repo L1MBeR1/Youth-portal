@@ -20,6 +20,12 @@ return new class extends Migration
             $table->timestamp('start_time');
             $table->timestamp('end_time');
             $table->timestamps();
+
+            $table->integer('author_id')->unsigned();
+            $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
+            
+            $table->integer('project_id')->unsigned()->nullable();
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
     }
 

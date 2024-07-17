@@ -9,6 +9,8 @@ class CommentToResourceFactory extends Factory
 {
     protected $model = CommentToResource::class;
 
+
+
     public function definition()
     {
         // Создаем новый комментарий с помощью фабрики
@@ -16,11 +18,15 @@ class CommentToResourceFactory extends Factory
 
         // Выбираем случайный ресурс для привязки комментария
         $resourceType = $this->faker->randomElement(['blog', 'podcast', 'news']);
-        $resourceId = $this->faker->numberBetween(1, 50); // Замените на вашу логику для выбора ID ресурса
+        $resourceId = $this->faker->numberBetween(1, 50);
+
+        // Получаем массив идентификаторов комментариев, кроме текущего комментария
+        $otherCommentIds = Comment::where('id', '!=', $comment->id)->pluck('id')->toArray();
 
         return [
             'comment_id' => $comment->id,
             $resourceType . '_id' => $resourceId,
+            'reply_to' => $this->faker->randomElement(array_merge([null, null, null], $otherCommentIds)),
         ];
     }
 }

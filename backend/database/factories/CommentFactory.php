@@ -17,7 +17,7 @@ class CommentFactory extends Factory
     public function definition(): array
     {
         return [       
-            'content' => $this->faker->paragraph,
+            'content' => $this->faker->bank(),
             'user_id' => $this->faker->numberBetween(1, 50),
         ];
     }

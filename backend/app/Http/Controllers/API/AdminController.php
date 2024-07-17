@@ -75,6 +75,26 @@ class AdminController extends Controller
     }
 
     /**
+     * Список
+     * 
+     * Получить список пользователей с ролью `organization
+     * 
+     * @group Администрирование
+     * @subgroup Организации
+     * @authenticated 
+     *`
+     *
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function getOrganizations() {
+        $users = User::role('organization')->get();
+
+        return $this->successResponse($users, `Список пользователей с ролью 'organization'`, 200);
+    }
+
+
+
+    /**
      * Добавить разрешение
      * 
      * Добавить разрешение к роли

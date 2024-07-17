@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\UserMetadata;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-
-// use Illuminate\Http\RedirectResponse;
-// use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-
-use Illuminate\Validation\ValidationException;
 use Exception;
+use App\Models\User;
+use Illuminate\Support\Str;
+use App\Models\UserMetadata;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+// use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
+
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
 class AuthController extends Controller
 {
@@ -126,9 +130,22 @@ class AuthController extends Controller
     /**
      * Генерация уникального токена для запоминания пользователя
      */
-    protected function generateRefreshToken($user)
+    // protected function generateRefreshToken($user)
+    // {
+    //     $refreshToken = $this->uuidv4();
+    //     $user->remember_token = $refreshToken;
+    //     $user->save();
+
+    //     return $refreshToken;
+    // }
+
+    protected function generateRefreshToken($user, $ttl = 7 * 24 * 60 * 60)
     {
-        $refreshToken = $this->uuidv4();
+        $uuid = (string) Str::uuid();
+        $expiresAt = now()->addSeconds($ttl)->timestamp;
+
+        $refreshToken = base64_encode($uuid . '.' . $expiresAt);
+
         $user->remember_token = $refreshToken;
         $user->save();
 
@@ -150,14 +167,40 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
+    // public function refresh(Request $request)
+    // {
+    //     $request->validate([
+    //         'refresh_token' => 'required|string'
+    //     ]);
+
+    //     $user = User::where('remember_token', $request->refresh_token)->first();
+
+    //     if (!$user) {
+    //         return $this->errorResponse('Invalid refresh token', [], 401);
+    //     }
+
+    //     Auth::login($user);
+
+    //     $newToken = Auth::refresh();
+    //     $newRefreshToken = $this->generateRefreshToken($user);
+
+    //     return $this->respondWithToken($newToken, $newRefreshToken);
+    // }
+
     public function refresh(Request $request)
     {
         $request->validate([
             'refresh_token' => 'required|string'
         ]);
 
-        $user = User::where('remember_token', $request->refresh_token)->first();
+        $decodedToken = base64_decode($request->refresh_token);
+        list($uuid, $expiresAt) = explode('.', $decodedToken);
 
+        if (now()->timestamp > $expiresAt) {
+            return $this->errorResponse('Refresh token has expired', [], 401);
+        }
+
+        $user = User::where('remember_token', $request->refresh_token)->first();
         if (!$user) {
             return $this->errorResponse('Invalid refresh token', [], 401);
         }

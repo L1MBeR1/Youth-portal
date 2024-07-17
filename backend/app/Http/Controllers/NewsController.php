@@ -11,8 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 
 class NewsController extends Controller
 {
@@ -60,6 +62,34 @@ class NewsController extends Controller
         }
     }
 
+    public function listNews(Request $request)
+    {
+        try{
+            // TODO: добавить имя автора
+            $userId = $request->query('userId');
+            $newsId = $request->query('newsId');
+            $currentUser = $request->query('currentUser');
+
+            if ($userId) {
+                $user = User::findOrFail($userId);
+                return $this->successResponse([$user->news, $user->metadata]);
+
+            } else if ($currentUser) {
+                return $this->successResponse([Auth::user()->news, Auth::user()->metadata]);
+
+            } 
+            else if($newsId)
+            {
+                return $this->successResponse(User::findOrFail($newsId));
+            }else {
+
+                return $this->successResponse(News::all(), '', 200);
+            }
+        }   catch (ModelNotFoundException  $e) {
+            return $this->handleException($e);
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -83,11 +113,7 @@ class NewsController extends Controller
     {
         try{
 
-            $news = News::find($id);
-
-            if (!$news) {
-                throw new NotFoundHttpException('News not found');
-            }
+            $news = News::findOrFail($id);
 
             if(!Auth::user()->can('update', $news)) {
                 throw new AccessDeniedHttpException('You do not have permission to update this news');
@@ -112,11 +138,7 @@ class NewsController extends Controller
     public function destroy($id)
     {
         try{
-            $news = News::find($id);
-
-            if (!$news) {
-                throw new NotFoundHttpException('News not found');
-            }
+            $news = News::findOrFail($id);
 
             // Проверка прав пользователя
             if (!Auth::user()->can('delete', $news)) {

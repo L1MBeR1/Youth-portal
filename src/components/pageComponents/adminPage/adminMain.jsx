@@ -1,8 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import Sheet from '@mui/joy/Sheet';
 
-import Blogs from './blogs'
+import Blogs from './blogsSection';
+import Podcasts from './podcastsSection';
+import News from './newsSection';
+import Events from './eventsSection';
+import Projects from './projectsSection';
+
   function AdminMain({section}) {
     const getContent = (section) => {
       switch (section) {
@@ -13,17 +18,17 @@ import Blogs from './blogs'
         case 'organizations':
           return 
         case 'projects':
-          return 
+          return <Projects/>
         case 'events':
-          return 
+          return <Events/>
         case 'publications':
           return 
         case 'podcasts':
-          return 
+          return <Podcasts/>
         case 'blogs':
           return <Blogs/>
         case 'news':
-          return 
+          return <News/>
         default:
           return '';
       }

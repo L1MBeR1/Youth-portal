@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils.js';
 import { useQueryClient } from '@tanstack/react-query';
-import { login,getProfile } from '../../api/auth.js';
+
+import { login} from '../../api/authApi.js';
+import { getProfile } from '../../api/usersApi.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';

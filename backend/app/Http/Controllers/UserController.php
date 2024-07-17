@@ -9,18 +9,29 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Получить список всех пользователей
+     * Получить список всех пользователей с фильтрацией по роли
      * 
      * Получение списка всех пользователей с пагинацией, по 10 пользователей на страницу.
-     * Страницы передаются в параметре `page`.
+     * Фильтрация осуществляется по роли, переданной в параметре `role_name`.
      *
      * @group Пользователи
-     * @bodyParam page int номер страницы.
+     * @urlParam role_name string Название роли для фильтрации пользователей.
+     * @urlParam page int Номер страницы.
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function listUsers()
+    public function listUsers(Request $request)
     {
-        $users = User::paginate(10);
+        $roleName = $request->query('role_name');
+        $query = User::query();
+
+        if ($roleName) {
+            $query->whereHas('roles', function ($roleQuery) use ($roleName) {
+                $roleQuery->where('name', $roleName);
+            });
+        }
+
+        $users = $query->paginate(10);
 
         $response = $users->map(function ($user) {
             return [
@@ -28,17 +39,18 @@ class UserController extends Controller
             ];
         });
 
-        return $this->successResponse($response, [
-            'pagination' => [
-                'total' => $users->total(),
-                'per_page' => $users->perPage(),
-                'current_page' => $users->currentPage(),
-                'last_page' => $users->lastPage(),
-                'next_page_url' => $users->nextPageUrl(),
-                'prev_page_url' => $users->previousPageUrl(),
-            ],
-        ]);
+        $paginationData = [
+            'current_page' => $users->currentPage(),
+            'from' => $users->firstItem(),
+            'last_page' => $users->lastPage(),
+            'per_page' => $users->perPage(),
+            'to' => $users->lastItem(),
+            'total' => $users->total(),
+        ];
+
+        return $this->successResponse($response, $paginationData, 200);
     }
+
 
 
     /**

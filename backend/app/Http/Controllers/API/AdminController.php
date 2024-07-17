@@ -86,11 +86,13 @@ class AdminController extends Controller
      *
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function getOrganizations() {
-        $users = User::role('organization')->get();
+    public function getOrganizations()
+    {
+        $users = User::role('organization')->paginate(10);
 
         return $this->successResponse($users, `Список пользователей с ролью 'organization'`, 200);
     }
+
 
 
 
@@ -148,7 +150,7 @@ class AdminController extends Controller
      */
     public function listUserWithRole($role_name)
     {
-        $users = User::role($role_name)->get();
+        $users = User::role($role_name)->paginate(10);
 
         return $this->successResponse($users, 'Список пользователей с ролью [' . $role_name . ']', 200);
     }
@@ -163,7 +165,8 @@ class AdminController extends Controller
      * @subgroup Роли
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function listRoles(){
+    public function listRoles()
+    {
 
         $roles = Role::all();
         return $this->successResponse($roles, 'Список ролей', 200);
@@ -180,7 +183,8 @@ class AdminController extends Controller
      * @subgroup Разрешения
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function listPermissions(){
+    public function listPermissions()
+    {
 
         $permissions = Permission::all();
         return $this->successResponse($permissions, 'Список разрешений', 200);

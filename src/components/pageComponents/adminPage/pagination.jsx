@@ -7,56 +7,109 @@ import Typography from '@mui/joy/Typography';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
-const Pagination = ({ setPage, page, lastPage = 1 }) => {
-  console.log("Pagination props:", { setPage, page, lastPage });
-
+const Pagination = ({ page, lastPage, onPageChange }) => {
   const handlePreviousPage = () => {
-    console.log("Previous page");
-    setPage((prevPage) => Math.max(prevPage - 1, 1));
+    onPageChange(Math.max(page - 1, 1));
   };
 
   const handleNextPage = () => {
-    console.log("Next page");
-    setPage((prevPage) => Math.min(prevPage + 1, lastPage));
-  };
-
-  const handlePageClick = (pageNumber) => {
-    console.log("Page click:", pageNumber);
-    setPage(pageNumber);
+    onPageChange(page + 1);
   };
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        p: {sx:'1',sm:'2'},
+        mb:1,
         gap: 1,
+        [`& .${iconButtonClasses.root}`]: { borderRadius: '50%' },
+        display:'flex'
       }}
     >
       <Button
+        size="sm"
+        variant="outlined"
+        color="primary"
+        startDecorator={<KeyboardArrowLeftIcon />}
         onClick={handlePreviousPage}
         disabled={page === 1}
+        sx={{
+          display: {xs:'none',sm:'flex'},
+        }}
       >
         Назад
       </Button>
+      <IconButton
+      size="sm"
+      variant="outlined"
+      color="primary"
+      onClick={handlePreviousPage}
+      disabled={page === 1}
+      sx={{
+        display: {xs:'flex',sm:'none'},
+      }}
+      >
+        <KeyboardArrowLeftIcon />
+      </IconButton>
+      <Box sx={{ flex: 1 }} />
       {[...Array(lastPage)].map((_, index) => {
         const pageNumber = index + 1;
-        return (
-          <IconButton
-            key={pageNumber}
-            onClick={() => handlePageClick(pageNumber)}
-          >
-            {pageNumber}
-          </IconButton>
-        );
+        if (
+          pageNumber === 1 ||
+          pageNumber === lastPage ||
+          (pageNumber >= page - 2 && pageNumber <= page + 2)
+        ) {
+          return (
+            <IconButton
+              key={pageNumber}
+              size="sm"
+              variant={page === pageNumber ? 'solid' : 'outlined'}
+              color="primary"
+              onClick={() => onPageChange(pageNumber)}
+            >
+              {pageNumber}
+            </IconButton>
+          );
+        } else if (
+          pageNumber === page - 3 ||
+          pageNumber === page + 3
+        ) {
+          return (
+            <Typography key={pageNumber} sx={{ mx: 1 }}>
+              ...
+            </Typography>
+          );
+        } else {
+          return null;
+        }
       })}
+      <Box sx={{ flex: 1 }} />
+
       <Button
+        size="sm"
+        variant="outlined"
+        color="primary"
+        endDecorator={<KeyboardArrowRightIcon />}
         onClick={handleNextPage}
         disabled={page === lastPage}
+        sx={{
+          display: {xs:'none',sm:'flex'},
+        }}
       >
         Вперед
       </Button>
+      <IconButton
+      size="sm"
+      variant="outlined"
+      color="primary"
+      onClick={handleNextPage}
+      disabled={page === 1}
+      sx={{
+        display: {xs:'flex',sm:'none'},
+      }}
+      >
+        <KeyboardArrowRightIcon />
+      </IconButton>
     </Box>
   );
 };

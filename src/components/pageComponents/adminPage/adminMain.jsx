@@ -37,9 +37,9 @@ import Blogs from './blogs'
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
-          padding:{sm:'10px 20px',md:'30px 45px'},
+          padding:{xs:'5px 10px',sm:'10px 20px',md:'30px 45px'},
           maxHeight:'100%',
-          overflow:'hidden',
+          overflowY:{xs:'scroll',sm:'hidden'},
         }}
         >
         {getContent(section)}

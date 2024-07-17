@@ -48,7 +48,12 @@ function Toggler({ defaultExpanded = false, renderToggle, children }) {
   );
 }
 
+
 function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
+  const handleSetSection=(section)=>{
+    setSection(section)
+    setOpen(false)
+  }
   return (
     <>
     <Sheet
@@ -90,7 +95,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
           }}
         >
             <ListItem>
-            <ListItemButton selected={selectedSection === 'statistics'} onClick={() => setSection('statistics')}>
+            <ListItemButton selected={selectedSection === 'statistics'} onClick={() => handleSetSection('statistics')}>
                 <BarChartIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Статистика</Typography>
@@ -98,7 +103,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             </ListItemButton>
             </ListItem>
             <ListItem>
-            <ListItemButton selected={selectedSection === 'moderators'} onClick={() => setSection('moderators')}>
+            <ListItemButton selected={selectedSection === 'moderators'} onClick={() => handleSetSection('moderators')}>
                 <ShieldIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Модераторы</Typography>
@@ -106,7 +111,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             </ListItemButton>
             </ListItem>
             <ListItem>
-            <ListItemButton selected={selectedSection === 'organizations'} onClick={() => setSection('organizations')}>
+            <ListItemButton selected={selectedSection === 'organizations'} onClick={() => handleSetSection('organizations')}>
                 <BusinessIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Организации</Typography>
@@ -114,7 +119,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             </ListItemButton>
             </ListItem>
             <ListItem>
-            <ListItemButton selected={selectedSection === 'projects'} onClick={() => setSection('projects')}>
+            <ListItemButton selected={selectedSection === 'projects'} onClick={() => handleSetSection('projects')}>
                 <DesignServicesIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Проекты</Typography>
@@ -122,7 +127,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             </ListItemButton>
             </ListItem>
             <ListItem>
-            <ListItemButton selected={selectedSection === 'events'} onClick={() => setSection('events')}>
+            <ListItemButton selected={selectedSection === 'events'} onClick={() => handleSetSection('events')}>
                 <EventIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Мероприятия</Typography>
@@ -145,17 +150,17 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             >
               <List sx={{ gap: 0.5 }}>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton selected={selectedSection === 'blogs'} onClick={() => setSection('blogs')}>
+                  <ListItemButton selected={selectedSection === 'blogs'} onClick={() => handleSetSection('blogs')}>
                     Блоги
                   </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton selected={selectedSection === 'news'} onClick={() => setSection('news')}>
+                  <ListItemButton selected={selectedSection === 'news'} onClick={() => handleSetSection('news')}>
                     Новости
                     </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton selected={selectedSection === 'podcasts'} onClick={() => setSection('podcasts')}>
+                  <ListItemButton selected={selectedSection === 'podcasts'} onClick={() => handleSetSection('podcasts')}>
                     Подкасты
                     </ListItemButton>
                 </ListItem>

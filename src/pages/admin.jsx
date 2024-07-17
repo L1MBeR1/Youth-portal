@@ -1,10 +1,8 @@
 import React,{useState} from 'react';
 
 import Stack from '@mui/joy/Stack';
-import Sheet from '@mui/joy/Sheet';
 
 import Header from '../components/pageComponents/adminPage/adminHeader';
-import { Outlet } from 'react-router-dom';
 import AdminSidebar from '../components/pageComponents/adminPage/adminSidebar'
 import AdminMain from '../components/pageComponents/adminPage/adminMain';
 function WorkLayout() {

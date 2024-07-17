@@ -29,7 +29,9 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from './customTable'
+import CustomTable from './customTable';
+import CustomList from './customList';
+import Pagination from './pagination.jsx';
 import {getBlogsByPage } from '../../../api/blogs';
 import { getCookie } from '../../../cookie/cookieUtils';
 
@@ -150,7 +152,6 @@ function AdminMainComponent() {
   return (
     <> 
         <Modal
-        
         aria-labelledby="close-modal-title"
         open={openBlog}
         onClose={() => {
@@ -180,16 +181,12 @@ function AdminMainComponent() {
            Блоги
       </Typography>
       <Box
-        className="SearchAndFilters-tabletUp"
         sx={{
           borderRadius: 'sm',
           display: { xs: 'none', sm: 'flex' },
           flexWrap: 'wrap',
           alignItems: 'flex-end',
           gap: 1.5,
-          '& > *': {
-            minWidth: { xs: '120px', md: '160px' },
-          },
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
@@ -229,76 +226,14 @@ function AdminMainComponent() {
         columns={columns} 
         rows={rows}
         rowMenu={RowMenu()}
-        ></CustomTable>
+        />
       </Sheet>
-      <Box
-        className="Pagination-laptopUp"
-        sx={{
-          pt: 2,
-          gap: 1,
-          [`& .${iconButtonClasses.root}`]: { borderRadius: '50%' },
-          display: {
-            xs: 'none',
-            sm: 'flex',
-          },
-        }}
-      >
-        <Button
-          size="sm"
-          variant="outlined"
-          color="primary"
-          startDecorator={<KeyboardArrowLeftIcon />}
-          onClick={handlePreviousPage}
-          disabled={page === 1}
-        >
-          Назад
-        </Button>
-
-        <Box sx={{ flex: 1 }} />
-        {[...Array(lastPage)].map((_, index) => {
-          const pageNumber = index + 1;
-          if (
-            pageNumber === 1 ||
-            pageNumber === lastPage ||
-            (pageNumber >= page - 2 && pageNumber <= page + 2)
-          ) {
-            return (
-              <IconButton
-                key={pageNumber}
-                size="sm"
-                variant={page === pageNumber ? 'solid' : 'outlined'}
-                color="primary"
-                onClick={() => setPage(pageNumber)}
-              >
-                {pageNumber}
-              </IconButton>
-            );
-          } else if (
-            pageNumber === page - 3 ||
-            pageNumber === page + 3
-          ) {
-            return (
-              <Typography key={pageNumber} sx={{ mx: 1 }}>
-                ...
-              </Typography>
-            );
-          } else {
-            return null;
-          }
-        })}
-        <Box sx={{ flex: 1 }} />
-
-        <Button
-          size="sm"
-          variant="outlined"
-          color="primary"
-          endDecorator={<KeyboardArrowRightIcon />}
-          onClick={handleNextPage}
-          disabled={page === lastPage}
-        >
-          Вперед
-        </Button>
-      </Box>
+      <CustomList 
+        columns={columns} 
+        rows={rows}
+        rowMenu={RowMenu()}
+        />
+      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }

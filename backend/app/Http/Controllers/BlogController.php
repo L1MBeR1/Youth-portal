@@ -89,6 +89,11 @@ class BlogController extends Controller
      */
     public function getBlogs(Request $request)
     {
+        if (!Auth::user()->can('view', Blog::class)) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+
+
         $perPage = $request->get('per_page', 5);
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');

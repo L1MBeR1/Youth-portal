@@ -77,7 +77,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        // Получение массива разрешений для пользователя
+        // Получение разрешений для пользователя
         $permissions = $this->getPermissionsViaRoles()->pluck('name')->toArray();
         $login = $this->email ?? $this->phone;
 

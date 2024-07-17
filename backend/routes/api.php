@@ -1,17 +1,19 @@
 <?php
 
+// use App\Models\Project;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DocsController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\PodcastController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\CommentToResourceController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProxyController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\PodcastController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentToResourceController;
 
 /**
  * 
@@ -47,11 +49,20 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
+
     // Route::get('users', [UserController::class, 'listUsers']);
     // Route::get('blogs', [BlogController::class, 'listBlogs']);
     // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
     // Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
     // Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+});
+
+// Работа с организациями
+Route::group([
+   'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'organizations'
+], function () {
+    Route::get('', [AdminController::class, 'getOrganizations']);
 });
 
 // Работа с пользователями
@@ -114,8 +125,8 @@ Route::group([
     'middleware' => ['auth:api', 'role:blogger|admin'],
     'prefix' => 'blogs'
 ], function () {
-    Route::get('', [BlogController::class, 'listBlogs']);
-    Route::get('/test', [BlogController::class, 'getBlogs']);
+    Route::get('old', [BlogController::class, 'listBlogs']);
+    Route::get('', [BlogController::class, 'getBlogs']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);
@@ -130,6 +141,7 @@ Route::group([
 ], function () {
      // Route::get('/edit', [NewsController::class, 'edit']);
      Route::get('/index', [NewsController::class, 'index']);
+     Route::get('', [NewsController::class, 'getNews']);
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
@@ -140,6 +152,7 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'podcasts'
 ], function () {
+    Route::get('', [PodcastController::class, 'getPodcasts']);
     Route::get('/index', [PodcastController::class, 'index']);
     Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
@@ -156,3 +169,26 @@ Route::group([
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
 });
+
+// Работа с событиями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'events'
+], function () {
+    Route::get('', [EventController::class, 'getEvents']);
+    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
+    //? Route::delete('{id}', [EventController::class, 'destroy']);
+    //? Route::put('{id}', [EventController::class, 'update']);
+});
+
+// Работа с проектами
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'projects'
+], function () {
+    Route::get('', [ProjectController::class, 'getProjects']);
+    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
+    //? Route::delete('{id}', [EventController::class, 'destroy']);
+    //? Route::put('{id}', [EventController::class, 'update']);
+});
+

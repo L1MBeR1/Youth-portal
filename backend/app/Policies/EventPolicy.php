@@ -19,7 +19,7 @@ class EventPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Event $event): bool
+    public function view(User $user): bool
     {
         return true;
     }

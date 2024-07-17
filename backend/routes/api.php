@@ -168,6 +168,10 @@ Route::group([
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
+
+
+    // FIXME: Удалить
+    Route::get('blogs/{blog_id}', [CommentController::class, 'getForBlogs']);
 });
 
 // Работа с событиями

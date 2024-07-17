@@ -25,10 +25,24 @@ class CommentController extends Controller
     public function index()
     {
         $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
-                ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-                ->get();
+            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+            ->get();
         return response()->json($comments);
     }
+
+
+    //TODO: переделать на универсальный метод
+    public function getForBlogs($id)
+    {
+        $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
+            ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
+            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
+            ->where('comment_to_resource.blog_id', '=', $id)
+            ->get();
+        return $this->successResponse($comments);
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -60,7 +74,7 @@ class CommentController extends Controller
 
             // Возвращаем успешный ответ JSON
             return $this->successResponse(['comment' => $comment], 'Comment created successfully', 200);
-            
+
         } catch (Exception $e) {
             // Обработка исключений через централизованную функцию
             return $this->handleException($e);
@@ -88,7 +102,7 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, $id)
     {
-        try{
+        try {
             // Найти комментарий по идентификатору
             $comment = Comment::find($id);
 
@@ -121,7 +135,7 @@ class CommentController extends Controller
      */
     public function destroy($id)
     {
-        try{
+        try {
             $comment = Comment::find($id);
 
             if (!$comment) {
@@ -136,7 +150,7 @@ class CommentController extends Controller
             $comment->delete();
 
             return $this->successResponse(['comment' => $comment], 'Comment deleted successfully', 200);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             // Обработка исключений через централизованную функцию
             return $this->handleException($e);
         }

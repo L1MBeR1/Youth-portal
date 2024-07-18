@@ -5,10 +5,13 @@ use App\Models\Blog;
 use App\Models\News;
 use App\Models\Comment;
 use App\Models\Podcast;
+use App\Models\Project;
 use App\Policies\BlogPolicy;
 use App\Policies\NewsPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\PodcastPolicy;
+use App\Policies\ProjectPolicy;
+
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -18,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         Podcast::class => PodcastPolicy::class,
         Blog::class => BlogPolicy::class,
         News::class => NewsPolicy::class,
+        Project::class => ProjectPolicy::class,
     ];
 
     public function boot()

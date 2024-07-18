@@ -12,12 +12,10 @@ use App\Http\Requests\StoreNewsRequest;
 use App\Http\Requests\UpdateNewsRequest;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Exception;
-use Illuminate\Support\Facades\Validator;
-use App\Models\User;
+
 
 class NewsController extends Controller
 {
@@ -129,36 +127,7 @@ class NewsController extends Controller
             ]));
             
             return $this->successResponse(['news' => $news], 'News created successfully', 200);
-        }   catch (Exception $e) {
-            // Обработка исключений через централизованную функцию
-            return $this->handleException($e);
-        }
-    }
-
-    public function listNews(Request $request)
-    {
-        try{
-            // TODO: добавить имя автора
-            $userId = $request->query('userId');
-            $newsId = $request->query('newsId');
-            $currentUser = $request->query('currentUser');
-
-            if ($userId) {
-                $user = User::findOrFail($userId);
-                return $this->successResponse([$user->news, $user->metadata]);
-
-            } else if ($currentUser) {
-                return $this->successResponse([Auth::user()->news, Auth::user()->metadata]);
-
-            } 
-            else if($newsId)
-            {
-                return $this->successResponse(User::findOrFail($newsId));
-            }else {
-
-                return $this->successResponse(News::all(), '', 200);
-            }
-        }   catch (ModelNotFoundException  $e) {
+        }   catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
@@ -181,39 +150,43 @@ class NewsController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param UpdateNewsRequest $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateNewsRequest $request, $id)
+    public function update(UpdateNewsRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try{
-
+        try {
             $news = News::findOrFail($id);
 
-            if(!Auth::user()->can('update', $news)) {
+            if (!Auth::user()->can('update', $news)) {
                 throw new AccessDeniedHttpException('You do not have permission to update this news');
             }
 
-            $this->validateRequest($request, $request->rules());
-            $validatedData = $request->validated();
-            $news->update($validatedData);
+            $news->update($request->validated());
 
-            return $this->successResponse(['news' => $news], 'Podcast updated successfully', 200);
-        } catch (Exception $e) {
-            // Обработка исключений через централизованную функцию
+            return $this->successResponse(['news' => $news], 'News updated successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
     
-
     /**
      * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
-
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
         try{
             $news = News::findOrFail($id);
 
-            // Проверка прав пользователя
             if (!Auth::user()->can('delete', $news)) {
                 throw new AccessDeniedHttpException('You do not have permission to delete this news');
             }
@@ -221,8 +194,9 @@ class NewsController extends Controller
             $news->delete();
 
             return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
-        }catch (Exception $e) {
-            // Обработка исключений через централизованную функцию
+        }catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }

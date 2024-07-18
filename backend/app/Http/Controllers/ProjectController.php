@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ProjectController extends Controller
 {
@@ -16,7 +22,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json('fdvdfvdf');
     }
 
 
@@ -129,7 +135,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -137,7 +143,26 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        //
+        try{
+            if (!Auth::user()->can('create', Project::class)) {
+                throw new AccessDeniedHttpException('You do not have permission to create a project');
+            }
+
+            $this->validateRequest($request, $request->rules());
+
+            $project = Project::create(array_merge($request->validated(), [
+                'author_id' => Auth::id(),
+            ]));
+            
+            return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
+        }   catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    public function storeTHIS(StoreProjectRequest $request)
+    {
+        Log::info('checkpoint');
     }
 
     /**
@@ -159,16 +184,52 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProjectRequest $request, Project $project)
+    public function update(UpdateProjectRequest $request, int $id)
     {
-        //
+        try {
+            $project = Project::findOrFail($id);
+
+            if (!Auth::user()->can('update', $project)) {
+                throw new AccessDeniedHttpException('You do not have permission to update this project');
+            }
+
+            $project->update($request->validated());
+
+            return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
+        } catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        } catch (ModelNotFoundException $e) {
+            Log::info('catch_error', [$e]);
+            return $this->handleException($e);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Project $project)
+     /**
+      * Remove the specified resource from storage.
+     *
+     * @param int $id The ID of the project to delete.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the deleted project.
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException If the user does not have permission to delete the project.
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the project with the given ID is not found.
+      */
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        //
+        try{
+            $project = Project::findOrFail($id);
+
+            if (!Auth::user()->can('delete', $project)) {
+                throw new AccessDeniedHttpException('You do not have permission to delete this project');
+            }
+
+            $project->delete();
+
+            return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200);
+        } catch (AccessDeniedHttpException $e) {
+            Log::info('catch_error', [$e]);
+            return $this->handleException($e);
+        } catch (ModelNotFoundException $e) {
+            Log::info('catch_error', [$e]);
+            return $this->handleException($e);
+        }
     }
 }

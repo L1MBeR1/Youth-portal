@@ -184,12 +184,14 @@ Route::group([
 
 // Работа с проектами
 Route::group([
-    'middleware' => ['auth:api', 'role:admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'projects'
 ], function () {
-    Route::get('', [ProjectController::class, 'getProjects']);
-    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
-    //? Route::delete('{id}', [EventController::class, 'destroy']);
-    //? Route::put('{id}', [EventController::class, 'update']);
+    Log::info('test');
+    Route::get('/index', [ProjectController::class, 'index']);
+    Route::post('', [ProjectController::class, 'store']);
+    
+    Route::delete('{id}', [ProjectController::class, 'destroy']);
+    Route::put('{id}', [ProjectController::class, 'update']);
 });
 

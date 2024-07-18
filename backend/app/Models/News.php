@@ -12,8 +12,18 @@ class News extends Model
     protected $table = 'news';
     protected $guarded = [];
 
-    public function comments()
+    /**
+     * Get the comments associated with the news.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<int, Comment>
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'news_id', 'comment_id')->withTimestamps();
+        return $this->belongsToMany(
+            Comment::class,
+            'comment_to_resource',
+            'news_id',
+            'comment_id'
+        )->withTimestamps();
     }
 }

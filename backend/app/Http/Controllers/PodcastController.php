@@ -14,6 +14,7 @@ use App\Http\Requests\UpdatePodcastRequest;
 use App\Http\Requests\StorePodcastRequest;   
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PodcastController extends Controller
 {
@@ -125,7 +126,7 @@ class PodcastController extends Controller
                 'author_id' => Auth::id(),
             ]));
             return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
-        } catch (Exception $e) {
+        } catch (AccessDeniedHttpException $e) {
             // Обработка исключений через централизованную функцию
             return $this->handleException($e);
         }
@@ -155,11 +156,7 @@ class PodcastController extends Controller
     {
         try{
 
-            $podcast = Podcast::find($id);
-
-            if (!$podcast) {
-                throw new NotFoundHttpException('Podcast not found');
-            }
+            $podcast = Podcast::findOrFail($id);
 
             if(!Auth::user()->can('update', $podcast)) {
                 throw new AccessDeniedHttpException('You do not have permission to update this podcast');
@@ -170,8 +167,9 @@ class PodcastController extends Controller
             $podcast->update($validatedData);
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
-        } catch (Exception $e) {
-            // Обработка исключений через централизованную функцию
+        } catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        } catch (ModelNotFoundException $e) {
             return $this->handleException($e);
         }
     }
@@ -182,11 +180,7 @@ class PodcastController extends Controller
     public function destroy($id)
     {
         try{
-            $podcast = Podcast::find($id);
-
-            if (!$podcast) {
-                throw new NotFoundHttpException('Podcast not found');
-            }
+            $podcast = Podcast::findOrFail($id);
 
             // Проверка прав пользователя
             if (!Auth::user()->can('delete', $podcast)) {
@@ -197,7 +191,8 @@ class PodcastController extends Controller
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
         }catch (Exception $e) {
-            // Обработка исключений через централизованную функцию
+            return $this->handleException($e);
+        } catch (ModelNotFoundException $e) {
             return $this->handleException($e);
         }
     }

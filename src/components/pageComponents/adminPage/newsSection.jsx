@@ -131,7 +131,7 @@ function NewsSection() {
     { field: 'author', headerName: 'Автор', width: '140px', render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic },
     { field: 'nickname', headerName: 'Никнейм', width: '120px' },
     { field: 'title', headerName: 'Название', width: '200px' },
-    { field: 'description', headerName: 'Описание', width: '200px' },
+    { field: 'description', headerName: 'Описание', width: '200px', render: (value) => value.desc},
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
     { field: 'status', headerName: 'Статус', width: '120px', render: getStatus },
   ];

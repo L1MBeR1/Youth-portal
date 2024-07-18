@@ -13,6 +13,7 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
+import Stack from '@mui/joy/Stack';
 import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
 import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
@@ -32,12 +33,12 @@ import EditIcon from '@mui/icons-material/Edit';
 import CustomTable from './customTable.jsx';
 import CustomList from './customList.jsx';
 import Pagination from './pagination.jsx';
-import {getProjectsByPage } from '../../../api/projectsApi.js';
+import {getModerators } from '../../../api/usersApi.js';
 import { getCookie } from '../../../cookie/cookieUtils.js';
 
-const fetchProjects = async (token, page, setFunc,setLastPage) => {
+const fetchModerators = async (token, page, setFunc,setLastPage) => {
   try {
-    const response = await getProjectsByPage(token, page);
+    const response = await getModerators(token, page);
     console.log(response);
     if (response) {
       setFunc(response.data);
@@ -46,24 +47,10 @@ const fetchProjects = async (token, page, setFunc,setLastPage) => {
       console.error('Fetched data is not an array:', response);
     }
   } catch (error) {
-    console.error('Fetching blogs failed', error);
+    console.error('Fetching moderators failed', error);
   }
 };
 
-const getStatus = (status) => {
-  switch (status) {
-    case 'moderating':
-      return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
-    case 'published':
-      return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
-    case 'archived':
-      return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
-    case 'pending':
-      return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
-    default:
-      return <Chip size="sm">{status}</Chip>;
-  }
-};
 
 const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
   <React.Fragment>
@@ -87,12 +74,12 @@ const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStat
   </React.Fragment>
 );
 
-function ProjectsSection() {
-  const [openProject, setOpenProject] = useState(false);
+function ModeratorsSection() {
+  const [openModerator, setOpenModerator] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [projects, setProjects] = useState([]);
+  const [moderators, setModerators] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -100,7 +87,7 @@ function ProjectsSection() {
 
   useEffect(() => {
     const token = getCookie('token');
-    fetchProjects(token, page, setProjects,setLastPage);
+    fetchModerators(token, page, setModerators,setLastPage);
   }, [page]);
 
   function RowMenu() {
@@ -113,7 +100,7 @@ function ProjectsSection() {
           <MoreVertIcon />
         </MenuButton>
         <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
+          <MenuItem onClick={() => setOpenModerator(true)}>Просмотреть</MenuItem>
           <MenuItem>Изменить</MenuItem>
         </Menu>
       </Dropdown>
@@ -128,24 +115,26 @@ function ProjectsSection() {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
-    { field: 'name', headerName: 'Название', width: '140px'},
-    { field: 'description', headerName: 'Описание', width: '200px', render: (value) => value.desc },
-    { field: 'author',headerName: 'Организатор', width: '140px', render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic },
-    { field: 'location', headerName: 'Адрес', width: '200px' },
-    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
+    { field: 'avatar', width: '70px' ,render: (value) => <Avatar variant='outlined' src={value.profile_image_uri}/>},
+    { field: 'fullName', headerName: 'ФИО', width: '140px',render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic},
+    { field: 'nickname', headerName: 'Никнейм', width: '100px' },
+    { field: 'email', headerName: 'Почта', width: '140px' },
+    { field: 'gender', headerName: 'Пол', width: '100px' },
+    { field: 'birthday', headerName: 'День рождения', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
   ];
 
-  const rows = projects.map((item) => ({
+  const rows = moderators.map((item) => ({
     ...item,
-    author: { last_name: item.last_name, first_name: item.first_name, patronymic: item.patronymic },
+    fullName: { last_name: item.last_name, first_name: item.first_name, patronymic: item.patronymic },
+    avatar:{profile_image_uri:item.profile_image_uri}
   }));
   return (
     <> 
         <Modal
         aria-labelledby="close-modal-title"
-        open={openProject}
+        open={openModerator}
         onClose={() => {
-          setOpenProject(false);
+          setOpenModerator(false);
         }}
         sx={{
           display: 'flex',
@@ -168,7 +157,7 @@ function ProjectsSection() {
           </ModalDialog>
       </Modal>
       <Typography  fontWeight={700} fontSize={30}>
-           Проекты
+           Модераторы
       </Typography>
       <Box
         sx={{
@@ -222,14 +211,14 @@ function ProjectsSection() {
         columns={columns} 
         rows={rows}
         rowMenu={RowMenu()}
-        colTitle={'name'}
-        colAuthor={'author'}
-        colDescription={'description'}
-        colDate={'created_at'}
+        colAvatar={'avatar'}
+        colTitle={'fullName'}
+        colAuthor={'email'}
+        colDate={'birthday'}
         />
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }
 
-export default ProjectsSection;
+export default ModeratorsSection;

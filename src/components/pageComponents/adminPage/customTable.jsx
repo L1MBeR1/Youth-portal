@@ -12,7 +12,7 @@ const CustomTable = ({ columns, rows, rowMenu }) => {
         "--TableCell-headBackground": "var(--joy-palette-background-level1)",
         "--Table-headerUnderlineThickness": "1px",
         "--TableRow-hoverBackground": "var(--joy-palette-background-level1)",
-        "--TableCell-paddingY": "8px",
+        "--TableCell-paddingY": "4px",
         "--TableCell-paddingX": "12px",
       }}
     >
@@ -26,20 +26,41 @@ const CustomTable = ({ columns, rows, rowMenu }) => {
               {column.headerName}
             </th>
           ))}
-          {rowMenu ? <th style={{ width: 50 }}></th> : <></>}
+          {rowMenu ? <th style={{ width: 50 }}></th> : null}
         </tr>
       </thead>
       <tbody>
         {rows.map((row, index) => (
           <tr key={index}>
             {columns.map((column) => (
-              <td key={column.field} style={{ width: column.width }}>
-                {column.render
-                  ? column.render(row[column.field])
-                  : row[column.field]}
+              <td
+                key={column.field}
+                style={{
+                  width: column.width,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "normal",
+                  maxHeight: "4.8em",
+                  lineHeight: "1.2em",
+                }}
+              >
+                <div
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 4,
+                    WebkitBoxOrient: "vertical",
+                    whiteSpace: "normal",
+                  }}
+                >
+                  {column.render
+                    ? column.render(row[column.field])
+                    : row[column.field]}
+                </div>
               </td>
             ))}
-            {rowMenu ? <td style={{ width: 50 }}>{rowMenu}</td> : <></>}
+            {rowMenu ? <td style={{ width: 50 }}>{rowMenu}</td> : null}
           </tr>
         ))}
       </tbody>

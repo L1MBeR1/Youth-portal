@@ -113,9 +113,9 @@ function EventsSection() {
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: '80px' },
+    { field: 'id', headerName: 'ID', width: '60px' },
     { field: 'name', headerName: 'Название', width: '140px'},
-    { field: 'description', headerName: 'Описание', width: '200px' },
+    { field: 'description', headerName: 'Описание', width: '200px', render: (value) => value.desc },
     { field: 'author',headerName: 'Организатор', width: '140px', render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic },
     { field: 'location', headerName: 'Адрес', width: '200px' },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (value) => new Date(value).toLocaleDateString() },

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils.js';
-import { register } from '../../api/authApi.js';
-import { getProfile } from '../../api/usersApi.js';
+import { register,getProfile} from '../../api/authApi.js';
+
 import { useQueryClient } from '@tanstack/react-query';
 import zxcvbn from 'zxcvbn';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link,useNavigate} from 'react-router-dom';
 import {getCookie, removeCookie} from '../../../cookie/cookieUtils.js';
-import { getProfile } from '../../../api/usersApi.js';
+import { getProfile } from '../../../api/authApi.js';
 import {jwtDecode} from 'jwt-decode';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 

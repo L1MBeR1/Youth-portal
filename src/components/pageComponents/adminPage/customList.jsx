@@ -24,7 +24,10 @@ const OrderList = ({
 }) => {
   return (
     <Box>
-      <Box sx={{ display: { xs: "block", sm: "none" } }}>
+      <Box 
+      sx={{ 
+      display: { xs: "block", sm: "none" } 
+      }}>
         <List size="sm">
           {rows.map((row) => (
             <React.Fragment key={row.id}>
@@ -34,7 +37,8 @@ const OrderList = ({
                   justifyContent: "space-between",
                   alignItems: "start",
                   flexDirection: "row",
-                  p: 1,
+                  overflowX:'hidden',
+                  paddng: '10px',
                 }}
               >
                 <Box
@@ -62,14 +66,25 @@ const OrderList = ({
                       flexDirection: "column",
                       gap: "3px",
                     }}
-                  >
-                    <Typography level="title-md">
-                    {colTitle ?(
-                      renderField(
-                        row,
-                        columns.find((col) => col.field === colTitle)
-                      )):(<></>)}
-                    </Typography>
+                  > 
+                    <Box
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      whiteSpace: "normal",
+                    }}
+                    >
+                      <Typography level="title-md">
+                      {colTitle ?(
+                        renderField(
+                          row,
+                          columns.find((col) => col.field === colTitle)
+                        )):(<></>)}
+                      </Typography>
+                    </Box>
                     <Typography level="title-sm">
                     {colAuthor ?(
                       renderField(
@@ -77,6 +92,16 @@ const OrderList = ({
                         columns.find((col) => col.field === colAuthor)
                       )):(<></>)}
                     </Typography>
+                    <Box
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      whiteSpace: "normal",
+                    }}
+                    >
                     <Typography level="body-xs">
                     {colDescription ?(
                       renderField(
@@ -84,6 +109,7 @@ const OrderList = ({
                         columns.find((col) => col.field === colDescription)
                       )):(<></>)}
                     </Typography>
+                    </Box>
                     <Typography level="body-sm">
                     {colDate ?(
                       renderField(

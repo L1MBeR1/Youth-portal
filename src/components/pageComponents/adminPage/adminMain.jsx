@@ -7,6 +7,7 @@ import Podcasts from './podcastsSection';
 import News from './newsSection';
 import Events from './eventsSection';
 import Projects from './projectsSection';
+import Moderators from './moderatorsSection'
 
   function AdminMain({section}) {
     const getContent = (section) => {
@@ -14,7 +15,7 @@ import Projects from './projectsSection';
         case 'statistics':
           return
         case 'moderators':
-          return 
+          return <Moderators/>
         case 'organizations':
           return 
         case 'projects':
@@ -42,7 +43,7 @@ import Projects from './projectsSection';
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
-          padding:{xs:'5px 10px',sm:'10px 20px',md:'30px 45px'},
+          padding:{xs:'15px 10px',sm:'10px 20px',md:'30px 45px'},
           maxHeight:'100%',
           overflowY:{xs:'scroll',sm:'hidden'},
         }}

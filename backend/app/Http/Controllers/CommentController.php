@@ -42,6 +42,23 @@ class CommentController extends Controller
         return $this->successResponse($comments);
     }
 
+    /**
+     * Get comments for a specific content item.
+     *
+     * @param int $id The ID of the content item.
+     * @param string $type The type of the content item.
+     * @return \Illuminate\Http\JsonResponse The comments for the content item.
+     */
+    public function getForContent(int $id, string $type): \Illuminate\Http\JsonResponse
+    {
+        $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
+            ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
+            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
+            ->where('comment_to_resource.' . $type . '_id', '=', $id)
+            ->get();
+        return $this->successResponse($comments);
+    }
+
 
 
     /**

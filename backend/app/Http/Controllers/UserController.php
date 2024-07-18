@@ -35,9 +35,26 @@ class UserController extends Controller
 
         $response = $users->map(function ($user) {
             return [
-                'metadata' => $user->metadata,
+                'id' => $user->id,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'first_name' => $user->metadata->first_name,
+                'last_name' => $user->metadata->last_name,
+                'patronymic' => $user->metadata->patronymic,
+                'nickname' => $user->metadata->nickname,
+                'profile_image_uri' => $user->metadata->profile_image_uri,
+                'city' => $user->metadata->city,
+                'gender' => $user->metadata->gender,
+                'birthday' => $user->metadata->birthday,
             ];
         });
+        
+
+        // $response = $users->map(function ($user) {
+        //     return [
+        //         'metadata' => $user->metadata,
+        //     ];
+        // });
 
         $paginationData = [
             'current_page' => $users->currentPage(),

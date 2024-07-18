@@ -18,62 +18,25 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return response()->json('fdvdfvdf');
-    }
-
-
-    /**
-     * Получение списка проектов
+     * Список (новый)
      * 
-     * Возвращает список проектов с поддержкой пагинации и фильтрации.
+     * Получение списка проектов (новый. использовать этот метод)
      * 
      * @group Проекты
      * @authenticated
      * 
-     * @urlParam userId int ID пользователя, чтобы отфильтровать проекты по автору.
-     * @urlParam currentUser bool Флаг для поиска проектов текущего пользователя.
-     * @urlParam projectId int ID проекта, чтобы получить конкретный проект.
-     * @urlParam withAuthors bool Включить авторов в ответ.
-     * @urlParam page int Номер страницы для пагинации.
-     * @urlParam per_page int Количество элементов на странице.
-     * 
-     * @response 200 {
-     *  "data": [
-     *    {
-     *      "id": 1,
-     *      "name": "Название проекта",
-     *      "description": "Описание проекта",
-     *      "location": "Местоположение проекта",
-     *      "author_id": 1,
-     *      "created_at": "2024-01-01T00:00:00.000000Z",
-     *      "updated_at": "2024-01-01T00:00:00.000000Z",
-     *      "first_name": "Имя автора",
-     *      "last_name": "Фамилия автора",
-     *      "patronymic": "Отчество автора",
-     *      "nickname": "Ник автора"
-     *    }
-     *  ],
-     *  "meta": {
-     *    "current_page": 1,
-     *    "from": 1,
-     *    "last_page": 1,
-     *    "per_page": 10,
-     *    "to": 1,
-     *    "total": 1
-     *  }
-     * }
-     * 
-     * @response 403 {
-     *  "message": "Нет прав на просмотр"
-     * }
-     * 
-     * @response 404 {
-     *  "message": "User not found"
-     * }
+     * @bodyParam userId int ID пользователя.
+     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
+     * @bodyParam projectId int ID проекта.
+     * @urlParam withAuthors bool Включать авторов в ответ.
+     * @urlParam page int Номер страницы.
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
+     * @urlParam tagFilter string Фильтр по тегу в meta описания.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -89,6 +52,14 @@ class ProjectController extends Controller
         $currentUser = $request->query('currentUser');
         $projectId = $request->query('projectId');
         $withAuthors = $request->query('withAuthors', false);
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $tagFilter = $request->query('tagFilter');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
+
         $query = Project::query();
 
         if ($withAuthors) {
@@ -113,6 +84,30 @@ class ProjectController extends Controller
             $query->where('id', $projectId);
         }
 
+        if ($searchColumnName) {
+            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        }
+
+        if ($tagFilter) {
+            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        }
+
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('created_at', '<=', $crtTo);
+        }
+
+        if ($updFrom && $updTo) {
+            $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('updated_at', '<=', $updTo);
+        }
+
         $projects = $query->paginate($perPage);
 
         $paginationData = [
@@ -131,19 +126,11 @@ class ProjectController extends Controller
 
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreProjectRequest $request)
     {
-        try{
+        try {
             if (!Auth::user()->can('create', Project::class)) {
                 throw new AccessDeniedHttpException('You do not have permission to create a project');
             }
@@ -153,33 +140,25 @@ class ProjectController extends Controller
             $project = Project::create(array_merge($request->validated(), [
                 'author_id' => Auth::id(),
             ]));
-            
+
             return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
-        }   catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
+
+
+
+
 
     public function storeTHIS(StoreProjectRequest $request)
     {
         Log::info('checkpoint');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Project $project)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project)
-    {
-        //
-    }
+
+
 
     /**
      * Update the specified resource in storage.
@@ -204,17 +183,20 @@ class ProjectController extends Controller
         }
     }
 
-     /**
-      * Remove the specified resource from storage.
+
+
+
+    /**
+     * Remove the specified resource from storage.
      *
      * @param int $id The ID of the project to delete.
      * @return \Illuminate\Http\JsonResponse The JSON response containing the deleted project.
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException If the user does not have permission to delete the project.
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the project with the given ID is not found.
-      */
+     */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try{
+        try {
             $project = Project::findOrFail($id);
 
             if (!Auth::user()->can('delete', $project)) {

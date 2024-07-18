@@ -49,13 +49,9 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-
-    // Route::get('users', [UserController::class, 'listUsers']);
-    // Route::get('blogs', [BlogController::class, 'listBlogs']);
-    // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
-    // Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
-    // Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
 });
+
+
 
 // Работа с организациями
 Route::group([
@@ -64,6 +60,8 @@ Route::group([
 ], function () {
     Route::get('', [AdminController::class, 'getOrganizations']);
 });
+
+
 
 // Работа с пользователями
 Route::group([
@@ -87,6 +85,8 @@ Route::group([
    Route::post('{role_name}', [AdminController::class, 'AddPermissionsToRole']); 
 });
 
+
+
 // Работа с разрешениями
 Route::group([
     'middleware' => ['auth:api', 'role:admin'],
@@ -95,6 +95,7 @@ Route::group([
     Route::get('', [AdminController::class, 'listPermissions']);
     Route::post('', [AdminController::class, 'createPermission']);
  });
+
 
 
 // Прокси (временно, пока нет SSL)
@@ -106,6 +107,7 @@ Route::group([
 });
 
 
+
 // Аутентификация VK
 Route::group([
     'middleware' => 'api',
@@ -114,11 +116,12 @@ Route::group([
     //Route::post('/', [VKAuthController::class, 'redirectToProvider']);
     Route::get('/callback', [VKAuthController::class, 'handleProviderCallback']);
 });
-
-
 // Маршруты для VK
 // Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
 // Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
+
+
+
 
 
 // Работа с блогами
@@ -135,6 +138,8 @@ Route::group([
     Route::put('{id}/status', [BlogController::class, 'setStatus']);
 });
 
+
+
 // Работа с новостями
 Route::group([
     'middleware' => ['auth:api'],
@@ -145,8 +150,10 @@ Route::group([
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
-     Route::get('', [NewsController::class, 'listNews']);
+    //  Route::get('', [NewsController::class, 'listNews']);
 });
+
+
 
 // Работа с подкастами
 Route::group([
@@ -160,6 +167,8 @@ Route::group([
     Route::put('{id}', [PodcastController::class, 'update']);
 });
 
+
+
 // Работа с комментариями
 Route::group([
     'middleware' => ['auth:api'],
@@ -170,11 +179,9 @@ Route::group([
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
     Route::get('/{id}/{type}', [CommentController::class, 'getForContent']);
-
-
-    // FIXME: Удалить
-    Route::get('blogs/{blog_id}', [CommentController::class, 'getForBlogs']);
 });
+
+
 
 // Работа с событиями
 Route::group([
@@ -187,6 +194,8 @@ Route::group([
     //? Route::put('{id}', [EventController::class, 'update']);
 });
 
+
+
 // Работа с проектами
 Route::group([
     'middleware' => ['auth:api'],
@@ -194,9 +203,8 @@ Route::group([
 ], function () {
     // Log::info('test');
     Route::get('', [ProjectController::class, 'getProjects']);
-    Route::get('/index', [ProjectController::class, 'index']);
+    // Route::get('/index', [ProjectController::class, 'index']);
     Route::post('', [ProjectController::class, 'store']);
-    
     Route::delete('{id}', [ProjectController::class, 'destroy']);
     Route::put('{id}', [ProjectController::class, 'update']);
 });

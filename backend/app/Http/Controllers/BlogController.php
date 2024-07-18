@@ -172,15 +172,6 @@ class BlogController extends Controller
             'total' => $blogs->total(),
         ];
 
-        // Декодирование описания и тегов
-        // $formattedBlogs = $blogs->map(function ($blog) {
-        //     $description = json_decode($blog->description, true);
-        //     $blog->description = $description['desc'];
-        //     $blog->tags = json_decode($description['meta']['tags']);
-
-        //     return $blog;
-        // });
-
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
 
@@ -207,10 +198,6 @@ class BlogController extends Controller
             'description' => 'required|string',
             'content' => 'required|string',
             'cover_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
         ]);
 
         $input = $request->all();
@@ -232,6 +219,16 @@ class BlogController extends Controller
      * 
      * @authenticated
      * @group Блоги
+     * 
+     * @bodyParam title string Название.
+     * @bodyParam description string Описание.
+     * @bodyParam content string Содержание.
+     * @bodyParam cover_uri string URI обложки.
+     * @bodyParam status string Статус.
+     * @bodyParam views int Количество просмотров.
+     * @bodyParam likes int Количество лайков.
+     * @bodyParam reposts int Количество репостов.
+     * 
      */
     public function update(Request $request, $id)
     {
@@ -282,6 +279,7 @@ class BlogController extends Controller
      * @group Блоги
      * @authenticated
      * 
+     * @bodyParam status string Новый статус
      * 
      */
     public function setStatus(Request $request, $id)

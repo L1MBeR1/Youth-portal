@@ -9,14 +9,21 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Получить список всех пользователей с фильтрацией по роли
+     * Получить список всех пользователей с фильтрацией по роли и дополнительными параметрами
      * 
      * Получение списка всех пользователей с пагинацией, по 10 пользователей на страницу.
      * Фильтрация осуществляется по роли, переданной в параметре `role_name`.
+     * Дополнительные фильтры могут быть применены через параметры запроса.
      *
      * @group Пользователи
      * @urlParam role_name string Название роли для фильтрации пользователей.
-     * @urlParam page int Номер страницы.
+     * @queryParam searchColumnName string Поиск по столбцу.
+     * @queryParam searchValue string Поисковый запрос.
+     * @queryParam crtFrom string Дата начала создания (формат: Y-m-d H:i:s).
+     * @queryParam crtTo string Дата окончания создания (формат: Y-m-d H:i:s).
+     * @queryParam updFrom string Дата начала обновления (формат: Y-m-d H:i:s).
+     * @queryParam updTo string Дата окончания обновления (формат: Y-m-d H:i:s).
+     * @queryParam page int Номер страницы.
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -31,6 +38,37 @@ class UserController extends Controller
             });
         }
 
+        // Дополнительные фильтры
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
+
+        if ($searchColumnName && $searchValue) {
+            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
+                ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+
+        }
+
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('users.created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('users.created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('users.created_at', '<=', $crtTo);
+        }
+
+        if ($updFrom && $updTo) {
+            $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('users.updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('users.updated_at', '<=', $updTo);
+        }
+
+        // Выполняем запрос с пагинацией
         $users = $query->paginate(10);
 
         $response = $users->map(function ($user) {
@@ -60,6 +98,7 @@ class UserController extends Controller
 
         return $this->successResponse($response, $paginationData, 200);
     }
+
 
 
 

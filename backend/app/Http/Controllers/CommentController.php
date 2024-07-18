@@ -2,48 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Comment;
-use App\Http\Requests\StoreCommentRequest;
-use App\Http\Requests\UpdateCommentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use App\Models\CommentToResource;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Exception;
-use Illuminate\Support\Facades\Validator;
 
 
 
 class CommentController extends Controller
 {
+   
     /**
-     * Display a listing of the resource.
+     * Список
+     * 
+     * Получить всё комментарии
+     *
+     * @group Комментарии
+     * 
+     * @authenticated 
+     * 
+     * @return \Illuminate\Http\JsonResponse 
      */
     public function index()
     {
         $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
-            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+            ->select(
+                'comments.*',
+                'user_metadata.first_name',
+                'user_metadata.last_name',
+                'user_metadata.patronymic',
+                'user_metadata.nickname'
+            )
             ->get();
         return response()->json($comments);
     }
 
 
-    //TODO: переделать на универсальный метод
-    public function getForBlogs($id)
-    {
-        $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
-            ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
-            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
-            ->where('comment_to_resource.blog_id', '=', $id)
-            ->get();
-        return $this->successResponse($comments);
-    }
 
     /**
-     * Get comments for a specific content item.
+     * Найти
+     * 
+     * Получите комментарии для конкретного элемента контента.
+     * 
+     * @group Комментарии
+     * 
+     * @authenticated
      *
      * @param int $id The ID of the content item.
      * @param string $type The type of the content item.
@@ -62,15 +73,13 @@ class CommentController extends Controller
 
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Создать
+     * 
+     * Создать новый комментарий.
+     * 
+     * @group Комментарии
+     * 
+     * @authenticated
      */
     public function store(StoreCommentRequest $request, $resource_type, $resource_id)
     {
@@ -98,24 +107,17 @@ class CommentController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment)
-    {
-        //
-    }
+
+
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Обновить
+     * 
+     * Обновить комментарий.
+     * 
+     * @group Комментарии
+     * 
+     * @authenticated
      */
     public function update(UpdateCommentRequest $request, $id)
     {
@@ -147,8 +149,16 @@ class CommentController extends Controller
         }
     }
 
+
+
     /**
-     * Remove the specified resource from storage.
+     * Удалить
+     * 
+     * Удалить комментарий.
+     * 
+     * @group Комментарии
+     * 
+     * @authenticated
      */
     public function destroy($id)
     {
@@ -172,6 +182,4 @@ class CommentController extends Controller
             return $this->handleException($e);
         }
     }
-
-
 }

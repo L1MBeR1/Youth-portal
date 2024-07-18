@@ -146,7 +146,7 @@ class UserController extends Controller
             return $this->errorResponse('User not found', [], 404);
         }
 
-        $user->assignRole($role);
+        $user->removeRole($role);
 
         return $this->successResponse([], 'Role added successfully');
     }

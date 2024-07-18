@@ -13,7 +13,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
-use App\Http\Controllers\CommentToResourceController;
+// use App\Http\Controllers\CommentToResourceController;
 
 /**
  * 
@@ -123,7 +123,7 @@ Route::group([
 
 // Работа с блогами
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger|admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'blogs'
 ], function () {
     Route::get('old', [BlogController::class, 'listBlogs']);
@@ -140,7 +140,6 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'news'
 ], function () {
-     // Route::get('/edit', [NewsController::class, 'edit']);
      Route::get('/index', [NewsController::class, 'index']);
      Route::get('', [NewsController::class, 'getNews']);
      Route::post('', [NewsController::class, 'store']);
@@ -193,7 +192,8 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'projects'
 ], function () {
-    Log::info('test');
+    // Log::info('test');
+    Route::get('', [ProjectController::class, 'getProjects']);
     Route::get('/index', [ProjectController::class, 'index']);
     Route::post('', [ProjectController::class, 'store']);
     

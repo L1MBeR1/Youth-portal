@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\UserMetadata;
+use Illuminate\Database\Seeder;
 
 class UsersWithRolesSeeder extends Seeder
 {
@@ -14,7 +15,7 @@ class UsersWithRolesSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            User::create([
+            $user = User::create([
                 'password' => bcrypt('password'),
                 'email' => $role . '@example.org',
                 'email_verified_at' => now(),
@@ -25,6 +26,8 @@ class UsersWithRolesSeeder extends Seeder
                 'updated_at' => now(),
                 'blocked_at' => null,
             ])->assignRole($role);
+            
+            UserMetadata::factory()->create(['user_id' => $user->id]);
         }
     }
 }

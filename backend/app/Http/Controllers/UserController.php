@@ -48,13 +48,6 @@ class UserController extends Controller
                 'birthday' => $user->metadata->birthday,
             ];
         });
-        
-
-        // $response = $users->map(function ($user) {
-        //     return [
-        //         'metadata' => $user->metadata,
-        //     ];
-        // });
 
         $paginationData = [
             'current_page' => $users->currentPage(),

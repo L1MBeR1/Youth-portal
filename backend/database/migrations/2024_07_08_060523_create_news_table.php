@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('news', function (Blueprint $table) {
             $table->increments('id');
             $table->text('title');
-            $table->text('description');
-            //TODO: Посмотреть про хранение контента в 
-            //      двоичной форме (binary)
+            $table->jsonb('description');
             $table->text('content');
             $table->text('cover_uri');
             $table->enum('status', ['moderating', 'published', 'archived', 'pending']);

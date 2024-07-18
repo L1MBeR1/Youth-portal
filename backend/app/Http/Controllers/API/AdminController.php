@@ -129,7 +129,7 @@ class AdminController extends Controller
 
 
     // public function deleteRole($role_name){
-    //
+    // 
     // }
 
 
@@ -137,7 +137,7 @@ class AdminController extends Controller
     //
     // }
 
-    /**
+    /** 
      * Получить пользователей по роли
      * 
      * Получить пользователей по роли `role_name`

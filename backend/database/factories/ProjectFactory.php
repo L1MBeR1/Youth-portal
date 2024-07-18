@@ -18,7 +18,12 @@ class ProjectFactory extends Factory
         
         return [
             'name' => $this->faker->company(),
-            'description' => $this->faker->realText(100),
+            'description' => json_encode([
+                'desc' => $this->faker->realText(100),
+                'meta' => [
+                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                ]
+            ]),
             'location' => 'задать(PROJECT_FACTORY.PHP)',
             'author_id' => $this->faker->randomElement($userIds),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),

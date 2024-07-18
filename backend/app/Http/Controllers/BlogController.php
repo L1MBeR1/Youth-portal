@@ -83,6 +83,13 @@ class BlogController extends Controller
      * @bodyParam blogId int ID блога.
      * @urlParam withAuthors bool Включать авторов в ответ.
      * @urlParam page int Номер страницы.
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
+     * @urlParam tagFilter string Фильтр по тегу в meta описания.
+     * @urlParam crDateFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crDateTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updDateFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updDateTo string Дата окончания (формат: Y-m-d H:i:s).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -93,12 +100,19 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-
         $perPage = $request->get('per_page', 5);
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
         $blogId = $request->query('blogId');
         $withAuthors = $request->query('withAuthors', false);
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $tagFilter = $request->query('tagFilter');
+        $crDateFrom = $request->query('crDateFrom');
+        $crDateTo = $request->query('crDateTo');
+        $updDateFrom = $request->query('updDateFrom');
+        $updDateTo = $request->query('updDateTo');
+
         $query = Blog::query();
 
         if ($withAuthors) {
@@ -123,6 +137,30 @@ class BlogController extends Controller
             $query->where('id', $blogId);
         }
 
+        if ($searchColumnName) {
+            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        }
+
+        if ($tagFilter) {
+            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        }
+
+        if ($crDateFrom && $crDateTo) {
+            $query->whereBetween('created_at', [$crDateFrom, $crDateTo]);
+        } elseif ($crDateFrom) {
+            $query->where('created_at', '>=', $crDateFrom);
+        } elseif ($crDateTo) {
+            $query->where('created_at', '<=', $crDateTo);
+        }
+
+        if ($updDateFrom && $updDateTo) {
+            $query->whereBetween('updated_at', [$updDateFrom, $updDateTo]);
+        } elseif ($updDateFrom) {
+            $query->where('updated_at', '>=', $updDateFrom);
+        } elseif ($updDateTo) {
+            $query->where('updated_at', '<=', $updDateTo);
+        }
+
         $blogs = $query->paginate($perPage);
 
         $paginationData = [
@@ -136,6 +174,7 @@ class BlogController extends Controller
 
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
+
 
 
 

@@ -21,12 +21,12 @@ class EventFactory extends Factory
 
         return [
             'name' => $this->faker->company(),
-            'description' => json_encode([
+            'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
                 ]
-            ]),
+            ],
             'location' => 'задать(EVENT_FACTORY.PHP)',
             'views' => $this->faker->numberBetween(0, 1000),
             'author_id' => $this->faker->randomElement($userIds->toArray()),

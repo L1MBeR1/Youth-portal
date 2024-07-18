@@ -23,12 +23,12 @@ class BlogFactory extends Factory
         $desc = $this->faker->realText(100);
         return [
             'title' => $this->faker->company(),
-            'description' => json_encode([
+            'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
                 ]
-            ]),
+            ],
             'content' => $this->faker->realText(100),
             'cover_uri' => $this->faker->imageUrl(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),

@@ -16,12 +16,12 @@ class PodcastFactory extends Factory
 
         return [
             'title' => $this->faker->bank(),
-            'description' => json_encode([
+            'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
                 ]
-            ]),
+            ],
             'content' => $this->faker->realText(100),
             'cover_uri' => $this->faker->imageUrl(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),

@@ -86,10 +86,10 @@ class BlogController extends Controller
      * @urlParam searchColumnName string Поиск по столбцу.
      * @urlParam searchValue string Поисковый запрос.
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
-     * @urlParam crDateFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam crDateTo string Дата окончания (формат: Y-m-d H:i:s).
-     * @urlParam updDateFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam updDateTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -108,10 +108,10 @@ class BlogController extends Controller
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
         $tagFilter = $request->query('tagFilter');
-        $crDateFrom = $request->query('crDateFrom');
-        $crDateTo = $request->query('crDateTo');
-        $updDateFrom = $request->query('updDateFrom');
-        $updDateTo = $request->query('updDateTo');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
 
         $query = Blog::query();
 
@@ -145,20 +145,20 @@ class BlogController extends Controller
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
 
-        if ($crDateFrom && $crDateTo) {
-            $query->whereBetween('created_at', [$crDateFrom, $crDateTo]);
-        } elseif ($crDateFrom) {
-            $query->where('created_at', '>=', $crDateFrom);
-        } elseif ($crDateTo) {
-            $query->where('created_at', '<=', $crDateTo);
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('created_at', '<=', $crtTo);
         }
 
-        if ($updDateFrom && $updDateTo) {
-            $query->whereBetween('updated_at', [$updDateFrom, $updDateTo]);
-        } elseif ($updDateFrom) {
-            $query->where('updated_at', '>=', $updDateFrom);
-        } elseif ($updDateTo) {
-            $query->where('updated_at', '<=', $updDateTo);
+        if ($updFrom && $updTo) {
+            $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('updated_at', '<=', $updTo);
         }
 
         $blogs = $query->paginate($perPage);
@@ -171,6 +171,15 @@ class BlogController extends Controller
             'to' => $blogs->lastItem(),
             'total' => $blogs->total(),
         ];
+
+        // Декодирование описания и тегов
+        // $formattedBlogs = $blogs->map(function ($blog) {
+        //     $description = json_decode($blog->description, true);
+        //     $blog->description = $description['desc'];
+        //     $blog->tags = json_decode($description['meta']['tags']);
+
+        //     return $blog;
+        // });
 
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }

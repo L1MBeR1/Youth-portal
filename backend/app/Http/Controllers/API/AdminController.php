@@ -144,16 +144,61 @@ class AdminController extends Controller
      * 
      * @group Администрирование
      * 
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
      * 
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
      * @param mixed $role_name
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function listUserWithRole($role_name)
+    public function listUserWithRole(Request $request, $role_name)
     {
-        $users = User::role($role_name)->paginate(10);
+        $query = User::query();
+
+        // Получаем параметры из запроса
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
+
+        // Добавляем условия поиска только если параметры переданы
+        if ($searchColumnName && $searchValue) {
+            $query->join('metadata', 'users.id', '=', 'metadata.user_id')
+                ->where('metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        }
+
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('users.created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('users.created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('users.created_at', '<=', $crtTo);
+        }
+
+        if ($updFrom && $updTo) {
+            $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('users.updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('users.updated_at', '<=', $updTo);
+        }
+
+        // Применяем фильтр по роли
+        // $query->whereHas('roles', function ($q) use ($role_name) {
+        //     $q->where('name', $role_name);
+        // });
+
+        // Выполняем запрос с пагинацией
+        $users = $query->paginate(10);
 
         return $this->successResponse($users, 'Список пользователей с ролью [' . $role_name . ']', 200);
     }
+
 
     /**
      * Список

@@ -257,3 +257,6 @@
     font-size: 12px;
     color: #777;
 }
+.comment-reply {
+    margin-left: 20px; /* Примерный отступ для ответов на комментарии */
+}

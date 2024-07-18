@@ -73,6 +73,7 @@ Route::group([
     Route::get('', [UserController::class, 'listUsers']);
     Route::post('{user_id}/roles/{role_name}', [UserController::class, 'addRoleToUser']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
+    
 });
 
 
@@ -169,6 +170,10 @@ Route::group([
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
+
+
+    // FIXME: Удалить
+    Route::get('blogs/{blog_id}', [CommentController::class, 'getForBlogs']);
 });
 
 // Работа с событиями

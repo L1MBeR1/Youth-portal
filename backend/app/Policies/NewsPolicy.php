@@ -21,7 +21,7 @@ class NewsPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, News $news): bool
+    public function view(User $user): bool
     {
         return true;
     }

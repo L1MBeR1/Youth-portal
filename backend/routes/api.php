@@ -147,6 +147,8 @@ Route::group([
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
      Route::get('', [NewsController::class, 'listNews']);
+     Route::put('status/{id}', [NewsController::class, 'updateStatus']);
+
 });
 
 // Работа с подкастами
@@ -172,20 +174,17 @@ Route::group([
     Route::put('{id}', [CommentController::class, 'update']);
     Route::get('/{id}/{type}', [CommentController::class, 'getForContent']);
 
-
-    // FIXME: Удалить
-    Route::get('blogs/{blog_id}', [CommentController::class, 'getForBlogs']);
 });
 
 // Работа с событиями
 Route::group([
-    'middleware' => ['auth:api', 'role:admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'events'
 ], function () {
     Route::get('', [EventController::class, 'getEvents']);
     //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
-    //? Route::delete('{id}', [EventController::class, 'destroy']);
-    //? Route::put('{id}', [EventController::class, 'update']);
+    Route::delete('{id}', [EventController::class, 'destroy']);
+    Route::put('{id}', [EventController::class, 'update']);
 });
 
 // Работа с проектами
@@ -193,10 +192,9 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'projects'
 ], function () {
-    Log::info('test');
+
     Route::get('/index', [ProjectController::class, 'index']);
     Route::post('', [ProjectController::class, 'store']);
-    
     Route::delete('{id}', [ProjectController::class, 'destroy']);
     Route::put('{id}', [ProjectController::class, 'update']);
 });

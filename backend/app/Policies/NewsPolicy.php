@@ -62,6 +62,18 @@ class NewsPolicy
         return false;
     }
 
+    public function updateStatus(User $user, News $news): bool
+    {
+        Log::info('Checking update news status permission for user ' . $user->id);
+
+        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+            Log::info('User ' . $user->id . ' is an admin or moderator and can update news status ' . $news->id);
+            return true;
+        }
+        Log::info('User ' . $user->id . ' is not allowed to update news staaatus ' . $news->id);
+        return false;
+    }
+
     /**
      * Determine whether the user can delete the model.
      *

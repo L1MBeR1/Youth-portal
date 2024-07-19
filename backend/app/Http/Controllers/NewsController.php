@@ -149,6 +149,41 @@ class NewsController extends Controller
     }
 
     /**
+     * Update the status of the specified news.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     */
+    public function updateStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $newStatus = $request->input('status');
+            $news = News::findOrFail($id);
+
+            if (!Auth::user()->can('updateStatus', $news)) {
+                throw new AccessDeniedHttpException('You do not have permission to update the status of this news');
+            }
+
+            if (!in_array($newStatus, ['moderating', 'published', 'archived', 'pending'])) {
+                return $this->errorResponse('Invalid status entered', [], 404);
+            }
+
+            $news->status = $newStatus;
+            $news->save();
+
+            return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        } catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        }
+    }
+
+
+    /**
      * Update the specified resource in storage.
      *
      * @param UpdateNewsRequest $request

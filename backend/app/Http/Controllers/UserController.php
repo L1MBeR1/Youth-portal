@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -105,25 +106,58 @@ class UserController extends Controller
     /**
      * Добавить
      * 
-     * Добавить роль пользователю с ID `user_id` и названием роли `role_name`.
+     * Добавить роль пользователю
      *
      * @group Пользователи
      * @subgroup Роли
+     * @authenticated
+     * 
+     * @urlParam user_id int ID пользователя.
+     * @bodyParam roles array Название роли.
+     * @bodyParam email string email пользователя.
+     * @bodyParam phone string телефон пользователя (7-1234567890).
+     * @bodyParam deleteMode bool optional режим удаления.
+     * 
      * 
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addRoleToUser($user_id, $role_name)
+    public function updateUserRoles(Request $request)
     {
-        $user = User::find($user_id);
-        $role = $role_name;
+        $this->validateRequest($request, [
+            'email' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:15',
+            'user_id' => 'nullable|int|max:15',
+            'roles' => 'required|array',
+            'deleteMode' => 'boolean',
+        ]);
+
+        $user = null;
+
+        if ($request->input('user_id')) {
+            $user = User::find($request->input('user_id'));
+        } elseif ($request->input('email')) {
+            $user = User::where('email', $request->input('email'))->first();
+        } elseif ($request->input('phone')) {
+            $user = User::where('phone', $request->input('phone'))->first();
+        }
 
         if (!$user) {
             return $this->errorResponse('User not found', [], 404);
         }
 
-        $user->assignRole($role);
+        $roles = $request->input('roles');
 
-        return $this->successResponse([], 'Role added successfully');
+        if ($request->input('deleteMode')) {
+            foreach ($roles as $role) {
+                $user->removeRole($role);
+            }
+        } else {
+            foreach ($roles as $role) {
+                $user->assignRole($role);
+            }
+        }
+
+        return $this->successResponse([], 'Roles updated successfully');
     }
 
 

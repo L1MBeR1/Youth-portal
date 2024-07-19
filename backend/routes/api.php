@@ -69,7 +69,7 @@ Route::group([
     'prefix' => 'users'
 ], function () {
     Route::get('', [UserController::class, 'listUsers']);
-    Route::post('{user_id}/roles/{role_name}', [UserController::class, 'addRoleToUser']);
+    Route::post('roles', [UserController::class, 'updateUserRoles']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
     
 });

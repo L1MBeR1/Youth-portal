@@ -17,11 +17,14 @@ return new class extends Migration
             $table->integer('blog_id')->unsigned()->nullable();
             $table->integer('news_id')->unsigned()->nullable();
             $table->bigInteger('comment_id')->unsigned();
+            $table->integer('reply_to')->unsigned()->nullable();
+            $table->timestamps();
 
             $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');
             $table->foreign('blog_id')->references('id')->on('blogs')->onDelete('cascade');
             $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
             $table->foreign('comment_id')->references('id')->on('comments')->onDelete('cascade');
+            $table->foreign('reply_to')->references('id')->on('comments')->onDelete('cascade');
         });
     }
 

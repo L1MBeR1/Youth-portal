@@ -14,15 +14,15 @@ class User extends Authenticatable implements JWTSubject
 
     protected $table = 'user_login_data';
 
+    
     /**
-     * Атрибуты, которые могут быть присвоены массово.
+     * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', //TODO: проверить в 'user_login_data,...'
-        'email',
-        'password',
+        'email',  
+        'password', 
         'phone',
     ];
 
@@ -59,6 +59,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Blog::class, 'author_id');
     }
 
+    public function news(){
+        return $this->hasMany(News::class, 'author_id');
+    }
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -77,7 +81,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        // Получение массива разрешений для пользователя
+        // Получение разрешений для пользователя
         $permissions = $this->getPermissionsViaRoles()->pluck('name')->toArray();
         $login = $this->email ?? $this->phone;
 

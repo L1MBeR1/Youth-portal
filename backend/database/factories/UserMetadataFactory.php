@@ -21,7 +21,7 @@ class UserMetadataFactory extends Factory
             'patronymic' => $this->faker->middleName,
             'nickname' => $this->faker->userName,
             'profile_image_uri' => $this->faker->imageUrl,
-            'gender' => $this->faker->randomElement(['м', 'ж']),
+            'gender' => $this->faker->randomElement(['m', 'f']),
             'city' => $this->faker->city,
             'birthday' => $this->faker->date,
         ];

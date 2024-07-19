@@ -3,9 +3,12 @@
 /public/build
 /public/hot
 /public/storage
+/public/docs
 /storage/*.key
 /vendor
 .env
+.scribe
+/.scribe
 .env.backup
 .env.production
 .phpactor.json
@@ -19,3 +22,5 @@ yarn-error.log
 /.idea
 /.vscode
 .vscode
+lang
+.scribe

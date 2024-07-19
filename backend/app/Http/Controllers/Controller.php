@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 
@@ -57,6 +58,11 @@ class Controller extends BaseController
         if ($e instanceof AccessDeniedHttpException) {
             return $this->errorResponse('Access Denied', ['description' => 'You do not have permission to access this resource.'], 403);
         }
+        
+        if ($e instanceof ModelNotFoundException) {
+            return $this->errorResponse('Not Found', ['description' => 'The requested resource was not found.'], 404);
+        }
+        
 
         Log::error($e->getMessage());
         return $this->errorResponse('Server Error', [], 500);

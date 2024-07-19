@@ -10,10 +10,12 @@ class Podcast extends Model
     use HasFactory;
     protected $table = 'podcasts';
     protected $guarded = [];
-
+    protected $casts = [
+        'description' => 'array',
+    ];
     public function comments()
     {
-        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id');
+        return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id')->withTimestamps();
     }
 
     /*public function user()

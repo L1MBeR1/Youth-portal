@@ -20,9 +20,9 @@ class PodcastPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Podcast $podcast): bool
+    public function view(User $user): bool
     {
-        //
+        return true;
     }
 
     /**

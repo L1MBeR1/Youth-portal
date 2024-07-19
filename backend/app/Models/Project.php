@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     use HasFactory;
+    protected $table = 'projects';
+    protected $guarded = [];
+    protected $casts = [
+        'description' => 'array',
+    ];
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
 }

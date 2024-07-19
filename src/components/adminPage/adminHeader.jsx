@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import HeaderProfile from "../../partials/partialsComponents/headerProfile";
+import HeaderProfile from ".././partials/partialsComponents/headerProfile";
 
 import { useColorScheme } from "@mui/joy/styles";
 

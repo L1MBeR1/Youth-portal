@@ -29,15 +29,15 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from './customTable.jsx';
-import CustomList from './customList.jsx';
-import Pagination from './pagination.jsx';
-import {getPodcastsByPage } from '../../../api/podcastsApi.js';
+import CustomTable from '../customTable.jsx';
+import CustomList from '../customList.jsx';
+import Pagination from '../pagination.jsx';
+import {getEventsByPage } from '../../../api/eventsApi.js';
 import { getCookie } from '../../../cookie/cookieUtils.js';
 
-const fetchNews = async (token, page, setFunc,setLastPage) => {
+const fetchEvents = async (token, page, setFunc,setLastPage) => {
   try {
-    const response = await getPodcastsByPage(token, page);
+    const response = await getEventsByPage(token, page);
     console.log(response);
     if (response) {
       setFunc(response.data);
@@ -50,20 +50,6 @@ const fetchNews = async (token, page, setFunc,setLastPage) => {
   }
 };
 
-const getStatus = (status) => {
-  switch (status) {
-    case 'moderating':
-      return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
-    case 'published':
-      return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
-    case 'archived':
-      return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
-    case 'pending':
-      return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
-    default:
-      return <Chip size="sm">{status}</Chip>;
-  }
-};
 
 const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
   <React.Fragment>
@@ -87,12 +73,12 @@ const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStat
   </React.Fragment>
 );
 
-function NewsSection() {
-  const [openNews, setOpenNews] = useState(false);
+function EventsSection() {
+  const [openEvents, setOpenEvents] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [news, setNews] = useState([]);
+  const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -100,7 +86,7 @@ function NewsSection() {
 
   useEffect(() => {
     const token = getCookie('token');
-    fetchNews(token, page, setNews,setLastPage);
+    fetchEvents(token, page, setEvents,setLastPage);
   }, [page]);
 
   function RowMenu() {
@@ -113,7 +99,7 @@ function NewsSection() {
           <MoreVertIcon />
         </MenuButton>
         <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenNews(true)}>Просмотреть</MenuItem>
+          <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
           <MenuItem>Изменить</MenuItem>
         </Menu>
       </Dropdown>
@@ -127,26 +113,22 @@ function NewsSection() {
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: '80px' },
-    { field: 'author', headerName: 'Автор', width: '140px', render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic },
-    { field: 'nickname', headerName: 'Никнейм', width: '120px' },
-    { field: 'title', headerName: 'Название', width: '200px' },
-    { field: 'description', headerName: 'Описание', width: '200px', render: (value) => value.desc},
-    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
-    { field: 'status', headerName: 'Статус', width: '120px', render: getStatus },
+    { field: 'id', headerName: 'ID', width: '60px' },
+    { field: 'name', headerName: 'Название', width: '140px'},
+    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
+    { field: 'author',headerName: 'Организатор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
+    { field: 'location', headerName: 'Адрес', width: '200px' },
+    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'start_time', headerName: 'Дата начала', width: '90px', render: (item) => new Date(item.start_time).toLocaleDateString() },
   ];
 
-  const rows = news.map((item) => ({
-    ...item,
-    author: { last_name: item.last_name, first_name: item.first_name, patronymic: item.patronymic },
-  }));
   return (
     <> 
         <Modal
         aria-labelledby="close-modal-title"
-        open={openNews}
+        open={openEvents}
         onClose={() => {
-          setOpenNews(false);
+          setOpenEvents(false);
         }}
         sx={{
           display: 'flex',
@@ -169,7 +151,7 @@ function NewsSection() {
           </ModalDialog>
       </Modal>
       <Typography  fontWeight={700} fontSize={30}>
-           Новости
+           Мероприятия
       </Typography>
       <Box
         sx={{
@@ -181,7 +163,7 @@ function NewsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по названию или автору</FormLabel>
+          <FormLabel>Поиск по названию или организатору</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -215,23 +197,22 @@ function NewsSection() {
       >
         <CustomTable 
         columns={columns} 
-        rows={rows}
+        data={events}
         rowMenu={RowMenu()}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        rows={rows}
-        rowMenu={RowMenu()}
-        colTitle={'title'}
+        data={events}
+        // rowMenu={RowMenu()}
+        colTitle={'name'}
         colAuthor={'author'}
         colDescription={'description'}
-        colDate={'created_at'}
-        colStatus={'status'}
+        colDate={'start_time'}
         />
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }
 
-export default NewsSection;
+export default EventsSection;

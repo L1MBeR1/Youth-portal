@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
@@ -13,10 +10,8 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import Stack from '@mui/joy/Stack';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -25,32 +20,44 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from './customTable.jsx';
-import CustomList from './customList.jsx';
-import Pagination from './pagination.jsx';
-import {getModerators } from '../../../api/usersApi.js';
+import CustomTable from '../customTable.jsx';
+import CustomList from '../customList.jsx';
+import Pagination from '../pagination.jsx';
+import {getBlogsByPage } from '../../../api/blogsApi.js';
 import { getCookie } from '../../../cookie/cookieUtils.js';
 
-const fetchModerators = async (token, page, setFunc,setLastPage) => {
+const fetchBlogs = async (token, page, setBlogs,setLastPage) => {
   try {
-    const response = await getModerators(token, page);
+    const response = await getBlogsByPage(token, page);
     console.log(response);
     if (response) {
-      setFunc(response.data);
-      setLastPage(response.message.last_page)
+      setBlogs(response.data);
+      setLastPage(response.last_page)
     } else {
       console.error('Fetched data is not an array:', response);
     }
   } catch (error) {
-    console.error('Fetching moderators failed', error);
+    console.error('Fetching blogs failed', error);
   }
 };
 
+const getStatus = (status) => {
+  switch (status) {
+    case 'moderating':
+      return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
+    case 'published':
+      return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
+    case 'archived':
+      return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
+    case 'pending':
+      return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
+    default:
+      return <Chip size="sm">{status}</Chip>;
+  }
+};
 
 const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
   <React.Fragment>
@@ -74,12 +81,12 @@ const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStat
   </React.Fragment>
 );
 
-function ModeratorsSection() {
-  const [openModerator, setOpenModerator] = useState(false);
+function BlogsSection() {
+  const [openBlog, setOpenBlog] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [moderators, setModerators] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -87,7 +94,7 @@ function ModeratorsSection() {
 
   useEffect(() => {
     const token = getCookie('token');
-    fetchModerators(token, page, setModerators,setLastPage);
+    fetchBlogs(token, page, setBlogs,setLastPage);
   }, [page]);
 
   function RowMenu() {
@@ -100,7 +107,7 @@ function ModeratorsSection() {
           <MoreVertIcon />
         </MenuButton>
         <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenModerator(true)}>Просмотреть</MenuItem>
+          <MenuItem onClick={() => setOpenBlog(true)}>Просмотреть</MenuItem>
           <MenuItem>Изменить</MenuItem>
         </Menu>
       </Dropdown>
@@ -112,29 +119,23 @@ function ModeratorsSection() {
     setFromDate('');
     setSearchTerm('');
   };
-
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
-    { field: 'avatar', width: '70px' ,render: (value) => <Avatar variant='outlined' src={value.profile_image_uri}/>},
-    { field: 'fullName', headerName: 'ФИО', width: '140px',render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic},
-    { field: 'nickname', headerName: 'Никнейм', width: '100px' },
-    { field: 'email', headerName: 'Почта', width: '140px' },
-    { field: 'gender', headerName: 'Пол', width: '100px' },
-    { field: 'birthday', headerName: 'День рождения', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
+    { field: 'author', headerName: 'Автор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
+    { field: 'nickname', headerName: 'Никнейм', width: '120px' },
+    { field: 'title', headerName: 'Название', width: '200px' },
+    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc},
+    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'status', headerName: 'Статус', width: '120px', render: (item) => getStatus(item.status) },
   ];
 
-  const rows = moderators.map((item) => ({
-    ...item,
-    fullName: { last_name: item.last_name, first_name: item.first_name, patronymic: item.patronymic },
-    avatar:{profile_image_uri:item.profile_image_uri}
-  }));
   return (
     <> 
         <Modal
         aria-labelledby="close-modal-title"
-        open={openModerator}
+        open={openBlog}
         onClose={() => {
-          setOpenModerator(false);
+          setOpenBlog(false);
         }}
         sx={{
           display: 'flex',
@@ -157,7 +158,7 @@ function ModeratorsSection() {
           </ModalDialog>
       </Modal>
       <Typography  fontWeight={700} fontSize={30}>
-           Модераторы
+           Блоги
       </Typography>
       <Box
         sx={{
@@ -203,22 +204,22 @@ function ModeratorsSection() {
       >
         <CustomTable 
         columns={columns} 
-        rows={rows}
-        rowMenu={RowMenu()}
+        data={blogs}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        rows={rows}
-        rowMenu={RowMenu()}
-        colAvatar={'avatar'}
-        colTitle={'fullName'}
-        colAuthor={'email'}
-        colDate={'birthday'}
+        data={blogs}
+        // rowMenu={()}
+        colTitle={'title'}
+        colAuthor={'author'}
+        colDescription={'description'}
+        colDate={'created_at'}
+        colStatus={'status'}
         />
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }
 
-export default ModeratorsSection;
+export default BlogsSection;

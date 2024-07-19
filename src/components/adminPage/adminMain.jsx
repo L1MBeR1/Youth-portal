@@ -2,12 +2,12 @@ import React from 'react';
 
 import Sheet from '@mui/joy/Sheet';
 
-import Blogs from './blogsSection';
-import Podcasts from './podcastsSection';
-import News from './newsSection';
-import Events from './eventsSection';
-import Projects from './projectsSection';
-import Moderators from './moderatorsSection'
+import Blogs from './sections/blogsSection';
+import Podcasts from './sections/podcastsSection';
+import News from './sections/newsSection';
+import Events from './sections/eventsSection';
+import Projects from './sections/projectsSection';
+import Moderators from './sections/moderatorsSection'
 
   function AdminMain({section}) {
     const getContent = (section) => {

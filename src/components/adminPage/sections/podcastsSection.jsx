@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
@@ -13,9 +10,8 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -24,20 +20,19 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from './customTable.jsx';
-import CustomList from './customList.jsx';
-import Pagination from './pagination.jsx';
-import {getProjectsByPage } from '../../../api/projectsApi.js';
+import CustomTable from '../customTable.jsx';
+import CustomList from '../customList.jsx';
+import Pagination from '../pagination.jsx';
+
+import {getPodcastsByPage } from '../../../api/podcastsApi.js';
 import { getCookie } from '../../../cookie/cookieUtils.js';
 
-const fetchProjects = async (token, page, setFunc,setLastPage) => {
+const fetchPodcasts = async (token, page, setFunc,setLastPage) => {
   try {
-    const response = await getProjectsByPage(token, page);
+    const response = await getPodcastsByPage(token, page);
     console.log(response);
     if (response) {
       setFunc(response.data);
@@ -87,12 +82,12 @@ const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStat
   </React.Fragment>
 );
 
-function ProjectsSection() {
-  const [openProject, setOpenProject] = useState(false);
+function PodcastsSection() {
+  const [openPodcast, setOpenPodcast] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [projects, setProjects] = useState([]);
+  const [podcasts, setPodcasts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -100,7 +95,7 @@ function ProjectsSection() {
 
   useEffect(() => {
     const token = getCookie('token');
-    fetchProjects(token, page, setProjects,setLastPage);
+    fetchPodcasts(token, page, setPodcasts,setLastPage);
   }, [page]);
 
   function RowMenu() {
@@ -113,7 +108,7 @@ function ProjectsSection() {
           <MoreVertIcon />
         </MenuButton>
         <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
+          <MenuItem onClick={() => setOpenPodcast(true)}>Просмотреть</MenuItem>
           <MenuItem>Изменить</MenuItem>
         </Menu>
       </Dropdown>
@@ -128,24 +123,22 @@ function ProjectsSection() {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
-    { field: 'name', headerName: 'Название', width: '140px'},
-    { field: 'description', headerName: 'Описание', width: '200px', render: (value) => value.desc },
-    { field: 'author',headerName: 'Организатор', width: '140px', render: (value) => value.last_name + ' ' + value.first_name + ' ' + value.patronymic },
-    { field: 'location', headerName: 'Адрес', width: '200px' },
-    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (value) => new Date(value).toLocaleDateString() },
+    { field: 'author', headerName: 'Автор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
+    { field: 'nickname', headerName: 'Никнейм', width: '120px' },
+    { field: 'title', headerName: 'Название', width: '200px' },
+    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
+    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'status', headerName: 'Статус', width: '120px', render: (item) => getStatus(item.status)},
+    // { field: 'menu', width: '120px', render: (item) => RowMenu(item.id)},
   ];
 
-  const rows = projects.map((item) => ({
-    ...item,
-    author: { last_name: item.last_name, first_name: item.first_name, patronymic: item.patronymic },
-  }));
   return (
     <> 
         <Modal
         aria-labelledby="close-modal-title"
-        open={openProject}
+        open={openPodcast}
         onClose={() => {
-          setOpenProject(false);
+          setOpenPodcast(false);
         }}
         sx={{
           display: 'flex',
@@ -168,7 +161,7 @@ function ProjectsSection() {
           </ModalDialog>
       </Modal>
       <Typography  fontWeight={700} fontSize={30}>
-           Проекты
+           Подкасты
       </Typography>
       <Box
         sx={{
@@ -214,22 +207,23 @@ function ProjectsSection() {
       >
         <CustomTable 
         columns={columns} 
-        rows={rows}
-        rowMenu={RowMenu()}
+        data={podcasts}
+        // rowMenu={RowMenu()}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        rows={rows}
-        rowMenu={RowMenu()}
-        colTitle={'name'}
+        data={podcasts}
+        // rowMenu={RowMenu()}
+        colTitle={'title'}
         colAuthor={'author'}
         colDescription={'description'}
         colDate={'created_at'}
+        colStatus={'status'}
         />
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }
 
-export default ProjectsSection;
+export default PodcastsSection;

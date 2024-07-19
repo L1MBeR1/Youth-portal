@@ -1,7 +1,7 @@
 import React from "react";
 import Table from "@mui/joy/Table";
 
-const CustomTable = ({ columns, rows, rowMenu }) => {
+const CustomTable = ({ columns, data}) => {
   return (
     <Table
       aria-labelledby="tableTitle"
@@ -26,11 +26,10 @@ const CustomTable = ({ columns, rows, rowMenu }) => {
               {column.headerName}
             </th>
           ))}
-          {rowMenu ? <th style={{ width: 50 }}></th> : null}
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, index) => (
+        {data.map((item, index) => (
           <tr key={index}>
             {columns.map((column) => (
               <td
@@ -55,12 +54,11 @@ const CustomTable = ({ columns, rows, rowMenu }) => {
                   }}
                 >
                   {column.render
-                    ? column.render(row[column.field])
-                    : row[column.field]}
+                    ? column.render(item)
+                    : item[column.field]}
                 </div>
               </td>
             ))}
-            {rowMenu ? <td style={{ width: 50 }}>{rowMenu}</td> : null}
           </tr>
         ))}
       </tbody>

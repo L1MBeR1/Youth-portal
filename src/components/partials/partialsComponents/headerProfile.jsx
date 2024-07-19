@@ -26,8 +26,7 @@ import profileBlank from '../../../img/profile-blank.png'
 function HeaderProfile() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  console.log(1)
-  const { data: profileData, isFetching } = useQuery({
+  const { data: profileData, isFetching,isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const token = getCookie('token');
@@ -72,7 +71,7 @@ const handleLogout = () => {
     }}
     >
       {/* <CircularProgress color="neutral"size="sm" variant="solid" /> */}
-      {isFetching ? (
+      {isLoading ? (
         <CircularProgress color="neutral"size="sm" variant="solid" 
         sx={{ '--CircularProgress-size': '30px' }}
         />

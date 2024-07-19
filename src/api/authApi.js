@@ -26,6 +26,7 @@ export const register = async (email, password) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        
       });
       return response.data;
     } catch (error) {

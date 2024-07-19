@@ -8,13 +8,13 @@ import ListDivider from "@mui/joy/ListDivider";
 
 const renderField = (item, column) => {
   const value = item[column.field];
-  return column.render ? column.render(value) : value;
+  return column.render ? column.render(item) : value;
 };
 
 const OrderList = ({
   columns,
-  rows,
-  rowMenu,
+  data,
+  colMenu,
   colAvatar,
   colTitle,
   colAuthor,
@@ -29,8 +29,8 @@ const OrderList = ({
       display: { xs: "block", sm: "none" } 
       }}>
         <List size="sm">
-          {rows.map((row) => (
-            <React.Fragment key={row.id}>
+          {data.map((item) => (
+            <React.Fragment key={item.id}>
               <ListItem
                 sx={{
                   display: "flex",
@@ -52,7 +52,7 @@ const OrderList = ({
                     <Avatar variant="outlined" size="sm">
                       {colAvatar ?(
                         renderField(
-                        row,
+                        item,
                         columns.find((col) => col.field === colAvatar)
                       )):(<></>)}
 
@@ -80,7 +80,7 @@ const OrderList = ({
                       <Typography level="title-md">
                       {colTitle ?(
                         renderField(
-                          row,
+                          item,
                           columns.find((col) => col.field === colTitle)
                         )):(<></>)}
                       </Typography>
@@ -88,7 +88,7 @@ const OrderList = ({
                     <Typography level="title-sm">
                     {colAuthor ?(
                       renderField(
-                        row,
+                        item,
                         columns.find((col) => col.field === colAuthor)
                       )):(<></>)}
                     </Typography>
@@ -105,7 +105,7 @@ const OrderList = ({
                     <Typography level="body-xs">
                     {colDescription ?(
                       renderField(
-                        row,
+                        item,
                         columns.find((col) => col.field === colDescription)
                       )):(<></>)}
                     </Typography>
@@ -113,7 +113,7 @@ const OrderList = ({
                     <Typography level="body-sm">
                     {colDate ?(
                       renderField(
-                        row,
+                        item,
                         columns.find((col) => col.field === colDate)
                       )):(<></>)}
                     </Typography>
@@ -137,7 +137,7 @@ const OrderList = ({
                     <Box>
                     {colStatus ?(
                       renderField(
-                        row,
+                        item,
                         columns.find((col) => col.field === colStatus)
                       )):(<></>)}
                     </Box>
@@ -148,7 +148,13 @@ const OrderList = ({
                         justifySelf: "center",
                       }}
                     >
-                      {rowMenu}
+                    <Box>
+                    {colMenu ?(
+                      renderField(
+                        item,
+                        columns.find((col) => col.field === colMenu)
+                      )):(<></>)}
+                    </Box>
                     </Box>
                   </Box>
                 </Box>

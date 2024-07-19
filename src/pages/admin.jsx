@@ -2,9 +2,9 @@ import React,{useState} from 'react';
 
 import Stack from '@mui/joy/Stack';
 
-import Header from '../components/pageComponents/adminPage/adminHeader';
-import AdminSidebar from '../components/pageComponents/adminPage/adminSidebar'
-import AdminMain from '../components/pageComponents/adminPage/adminMain';
+import Header from '../components/adminPage/adminHeader';
+import AdminSidebar from '../components/adminPage/adminSidebar'
+import AdminMain from '../components/adminPage/adminMain';
 function WorkLayout() {
 const [section, setSection] = useState('statistics');
 const [open, setOpen] = useState(false);

@@ -15,6 +15,38 @@ export const getModerators= async (token,page) => {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Failed to fetch profile');
+      throw new Error('Failed to fetch moderators');
+    }
+  };
+
+  export const deleteModerator= async (token,id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/users/${id}/roles/${'moderator'}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to delete moderator');
+    }
+  };
+
+  export const addModerator = async (token, email) => {
+    try {
+      const response = await axios.post(`${API_URL}/users/roles`,
+        {
+          email: email,
+          roles: ["moderator"],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to add moderator');
     }
   };

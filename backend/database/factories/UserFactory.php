@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Factories;
+
 use App\Models\UserMetadata;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,6 +29,21 @@ class UserFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (User $user) {
+            $role = $this->faker->randomElement([
+                'moderator',
+                'organization',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+                'user',
+            ]);
+            $user->assignRole($role);
             UserMetadata::factory()->create(['user_id' => $user->id]);
         });
     }

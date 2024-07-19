@@ -48,6 +48,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view posts',
                 'comment posts',
             ],
+            'moderator' => [
+                'view posts',
+                'comment posts',
+                'edit own profile',
+                'edit news',
+            ]
         ];
 
         $createdPermissions = [];

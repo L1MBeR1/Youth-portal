@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('description');
+            $table->jsonb('description');
             $table->text('location');
             $table->integer('author_id')->unsigned();
             $table->timestamps();

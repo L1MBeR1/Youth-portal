@@ -1,17 +1,19 @@
 <?php
 
+// use App\Models\Project;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DocsController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\PodcastController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\CommentToResourceController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProxyController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\PodcastController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
-use App\Http\Controllers\UserController;
+// use App\Http\Controllers\CommentToResourceController;
 
 /**
  * 
@@ -32,11 +34,12 @@ Route::group([
 ], function ($router) {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);//->middleware('auth:api');
-    Route::post('refresh', [AuthController::class, 'refresh']);//->middleware('auth:api');
-    Route::get('profile', [AuthController::class, 'getProfile']);//->middleware('auth:api');
+    Route::post('logout', [AuthController::class, 'logout']);
+    // Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
-    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);//->middleware('auth:api');
+    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
 });
 
 
@@ -46,11 +49,29 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-    Route::get('users', [UserController::class, 'listUsers']);
-    Route::get('blogs', [BlogController::class, 'listBlogs']);
-    // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
-    Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
-    Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
+});
+
+
+
+// Работа с организациями
+Route::group([
+   'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'organizations'
+], function () {
+    Route::get('', [AdminController::class, 'getOrganizations']);
+});
+
+
+
+// Работа с пользователями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'users'
+], function () {
+    Route::get('', [UserController::class, 'listUsers']);
+    Route::post('roles', [UserController::class, 'updateUserRoles']);
+    Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
+    
 });
 
 
@@ -64,6 +85,8 @@ Route::group([
    Route::post('{role_name}', [AdminController::class, 'AddPermissionsToRole']); 
 });
 
+
+
 // Работа с разрешениями
 Route::group([
     'middleware' => ['auth:api', 'role:admin'],
@@ -72,6 +95,7 @@ Route::group([
     Route::get('', [AdminController::class, 'listPermissions']);
     Route::post('', [AdminController::class, 'createPermission']);
  });
+
 
 
 // Прокси (временно, пока нет SSL)
@@ -83,6 +107,7 @@ Route::group([
 });
 
 
+
 // Аутентификация VK
 Route::group([
     'middleware' => 'api',
@@ -91,55 +116,58 @@ Route::group([
     //Route::post('/', [VKAuthController::class, 'redirectToProvider']);
     Route::get('/callback', [VKAuthController::class, 'handleProviderCallback']);
 });
-
-
 // Маршруты для VK
 // Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
 // Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
 
 
-// Документация
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'docs'
-], function () {
-    Route::get('all', [DocsController::class, 'index']);
-});
+
 
 
 // Работа с блогами
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger|admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'blogs'
 ], function () {
-    Route::get('', [BlogController::class, 'listBlogs']);
-    // Route::get('', [AdminController::class, 'listBlogsByUserId']);
+    Route::get('old', [BlogController::class, 'listBlogs']);
+    Route::get('', [BlogController::class, 'getBlogs']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);
+    Route::put('{id}', [BlogController::class, 'update']);
+    Route::put('{id}/status', [BlogController::class, 'setStatus']);
 });
+
+
 
 // Работа с новостями
 Route::group([
-    'middleware' => ['auth:api', 'role:news_creator'],
+    'middleware' => ['auth:api'],
     'prefix' => 'news'
 ], function () {
-     // Route::get('/edit', [NewsController::class, 'edit']);
+     Route::get('/index', [NewsController::class, 'index']);
+     Route::get('', [NewsController::class, 'getNews']);
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
+    //  Route::get('', [NewsController::class, 'listNews']);
 });
+
+
 
 // Работа с подкастами
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'podcasts'
 ], function () {
+    Route::get('', [PodcastController::class, 'getPodcasts']);
     Route::get('/index', [PodcastController::class, 'index']);
-    Route::post('/create', [PodcastController::class, 'store']);
+    Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
-    Route::put('up/{id}', [PodcastController::class, 'update']);
+    Route::put('{id}', [PodcastController::class, 'update']);
 });
+
+
 
 // Работа с комментариями
 Route::group([
@@ -148,7 +176,36 @@ Route::group([
 ], function () {
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
-    Route::delete('/destroy/{id}', [CommentController::class, 'destroy']);
-    Route::put('/update/{id}', [CommentController::class, 'update']);
-
+    Route::delete('{id}', [CommentController::class, 'destroy']);
+    Route::put('{id}', [CommentController::class, 'update']);
+    Route::get('/{id}/{type}', [CommentController::class, 'getForContent']);
 });
+
+
+
+// Работа с событиями
+Route::group([
+    'middleware' => ['auth:api', 'role:admin'],
+    'prefix' => 'events'
+], function () {
+    Route::get('', [EventController::class, 'getEvents']);
+    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
+    //? Route::delete('{id}', [EventController::class, 'destroy']);
+    //? Route::put('{id}', [EventController::class, 'update']);
+});
+
+
+
+// Работа с проектами
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'projects'
+], function () {
+    // Log::info('test');
+    Route::get('', [ProjectController::class, 'getProjects']);
+    // Route::get('/index', [ProjectController::class, 'index']);
+    Route::post('', [ProjectController::class, 'store']);
+    Route::delete('{id}', [ProjectController::class, 'destroy']);
+    Route::put('{id}', [ProjectController::class, 'update']);
+});
+

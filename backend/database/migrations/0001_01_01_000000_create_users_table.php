@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->text('phone')->nullable()->unique();
             $table->timestamp('phone_verified_at')->nullable();
-            $table->text('remember_token')->nullable();
+            $table->rememberToken();
             $table->timestamps();
             $table->timestamp('blocked_at')->nullable();
         });
@@ -36,20 +36,6 @@ return new class extends Migration {
                 ->onDelete('cascade');
         });
 
-        // Schema::create('sessions', function (Blueprint $table) {
-        //     $table->string('id')->primary();
-        //     $table->foreignId('user_id')->nullable()->index();
-        //     $table->string('ip_address', 45)->nullable();
-        //     $table->text('user_agent')->nullable();
-        //     $table->longText('payload');
-        //     $table->integer('last_activity')->index();
-
-        //     $table->foreign('user_id')
-        //         ->references('id')
-        //         ->on('user_login_data')
-        //         ->onUpdate('cascade')
-        //         ->onDelete('cascade');
-        // });
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
@@ -75,7 +61,7 @@ return new class extends Migration {
             $table->text('nickname')->nullable();
             $table->text('profile_image_uri')->nullable();
             $table->text('city')->nullable();
-            $table->enum('gender', ['м', 'ж'])->nullable();
+            $table->enum('gender', ['m', 'f'])->nullable();
             $table->date('birthday')->nullable();
 
             $table->foreign('user_id')

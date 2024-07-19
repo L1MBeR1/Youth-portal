@@ -16,20 +16,11 @@ class UpdateNewsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        Log::info('11111');
-
-        if ($user->hasPermissionTo('edit own news')) {
-            Log::info('333');
+        if (Auth::user()->hasPermissionTo('edit own news')) {
             return true;
         }
-
-        Log::info('22222');
         return false; // Возвращаем false вместо response()->json()
     }
-
-
-
 
     /**
      * Get the validation rules that apply to the request.

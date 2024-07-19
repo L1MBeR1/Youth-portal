@@ -10,12 +10,31 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'user_id'];
+    protected $fillable = ['content', 'user_id']; // массовое присвоение атрибутов
 
-    public function blogs()
-    {
-        return $this->belongsTo(Blog::class, 'comment_to_resource', 'comment_id', 'blog_id');
-    }
+     // Общий метод для связи
+     protected function relatedResource($relatedClass, $foreignKey)
+     {
+         return $this->belongsToMany($relatedClass, 'comment_to_resource', 'comment_id', $foreignKey)->withTimestamps();
+     }
+ 
+     // Метод для связи с подкастами
+     public function podcast()
+     {
+         return $this->relatedResource(Podcast::class, 'podcast_id');
+     }
+ 
+     // Метод для связи с новостями
+     public function news()
+     {
+         return $this->relatedResource(News::class, 'news_id');
+     }
+ 
+     // Метод для связи с блогами
+     public function blogs()
+     {
+         return $this->relatedResource(Blog::class, 'blog_id');
+     }
 
     public static function createComment($input, $resource_type, $resource_id)
     {
@@ -30,15 +49,6 @@ class Comment extends Model
 
         return $comment;
     }
-
-    /*public function deleteComment()
-    {
-        // Удаление связанных записей в CommentToResource
-        CommentToResource::where('comment_id', $this->id)->delete();
-        
-        // Удаление самого комментария
-        return $this->delete();
-    }*/
 
     public function updateComment($newContent)
     {

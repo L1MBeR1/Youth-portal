@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Blog extends Model
 {
     protected $guarded = [];
-    // protected $fillable = ['title', 'description', 'image'];
     use HasFactory;
+
+    protected $casts = [
+        'description' => 'array',
+    ];
 
     public function comments()
     {
@@ -19,7 +22,6 @@ class Blog extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }
 
 

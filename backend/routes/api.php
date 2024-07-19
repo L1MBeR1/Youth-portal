@@ -13,7 +13,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
-use App\Http\Controllers\CommentToResourceController;
+// use App\Http\Controllers\CommentToResourceController;
 
 /**
  * 
@@ -49,13 +49,9 @@ Route::group([
     'prefix' => 'admin'
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
-
-    // Route::get('users', [UserController::class, 'listUsers']);
-    // Route::get('blogs', [BlogController::class, 'listBlogs']);
-    // Route::get('users/{user_id}/blogs', [AdminController::class, 'listBlogsByUserId']);
-    // Route::post('users/{user_id}/roles/{role_name}', [AdminController::class, 'addRoleToUser']);
-    // Route::delete('users/{user_id}/roles/{role_name}', [AdminController::class, 'deleteRoleFromUser']);
 });
+
+
 
 // Работа с организациями
 Route::group([
@@ -65,13 +61,15 @@ Route::group([
     Route::get('', [AdminController::class, 'getOrganizations']);
 });
 
+
+
 // Работа с пользователями
 Route::group([
     'middleware' => ['auth:api', 'role:admin'],
     'prefix' => 'users'
 ], function () {
     Route::get('', [UserController::class, 'listUsers']);
-    Route::post('{user_id}/roles/{role_name}', [UserController::class, 'addRoleToUser']);
+    Route::post('roles', [UserController::class, 'updateUserRoles']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
     
 });
@@ -87,6 +85,8 @@ Route::group([
    Route::post('{role_name}', [AdminController::class, 'AddPermissionsToRole']); 
 });
 
+
+
 // Работа с разрешениями
 Route::group([
     'middleware' => ['auth:api', 'role:admin'],
@@ -95,6 +95,7 @@ Route::group([
     Route::get('', [AdminController::class, 'listPermissions']);
     Route::post('', [AdminController::class, 'createPermission']);
  });
+
 
 
 // Прокси (временно, пока нет SSL)
@@ -106,6 +107,7 @@ Route::group([
 });
 
 
+
 // Аутентификация VK
 Route::group([
     'middleware' => 'api',
@@ -114,16 +116,17 @@ Route::group([
     //Route::post('/', [VKAuthController::class, 'redirectToProvider']);
     Route::get('/callback', [VKAuthController::class, 'handleProviderCallback']);
 });
-
-
 // Маршруты для VK
 // Route::post('auth/vkontakte', [VKAuthController::class, 'redirectToProvider']);
 // Route::get('auth/vkontakte/callback', [VKAuthController::class, 'handleProviderCallback']);
 
 
+
+
+
 // Работа с блогами
 Route::group([
-    'middleware' => ['auth:api', 'role:blogger|admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'blogs'
 ], function () {
     Route::get('old', [BlogController::class, 'listBlogs']);
@@ -135,12 +138,13 @@ Route::group([
     Route::put('{id}/status', [BlogController::class, 'setStatus']);
 });
 
+
+
 // Работа с новостями
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'news'
 ], function () {
-     // Route::get('/edit', [NewsController::class, 'edit']);
      Route::get('/index', [NewsController::class, 'index']);
      Route::get('', [NewsController::class, 'getNews']);
      Route::post('', [NewsController::class, 'store']);
@@ -150,6 +154,8 @@ Route::group([
      Route::put('status/{id}', [NewsController::class, 'updateStatus']);
 
 });
+
+
 
 // Работа с подкастами
 Route::group([
@@ -162,6 +168,8 @@ Route::group([
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);
 });
+
+
 
 // Работа с комментариями
 Route::group([
@@ -176,6 +184,8 @@ Route::group([
 
 });
 
+
+
 // Работа с событиями
 Route::group([
     'middleware' => ['auth:api'],
@@ -187,14 +197,18 @@ Route::group([
     Route::put('{id}', [EventController::class, 'update']);
 });
 
+
+
 // Работа с проектами
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'projects'
 ], function () {
-
-    Route::get('/index', [ProjectController::class, 'index']);
+    // Log::info('test');
+    Route::get('', [ProjectController::class, 'getProjects']);
+    // Route::get('/index', [ProjectController::class, 'index']);
     Route::post('', [ProjectController::class, 'store']);
+    
     Route::delete('{id}', [ProjectController::class, 'destroy']);
     Route::put('{id}', [ProjectController::class, 'update']);
 });

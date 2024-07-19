@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -129,7 +130,7 @@ class AdminController extends Controller
 
 
     // public function deleteRole($role_name){
-    //
+    // 
     // }
 
 
@@ -137,23 +138,6 @@ class AdminController extends Controller
     //
     // }
 
-    /**
-     * Получить пользователей по роли
-     * 
-     * Получить пользователей по роли `role_name`
-     * 
-     * @group Администрирование
-     * 
-     * 
-     * @param mixed $role_name
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function listUserWithRole($role_name)
-    {
-        $users = User::role($role_name)->paginate(10);
-
-        return $this->successResponse($users, 'Список пользователей с ролью [' . $role_name . ']', 200);
-    }
 
     /**
      * Список

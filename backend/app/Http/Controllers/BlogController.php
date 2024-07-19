@@ -83,6 +83,13 @@ class BlogController extends Controller
      * @bodyParam blogId int ID блога.
      * @urlParam withAuthors bool Включать авторов в ответ.
      * @urlParam page int Номер страницы.
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
+     * @urlParam tagFilter string Фильтр по тегу в meta описания.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -93,12 +100,19 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-
         $perPage = $request->get('per_page', 5);
         $userId = $request->query('userId');
         $currentUser = $request->query('currentUser');
         $blogId = $request->query('blogId');
         $withAuthors = $request->query('withAuthors', false);
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $tagFilter = $request->query('tagFilter');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
+
         $query = Blog::query();
 
         if ($withAuthors) {
@@ -123,6 +137,30 @@ class BlogController extends Controller
             $query->where('id', $blogId);
         }
 
+        if ($searchColumnName) {
+            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        }
+
+        if ($tagFilter) {
+            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        }
+
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('created_at', '<=', $crtTo);
+        }
+
+        if ($updFrom && $updTo) {
+            $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('updated_at', '<=', $updTo);
+        }
+
         $blogs = $query->paginate($perPage);
 
         $paginationData = [
@@ -136,6 +174,7 @@ class BlogController extends Controller
 
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
+
 
 
 
@@ -159,10 +198,6 @@ class BlogController extends Controller
             'description' => 'required|string',
             'content' => 'required|string',
             'cover_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
         ]);
 
         $input = $request->all();
@@ -184,6 +219,16 @@ class BlogController extends Controller
      * 
      * @authenticated
      * @group Блоги
+     * 
+     * @bodyParam title string Название.
+     * @bodyParam description string Описание.
+     * @bodyParam content string Содержание.
+     * @bodyParam cover_uri string URI обложки.
+     * @bodyParam status string Статус.
+     * @bodyParam views int Количество просмотров.
+     * @bodyParam likes int Количество лайков.
+     * @bodyParam reposts int Количество репостов.
+     * 
      */
     public function update(Request $request, $id)
     {
@@ -234,6 +279,7 @@ class BlogController extends Controller
      * @group Блоги
      * @authenticated
      * 
+     * @bodyParam status string Новый статус
      * 
      */
     public function setStatus(Request $request, $id)

@@ -20,9 +20,15 @@ class BlogFactory extends Factory
     {
         $faker = FakerFactory::create('ru_RU');
         $userIds = User::pluck('id')->toArray();
+        $desc = $this->faker->realText(100);
         return [
             'title' => $this->faker->company(),
-            'description' => $this->faker->realText(100),
+            'description' => [
+                'desc' => $this->faker->realText(100),
+                'meta' => [
+                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                ]
+            ],
             'content' => $this->faker->realText(100),
             'cover_uri' => $this->faker->imageUrl(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),

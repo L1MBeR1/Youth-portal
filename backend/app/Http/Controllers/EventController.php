@@ -19,27 +19,25 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class EventController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-
-    /**
-     * Список
+     * Список (новый)
      * 
-     * Получение списка событий
+     * Получение списка событий (новый. использовать этот метод)
      * 
      * @group События
      * @authenticated
      * 
-     * @urlParam userId int ID пользователя.
-     * @urlParam currentUser bool Флаг для поиска по текущему пользователю.
-     * @urlParam eventId int ID события.
+     * @bodyParam userId int ID пользователя.
+     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
+     * @bodyParam eventId int ID события.
      * @urlParam withAuthors bool Включать авторов в ответ.
      * @urlParam page int Номер страницы.
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
+     * @urlParam tagFilter string Фильтр по тегу в meta описания.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -55,6 +53,14 @@ class EventController extends Controller
         $currentUser = $request->query('currentUser');
         $eventId = $request->query('eventId');
         $withAuthors = $request->query('withAuthors', false);
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $tagFilter = $request->query('tagFilter');
+        $crtFrom = $request->query('crtFrom');
+        $crtTo = $request->query('crtTo');
+        $updFrom = $request->query('updFrom');
+        $updTo = $request->query('updTo');
+
         $query = Event::query();
 
         if ($withAuthors) {
@@ -79,6 +85,30 @@ class EventController extends Controller
             $query->where('id', $eventId);
         }
 
+        if ($searchColumnName) {
+            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        }
+
+        if ($tagFilter) {
+            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        }
+
+        if ($crtFrom && $crtTo) {
+            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        } elseif ($crtFrom) {
+            $query->where('created_at', '>=', $crtFrom);
+        } elseif ($crtTo) {
+            $query->where('created_at', '<=', $crtTo);
+        }
+
+        if ($updFrom && $updTo) {
+            $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        } elseif ($updFrom) {
+            $query->where('updated_at', '>=', $updFrom);
+        } elseif ($updTo) {
+            $query->where('updated_at', '<=', $updTo);
+        }
+
         $events = $query->paginate($perPage);
 
         $paginationData = [
@@ -95,16 +125,15 @@ class EventController extends Controller
 
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
-     * Store a newly created resource in storage.
+     * Создать 
+     * 
+     * Создание нового события
+     * 
+     * @group События
+     * 
+     * @authenticated
      */
     public function store(StoreEventRequest $request)
     {
@@ -159,6 +188,18 @@ class EventController extends Controller
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
+
+
+
+
+    /**
+     * Удалить
+     * 
+     * Удаление существующего события
+     * 
+     * @group События
+     * 
+     * @authenticated
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {

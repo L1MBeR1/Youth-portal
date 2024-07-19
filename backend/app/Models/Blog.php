@@ -9,6 +9,10 @@ class Blog extends Model
     protected $guarded = [];
     use HasFactory;
 
+    protected $casts = [
+        'description' => 'array',
+    ];
+
     public function comments()
     {
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'blog_id', 'comment_id');

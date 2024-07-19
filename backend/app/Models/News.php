@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class News extends Model
 {
     use HasFactory;
-
+    protected $casts = [
+        'description' => 'array',
+    ];
     protected $table = 'news';
     protected $guarded = [];
 

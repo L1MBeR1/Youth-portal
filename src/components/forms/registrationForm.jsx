@@ -123,9 +123,7 @@ function RegistrationForm() {
       const token = data.access_token;
 
       if (token) {
-        setCookie('token', token, { expires: 1 / 12 });
-        const profileData = await getProfile(token);
-        queryClient.setQueryData(['profile'], profileData.data);
+        setCookie('token', token);
         const decoded = jwtDecode(token);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');

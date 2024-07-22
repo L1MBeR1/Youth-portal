@@ -39,7 +39,7 @@ function SuccessNotification({ open, setOpen, message }) {
   return (
     <>
       <Snackbar
-        autoHideDuration={3000}
+        autoHideDuration={3150}
         variant="soft"
         color="success"
         open={open}

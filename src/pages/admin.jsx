@@ -1,4 +1,5 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Stack from '@mui/joy/Stack';
 
@@ -6,8 +7,23 @@ import Header from '../components/adminPage/adminHeader';
 import AdminSidebar from '../components/adminPage/adminSidebar'
 import AdminMain from '../components/adminPage/adminMain';
 function WorkLayout() {
+
 const [section, setSection] = useState('statistics');
 const [open, setOpen] = useState(false);
+
+const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return () => {
+      console.log('Удаление кэша админа');
+      queryClient.removeQueries({
+        predicate: (query) => {
+          return query.meta?.tags?.includes('admin');
+        },
+      });
+    };
+  }, [queryClient]); 
+
   return (
     <Stack 
     sx={{

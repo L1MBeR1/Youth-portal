@@ -2,11 +2,19 @@ import axios from 'axios';
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
 
-export const getBlogs = async (token) => {
+  export const getBlogsByPage = async (token, page,searchColumnName,searchValue,crtFrom,crtTo) => {
     try {
-      const response = await axios.get(`${API_URL}/blogs/index`, {
+      const response = await axios.get(`${API_URL}/blogs`, {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          withAuthors:true,
+          page: page,
+          searchColumnName:searchColumnName,
+          searchValue:searchValue,
+          crtFrom:crtFrom,
+          crtTo:crtTo
         },
       });
       return response.data;
@@ -15,15 +23,22 @@ export const getBlogs = async (token) => {
       throw error;
     }
   };
-
-  export const getBlogsByPage = async (token, page) => {
+  export const changeBlogStatus= async (token, id,data,status) => {
     try {
-      const response = await axios.get(`${API_URL}/blogs/index`, {
+      const response = await axios.put(`${API_URL}/blogs/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          page: page,
+          title:'',
+          description:'',
+          content:'',
+          cover_uri:'',
+          status:status,
+          views:0,
+          likes:0,
+          reposts:0,
+
         },
       });
       return response.data;

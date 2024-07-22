@@ -11,6 +11,7 @@ import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Sheet from '@mui/joy/Sheet';
+import Button from '@mui/joy/Button';
 import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
@@ -27,77 +28,61 @@ import CustomTable from '../customTable.jsx';
 import CustomList from '../customList.jsx';
 import Pagination from '../pagination.jsx';
 
-import {getPodcastsByPage } from '../../../api/podcastsApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
+import usePodcasts from '../../../hooks/usePodcasts.js';
 
-const fetchPodcasts = async (token, page, setFunc,setLastPage) => {
-  try {
-    const response = await getPodcastsByPage(token, page);
-    console.log(response);
-    if (response) {
-      setFunc(response.data);
-      setLastPage(response.message.last_page)
-    } else {
-      console.error('Fetched data is not an array:', response);
-    }
-  } catch (error) {
-    console.error('Fetching blogs failed', error);
-  }
-};
-
-const getStatus = (status) => {
-  switch (status) {
-    case 'moderating':
-      return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
-    case 'published':
-      return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
-    case 'archived':
-      return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
-    case 'pending':
-      return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
-    default:
-      return <Chip size="sm">{status}</Chip>;
-  }
-};
-
-const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
-  <React.Fragment>
-    <FormControl size="sm">
-      <FormLabel>От</FormLabel>
-      <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>До</FormLabel>
-      <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Статус</FormLabel>
-      <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-        <Option value="moderating">На проверке</Option>
-        <Option value="published">Опубликован</Option>
-        <Option value="archived">Заархивирован</Option>
-        <Option value="pending">На доработке</Option>
-      </Select>
-    </FormControl>
-  </React.Fragment>
-);
 
 function PodcastsSection() {
   const [openPodcast, setOpenPodcast] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [podcasts, setPodcasts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
+  
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const { data: podcasts, isLoading, refetch  } = usePodcasts(page, setLastPage,searchTerm,fromDate,toDate);
 
   useEffect(() => {
-    const token = getCookie('token');
-    fetchPodcasts(token, page, setPodcasts,setLastPage);
-  }, [page]);
-
+    refetch();
+  }, [page,refetch]);
+  const getStatus = (status) => {
+    switch (status) {
+      case 'moderating':
+        return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
+      case 'published':
+        return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
+      case 'archived':
+        return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
+      case 'pending':
+        return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
+      default:
+        return <Chip size="sm">{status}</Chip>;
+    }
+  };
+  
+  const renderFilters = () => (
+    <React.Fragment>
+      <FormControl size="sm">
+        <FormLabel>От</FormLabel>
+        <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+      </FormControl>
+      <FormControl size="sm">
+        <FormLabel>До</FormLabel>
+        <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+      </FormControl>
+      <FormControl size="sm">
+        <FormLabel>Статус</FormLabel>
+        <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
+          <Option value="moderating">На проверке</Option>
+          <Option value="published">Опубликован</Option>
+          <Option value="archived">Заархивирован</Option>
+          <Option value="pending">На доработке</Option>
+        </Select>
+      </FormControl>
+    </React.Fragment>
+  );
   function RowMenu() {
     return (
       <Dropdown>
@@ -107,18 +92,27 @@ function PodcastsSection() {
         >
           <MoreVertIcon />
         </MenuButton>
-        <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenPodcast(true)}>Просмотреть</MenuItem>
-          <MenuItem>Изменить</MenuItem>
+        <Menu size="sm" placement="bottom-end">
+          <MenuItem disabled onClick={() => setOpenPodcast(true)}>Просмотреть</MenuItem>
+          <MenuItem><EditIcon/>Изменить статус</MenuItem>
         </Menu>
       </Dropdown>
     );
   }
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
     setToDate('');
     setFromDate('');
     setSearchTerm('');
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    refetch();
   };
 
   const columns = [
@@ -129,7 +123,7 @@ function PodcastsSection() {
     { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
     { field: 'status', headerName: 'Статус', width: '120px', render: (item) => getStatus(item.status)},
-    // { field: 'menu', width: '120px', render: (item) => RowMenu(item.id)},
+    { field: 'menu', width: '50px', render: (item) => <RowMenu id={item.id}/>},
   ];
 
   return (
@@ -173,7 +167,7 @@ function PodcastsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по названию или автору</FormLabel>
+          <FormLabel>Поиск по названию</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -182,8 +176,12 @@ function PodcastsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-
+        {renderFilters()}
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"
@@ -194,33 +192,40 @@ function PodcastsSection() {
           <SearchOffIcon />
         </IconButton>
       </Box>
-      <Sheet
-        className="OrderTableContainer"
-        variant="outlined"
-        sx={{
-          display: { xs: 'none', sm: 'flex' },
-          flexGrow: '1',
-          borderRadius: 'sm',
-          overflow: 'auto',
-          maxHeight: '100%',
-        }}
-      >
-        <CustomTable 
-        columns={columns} 
-        data={podcasts}
-        // rowMenu={RowMenu()}
-        />
-      </Sheet>
-      <CustomList 
-        columns={columns} 
-        data={podcasts}
-        // rowMenu={RowMenu()}
-        colTitle={'title'}
-        colAuthor={'author'}
-        colDescription={'description'}
-        colDate={'created_at'}
-        colStatus={'status'}
-        />
+      {isLoading?(
+        <>
+        </>
+
+      ):(
+        <>
+        <Sheet
+          variant="outlined"
+          sx={{
+            display: { xs: 'none', sm: 'flex' },
+            flexGrow: '1',
+            borderRadius: 'sm',
+            overflow: 'auto',
+            maxHeight: '100%',
+          }}
+        >
+          <CustomTable 
+          columns={columns} 
+          data={podcasts}
+          // rowMenu={RowMenu()}
+          />
+        </Sheet>
+        <CustomList 
+          columns={columns} 
+          data={podcasts}
+          // rowMenu={RowMenu()}
+          colTitle={'title'}
+          colAuthor={'author'}
+          colDescription={'description'}
+          colDate={'created_at'}
+          colStatus={'status'}
+          />
+        </>
+      )}
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );

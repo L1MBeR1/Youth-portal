@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
 
-export const getModerators= async (token,page) => {
+export const getModerators= async (token,page,searchColumnName,searchValue,bdFrom,bdTo) => {
     try {
       const response = await axios.get(`${API_URL}/users`, {
         headers: {
@@ -11,6 +11,10 @@ export const getModerators= async (token,page) => {
         params: {
           role_name:'moderator',
           page: page,
+          searchColumnName:searchColumnName,
+          searchValue:searchValue,
+          bdFrom:bdFrom,
+          bdTo:bdTo,
         },
       });
       return response.data;

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
-import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
@@ -13,9 +9,8 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -24,31 +19,14 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
 import CustomTable from '../customTable.jsx';
 import CustomList from '../customList.jsx';
 import Pagination from '../pagination.jsx';
-import {getEventsByPage } from '../../../api/eventsApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
-
-const fetchEvents = async (token, page, setFunc,setLastPage) => {
-  try {
-    const response = await getEventsByPage(token, page);
-    console.log(response);
-    if (response) {
-      setFunc(response.data);
-      setLastPage(response.message.last_page)
-    } else {
-      console.error('Fetched data is not an array:', response);
-    }
-  } catch (error) {
-    console.error('Fetching blogs failed', error);
-  }
-};
+import useEvents from '../../../hooks/useEvents.js';
 
 
 const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
@@ -78,16 +56,15 @@ function EventsSection() {
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
+  const { data: events, isLoading, refetch  } = useEvents(page, setLastPage);
 
   useEffect(() => {
-    const token = getCookie('token');
-    fetchEvents(token, page, setEvents,setLastPage);
-  }, [page]);
+    refetch();
+  }, [page,refetch]);
 
   function RowMenu() {
     return (
@@ -184,8 +161,13 @@ function EventsSection() {
           <SearchOffIcon />
         </IconButton>
       </Box>
+      {isLoading?(
+        <>
+        </>
+
+      ):(
+        <>
       <Sheet
-        className="OrderTableContainer"
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'flex' },
@@ -210,6 +192,8 @@ function EventsSection() {
         colDescription={'description'}
         colDate={'start_time'}
         />
+        </>
+      )}
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );

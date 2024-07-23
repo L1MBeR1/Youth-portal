@@ -42,32 +42,42 @@ class UserController extends Controller
         // Дополнительные фильтры
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
+
+        $bdFrom = $request->query('bdFrom');
+        $bdTo = $request->query('bdTo');
+
+        // $crtFrom = $request->query('crtFrom');
+        // $crtTo = $request->query('crtTo');
+        // $updFrom = $request->query('updFrom');
+        // $updTo = $request->query('updTo');
 
         if ($searchColumnName && $searchValue) {
+            if (in_array($searchColumnName, ['email', 'phone'])) {
+                $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+            } else {
+                $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
+                    ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+            }
+        }
+
+        if ($bdFrom && $bdTo) {
             $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-
+                  ->whereBetween('user_metadata.birthday', [$bdFrom, $bdTo]);
+        } elseif ($bdFrom) {
+            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
+                  ->where('user_metadata.birthday', '>=', $bdFrom);
+        } elseif ($bdTo) {
+            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
+                  ->where('user_metadata.birthday', '<=', $bdTo);
         }
 
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('users.created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('users.created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('users.created_at', '<=', $crtTo);
-        }
-
-        if ($updFrom && $updTo) {
-            $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('users.updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('users.updated_at', '<=', $updTo);
-        }
+        // if ($updFrom && $updTo) {
+        //     $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
+        // } elseif ($updFrom) {
+        //     $query->where('users.updated_at', '>=', $updFrom);
+        // } elseif ($updTo) {
+        //     $query->where('users.updated_at', '<=', $updTo);
+        // }
 
         // Выполняем запрос с пагинацией
         $users = $query->paginate(10);

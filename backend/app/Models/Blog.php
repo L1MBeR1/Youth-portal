@@ -13,6 +13,8 @@ class Blog extends Model
         'description' => 'array',
     ];
 
+    // protected $fillable = ['status'];
+
     public function comments()
     {
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'blog_id', 'comment_id');
@@ -21,6 +23,11 @@ class Blog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
     }
 }
 

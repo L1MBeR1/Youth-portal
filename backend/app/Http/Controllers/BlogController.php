@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BlogController extends Controller
 {
@@ -85,17 +86,21 @@ class BlogController extends Controller
      * @urlParam page int Номер страницы.
      * @urlParam searchColumnName string Поиск по столбцу.
      * @urlParam searchValue string Поисковый запрос.
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
-     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
-     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtDate string Дата создания (формат: Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updDate string Дата обновления (формат: Y-m-d).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function getBlogs(Request $request)
-    {
+    {//TODO: Переделать
         if (!Auth::user()->can('view', Blog::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
@@ -105,11 +110,18 @@ class BlogController extends Controller
         $currentUser = $request->query('currentUser');
         $blogId = $request->query('blogId');
         $withAuthors = $request->query('withAuthors', false);
+
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
         $tagFilter = $request->query('tagFilter');
         $crtFrom = $request->query('crtFrom');
         $crtTo = $request->query('crtTo');
+
+        $updDate = $request->query('updDate');
+        $crtDate = $request->query('crtDate');
+        
         $updFrom = $request->query('updFrom');
         $updTo = $request->query('updTo');
 
@@ -137,6 +149,15 @@ class BlogController extends Controller
             $query->where('id', $blogId);
         }
 
+        if (!empty($searchFields) && !empty($searchValues)) {
+            foreach ($searchFields as $index => $field) {
+                $value = $searchValues[$index] ?? null;
+                if ($value) {
+                    $query->where($field, 'LIKE', '%' . $value . '%');
+                }
+            }
+        }
+
         if ($searchColumnName) {
             $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
         }
@@ -144,6 +165,11 @@ class BlogController extends Controller
         if ($tagFilter) {
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
+
+        $crtFrom = $this->parseDate($crtFrom);
+        $crtTo = $this->parseDate($crtTo);
+        $updFrom = $this->parseDate($updFrom);
+        $updTo = $this->parseDate($updTo);
 
         if ($crtFrom && $crtTo) {
             $query->whereBetween('created_at', [$crtFrom, $crtTo]);
@@ -161,6 +187,14 @@ class BlogController extends Controller
             $query->where('updated_at', '<=', $updTo);
         }
 
+        if ($crtDate) {
+            $query->whereDate('created_at', '=', $crtDate);
+        }
+    
+        if ($updDate) {
+            $query->whereDate('updated_at', '=', $updDate);
+        }
+
         $blogs = $query->paginate($perPage);
 
         $paginationData = [
@@ -174,6 +208,27 @@ class BlogController extends Controller
 
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
+
+    /**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
+
 
 
 
@@ -331,5 +386,38 @@ class BlogController extends Controller
         $blog->delete();
 
         return $this->successResponse(null, 'Запись удалена', Response::HTTP_OK);
+    }
+
+    /**
+     * Лайкнуть блог
+     * 
+     * Этот метод позволяет пользователю "лайкнуть" или "дизлайкнуть" блог.
+     * 
+     * @group    Блоги
+     * 
+     * @urlParam id int Обязательно. Идентификатор блога.
+     * 
+     */
+    public function likeBlog(int $id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $blog = Blog::findOrFail($id);
+            $user = Auth::user();
+
+            $like = $blog->likes()->where('user_id', $user->id)->first();
+
+            if ($like) {
+                $like->delete();
+                $blog->decrement('likes');
+                return $this->successResponse(['blogs' => $blog], 'Blog unliked successfully', 200);
+            } else {
+                $blog->likes()->create(['user_id' => $user->id]);
+                $blog->increment('likes');
+            }
+
+            return $this->successResponse(['blogs' => $blog], 'Blog liked successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }
     }
 }

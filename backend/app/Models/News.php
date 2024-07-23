@@ -14,6 +14,8 @@ class News extends Model
     protected $table = 'news';
     protected $guarded = [];
 
+    const STATUSES = ['moderating', 'published', 'archived', 'pending'];
+
     /**
      * Get the comments associated with the news.
      *
@@ -28,4 +30,10 @@ class News extends Model
             'comment_id'
         )->withTimestamps();
     }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
 }

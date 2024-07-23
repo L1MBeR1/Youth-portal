@@ -22,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
         Blog::class => BlogPolicy::class,
         News::class => NewsPolicy::class,
         Project::class => ProjectPolicy::class,
+        Events::class => EventPolicy::class
     ];
 
     public function boot()

@@ -60,7 +60,7 @@ class CommentController extends Controller
      * @param string $type The type of the content item.
      * @return \Illuminate\Http\JsonResponse The comments for the content item.
      */
-    public function getForContent(int $id, string $type): \Illuminate\Http\JsonResponse
+    public function getForContent(string $type, int $id): \Illuminate\Http\JsonResponse
     {
         $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
             ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')

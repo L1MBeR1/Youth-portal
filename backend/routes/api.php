@@ -150,7 +150,6 @@ Route::group([
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
-     Route::get('', [NewsController::class, 'listNews']);
      Route::put('{id}/status', [NewsController::class, 'updateStatus']);
      Route::post('like/{id}', [NewsController::class, 'likeNews']);
 

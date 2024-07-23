@@ -182,7 +182,32 @@ class NewsController extends Controller
         }
     }
 
+    public function likeNews(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $news = News::findOrFail($id);
+            $user = Auth::user();
 
+            $like = $news->likes()->where('user_id', $user->id)->first();
+
+            if ($like) {
+                // Если пользователь уже лайкнул эту новость, и опять нажал на лайк то удаляем лайк
+                $like->delete();
+                $news->decrement('likes');
+                return $this->successResponse(['news' => $news], 'News unliked successfully', 200);
+            } else {
+                // Иначе добавляем новый лайк
+                $news->likes()->create(['user_id' => $user->id]);
+                $news->increment('likes');
+            }
+
+            return $this->successResponse(['news' => $news], 'News liked successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    
 
 
 

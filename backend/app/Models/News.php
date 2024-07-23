@@ -30,4 +30,10 @@ class News extends Model
             'comment_id'
         )->withTimestamps();
     }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
 }

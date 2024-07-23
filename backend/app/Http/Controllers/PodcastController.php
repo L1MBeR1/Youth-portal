@@ -274,4 +274,66 @@ class PodcastController extends Controller
             return $this->handleException($e);
         }
     }
+
+    /**
+     * Лайкнуть подкаст
+     * 
+     * Этот метод позволяет пользователю "лайкнуть" или "дизлайкнуть" подкаст.
+     * 
+     * @group    Подкасты
+     * 
+     * @urlParam id int Обязательно. Идентификатор подкаста.
+     * 
+     * @response 200 {
+     *   "podcasts": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 50,
+     *     "reposts": 20
+     *   },
+     *   "message": "Podcast liked successfully"
+     * }
+     * 
+     * @response 200 {
+     *   "podcasts": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 49,
+     *     "reposts": 20
+     *   },
+     *   "message": "Podcast unliked successfully"
+     * }
+     */
+    public function likePodcast(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $podcast = Podcast::findOrFail($id);
+            $user = Auth::user();
+
+            $like = $podcast->likes()->where('user_id', $user->id)->first();
+
+            if ($like) {
+                $like->delete();
+                $podcast->decrement('likes');
+                return $this->successResponse(['podcasts' => $podcast], 'Podcast unliked successfully', 200);
+            } else {
+                $podcast->likes()->create(['user_id' => $user->id]);
+                $podcast->increment('likes');
+            }
+
+            return $this->successResponse(['podcasts' => $podcast], 'Podcast liked successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }
+    }
 }

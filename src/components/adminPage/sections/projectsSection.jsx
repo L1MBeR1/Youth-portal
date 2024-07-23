@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
@@ -13,9 +10,8 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -24,31 +20,14 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
 import CustomTable from '../customTable.jsx';
 import CustomList from '../customList.jsx';
 import Pagination from '../pagination.jsx';
-import {getProjectsByPage } from '../../../api/projectsApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
+import useProjects from '../../../hooks/useProjects.js';
 
-const fetchProjects = async (token, page, setFunc,setLastPage) => {
-  try {
-    const response = await getProjectsByPage(token, page);
-    console.log(response);
-    if (response) {
-      setFunc(response.data);
-      setLastPage(response.message.last_page)
-    } else {
-      console.error('Fetched data is not an array:', response);
-    }
-  } catch (error) {
-    console.error('Fetching blogs failed', error);
-  }
-};
 
 const getStatus = (status) => {
   switch (status) {
@@ -92,16 +71,15 @@ function ProjectsSection() {
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [projects, setProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
 
+  const { data: projects, isLoading, refetch  } = useProjects(page, setLastPage);
   useEffect(() => {
-    const token = getCookie('token');
-    fetchProjects(token, page, setProjects,setLastPage);
-  }, [page]);
+    refetch();
+  }, [page,refetch]);
 
   function RowMenu() {
     return (
@@ -197,8 +175,13 @@ function ProjectsSection() {
           <SearchOffIcon />
         </IconButton>
       </Box>
+      {isLoading?(
+        <>
+        </>
+
+      ):(
+        <>
       <Sheet
-        className="OrderTableContainer"
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'flex' },
@@ -223,6 +206,8 @@ function ProjectsSection() {
         colDescription={'description'}
         colDate={'created_at'}
         />
+        </>
+      )}
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );

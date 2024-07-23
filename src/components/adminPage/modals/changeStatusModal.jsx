@@ -9,40 +9,41 @@ import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
 import DialogActions from '@mui/joy/DialogActions';
 import FormHelperText from '@mui/joy/FormHelperText';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
 import Typography from "@mui/joy/Typography";
 
 import Add from "@mui/icons-material/Add";
 
 import SuccessNotification from "./successNotification.jsx";
 import WarningModal from "./warningModal.jsx";
-function AddModeratorModal({func}) {
+function ChangeStatusModal({func,message,id,isOpen,setIsOpen}) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [waitConfirm, setWaitConfirm] = useState(false);
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('');
   const [error, setError] = useState('');
-  const addModerator = async (confirmed) => {
+  const changeStatus = async (confirmed) => {
     if (confirmed){
       try {
-        await func(email);
+        await func(id);
         handleClose();
         setIsSuccess(true);
   
       } catch (error) {
         console.error('Fetching moderators failed', error);
-        setError('Ошибка добавления, проверьте данные')
+        setError('Ошибка изменения, проверьте данные')
       }
     } 
   };
   const handleClose = () => {
-    setEmail('');
+    setStatus('');
     setIsOpen(false);
     setError('')
     }
   const handleChange = (value) => {
       setError('');
-      setEmail(value);
+      setStatus(value);
 
   };
   const handleSubmit = (e) => {
@@ -51,13 +52,7 @@ function AddModeratorModal({func}) {
   };
   return (
     <>
-      <Button startDecorator={<Add />} size="sm" onClick={()=>{setIsOpen(true)}}
-      sx={{
-        ml:'10px'
-      }}
-      >
-        Добавить
-      </Button>
+    
       <Modal
         aria-labelledby="close-modal-title"
         open={isOpen}
@@ -77,41 +72,40 @@ function AddModeratorModal({func}) {
             textColor="inherit"
             fontWeight="lg"
           >
-            Добавление модератора
+            Изменить статус
           </Typography>
           <form onSubmit={handleSubmit}>
-            <FormControl error={Boolean(error)}>
-              <FormLabel>Почта</FormLabel>
-              <Input
-                placeholder="Введите почту"
-                required
-                type="email"
-                value={email}
-                onChange={(e) => handleChange(e.target.value)}
-              />
-              <FormHelperText>{error}</FormHelperText>
-            </FormControl>
+          <FormControl error={Boolean(error)}>
+            <FormLabel>Статус</FormLabel>
+            <Select required size="sm" value={status} onChange={(e,newValue) => handleChange(newValue)} placeholder="Выберите статус">
+            <Option value="moderating">На проверке</Option>
+            <Option value="published">Опубликован</Option>
+            <Option value="archived">Заархивирован</Option>
+            <Option value="pending">На доработке</Option>
+            </Select>
+            <FormHelperText>{error}</FormHelperText>
+        </FormControl>
             <DialogActions>
               <Button
                 variant="solid"
                 color="primary"
                 type="submit"
               >
-                Добавить
+                Изменить
               </Button>
             </DialogActions>
           </form>
         </ModalDialog>
       </Modal>
-      <SuccessNotification open={isSuccess} message={'Модератор успешно добавлен'} setOpen={setIsSuccess}/>
+      <SuccessNotification open={isSuccess} message={'Статус успешно изменен'} setOpen={setIsSuccess}/>
       <WarningModal
       open={waitConfirm}
       setOpen={setWaitConfirm}
-      onConfirm={addModerator}
-      message={`Вы действительно хотите добавить модератора с почтой ${email}?`}
+      onConfirm={changeStatus}
+      message={message+' '+status}
       />
     </>
   );
 }
 
-export default AddModeratorModal;
+export default ChangeStatusModal;

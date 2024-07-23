@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils.js';
-import { useQueryClient } from '@tanstack/react-query';
 
-import { login,getProfile} from '../../api/authApi.js';
+import { login} from '../../api/authApi.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
@@ -22,7 +21,6 @@ import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import {jwtDecode} from 'jwt-decode';
 
 function LoginForm() {
-  const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -38,9 +36,7 @@ function LoginForm() {
       const data = await login(email, password);
       const token = data.access_token;
       if (token) {
-        setCookie('token',token,2);
-        const profileData = await getProfile(token);
-        queryClient.setQueryData(['profile'], profileData.data);
+        setCookie('token',token);
         const decoded = jwtDecode(token);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');

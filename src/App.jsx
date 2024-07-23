@@ -29,7 +29,7 @@ function App() {
     const token = getCookie('token');
     if (token) {
       const decoded = jwtDecode(token);
-      console.log(decoded)
+      // console.log(decoded)
       if (roles.some(role => decoded.roles.includes(role))) {
         return element;
       }

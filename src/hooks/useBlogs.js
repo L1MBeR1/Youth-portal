@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { getModerators } from '../api/usersApi';
+import { getBlogsByPage } from '../api/blogsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useModerators = (page, setLastPage,searchValue,bdFrom,bdTo) => {
+const useBlogs = (page, setLastPage,searchValue,crtFrom,crtTo) => {
   return useQuery({
-    queryKey: ['admin/moderators'],
+    queryKey: ['admin/blogs'],
     queryFn: async () => {
       const token = getCookie('token');
-      const response = await getModerators(token, page,'email',searchValue,bdFrom,bdTo);
+      // console.log(page,token)
+      const response = await getBlogsByPage(token, page,'title',searchValue,crtFrom,crtTo);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
@@ -21,4 +22,4 @@ const useModerators = (page, setLastPage,searchValue,bdFrom,bdTo) => {
   });
 };
 
-export default useModerators;
+export default useBlogs;

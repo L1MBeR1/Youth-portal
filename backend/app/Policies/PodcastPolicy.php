@@ -100,13 +100,4 @@ class PodcastPolicy
     {
         //
     }
-
-
-    /**
-     * 
-     */
-    public function changeStatus(User $user, Podcast $podcast): bool
-    {
-        return $user->hasRole('admin') || $user->hasRole('moderator');
-    }
 }

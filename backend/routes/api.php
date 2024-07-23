@@ -135,7 +135,7 @@ Route::group([
     Route::delete('{id}', [BlogController::class, 'destroy']);
     Route::put('{id}', [BlogController::class, 'update']);
     Route::put('{id}/status', [BlogController::class, 'setStatus']);
-    Route::post('like/{id}', [BlogController::class, 'likeBlog']);
+    Route::post('{id}/like', [BlogController::class, 'likeBlog']);
 });
 
 
@@ -151,7 +151,7 @@ Route::group([
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
      Route::get('', [NewsController::class, 'listNews']);
-     Route::put('status/{id}', [NewsController::class, 'updateStatus']);
+     Route::put('{id}/status', [NewsController::class, 'updateStatus']);
      Route::post('like/{id}', [NewsController::class, 'likeNews']);
 
 
@@ -169,7 +169,7 @@ Route::group([
     Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);
-    Route::put('status/{id}', [PodcastController::class, 'updateStatus']);
+    Route::put('{id}/status', [PodcastController::class, 'updateStatus']);
     Route::post('like/{id}', [PodcastController::class, 'likePodcast']);
 });
 

@@ -238,11 +238,15 @@ class NewsController extends Controller
      * 
      * @bodyParam status string required Статус
      */
-    public function updateStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $newStatus = $request->input('status');
             $news = News::findOrFail($id);
+
+            if (!$news) {
+                return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+            }
 
             if (!Auth::user()->can('updateStatus', $news)) {
                 throw new AccessDeniedHttpException('You do not have permission to update the status of this news');
@@ -318,42 +322,5 @@ class NewsController extends Controller
             return $this->handleException($e);
         }
     }
-
-
-
-    /**
-     * Сменить статус
-     * 
-     * @group Новости
-     * @authenticated
-     * 
-     * @bodyParam status string Новый статус
-     * 
-     */
-    public function setStatus(Request $request, $id)
-    {
-        $news = News::find($id);
-
-        if (!$news) {
-            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
-        }
-
-        if (!Auth::user()->can('changeStatus', $news)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
-        }
-
-        $this->validateRequest($request, [
-            'status' => 'nullable|string|max:255',
-        ]);
-
-        $updateData = $request->only([
-            'status',
-        ]);
-
-        $news->update($updateData);
-
-        return $this->successResponse($news, 'Запись успешно обновлена', Response::HTTP_OK);
-    }
-
 }
 

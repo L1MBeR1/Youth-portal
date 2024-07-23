@@ -115,12 +115,4 @@ class NewsPolicy
         //
     }
 
-
-    /**
-     * 
-     */
-    public function changeStatus(User $user, News $news): bool
-    {
-        return $user->hasRole('admin') || $user->hasRole('moderator');
-    }
 }

@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BlogController extends Controller
 {
@@ -85,11 +86,13 @@ class BlogController extends Controller
      * @urlParam page int Номер страницы.
      * @urlParam searchColumnName string Поиск по столбцу.
      * @urlParam searchValue string Поисковый запрос.
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
-     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
-     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -105,8 +108,11 @@ class BlogController extends Controller
         $currentUser = $request->query('currentUser');
         $blogId = $request->query('blogId');
         $withAuthors = $request->query('withAuthors', false);
+
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
         $tagFilter = $request->query('tagFilter');
         $crtFrom = $request->query('crtFrom');
         $crtTo = $request->query('crtTo');
@@ -137,6 +143,15 @@ class BlogController extends Controller
             $query->where('id', $blogId);
         }
 
+        if (!empty($searchFields) && !empty($searchValues)) {
+            foreach ($searchFields as $index => $field) {
+                $value = $searchValues[$index] ?? null;
+                if ($value) {
+                    $query->where($field, 'LIKE', '%' . $value . '%');
+                }
+            }
+        }
+
         if ($searchColumnName) {
             $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
         }
@@ -144,6 +159,11 @@ class BlogController extends Controller
         if ($tagFilter) {
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
+
+        $crtFrom = $this->parseDate($crtFrom);
+        $crtTo = $this->parseDate($crtTo);
+        $updFrom = $this->parseDate($updFrom);
+        $updTo = $this->parseDate($updTo);
 
         if ($crtFrom && $crtTo) {
             $query->whereBetween('created_at', [$crtFrom, $crtTo]);
@@ -174,6 +194,27 @@ class BlogController extends Controller
 
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
+
+    /**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
+
 
 
 
@@ -342,37 +383,8 @@ class BlogController extends Controller
      * 
      * @urlParam id int Обязательно. Идентификатор блога.
      * 
-     * @response 200 {
-     *   "blogs": {
-     *     "id": 1,
-     *     "title": "Название подкаста",
-     *     "description": "Описание подкаста",
-     *     "content": "Содержание подкаста",
-     *     "cover_uri": "URI обложки подкаста",
-     *     "status": "Статус подкаста",
-     *     "views": 100,
-     *     "likes": 50,
-     *     "reposts": 20
-     *   },
-     *   "message": "Blog liked successfully"
-     * }
-     * 
-     * @response 200 {
-     *   "blogs": {
-     *     "id": 1,
-     *     "title": "Название подкаста",
-     *     "description": "Описание подкаста",
-     *     "content": "Содержание подкаста",
-     *     "cover_uri": "URI обложки подкаста",
-     *     "status": "Статус подкаста",
-     *     "views": 100,
-     *     "likes": 49,
-     *     "reposts": 20
-     *   },
-     *   "message": "Blog unliked successfully"
-     * }
      */
-    public function likeBlog(Request $request, int $id): \Illuminate\Http\JsonResponse
+    public function likeBlog(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $blog = Blog::findOrFail($id);

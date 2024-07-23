@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getEventsByPage } from '../api/eventsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useEvents = (page, setLastPage) => {
+const useEvents = (queryKey,tags,page, setLastPage) => {
   return useQuery({
-    queryKey: ['admin/events'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
       const response = await getEventsByPage(token, page);
@@ -13,7 +13,7 @@ const useEvents = (page, setLastPage) => {
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

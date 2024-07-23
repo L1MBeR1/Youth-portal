@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getNewsByPage } from '../api/newsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useNews = (page, setLastPage,searchValue,crtFrom,crtTo) => {
+const useNews = (queryKey,tags,page, setLastPage,searchValue,crtFrom,crtTo) => {
   return useQuery({
-    queryKey: ['admin/news'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
       const response = await getNewsByPage(token, page,'title',searchValue,crtFrom,crtTo);
@@ -13,7 +13,7 @@ const useNews = (page, setLastPage,searchValue,crtFrom,crtTo) => {
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

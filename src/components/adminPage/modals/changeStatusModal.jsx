@@ -26,7 +26,7 @@ function ChangeStatusModal({func,message,id,isOpen,setIsOpen}) {
   const changeStatus = async (confirmed) => {
     if (confirmed){
       try {
-        await func(id);
+        await func(status);
         handleClose();
         setIsSuccess(true);
   
@@ -42,6 +42,7 @@ function ChangeStatusModal({func,message,id,isOpen,setIsOpen}) {
     setError('')
     }
   const handleChange = (value) => {
+    console.log(value)
       setError('');
       setStatus(value);
 

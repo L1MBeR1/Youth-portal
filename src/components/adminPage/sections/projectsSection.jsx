@@ -76,7 +76,7 @@ function ProjectsSection() {
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
 
-  const { data: projects, isLoading, refetch  } = useProjects(page, setLastPage);
+  const { data: projects, isLoading, refetch  } = useProjects(['admin/projects'],['admin'],page, setLastPage);
   useEffect(() => {
     refetch();
   }, [page,refetch]);

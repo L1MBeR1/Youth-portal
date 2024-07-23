@@ -2,18 +2,18 @@ import { useQuery } from '@tanstack/react-query';
 import { getModerators } from '../api/usersApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useModerators = (page, setLastPage,searchValue,bdFrom,bdTo) => {
+const useModerators = (queryKey,tags,page, setLastPage,searchFields,searchValues,) => {
   return useQuery({
-    queryKey: ['admin/moderators'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
-      const response = await getModerators(token, page,'email',searchValue,bdFrom,bdTo);
+      const response = await getModerators(token, page,searchFields,searchValues);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

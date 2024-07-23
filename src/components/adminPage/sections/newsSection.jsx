@@ -43,7 +43,7 @@ function NewsSection() {
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const { data: news, isLoading, refetch  } = useNews(page, setLastPage,searchTerm,fromDate,toDate);
+  const { data: news, isLoading, refetch  } = useNews(['admin/news'],['admin'],page, setLastPage,searchTerm,fromDate,toDate);
 
   useEffect(() => {
     refetch();

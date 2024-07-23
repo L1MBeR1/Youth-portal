@@ -2,19 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { getBlogsByPage } from '../api/blogsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useBlogs = (page, setLastPage,searchValue,crtFrom,crtTo) => {
+const useBlogs = (queryKey,tags,page, setLastPage,searchFields,searchValues,) => {
   return useQuery({
-    queryKey: ['admin/blogs'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
-      // console.log(page,token)
-      const response = await getBlogsByPage(token, page,'title',searchValue,crtFrom,crtTo);
+      console.log(searchFields,searchValues)
+      const response = await getBlogsByPage(token, page,searchFields,searchValues);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

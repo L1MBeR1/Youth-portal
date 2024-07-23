@@ -220,7 +220,36 @@ class PodcastController extends Controller
         }
     }
 
+     /**
+     * Обновить
+     * 
+     * Обновление статуса подкаста
+     * 
+     * @group Подкасты
+     * 
+     * @bodyParam status string required Статус
+     */
+    public function updateStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $newStatus = $request->input('status');
+            $podcast = Podcast::findOrFail($id);
 
+            if (!Auth::user()->can('updateStatus', $podcast)) {
+                throw new AccessDeniedHttpException('You do not have permission to update the status of this podcast');
+            }
+
+            if (!in_array($newStatus, Podcast::STATUSES)) {
+                return $this->errorResponse('Invalid status entered', [], 404);
+            }
+
+            $podcast->update(['status' => $newStatus]);
+
+            return $this->successResponse(['podcasts' => $podcast], 'Podcast status updated successfully', 200);
+        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        }
+    }
 
 
     /**

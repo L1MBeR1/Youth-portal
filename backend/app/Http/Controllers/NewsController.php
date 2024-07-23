@@ -204,14 +204,14 @@ class NewsController extends Controller
 
     }
 
-    /**
-     * Update the status of the specified news.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     /**
+     * Обновить
+     * 
+     * Обновление статуса новости
+     * 
+     * @group Новости
+     * 
+     * @bodyParam status string required Статус
      */
     public function updateStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
     {
@@ -223,12 +223,11 @@ class NewsController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to update the status of this news');
             }
 
-            if (!in_array($newStatus, ['moderating', 'published', 'archived', 'pending'])) {
+            if (!in_array($newStatus, News::STATUSES)) {
                 return $this->errorResponse('Invalid status entered', [], 404);
             }
 
-            $news->status = $newStatus;
-            $news->save();
+            $news->update(['status' => $newStatus]);
 
             return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
         } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
@@ -290,9 +289,7 @@ class NewsController extends Controller
             $news->delete();
 
             return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (ModelNotFoundException | AccessDeniedHttpException$e) {
             return $this->handleException($e);
         }
     }

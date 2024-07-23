@@ -166,6 +166,8 @@ Route::group([
     Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);
+    Route::put('status/{id}', [PodcastController::class, 'updateStatus']);
+
 });
 
 

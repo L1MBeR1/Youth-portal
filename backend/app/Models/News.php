@@ -14,6 +14,8 @@ class News extends Model
     protected $table = 'news';
     protected $guarded = [];
 
+    const STATUSES = ['moderating', 'published', 'archived', 'pending'];
+
     /**
      * Get the comments associated with the news.
      *

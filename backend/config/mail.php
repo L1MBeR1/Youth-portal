@@ -113,4 +113,16 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // TODO: Нужен сертификат на разрешенный домен. 
+    // FIXME:Lets encrypt запрещает IP для сертификата.
+    // BUG: Удалить, когда будет готов сертификат.
+    'stream' => [
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true,
+        ],
+    ],
+
+
 ];

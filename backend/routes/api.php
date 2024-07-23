@@ -177,7 +177,7 @@ Route::group([
     Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
-    Route::get('/{id}/{type}', [CommentController::class, 'getForContent']);
+    Route::get('/{type}/{id}', [CommentController::class, 'getForContent']);
 });
 
 

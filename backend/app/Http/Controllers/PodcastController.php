@@ -252,4 +252,39 @@ class PodcastController extends Controller
             return $this->handleException($e);
         }
     }
+
+
+    /**
+     * Сменить статус
+     * 
+     * @group Подкасты
+     * @authenticated
+     * 
+     * @bodyParam status string Новый статус
+     * 
+     */
+    public function setStatus(Request $request, $id)
+    {
+        $podcast = Podcast::find($id);
+
+        if (!$podcast) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('changeStatus', $podcast)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $this->validateRequest($request, [
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        $updateData = $request->only([
+            'status',
+        ]);
+
+        $podcast->update($updateData);
+
+        return $this->successResponse($podcast, 'Запись успешно обновлена', Response::HTTP_OK);
+    }
 }

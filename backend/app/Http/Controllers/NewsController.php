@@ -261,5 +261,40 @@ class NewsController extends Controller
     }
 
 
+
+    /**
+     * Сменить статус
+     * 
+     * @group Новости
+     * @authenticated
+     * 
+     * @bodyParam status string Новый статус
+     * 
+     */
+    public function setStatus(Request $request, $id)
+    {
+        $news = News::find($id);
+
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('changeStatus', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $this->validateRequest($request, [
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        $updateData = $request->only([
+            'status',
+        ]);
+
+        $news->update($updateData);
+
+        return $this->successResponse($news, 'Запись успешно обновлена', Response::HTTP_OK);
+    }
+
 }
 

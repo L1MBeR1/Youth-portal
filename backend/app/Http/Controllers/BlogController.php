@@ -91,14 +91,16 @@ class BlogController extends Controller
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
      * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtDate string Дата создания (формат: Y-m-d).
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updDate string Дата обновления (формат: Y-m-d).
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function getBlogs(Request $request)
-    {
+    {//TODO: Переделать
         if (!Auth::user()->can('view', Blog::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
@@ -116,6 +118,10 @@ class BlogController extends Controller
         $tagFilter = $request->query('tagFilter');
         $crtFrom = $request->query('crtFrom');
         $crtTo = $request->query('crtTo');
+
+        $updDate = $request->query('updDate');
+        $crtDate = $request->query('crtDate');
+        
         $updFrom = $request->query('updFrom');
         $updTo = $request->query('updTo');
 
@@ -179,6 +185,14 @@ class BlogController extends Controller
             $query->where('updated_at', '>=', $updFrom);
         } elseif ($updTo) {
             $query->where('updated_at', '<=', $updTo);
+        }
+
+        if ($crtDate) {
+            $query->whereDate('created_at', '=', $crtDate);
+        }
+    
+        if ($updDate) {
+            $query->whereDate('updated_at', '=', $updDate);
         }
 
         $blogs = $query->paginate($perPage);

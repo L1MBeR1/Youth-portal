@@ -20,16 +20,19 @@ class UserController extends Controller
      * @urlParam role_name string Название роли для фильтрации пользователей.
      * @queryParam searchColumnName string Поиск по столбцу.
      * @queryParam searchValue string Поисковый запрос.
-     * @queryParam crtFrom string Дата начала создания (формат: Y-m-d H:i:s).
-     * @queryParam crtTo string Дата окончания создания (формат: Y-m-d H:i:s).
-     * @queryParam updFrom string Дата начала обновления (формат: Y-m-d H:i:s).
-     * @queryParam updTo string Дата окончания обновления (формат: Y-m-d H:i:s).
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam bdDate string Дата создания (формат: Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @queryParam page int Номер страницы.
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function listUsers(Request $request)
-    {
+    { //TODO: Переделать
         $roleName = $request->query('role_name');
         $query = User::query();
 
@@ -39,17 +42,30 @@ class UserController extends Controller
             });
         }
 
-        // Дополнительные фильтры
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
 
         $bdFrom = $request->query('bdFrom');
         $bdTo = $request->query('bdTo');
 
+        $bdDate = $request->query('bdDate');
+
         // $crtFrom = $request->query('crtFrom');
         // $crtTo = $request->query('crtTo');
         // $updFrom = $request->query('updFrom');
         // $updTo = $request->query('updTo');
+
+
+        if (!empty($searchFields) && !empty($searchValues)) {
+            foreach ($searchFields as $index => $field) {
+                $value = $searchValues[$index] ?? null;
+                if ($value) {
+                    $query->where($field, 'LIKE', '%' . $value . '%');
+                }
+            }
+        }
 
         if ($searchColumnName && $searchValue) {
             if (in_array($searchColumnName, ['email', 'phone'])) {
@@ -59,6 +75,9 @@ class UserController extends Controller
                     ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
             }
         }
+
+        $bdFrom = $this->parseDate($bdFrom);
+        $bdTo = $this->parseDate($bdTo);
 
         if ($bdFrom && $bdTo) {
             $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
@@ -70,6 +89,11 @@ class UserController extends Controller
             $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
                   ->where('user_metadata.birthday', '<=', $bdTo);
         }
+
+        if ($bdDate) {
+            $query->whereDate('user_metadata.birthday', '=', $bdDate);
+        }
+    
 
         // if ($updFrom && $updTo) {
         //     $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
@@ -110,7 +134,25 @@ class UserController extends Controller
         return $this->successResponse($response, $paginationData, 200);
     }
 
+    /**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
 
 
     /**

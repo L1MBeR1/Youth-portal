@@ -159,21 +159,18 @@ class PodcastController extends Controller
     public function store(StorePodcastRequest $request)
     {
         try {
-            // Проверка прав пользователя
             if (!Auth::user()->can('create', Podcast::class)) {
                 throw new AccessDeniedHttpException('You do not have permission to create a podcast');
             }
 
             $this->validateRequest($request, $request->rules());
 
-            // Создание нового подкаста с использованием проверенных данных
             $podcast = Podcast::create(array_merge($request->validated(), [
                 'status' => 'moderating',
                 'author_id' => Auth::id(),
             ]));
             return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
         } catch (AccessDeniedHttpException $e) {
-            // Обработка исключений через централизованную функцию
             return $this->handleException($e);
         }
     }
@@ -213,14 +210,41 @@ class PodcastController extends Controller
             $podcast->update($validatedData);
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
+        } 
+    }
+
+     /**
+     * Обновить
+     * 
+     * Обновление статуса подкаста
+     * 
+     * @group Подкасты
+     * 
+     * @bodyParam status string required Статус
+     */
+    public function updateStatus(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $newStatus = $request->input('status');
+            $podcast = Podcast::findOrFail($id);
+
+            if (!Auth::user()->can('updateStatus', $podcast)) {
+                throw new AccessDeniedHttpException('You do not have permission to update the status of this podcast');
+            }
+
+            if (!in_array($newStatus, Podcast::STATUSES)) {
+                return $this->errorResponse('Invalid status entered', [], 404);
+            }
+
+            $podcast->update(['status' => $newStatus]);
+
+            return $this->successResponse(['podcasts' => $podcast], 'Podcast status updated successfully', 200);
+        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
-
-
 
 
     /**
@@ -246,8 +270,68 @@ class PodcastController extends Controller
             $podcast->delete();
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
-        }catch (Exception $e) {
+        }catch (Exception | ModelNotFoundException$e) {
             return $this->handleException($e);
+        }
+    }
+
+    /**
+     * Лайкнуть подкаст
+     * 
+     * Этот метод позволяет пользователю "лайкнуть" или "дизлайкнуть" подкаст.
+     * 
+     * @group    Подкасты
+     * 
+     * @urlParam id int Обязательно. Идентификатор подкаста.
+     * 
+     * @response 200 {
+     *   "podcasts": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 50,
+     *     "reposts": 20
+     *   },
+     *   "message": "Podcast liked successfully"
+     * }
+     * 
+     * @response 200 {
+     *   "podcasts": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 49,
+     *     "reposts": 20
+     *   },
+     *   "message": "Podcast unliked successfully"
+     * }
+     */
+    public function likePodcast(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $podcast = Podcast::findOrFail($id);
+            $user = Auth::user();
+
+            $like = $podcast->likes()->where('user_id', $user->id)->first();
+
+            if ($like) {
+                $like->delete();
+                $podcast->decrement('likes');
+                return $this->successResponse(['podcasts' => $podcast], 'Podcast unliked successfully', 200);
+            } else {
+                $podcast->likes()->create(['user_id' => $user->id]);
+                $podcast->increment('likes');
+            }
+
+            return $this->successResponse(['podcasts' => $podcast], 'Podcast liked successfully', 200);
         } catch (ModelNotFoundException $e) {
             return $this->handleException($e);
         }

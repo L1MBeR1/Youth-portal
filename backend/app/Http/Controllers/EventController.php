@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
 use App\Models\Event;
-// use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class EventController extends Controller
 {
@@ -131,27 +137,54 @@ class EventController extends Controller
      */
     public function store(StoreEventRequest $request)
     {
-        //
+        //TODO: Сделать метод для добавление с проектом и без
     }
 
-
-
-
-
     /**
-     * Обновить
-     * 
-     * Обновление существующего события
-     * 
-     * @group События
-     * 
-     * @authenticated
+     * Display the specified resource.
      */
-    public function update(UpdateEventRequest $request, Event $event)
+    public function show(Event $event)
     {
         //
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Event $event)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UpdateEventRequest $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(UpdateEventRequest $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $event = Event::findOrFail($id);
+
+            if (!Auth::user()->can('update', $event)) {
+                throw new AccessDeniedHttpException('You do not have permission to update this event');
+            }
+
+            $event->update($request->validated());
+
+            return $this->successResponse(['events' => $event], 'Event updated successfully', 200);
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
+            return $this->handleException($e);
+        } 
+    }
+
+/**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
 
 
 
@@ -165,8 +198,20 @@ class EventController extends Controller
      * 
      * @authenticated
      */
-    public function destroy(Event $event)
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        //
+        try{
+            $event = Event::findOrFail($id);
+
+            if (!Auth::user()->can('delete', $event)) {
+                throw new AccessDeniedHttpException('You do not have permission to delete this event');
+            }
+
+            $event->delete();
+
+            return $this->successResponse(['events' => $event], 'Event deleted successfully', 200);
+        }catch (ModelNotFoundException | AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        }
     }
 }

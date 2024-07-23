@@ -50,6 +50,18 @@ class PodcastPolicy
         return false;
     }
 
+    public function updateStatus(User $user, Podcast $podcast): bool
+    {
+        Log::info('Checking update podcast status permission for user ' . $user->id);
+
+        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+            Log::info('User ' . $user->id . ' is an admin or moderator and can update podcast status ' . $podcast->id);
+            return true;
+        }
+        Log::info('User ' . $user->id . ' is not allowed to update podcast staaatus ' . $podcast->id);
+        return false;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

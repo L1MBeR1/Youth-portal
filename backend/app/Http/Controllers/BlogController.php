@@ -332,4 +332,66 @@ class BlogController extends Controller
 
         return $this->successResponse(null, 'Запись удалена', Response::HTTP_OK);
     }
+
+    /**
+     * Лайкнуть блог
+     * 
+     * Этот метод позволяет пользователю "лайкнуть" или "дизлайкнуть" блог.
+     * 
+     * @group    Блоги
+     * 
+     * @urlParam id int Обязательно. Идентификатор блога.
+     * 
+     * @response 200 {
+     *   "blogs": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 50,
+     *     "reposts": 20
+     *   },
+     *   "message": "Blog liked successfully"
+     * }
+     * 
+     * @response 200 {
+     *   "blogs": {
+     *     "id": 1,
+     *     "title": "Название подкаста",
+     *     "description": "Описание подкаста",
+     *     "content": "Содержание подкаста",
+     *     "cover_uri": "URI обложки подкаста",
+     *     "status": "Статус подкаста",
+     *     "views": 100,
+     *     "likes": 49,
+     *     "reposts": 20
+     *   },
+     *   "message": "Blog unliked successfully"
+     * }
+     */
+    public function likeBlog(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $blog = Blog::findOrFail($id);
+            $user = Auth::user();
+
+            $like = $blog->likes()->where('user_id', $user->id)->first();
+
+            if ($like) {
+                $like->delete();
+                $blog->decrement('likes');
+                return $this->successResponse(['blogs' => $blog], 'Blog unliked successfully', 200);
+            } else {
+                $blog->likes()->create(['user_id' => $user->id]);
+                $blog->increment('likes');
+            }
+
+            return $this->successResponse(['blogs' => $blog], 'Blog liked successfully', 200);
+        } catch (ModelNotFoundException $e) {
+            return $this->handleException($e);
+        }
+    }
 }

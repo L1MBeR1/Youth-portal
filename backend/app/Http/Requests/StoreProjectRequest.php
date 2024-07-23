@@ -12,7 +12,6 @@ class StoreProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        Log::info('fdvfdvd');
         return true;
         
     }

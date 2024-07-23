@@ -127,8 +127,13 @@ class ProjectController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param \App\Http\Requests\StoreProjectRequest $request The request object containing the project data.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the created project.
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException If the user does not have permission to create a project.
      */
-    public function store(StoreProjectRequest $request)
+    public function store(StoreProjectRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
             if (!Auth::user()->can('create', Project::class)) {
@@ -151,19 +156,17 @@ class ProjectController extends Controller
 
 
 
-    public function storeTHIS(StoreProjectRequest $request)
-    {
-        Log::info('checkpoint');
-    }
-
-
-
-
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param \App\Http\Requests\UpdateProjectRequest $request The request object containing the updated project data.
+     * @param int $id The ID of the project to update.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the updated project.
+     * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException If the user does not have permission to update the project.
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the project with the given ID is not found.
      */
-    public function update(UpdateProjectRequest $request, int $id)
+    public function update(UpdateProjectRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
         try {
             $project = Project::findOrFail($id);
@@ -175,10 +178,7 @@ class ProjectController extends Controller
             $project->update($request->validated());
 
             return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            Log::info('catch_error', [$e]);
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
         }
     }
@@ -206,12 +206,9 @@ class ProjectController extends Controller
             $project->delete();
 
             return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException | ModelNotFoundException$e) {
             Log::info('catch_error', [$e]);
             return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            Log::info('catch_error', [$e]);
-            return $this->handleException($e);
-        }
+        } 
     }
 }

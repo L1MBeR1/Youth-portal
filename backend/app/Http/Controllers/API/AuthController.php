@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Mail\EmailVerification;
+use Illuminate\Support\Facades\Mail;
 use Exception;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -61,7 +63,7 @@ class AuthController extends Controller
             if (!$token = Auth::attempt($credentials)) {
                 return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
             }
-
+            Mail::to($user->email)->send(new EmailVerification($user));
             $refreshToken = $this->generateRefreshToken($user);
 
             return $this->respondWithToken($token, $refreshToken);

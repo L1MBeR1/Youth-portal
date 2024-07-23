@@ -206,12 +206,9 @@ class ProjectController extends Controller
             $project->delete();
 
             return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException | ModelNotFoundException$e) {
             Log::info('catch_error', [$e]);
             return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            Log::info('catch_error', [$e]);
-            return $this->handleException($e);
-        }
+        } 
     }
 }

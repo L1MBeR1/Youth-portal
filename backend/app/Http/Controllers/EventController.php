@@ -175,12 +175,9 @@ class EventController extends Controller
             $event->update($request->validated());
 
             return $this->successResponse(['events' => $event], 'Event updated successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            Log::info('catch_error', [$e]);
-            return $this->handleException($e);
-        }
+        } 
     }
 
 /**
@@ -213,9 +210,7 @@ class EventController extends Controller
             $event->delete();
 
             return $this->successResponse(['events' => $event], 'Event deleted successfully', 200);
-        }catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        }catch (AccessDeniedHttpException $e) {
+        }catch (ModelNotFoundException | AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }

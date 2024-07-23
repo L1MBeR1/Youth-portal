@@ -159,21 +159,18 @@ class PodcastController extends Controller
     public function store(StorePodcastRequest $request)
     {
         try {
-            // Проверка прав пользователя
             if (!Auth::user()->can('create', Podcast::class)) {
                 throw new AccessDeniedHttpException('You do not have permission to create a podcast');
             }
 
             $this->validateRequest($request, $request->rules());
 
-            // Создание нового подкаста с использованием проверенных данных
             $podcast = Podcast::create(array_merge($request->validated(), [
                 'status' => 'moderating',
                 'author_id' => Auth::id(),
             ]));
             return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
         } catch (AccessDeniedHttpException $e) {
-            // Обработка исключений через централизованную функцию
             return $this->handleException($e);
         }
     }
@@ -213,11 +210,9 @@ class PodcastController extends Controller
             $podcast->update($validatedData);
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        }
+        } 
     }
 
      /**
@@ -275,9 +270,7 @@ class PodcastController extends Controller
             $podcast->delete();
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
-        }catch (Exception $e) {
-            return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
+        }catch (Exception | ModelNotFoundException$e) {
             return $this->handleException($e);
         }
     }

@@ -215,3 +215,13 @@ Route::group([
     Route::put('{id}', [ProjectController::class, 'update']);
 });
 
+// Работа с организациями
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'organizations'
+], function () {
+    Route::get('', [ProjectController::class, 'getOrganizations']);
+    Route::post('', [ProjectController::class, 'store']);
+    Route::put('{id}', [ProjectController::class, 'update']);
+    Route::delete('{id}', [ProjectController::class, 'destroy']);
+});

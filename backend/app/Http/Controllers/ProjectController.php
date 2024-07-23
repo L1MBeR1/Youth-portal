@@ -136,7 +136,6 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-        try {
             if (!Auth::user()->can('create', Project::class)) {
                 throw new AccessDeniedHttpException('You do not have permission to create a project');
             }
@@ -149,10 +148,10 @@ class ProjectController extends Controller
 
             return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
         } catch (AccessDeniedHttpException $e) {
-        } catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
+
 
 
 
@@ -179,10 +178,7 @@ class ProjectController extends Controller
             $project->update($request->validated());
 
             return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
-        } catch (ModelNotFoundException $e) {
-            Log::info('catch_error', [$e]);
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
         }
     }

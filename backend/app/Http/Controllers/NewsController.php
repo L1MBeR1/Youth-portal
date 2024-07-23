@@ -231,9 +231,7 @@ class NewsController extends Controller
             $news->save();
 
             return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }
@@ -258,9 +256,7 @@ class NewsController extends Controller
             $news->update($request->validated());
 
             return $this->successResponse(['news' => $news], 'News updated successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
             return $this->handleException($e);
         }
     }

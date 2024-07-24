@@ -92,6 +92,10 @@ class EventController extends Controller
             }
         } elseif ($eventId) {
             $query->where('id', $eventId);
+            $event = $query->first(); 
+            if ($event) {
+                $event->increment('views'); 
+            }
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {

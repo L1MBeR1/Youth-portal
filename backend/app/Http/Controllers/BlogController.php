@@ -147,6 +147,10 @@ class BlogController extends Controller
             }
         } elseif ($blogId) {
             $query->where('id', $blogId);
+            $blog = $query->first(); 
+            if ($blog) {
+                $blog->increment('views'); 
+            }
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {

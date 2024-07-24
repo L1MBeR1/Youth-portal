@@ -108,6 +108,10 @@ class PodcastController extends Controller
             }
         } elseif ($podcastId) {
             $query->where('id', $podcastId);
+            $podcast = $query->first(); // Получаем первый подкаст, соответствующий запросу
+            if ($podcast) {
+                $podcast->increment('views'); // Инкрементируем счетчик просмотров
+            }
         }
 
 

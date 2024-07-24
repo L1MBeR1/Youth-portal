@@ -13,22 +13,24 @@ class EmailVerification extends Mailable
 {
     use Queueable, SerializesModels;
     public $user;
+    public $token;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user)
+    public function __construct($user, $token)
     {
         $this->user = $user;
+        $this->token = $token;
     }
 
     public function build()
     {
         return $this->markdown('emails.verify')
-                    ->with([
-                        'name' => $this->user->name,
-                        'verificationUrl' => url('/verify-email?token='/* . $this->user->email_verification_token*/),
-                    ]);
+            ->with([
+                'name' => $this->user->name,
+                'verificationUrl' => url('/api/auth/verify_email?token=' . $this->token),
+            ]);
     }
 
     /**

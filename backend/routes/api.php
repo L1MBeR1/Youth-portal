@@ -36,6 +36,7 @@ Route::group([
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);

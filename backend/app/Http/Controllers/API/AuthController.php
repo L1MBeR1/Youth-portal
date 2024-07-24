@@ -2,28 +2,37 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Mail\EmailVerification;
-use Illuminate\Support\Facades\Mail;
 use Exception;
 use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Mail\EmailVerification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 // use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\ValidationException;
+// use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
+use PHPOpenSourceSaver\JWTAuth\Validators\Validator;
+
 class AuthController extends Controller
 {
+    protected $jwtSecret;
+
+    public function __construct()
+    {
+        $this->jwtSecret = config('app.JWT_SECRET');
+    }
     /**
      * Регистрация 
      * 
@@ -60,7 +69,7 @@ class AuthController extends Controller
         $input['password'] = bcrypt($input['password']);
 
         $user = User::create($input);
-        $user->assignRole('user');
+        $user->assignRole('guest');
 
         UserMetadata::create(['user_id' => $user->id]);
 
@@ -70,7 +79,9 @@ class AuthController extends Controller
         if (!$token = Auth::attempt($credentials)) {
             return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
         }
-        Mail::to($user->email)->send(new EmailVerification($user));
+
+
+        Mail::to($user->email)->send(new EmailVerification($user, $token));
         $refreshToken = $this->generateRefreshToken($user);
 
         return $this->respondWithToken($token, $refreshToken);
@@ -114,6 +125,74 @@ class AuthController extends Controller
         $refreshToken = $this->generateRefreshToken($user);
 
         return $this->respondWithToken($token, $refreshToken);
+    }
+
+
+
+
+    /**
+     * sent_test_message
+     * 
+     * @group Авторизация
+     * @bodyParam email string required email
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    // public function sendMessage(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'email' => 'required|email',
+    //     ]);
+
+    //     $email = $validatedData['email'];
+
+    //     $user = User::where('email', $email)->first();
+
+    //     if (!$user) {
+    //         return response()->json(['error' => 'User not found.'], 404);
+    //     }
+
+    //     Mail::to($user->email)->send(new EmailVerification($user));
+
+    //     return response()->json(['message' => 'Message sent successfully.']);
+    // }
+
+
+
+    /**
+     * Подтверждение почты
+     * 
+     * @group Авторизация
+     * 
+     */
+    public function verifyEmail(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            return $this->errorResponse('Token is missing', [], 400);
+        }
+
+        // Попробуйте декодировать токен
+        $user = JWTAuth::setToken($token)->toUser();
+
+        if (!$user) {
+            return $this->errorResponse('Invalid or expired token', [], 400);
+        }
+
+        // Проверка, подтвержден ли email
+        if ($user->email_verified_at) {
+            return $this->errorResponse('Email already verified', [], 422);
+        }
+
+        // Подтверждение email
+        $user->email_verified_at = now();
+        $user->removeRole('guest');
+        $user->assignRole('user');
+        $user->save();
+
+        return $this->successResponse('Email verified successfully');
     }
 
 
@@ -394,28 +473,28 @@ class AuthController extends Controller
     //     ]);
     // }
     protected function respondWithToken($token, $refreshToken = null)
-{
-    $response = response()->json([
-        'access_token' => $token,
-        'token_type' => 'bearer',
-    ]);
+    {
+        $response = response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+        ]);
 
-    if ($refreshToken) {
-        $cookie = cookie(
-            'refresh_token', 
-            $refreshToken, 
-            60 * 24 * 7, 
-            '/', 
-            null, 
-            true, // Secure
-            true, // HttpOnly
-            false, // Raw
-        );
-        $response->withCookie($cookie);
+        if ($refreshToken) {
+            $cookie = cookie(
+                'refresh_token',
+                $refreshToken,
+                60 * 24 * 7,
+                '/',
+                null,
+                true, // Secure
+                true, // HttpOnly
+                false, // Raw
+            );
+            $response->withCookie($cookie);
+        }
+
+        return $response;
     }
-
-    return $response;
-}
 
 
 }

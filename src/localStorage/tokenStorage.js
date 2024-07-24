@@ -1,27 +1,38 @@
-import {refresh} from '../api/authApi.js';
+import { refresh } from '../api/authApi.js';
 
-export const setToken = (token, hours=1) => {
+export const setToken = (token, hours = 1) => {
     const now = new Date();
-    const expiryTime = now.getTime() + hours  *60*60* 1000;
+    const expireTime = now.getTime() + hours * 1 * 20 * 1000;
     const tokenData = {
-      value: token,
-      expiry: expiryTime
+        value: token,
+        expire: expireTime
     };
     localStorage.setItem('accessToken', JSON.stringify(tokenData));
-  };
-  
-  export const getToken = () => {
+};
+
+export const getToken = () => {
     const tokenData = JSON.parse(localStorage.getItem('accessToken'));
     const now = new Date();
-    if ((tokenData)&&(now.getTime() < tokenData.expiry)) {
-      return tokenData.value;
+
+    if ((tokenData) && (now.getTime() < tokenData.expire)) {
+        return tokenData.value;
     }
-    else{
-      // refresh();
-      return null;
+    else {
+        tryRefresh();
     }
-  };
-  
-  export const removeToken = () => {
+};
+
+function tryRefresh(params) {
+    const access_token = refresh();
+    if (!access_token) {
+        // Возможно убрать, если редирект в authApi, но там 
+        // не красиво...
+        console.log('Failed to refresh access token');
+    }
+    // установить токен в случае успеха
+    console.log('tryRefresh::access_token', access_token);
+}
+
+export const removeToken = () => {
     localStorage.removeItem('accessToken');
-  };
+};

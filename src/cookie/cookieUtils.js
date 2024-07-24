@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 export const setCookie = (name, value, hours=1, options = {}) => {
   if (hours) {
     const date = new Date();
-    date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+    date.setTime(date.getTime() + (hours * 1 * 20 * 1000));
     Cookies.set(name, value, { ...options, expires: date });
   } else {
     Cookies.set(name, value, options);

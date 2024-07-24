@@ -338,6 +338,20 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function logout()
+    // {
+    //     try {
+    //         $user = Auth::user();
+    //         $user->remember_token = null;
+    //         $user->save();
+
+    //         Auth::logout();
+
+    //         return $this->successResponse([], 'Successfully logged out.');
+    //     } catch (Exception $e) {
+    //         return $this->handleException($e);
+    //     }
+    // }
     public function logout()
     {
         try {
@@ -347,11 +361,15 @@ class AuthController extends Controller
 
             Auth::logout();
 
-            return $this->successResponse([], 'Successfully logged out.');
+            $response = response()->json(['message' => 'Successfully logged out.']);
+            $response->withCookie(cookie()->forget('refresh_token'));
+
+            return $response;
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
+
 
 
 

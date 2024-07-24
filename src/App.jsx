@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 import MainLayout from './components/layouts/mainLayout';
+import WorkLayout from './components/layouts/workLayout';
 
 import Home from './pages/home';
 import Login from './pages/login';
@@ -10,16 +11,21 @@ import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 
 import Admin from './pages/admin';
+
+// Для тестов
+import BackendTestBlogList from './pages/BackendTestBlogList';
+import BlogDetail from './components/backend_test/BlogDetail';
+
 import Moderator from './pages/moderator';
 
 import './css/App.css'
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 
-import {jwtDecode} from 'jwt-decode';
-import {getCookie} from './cookie/cookieUtils';
+import { jwtDecode } from 'jwt-decode';
+import { getCookie } from './cookie/cookieUtils';
 function App() {
-  const PrivateRoute = ({ element, roles  }) => {
+  const PrivateRoute = ({ element, roles }) => {
     const token = getCookie('token');
     if (token) {
       const decoded = jwtDecode(token);
@@ -35,20 +41,29 @@ function App() {
     <CssVarsProvider>
       <CssBaseline />
       <Router>
-          <Routes>
-            
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Home />} />
-              <Route path="login" element={<Login />} />
-              <Route path="registration" element={<Registration />} />
-              <Route path="recovery" element={<Recovery />} />
-              <Route path="404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" />} />
-            </Route>
-            
-            <Route path="/admin" element={<PrivateRoute element={<Admin/>} roles={['admin']}/>}/>
-            <Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
-          </Routes>   
+        <Routes>
+
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="registration" element={<Registration />} />
+            <Route path="recovery" element={<Recovery />} />
+            <Route path="404" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/404" />} />
+
+
+            {/* Для тестов */}
+            {/* <Route path="bt" element={<BackendTestBlogList />}>
+              <Route path=":id" element={<BlogDetail />} /> 
+            </Route> */}
+            <Route path="bt_bloglist" element={<BackendTestBlogList />} />
+            <Route path="bt_blogpage" element={<BlogDetail />} />
+
+          </Route>
+
+          <Route path="/admin" element={<PrivateRoute element={<Admin />} roles={['admin']} />} />
+<Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
+        </Routes>
       </Router>
     </CssVarsProvider>
   );

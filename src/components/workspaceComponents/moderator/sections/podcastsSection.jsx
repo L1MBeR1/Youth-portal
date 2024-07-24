@@ -30,9 +30,15 @@ import Pagination from '../../shared/workSpacePagination.jsx';
 
 import usePodcasts from '../../../../hooks/usePodcasts.js';
 
+import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
+import { getToken } from '../../../../localStorage/tokenStorage.js';
+import {changePodcastStatus} from '../../../../api/podcastsApi.js';
 
 function PodcastsSection() {
   const [openPodcast, setOpenPodcast] = useState(false);
+
+  const [changeId, setChangeId] = useState();
+  const [openChangeModal, setOpenChangeModal] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
@@ -43,6 +49,17 @@ function PodcastsSection() {
   
   const [filtersCleared, setFiltersCleared] = useState(false);
   const { data: podcasts, isLoading, refetch  } = usePodcasts(['admin/podcasts'],['admin'],page, setLastPage,searchTerm,fromDate,toDate);
+
+  const changeStauts= async (status) => {
+    const token = getToken();
+    console.log(status)
+    const response = await changePodcastStatus(token, changeId,status)
+    if (response) {
+      console.log(response);
+      await refetch()
+    }
+    
+  };
 
   useEffect(() => {
     refetch();
@@ -83,7 +100,11 @@ function PodcastsSection() {
       </FormControl>
     </React.Fragment>
   );
-  function RowMenu() {
+  function RowMenu({id}) {
+    const handleStatusChange = (id) => {
+      setChangeId(id);
+      setOpenChangeModal(true);
+    };
     return (
       <Dropdown>
         <MenuButton
@@ -94,7 +115,7 @@ function PodcastsSection() {
         </MenuButton>
         <Menu size="sm" placement="bottom-end">
           <MenuItem disabled onClick={() => setOpenPodcast(true)}>Просмотреть</MenuItem>
-          <MenuItem><EditIcon/>Изменить статус</MenuItem>
+          <MenuItem onClick={() => handleStatusChange(id)}><EditIcon/>Изменить статус</MenuItem>
         </Menu>
       </Dropdown>
     );
@@ -128,32 +149,13 @@ function PodcastsSection() {
 
   return (
     <> 
-        <Modal
-        aria-labelledby="close-modal-title"
-        open={openPodcast}
-        onClose={() => {
-          setOpenPodcast(false);
-        }}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <ModalDialog>
-          <EditIcon/>
-          <ModalClose variant="outlined" />
-          <Typography
-            component="h2"
-            id="close-modal-title"
-            level="h4"
-            textColor="inherit"
-            fontWeight="lg"
-          >
-            Modal title
-          </Typography>
-          </ModalDialog>
-      </Modal>
+        <ChangeStatusModal
+      func={changeStauts}
+      message={`Вы действительно хотите изменить статус подкаста с id: ${changeId} на`}
+      id={changeId}
+      isOpen={openChangeModal}
+      setIsOpen={setOpenChangeModal}
+      />
       <Typography  fontWeight={700} fontSize={30}>
            Подкасты
       </Typography>

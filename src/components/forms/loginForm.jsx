@@ -5,7 +5,7 @@ import { setToken} from '../../localStorage/tokenStorage.js'
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { login} from '../../api/authApi.js';
+import { login,refresh} from '../../api/authApi.js';
 import useProfile from '../../hooks/useProfile.js';
 
 import Card from '@mui/joy/Card';
@@ -41,11 +41,10 @@ function LoginForm() {
       const data = await login(email, password);
       console.log(data)
       const token = data.access_token;
-      const refToken = data.refresh_token;
       if (token) {
-        setToken(token,1)
-        setCookie('refToken',refToken,{httpOnly: true});
+        setToken(token)
         const decoded = jwtDecode(token);
+        // await refresh();
         // await queryClient.prefetchQuery(useProfile.queryKey, useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');

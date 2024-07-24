@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getNewsByPage } from '../api/newsApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const useNews = (queryKey,tags,page, setLastPage,searchValue,crtFrom,crtTo) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       const response = await getNewsByPage(token, page,'title',searchValue,crtFrom,crtTo);
       setLastPage(response.message.last_page)
       console.log(response)

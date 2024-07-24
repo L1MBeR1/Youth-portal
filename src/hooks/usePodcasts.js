@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPodcastsByPage } from '../api/podcastsApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const usePodcasts = (queryKey,tags,page, setLastPage,searchValue,crtFrom,crtTo) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       const response = await getPodcastsByPage(token, page,'title',searchValue,crtFrom,crtTo);
       setLastPage(response.message.last_page)
       console.log(response)

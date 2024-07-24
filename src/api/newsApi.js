@@ -23,3 +23,19 @@ export const getNewsByPage = async (token, page,searchColumnName,searchValue,crt
     throw error;
   }
 };
+
+export const changeNewStatus = async (token, id, status) => {
+  try {
+    const response = await axios.put(`${API_URL}/news/${id}/status`, { status: status, },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error changing status:', error);
+    throw error;
+  }
+};

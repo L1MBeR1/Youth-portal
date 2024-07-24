@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getModerators } from '../api/usersApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const useModerators = (queryKey,tags,page, setLastPage,searchFields,searchValues,) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       const response = await getModerators(token, page,searchFields,searchValues);
       setLastPage(response.message.last_page)
       console.log(response)

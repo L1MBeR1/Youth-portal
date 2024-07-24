@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getBlogsByPage } from '../api/blogsApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const useBlogs = (queryKey,tags,page, setLastPage,searchFields,searchValues,) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       console.log(searchFields,searchValues)
       const response = await getBlogsByPage(token, page,searchFields,searchValues);
       setLastPage(response.message.last_page)

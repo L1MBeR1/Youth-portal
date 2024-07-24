@@ -23,3 +23,18 @@ export const getPodcastsByPage = async (token, page,searchColumnName,searchValue
       throw error;
     }
   };
+  export const changePodcastStatus = async (token, id, status) => {
+    try {
+      const response = await axios.put(`${API_URL}/podcasts/${id}/status`, { status: status, },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error changing status:', error);
+      throw error;
+    }
+  };

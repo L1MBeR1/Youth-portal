@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getProjectsByPage } from '../api/projectsApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const useProjects = (queryKey,tags,page, setLastPage) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       const response = await getProjectsByPage(token, page);
       setLastPage(response.message.last_page)
       console.log(response)

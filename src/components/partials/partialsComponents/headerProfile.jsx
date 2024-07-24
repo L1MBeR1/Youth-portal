@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link,useNavigate} from 'react-router-dom';
-import {removeCookie} from '../../../cookie/cookieUtils.js';
+import {removeToken} from '../../../localStorage/tokenStorage.js';
 import { useQueryClient } from '@tanstack/react-query';
 import useProfile from '../../../hooks/useProfile.js';
 
@@ -28,7 +28,7 @@ function HeaderProfile() {
   const { data: profileData, isLoading } = useProfile();
 
 const handleLogout = () => {
-    removeCookie('token');
+    removeToken();
     navigate('/login');
     queryClient.removeQueries(['profile']);
   };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils.js';
+import { setToken} from '../../localStorage/tokenStorage.js';
 import { register,getProfile} from '../../api/authApi.js';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -124,7 +124,7 @@ function RegistrationForm() {
       const token = data.access_token;
 
       if (token) {
-        setCookie('token', token);
+        setToken(token)
         const decoded = jwtDecode(token);
         // await queryClient.prefetchQuery('profile', useProfile.queryFn);
         if (decoded.roles.includes('admin')) {

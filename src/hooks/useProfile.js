@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getCookie } from '../cookie/cookieUtils.js';
+import { getToken } from '../localStorage/tokenStorage.js';
 import { getProfile } from '../api/authApi.js';
 import {jwtDecode} from 'jwt-decode';
 
 const useProfile = () => {
-  const token = getCookie('token');
+  const token = getToken();
   const queryKey = token ? ['profile'] : [];
 
   return useQuery({

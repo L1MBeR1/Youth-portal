@@ -23,10 +23,10 @@ import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 
 import { jwtDecode } from 'jwt-decode';
-import { getCookie } from './cookie/cookieUtils';
+import { getToken } from './localStorage/tokenStorage';
 function App() {
   const PrivateRoute = ({ element, roles }) => {
-    const token = getCookie('token');
+    const token = getToken();
     if (token) {
       const decoded = jwtDecode(token);
       // console.log(decoded)
@@ -62,7 +62,7 @@ function App() {
           </Route>
 
           <Route path="/admin" element={<PrivateRoute element={<Admin />} roles={['admin']} />} />
-<Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
+          <Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
         </Routes>
       </Router>
     </CssVarsProvider>

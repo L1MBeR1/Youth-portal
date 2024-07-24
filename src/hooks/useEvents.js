@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEventsByPage } from '../api/eventsApi';
-import { getCookie } from '../cookie/cookieUtils';
+import { getToken } from '../localStorage/tokenStorage';
 
 const useEvents = (queryKey,tags,page, setLastPage) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
+      const token = getToken();
       const response = await getEventsByPage(token, page);
       setLastPage(response.message.last_page)
       console.log(response)

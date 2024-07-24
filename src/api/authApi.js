@@ -29,6 +29,7 @@ export const refresh = async () => {
     const response = await axios.post(`${API_URL}/auth/refresh`, null, {
       withCredentials: true,
     });
+    console.log(response)
     return response.data;
   } catch (error) {
     throw new Error('Token refresh failed');

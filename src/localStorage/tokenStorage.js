@@ -1,6 +1,8 @@
+import {refresh} from '../api/authApi.js';
+
 export const setToken = (token, hours=1) => {
     const now = new Date();
-    const expiryTime = now.getTime() + hours * 60 * 60 * 1000;
+    const expiryTime = now.getTime() + hours  *60*60* 1000;
     const tokenData = {
       value: token,
       expiry: expiryTime
@@ -10,16 +12,14 @@ export const setToken = (token, hours=1) => {
   
   export const getToken = () => {
     const tokenData = JSON.parse(localStorage.getItem('accessToken'));
-    if (!tokenData) {
-      return null;
-    }
-  
     const now = new Date();
-    if (now.getTime() > tokenData.expiry) {
-      localStorage.removeItem('accessToken');
+    if ((tokenData)&&(now.getTime() < tokenData.expiry)) {
+      return tokenData.value;
+    }
+    else{
+      // refresh();
       return null;
     }
-    return tokenData.value;
   };
   
   export const removeToken = () => {

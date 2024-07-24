@@ -27,7 +27,7 @@ import Pagination from '../../shared/workSpacePagination.jsx';
 import useBlogs from '../../../../hooks/useBlogs.js';
 
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
-import { getCookie } from '../../../../cookie/cookieUtils.js';
+import { getToken } from '../../../../localStorage/tokenStorage.js';
 import {changeBlogStatus} from '../../../../api/blogsApi.js';
 
 function BlogsSection() {
@@ -36,6 +36,7 @@ function BlogsSection() {
 
   const [changeId, setChangeId] = useState();
   const [openChangeModal, setOpenChangeModal] = useState(false);
+  
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +44,7 @@ function BlogsSection() {
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['title','content']);
+  const [searchFields, setSearchFields] = useState(['title','description','nickname']);
   const [searchValues, setSearchValues] = useState([]);
   const { data: blogs, isLoading, refetch  } = useBlogs(['admin/blogs'],['admin'],page, setLastPage,searchFields,searchValues);
 
@@ -52,7 +53,7 @@ function BlogsSection() {
   }, [page,refetch]);
 
   const changeStauts= async (status) => {
-    const token = getCookie('token');
+    const token = getToken();
     console.log(status)
     const response = await changeBlogStatus(token, changeId,status)
     if (response) {
@@ -131,7 +132,7 @@ function BlogsSection() {
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm])
+    setSearchValues([searchTerm,searchTerm,searchTerm])
     setFiltersCleared(true);
   };
   const columns = [

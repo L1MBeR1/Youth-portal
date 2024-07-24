@@ -30,10 +30,16 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
 import useNews from '../../../../hooks/useNews.js';
-
+import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
+import { getToken } from '../../../../localStorage/tokenStorage.js';
+import {changeNewStatus} from '../../../../api/newsApi.js';
 
 function NewsSection() {
   const [openNews, setOpenNews] = useState(false);
+
+  
+  const [changeId, setChangeId] = useState();
+  const [openChangeModal, setOpenChangeModal] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
@@ -48,6 +54,17 @@ function NewsSection() {
   useEffect(() => {
     refetch();
   }, [page,refetch]);
+
+  const changeStauts= async (status) => {
+    const token = getToken();
+    console.log(status)
+    const response = await changeNewStatus(token, changeId,status)
+    if (response) {
+      console.log(response);
+      await refetch()
+    }
+    
+  };
 
   const getStatus = (status) => {
     switch (status) {
@@ -85,7 +102,11 @@ function NewsSection() {
       </FormControl>
     </React.Fragment>
   );
-  function RowMenu() {
+ function RowMenu({id}) {
+    const handleStatusChange = (id) => {
+      setChangeId(id);
+      setOpenChangeModal(true);
+    };
     return (
       <Dropdown>
         <MenuButton
@@ -96,7 +117,7 @@ function NewsSection() {
         </MenuButton>
         <Menu size="sm" placement="bottom-end">
           <MenuItem disabled onClick={() => setOpenNews(true)}>Просмотреть</MenuItem>
-          <MenuItem><EditIcon/>Изменить статус</MenuItem>
+          <MenuItem onClick={() => handleStatusChange(id)}><EditIcon/>Изменить статус</MenuItem>
         </Menu>
       </Dropdown>
     );
@@ -130,32 +151,13 @@ function NewsSection() {
 
   return (
     <> 
-        <Modal
-        aria-labelledby="close-modal-title"
-        open={openNews}
-        onClose={() => {
-          setOpenNews(false);
-        }}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <ModalDialog>
-          <EditIcon/>
-          <ModalClose variant="outlined" />
-          <Typography
-            component="h2"
-            id="close-modal-title"
-            level="h4"
-            textColor="inherit"
-            fontWeight="lg"
-          >
-            Modal title
-          </Typography>
-          </ModalDialog>
-      </Modal>
+  <ChangeStatusModal
+      func={changeStauts}
+      message={`Вы действительно хотите изменить статус новости с id: ${changeId} на`}
+      id={changeId}
+      isOpen={openChangeModal}
+      setIsOpen={setOpenChangeModal}
+      />
       <Typography  fontWeight={700} fontSize={30}>
            Новости
       </Typography>

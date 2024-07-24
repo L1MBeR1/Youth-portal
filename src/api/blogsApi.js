@@ -13,6 +13,7 @@ export const getBlogsByPage = async (token, page, searchFields, searchValues) =>
         page: page,
         searchFields: searchFields,
         searchValues: searchValues,
+        operator:'or',
       },
     });
     console.log(response)

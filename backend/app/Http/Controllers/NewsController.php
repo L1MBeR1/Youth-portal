@@ -115,6 +115,10 @@ class NewsController extends Controller
             }
         } elseif ($newsId) {
             $query->where('id', $newsId);
+            $news = $query->first(); 
+            if ($news) {
+                $news->increment('views'); 
+            }
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {

@@ -8,7 +8,7 @@ import AdminSidebar from '../components/adminPage/adminSidebar'
 import AdminMain from '../components/adminPage/adminMain';
 function WorkLayout() {
 
-const [section, setSection] = useState('statistics');
+const [section, setSection] = useState('moderators');
 const [open, setOpen] = useState(false);
 
 const queryClient = useQueryClient();

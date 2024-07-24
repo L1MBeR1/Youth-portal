@@ -42,7 +42,7 @@ function PodcastsSection() {
   const [status, setStatus] = useState('');
   
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const { data: podcasts, isLoading, refetch  } = usePodcasts(page, setLastPage,searchTerm,fromDate,toDate);
+  const { data: podcasts, isLoading, refetch  } = usePodcasts(['admin/podcasts'],['admin'],page, setLastPage,searchTerm,fromDate,toDate);
 
   useEffect(() => {
     refetch();

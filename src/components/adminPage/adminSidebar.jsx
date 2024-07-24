@@ -85,7 +85,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
         gap: 2,
       }}
       >
-        <Input size="sm" startDecorator={<SearchRoundedIcon />} placeholder="Search" />
+        <Typography level="h4">Администратор</Typography>
          <List
           size="sm"
           sx={{
@@ -94,14 +94,14 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             '--ListItem-radius': (theme) => theme.vars.radius.sm,
           }}
         >
-            <ListItem>
+            {/* <ListItem>
             <ListItemButton selected={selectedSection === 'statistics'} onClick={() => handleSetSection('statistics')}>
                 <BarChartIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Статистика</Typography>
                 </ListItemContent>
             </ListItemButton>
-            </ListItem>
+            </ListItem> */}
             <ListItem>
             <ListItemButton selected={selectedSection === 'moderators'} onClick={() => handleSetSection('moderators')}>
                 <ShieldIcon />

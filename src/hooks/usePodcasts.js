@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getPodcastsByPage } from '../api/podcastsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const usePodcasts = (page, setLastPage,searchValue,crtFrom,crtTo) => {
+const usePodcasts = (queryKey,tags,page, setLastPage,searchValue,crtFrom,crtTo) => {
   return useQuery({
-    queryKey: ['admin/podcasts'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
       const response = await getPodcastsByPage(token, page,'title',searchValue,crtFrom,crtTo);
@@ -13,7 +13,7 @@ const usePodcasts = (page, setLastPage,searchValue,crtFrom,crtTo) => {
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

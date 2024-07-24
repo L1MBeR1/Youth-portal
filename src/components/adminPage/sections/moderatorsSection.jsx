@@ -28,6 +28,7 @@ import Pagination from '../pagination.jsx';
 import WarningModal from '../modals/warningModal.jsx';
 import AddModeratorModal from '../modals/addModeratorModal.jsx';
 import SuccessNotification from '../modals/successNotification.jsx';
+import DatePopOver from '../modals/datePopOver.jsx';
 
 import {deleteModerator,addModerator} from '../../../api/usersApi.js';
 import { getCookie } from '../../../cookie/cookieUtils.js';
@@ -49,14 +50,16 @@ function ModeratorsSection() {
   const [bdTo, setToDate] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const { data: moderators, isLoading, refetch  } = useModerators(page, setLastPage,searchTerm,bdFrom,bdTo);
+  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const [searchValues, setSearchValues] = useState([]);
+  const { data: moderators, isLoading, refetch  } = useModerators(['admin/moderators'],['admin'],page, setLastPage,searchFields,searchValues);
 
   const addNewModerator = async (email) => {
     const token = getCookie('token');
     const response = await addModerator(token, email)
     if (response) {
       console.log(response);
-      await refetch()
+      refetch()
     }
   };
   
@@ -67,7 +70,7 @@ function ModeratorsSection() {
       if (response) {
         console.log(response);
         setIsSuccess(true);
-        await refetch()
+        refetch()
       }
     }
   };
@@ -101,14 +104,13 @@ function ModeratorsSection() {
   };
   const renderFilters = () => (
     <>
-      <FormControl size="sm">
-        <FormLabel>От</FormLabel>
-        <Input type="date" value={bdFrom} onChange={(e) => setFromDate(e.target.value)} />
-      </FormControl>
-      <FormControl size="sm">
-        <FormLabel>До</FormLabel>
-        <Input type="date" value={bdTo} onChange={(e) => setToDate(e.target.value)} />
-      </FormControl>
+      <DatePopOver
+        label={'Дата рождения'}
+        fromDate={bdFrom}
+        toDate={bdTo}
+        setFromDate={setFromDate}
+        setToDate={setToDate}
+      />  
     </>
   );
 
@@ -129,6 +131,7 @@ function ModeratorsSection() {
     setFiltersCleared(true);
   };
   const applyFilters = () => {
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
     refetch();
   };
 
@@ -167,7 +170,7 @@ function ModeratorsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по почте</FormLabel>
+          <FormLabel>Поиск по почте или ФИО</FormLabel>
           <Input
             size="sm"
             placeholder="Search"

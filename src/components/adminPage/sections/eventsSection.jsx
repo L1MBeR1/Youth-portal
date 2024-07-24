@@ -28,28 +28,8 @@ import CustomList from '../customList.jsx';
 import Pagination from '../pagination.jsx';
 import useEvents from '../../../hooks/useEvents.js';
 
+import DatePopOver from '../modals/datePopOver.jsx';
 
-const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
-  <React.Fragment>
-    <FormControl size="sm">
-      <FormLabel>От</FormLabel>
-      <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>До</FormLabel>
-      <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Статус</FormLabel>
-      <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-        <Option value="moderating">На проверке</Option>
-        <Option value="published">Опубликован</Option>
-        <Option value="archived">Заархивирован</Option>
-        <Option value="pending">На доработке</Option>
-      </Select>
-    </FormControl>
-  </React.Fragment>
-);
 
 function EventsSection() {
   const [openEvents, setOpenEvents] = useState(false);
@@ -60,8 +40,19 @@ function EventsSection() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
-  const { data: events, isLoading, refetch  } = useEvents(page, setLastPage);
+  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['admin'],page, setLastPage);
 
+  const renderFilters = () => (
+    <>
+      <DatePopOver
+      label={'Дата создания'}
+      fromDate={fromDate}
+      toDate={toDate}
+      setFromDate={setFromDate}
+      setToDate={setToDate}
+      />
+    </>
+  );
   useEffect(() => {
     refetch();
   }, [page,refetch]);

@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getProjectsByPage } from '../api/projectsApi';
 import { getCookie } from '../cookie/cookieUtils';
 
-const useProjects = (page, setLastPage) => {
+const useProjects = (queryKey,tags,page, setLastPage) => {
   return useQuery({
-    queryKey: ['admin/projects'],
+    queryKey: queryKey,
     queryFn: async () => {
       const token = getCookie('token');
       const response = await getProjectsByPage(token, page);
@@ -13,7 +13,7 @@ const useProjects = (page, setLastPage) => {
       return response.data;
     },
     meta: {
-      tags: ['admin']
+      tags: tags
     },
     keepPreviousData: true,
     staleTime: 300000,

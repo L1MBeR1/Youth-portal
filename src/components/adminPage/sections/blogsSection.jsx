@@ -43,7 +43,9 @@ function BlogsSection() {
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const { data: blogs, isLoading, refetch  } = useBlogs(page, setLastPage,searchTerm,fromDate,toDate);
+  const [searchFields, setSearchFields] = useState(['title','content']);
+  const [searchValues, setSearchValues] = useState([]);
+  const { data: blogs, isLoading, refetch  } = useBlogs(['admin/blogs'],['admin'],page, setLastPage,searchFields,searchValues);
 
   useEffect(() => {
     refetch();
@@ -51,6 +53,7 @@ function BlogsSection() {
 
   const changeStauts= async (status) => {
     const token = getCookie('token');
+    console.log(status)
     const response = await changeBlogStatus(token, changeId,status)
     if (response) {
       console.log(response);
@@ -124,10 +127,12 @@ function BlogsSection() {
     setToDate('');
     setFromDate('');
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    refetch();
+    setSearchValues([searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },

@@ -28,6 +28,7 @@ export const register = async (email, password) => {
         },
         
       });
+      console.log(response)
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch profile');

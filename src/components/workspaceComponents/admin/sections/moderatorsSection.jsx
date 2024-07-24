@@ -21,18 +21,18 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import CustomTable from '../customTable.jsx';
-import CustomList from '../customList.jsx';
-import Pagination from '../pagination.jsx';
+import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../shared/workSpaceList.jsx';
+import Pagination from '../../shared/workSpacePagination.jsx';
 
-import WarningModal from '../modals/warningModal.jsx';
-import AddModeratorModal from '../modals/addModeratorModal.jsx';
-import SuccessNotification from '../modals/successNotification.jsx';
-import DatePopOver from '../modals/datePopOver.jsx';
+import WarningModal from '../../shared/modals/warningModal.jsx';
+import AddModeratorModal from '../../shared/modals/addModeratorModal.jsx';
+import SuccessNotification from '../../shared/modals/successNotification.jsx';
+import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import {deleteModerator,addModerator} from '../../../api/usersApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
-import useModerators from '../../../hooks/useModerators.js';
+import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
+import { getCookie } from '../../../../cookie/cookieUtils.js';
+import useModerators from '../../../../hooks/useModerators.js';
 
 
 function ModeratorsSection() {

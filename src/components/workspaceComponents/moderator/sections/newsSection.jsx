@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
 import Box from '@mui/joy/Box';
+import Chip from '@mui/joy/Chip';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
+import Button from '@mui/joy/Button';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
@@ -23,40 +25,66 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from '../customTable.jsx';
-import CustomList from '../customList.jsx';
-import Pagination from '../pagination.jsx';
-import useEvents from '../../../hooks/useEvents.js';
+import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../shared/workSpaceList.jsx';
+import Pagination from '../../shared/workSpacePagination.jsx';
 
-import DatePopOver from '../modals/datePopOver.jsx';
+import useNews from '../../../../hooks/useNews.js';
 
 
-function EventsSection() {
-  const [openEvents, setOpenEvents] = useState(false);
+function NewsSection() {
+  const [openNews, setOpenNews] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
-  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['admin'],page, setLastPage);
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const { data: news, isLoading, refetch  } = useNews(['admin/news'],['admin'],page, setLastPage,searchTerm,fromDate,toDate);
 
-  const renderFilters = () => (
-    <>
-      <DatePopOver
-      label={'Дата создания'}
-      fromDate={fromDate}
-      toDate={toDate}
-      setFromDate={setFromDate}
-      setToDate={setToDate}
-      />
-    </>
-  );
   useEffect(() => {
     refetch();
   }, [page,refetch]);
 
+  const getStatus = (status) => {
+    switch (status) {
+      case 'moderating':
+        return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
+      case 'published':
+        return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
+      case 'archived':
+        return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
+      case 'pending':
+        return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
+      default:
+        return <Chip size="sm">{status}</Chip>;
+    }
+  };
+  
+  const renderFilters = () => (
+    <React.Fragment>
+      <FormControl size="sm">
+        <FormLabel>От</FormLabel>
+        <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+      </FormControl>
+      <FormControl size="sm">
+        <FormLabel>До</FormLabel>
+        <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+      </FormControl>
+      <FormControl size="sm">
+        <FormLabel>Статус</FormLabel>
+        <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
+          <Option value="moderating">На проверке</Option>
+          <Option value="published">Опубликован</Option>
+          <Option value="archived">Заархивирован</Option>
+          <Option value="pending">На доработке</Option>
+        </Select>
+      </FormControl>
+    </React.Fragment>
+  );
   function RowMenu() {
     return (
       <Dropdown>
@@ -66,37 +94,47 @@ function EventsSection() {
         >
           <MoreVertIcon />
         </MenuButton>
-        <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
-          <MenuItem>Изменить</MenuItem>
+        <Menu size="sm" placement="bottom-end">
+          <MenuItem disabled onClick={() => setOpenNews(true)}>Просмотреть</MenuItem>
+          <MenuItem><EditIcon/>Изменить статус</MenuItem>
         </Menu>
       </Dropdown>
     );
   }
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
     setToDate('');
     setFromDate('');
     setSearchTerm('');
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    refetch();
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: '60px' },
-    { field: 'name', headerName: 'Название', width: '140px'},
-    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
-    { field: 'author',headerName: 'Организатор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
-    { field: 'location', headerName: 'Адрес', width: '200px' },
+    { field: 'id', headerName: 'ID', width: '80px' },
+    { field: 'author', headerName: 'Автор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
+    { field: 'nickname', headerName: 'Никнейм', width: '120px' },
+    { field: 'title', headerName: 'Название', width: '200px' },
+    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc},
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
-    { field: 'start_time', headerName: 'Дата начала', width: '90px', render: (item) => new Date(item.start_time).toLocaleDateString() },
+    { field: 'status', headerName: 'Статус', width: '120px', render: (item) => getStatus(item.status) },
+    { field: 'menu', width: '50px', render: (item) => <RowMenu id={item.id}/>},
   ];
 
   return (
     <> 
         <Modal
         aria-labelledby="close-modal-title"
-        open={openEvents}
+        open={openNews}
         onClose={() => {
-          setOpenEvents(false);
+          setOpenNews(false);
         }}
         sx={{
           display: 'flex',
@@ -119,7 +157,7 @@ function EventsSection() {
           </ModalDialog>
       </Modal>
       <Typography  fontWeight={700} fontSize={30}>
-           Мероприятия
+           Новости
       </Typography>
       <Box
         sx={{
@@ -131,7 +169,7 @@ function EventsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по названию или организатору</FormLabel>
+          <FormLabel>Поиск по названию или автору</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -140,8 +178,12 @@ function EventsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-
+        {renderFilters()}
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"
@@ -159,6 +201,7 @@ function EventsSection() {
       ):(
         <>
       <Sheet
+        className="OrderTableContainer"
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'flex' },
@@ -170,18 +213,19 @@ function EventsSection() {
       >
         <CustomTable 
         columns={columns} 
-        data={events}
-        rowMenu={RowMenu()}
+        data={news}
+        // rowMenu={RowMenu()}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        data={events}
+        data={news}
         // rowMenu={RowMenu()}
-        colTitle={'name'}
+        colTitle={'title'}
         colAuthor={'author'}
         colDescription={'description'}
-        colDate={'start_time'}
+        colDate={'created_at'}
+        colStatus={'status'}
         />
         </>
       )}
@@ -190,4 +234,4 @@ function EventsSection() {
   );
 }
 
-export default EventsSection;
+export default NewsSection;

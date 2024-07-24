@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils.js';
+import { setToken} from '../../localStorage/tokenStorage.js'
+
+import { useQueryClient } from '@tanstack/react-query';
 
 import { login} from '../../api/authApi.js';
+import useProfile from '../../hooks/useProfile.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
@@ -28,16 +32,21 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  // const queryClient = useQueryClient();
 
   const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
     try {
       const data = await login(email, password);
+      console.log(data)
       const token = data.access_token;
+      const refToken = data.refresh_token;
       if (token) {
-        setCookie('token',token);
+        setToken(token,1)
+        setCookie('refToken',refToken,{httpOnly: true});
         const decoded = jwtDecode(token);
+        // await queryClient.prefetchQuery(useProfile.queryKey, useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {

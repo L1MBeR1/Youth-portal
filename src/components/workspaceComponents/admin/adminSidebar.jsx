@@ -83,6 +83,7 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
+        minWidth:'200px'
       }}
       >
         <Typography level="h4">Администратор</Typography>

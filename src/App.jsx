@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
 
 import MainLayout from './components/layouts/mainLayout';
-import WorkLayout from './components/layouts/workLayout';
 
 import Home from './pages/home';
 import Login from './pages/login';
@@ -11,6 +10,7 @@ import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 
 import Admin from './pages/admin';
+import Moderator from './pages/moderator';
 
 import './css/App.css'
 import { CssBaseline } from '@mui/joy';
@@ -47,7 +47,7 @@ function App() {
             </Route>
             
             <Route path="/admin" element={<PrivateRoute element={<Admin/>} roles={['admin']}/>}/>
-            
+            <Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
           </Routes>   
       </Router>
     </CssVarsProvider>

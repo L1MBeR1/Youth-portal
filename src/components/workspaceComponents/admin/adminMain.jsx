@@ -2,9 +2,9 @@ import React from 'react';
 
 import Sheet from '@mui/joy/Sheet';
 
-import Blogs from './sections/blogsSection';
-import Podcasts from './sections/podcastsSection';
-import News from './sections/newsSection';
+import Blogs from '../moderator/sections/blogsSection';
+import Podcasts from '../moderator/sections/podcastsSection';
+import News from '../moderator/sections/newsSection';
 import Events from './sections/eventsSection';
 import Projects from './sections/projectsSection';
 import Moderators from './sections/moderatorsSection'
@@ -12,8 +12,8 @@ import Moderators from './sections/moderatorsSection'
   function AdminMain({section}) {
     const getContent = (section) => {
       switch (section) {
-        case 'statistics':
-          return
+        // case 'statistics':
+        //   return
         case 'moderators':
           return <Moderators/>
         case 'organizations':
@@ -22,8 +22,6 @@ import Moderators from './sections/moderatorsSection'
           return <Projects/>
         case 'events':
           return <Events/>
-        case 'publications':
-          return 
         case 'podcasts':
           return <Podcasts/>
         case 'blogs':

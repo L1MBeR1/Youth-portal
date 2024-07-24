@@ -4,25 +4,26 @@ import { getProfile } from '../api/authApi.js';
 import {jwtDecode} from 'jwt-decode';
 
 const useProfile = () => {
-  
+  const token = getCookie('token');
+  const queryKey = token ? ['profile'] : [];
+
   return useQuery({
-    queryKey: ['profile'],
+    queryKey: queryKey,
     queryFn: async () => {
-      const token = getCookie('token');
-      if (token) {
-        const decoded = jwtDecode(token);
-        if (decoded) {
-          const profileData = await getProfile(token);
-          const roles = decoded.roles;
-          // setRoles(roles);
-          console.log(profileData);
-          return { ...profileData.data, roles };
-        }
+      if (!token) {
+        return null;
+      }
+      const decoded = jwtDecode(token);
+      if (decoded) {
+        const profileData = await getProfile(token);
+        const roles = decoded.roles;
+        return { ...profileData.data, roles };
       }
       return null;
     },
-    staleTime: 600000,
-    cacheTime: 86400000,
+    enabled: !!token, 
+    staleTime: 600000, 
+    cacheTime: 86400000, 
     keepPreviousData: true,
   });
 };

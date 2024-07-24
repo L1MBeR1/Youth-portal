@@ -23,10 +23,10 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from '../customTable.jsx';
-import CustomList from '../customList.jsx';
-import Pagination from '../pagination.jsx';
-import useProjects from '../../../hooks/useProjects.js';
+import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../shared/workSpaceList.jsx';
+import Pagination from '../../shared/workSpacePagination.jsx';
+import useProjects from '../../../../hooks/useProjects.js';
 
 
 const getStatus = (status) => {

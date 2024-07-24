@@ -22,6 +22,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import {jwtDecode} from 'jwt-decode';
+import useProfile from '../../hooks/useProfile.js';
 
 import PasswordField from './formComponents/passwordField.jsx';
 import EmailField from './formComponents/emailField.jsx';
@@ -125,6 +126,7 @@ function RegistrationForm() {
       if (token) {
         setCookie('token', token);
         const decoded = jwtDecode(token);
+        // await queryClient.prefetchQuery('profile', useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {

@@ -189,20 +189,47 @@ class AuthController extends Controller
     //     return $this->respondWithToken($newToken, $newRefreshToken);
     // }
 
+    // public function refresh(Request $request)
+    // {
+    //     $request->validate([
+    //         'refresh_token' => 'required|string'
+    //     ]);
+
+    //     $decodedToken = base64_decode($request->refresh_token);
+    //     list($uuid, $expiresAt) = explode('.', $decodedToken);
+
+    //     if (now()->timestamp > $expiresAt) {
+    //         return $this->errorResponse('Refresh token has expired', [], 401);
+    //     }
+
+    //     $user = User::where('remember_token', $request->refresh_token)->first();
+    //     if (!$user) {
+    //         return $this->errorResponse('Invalid refresh token', [], 401);
+    //     }
+
+    //     Auth::login($user);
+
+    //     $newToken = Auth::refresh();
+    //     $newRefreshToken = $this->generateRefreshToken($user);
+
+    //     return $this->respondWithToken($newToken, $newRefreshToken);
+    // }
     public function refresh(Request $request)
     {
-        $request->validate([
-            'refresh_token' => 'required|string'
-        ]);
+        $refreshToken = $request->cookie('refresh_token');
 
-        $decodedToken = base64_decode($request->refresh_token);
+        if (!$refreshToken) {
+            return $this->errorResponse('Refresh token is missing', [], 401);
+        }
+
+        $decodedToken = base64_decode($refreshToken);
         list($uuid, $expiresAt) = explode('.', $decodedToken);
 
         if (now()->timestamp > $expiresAt) {
             return $this->errorResponse('Refresh token has expired', [], 401);
         }
 
-        $user = User::where('remember_token', $request->refresh_token)->first();
+        $user = User::where('remember_token', $refreshToken)->first();
         if (!$user) {
             return $this->errorResponse('Invalid refresh token', [], 401);
         }
@@ -214,6 +241,7 @@ class AuthController extends Controller
 
         return $this->respondWithToken($newToken, $newRefreshToken);
     }
+
 
 
 
@@ -334,12 +362,26 @@ class AuthController extends Controller
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
+    // protected function respondWithToken($token, $refreshToken = null)
+    // {
+    //     return response()->json([
+    //         'access_token' => $token,
+    //         'refresh_token' => $refreshToken,
+    //         'token_type' => 'bearer',
+    //     ]);
+    // }
     protected function respondWithToken($token, $refreshToken = null)
     {
-        return response()->json([
+        $response = response()->json([
             'access_token' => $token,
-            'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
         ]);
+
+        if ($refreshToken) {
+            $response->withCookie(cookie('refresh_token', $refreshToken, 60 * 24 * 7, '/', null, true, true)); // expires in 7 days
+        }
+
+        return $response;
     }
+
 }

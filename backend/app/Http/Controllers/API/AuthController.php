@@ -38,38 +38,43 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        try {
-            $this->validateRequest($request, [
-                'email' => 'nullable|email|unique:user_login_data,email',
-                'phone' => 'nullable|string|unique:user_login_data,phone',
-                'password' => 'required',
-            ]);
+        $this->validateRequest($request, [
+            'email' => 'nullable|email|unique:user_login_data,email',
+            'phone' => 'nullable|string|unique:user_login_data,phone',
+            'password' => 'required',
+        ]);
 
-            if (empty($request->email) && empty($request->phone)) {
-                return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
-            }
-
-            $input = $request->all();
-            $input['password'] = bcrypt($input['password']);
-
-            $user = User::create($input);
-            $user->assignRole('user');
-
-            UserMetadata::create(['user_id' => $user->id]);
-
-            $credentials = $request->only('password');
-            $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
-
-            if (!$token = Auth::attempt($credentials)) {
-                return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
-            }
-            Mail::to($user->email)->send(new EmailVerification($user));
-            $refreshToken = $this->generateRefreshToken($user);
-
-            return $this->respondWithToken($token, $refreshToken);
-        } catch (Exception $e) {
-            return $this->handleException($e);
+        if (empty($request->email) && empty($request->phone)) {
+            return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
         }
+
+        if ($request->email && User::where('email', $request->email)->exists()) {
+            return $this->errorResponse('Данный email уже занят', [], 422);
+        }
+
+        if ($request->phone && User::where('phone', $request->phone)->exists()) {
+            return $this->errorResponse('Данный телефон уже занят', [], 422);
+        }
+
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+
+        $user = User::create($input);
+        $user->assignRole('user');
+
+        UserMetadata::create(['user_id' => $user->id]);
+
+        $credentials = $request->only('password');
+        $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
+
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+        }
+        Mail::to($user->email)->send(new EmailVerification($user));
+        $refreshToken = $this->generateRefreshToken($user);
+
+        return $this->respondWithToken($token, $refreshToken);
+
     }
 
 
@@ -389,17 +394,28 @@ class AuthController extends Controller
     //     ]);
     // }
     protected function respondWithToken($token, $refreshToken = null)
-    {
-        $response = response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-        ]);
+{
+    $response = response()->json([
+        'access_token' => $token,
+        'token_type' => 'bearer',
+    ]);
 
-        if ($refreshToken) {
-            $response->withCookie(cookie('refresh_token', $refreshToken, 60 * 24 * 7, '/', null, true, true)); // expires in 7 days
-        }
-
-        return $response;
+    if ($refreshToken) {
+        $cookie = cookie(
+            'refresh_token', 
+            $refreshToken, 
+            60 * 24 * 7, 
+            '/', 
+            null, 
+            true, // Secure
+            true, // HttpOnly
+            false, // Raw
+        );
+        $response->withCookie($cookie);
     }
+
+    return $response;
+}
+
 
 }

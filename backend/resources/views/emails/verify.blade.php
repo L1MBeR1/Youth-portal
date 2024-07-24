@@ -9,5 +9,4 @@
 
 Спасибо за регистрацию!
 
-{{ config('app.name') }}
 @endcomponent

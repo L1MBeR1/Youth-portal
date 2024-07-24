@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CommentController extends Controller
 {
-   
+
     /**
      * Список
      * 
@@ -62,10 +62,19 @@ class CommentController extends Controller
      */
     public function getForContent(string $type, int $id): \Illuminate\Http\JsonResponse
     {
+        // $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
+        //     ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
+        //     ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
+        //     ->where('comment_to_resource.' . $type . '_id', '=', $id)
+        //     ->get();
+        // return $this->successResponse($comments);
+
+        // Исправлено дублирование
         $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
             ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
             ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
             ->where('comment_to_resource.' . $type . '_id', '=', $id)
+            ->distinct()
             ->get();
         return $this->successResponse($comments);
     }

@@ -19,6 +19,7 @@ class CommentFactory extends Factory
         return [       
             'content' => $this->faker->sentence(),
             'user_id' => $this->faker->numberBetween(1, 50),
+            'likes' => $this->faker->numberBetween(-50000, 1000000),
         ];
     }
 }

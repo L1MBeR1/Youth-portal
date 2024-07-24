@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CommentToResource;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CommentToResourceSeeder extends Seeder
@@ -13,6 +12,6 @@ class CommentToResourceSeeder extends Seeder
      */
     public function run(): void
     {
-        CommentToResource::factory(400)->create();
+        CommentToResource::factory(890)->create();
     }
 }

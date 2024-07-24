@@ -19,3 +19,20 @@ export const getCommentsForResource = async (token, resource_type, resource_id) 
         throw error;
     }
 };
+
+
+export const postComment = async (token, resource_type, resource_id, data) => {
+    try {
+        const response = await axios.post(`${API_URL}/comments/${resource_type}/${resource_id}`, {
+            content: data.content,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error posting comment:', error);
+        throw error;
+    }
+};

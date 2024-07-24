@@ -53,9 +53,12 @@ function App() {
 
 
             {/* Для тестов */}
-            <Route path="bt" element={<BackendTestBlogList />}>
+            {/* <Route path="bt" element={<BackendTestBlogList />}>
               <Route path=":id" element={<BlogDetail />} /> 
-            </Route>
+            </Route> */}
+            <Route path="bt_bloglist" element={<BackendTestBlogList />} />
+            <Route path="bt_blogpage" element={<BlogDetail />} />
+
           </Route>
 
           <Route path="/admin" element={<PrivateRoute element={<Admin />} roles={['admin']} />} />

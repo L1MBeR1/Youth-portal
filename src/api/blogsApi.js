@@ -38,7 +38,6 @@ const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
           views:0,
           likes:0,
           reposts:0,
-
         },
       });
       return response.data;
@@ -49,19 +48,21 @@ const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
   };
 
 
-  // Актуальный
+// Актуальный
 // TODO: Rename
 export const getBlogsActual = async (token, params) => {
-  try {
-    const response = await axios.get(`${API_URL}/blogs`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }, 
-      params: params
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching blogs:', error);
-    throw error;
-  }
+    try {
+        const response = await axios.get(`${API_URL}/blogs`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: params
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        throw error;
+    }
 };
+
+

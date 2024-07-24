@@ -31,6 +31,7 @@ import Pagination from '../../shared/workSpacePagination.jsx';
 import usePodcasts from '../../../../hooks/usePodcasts.js';
 
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
+import DatePopOver from '../../shared/modals/datePopOver.jsx';
 import { getToken } from '../../../../localStorage/tokenStorage.js';
 import {changePodcastStatus} from '../../../../api/podcastsApi.js';
 
@@ -43,13 +44,28 @@ function PodcastsSection() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
   const [searchTerm, setSearchTerm] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [status, setStatus] = useState('');
+  const [crtFrom, setСrtFrom] = useState('');
+  const [crtTo, setСrtTo] = useState('');
   
-  const [filtersCleared, setFiltersCleared] = useState(false);
-  const { data: podcasts, isLoading, refetch  } = usePodcasts(['admin/podcasts'],['admin'],page, setLastPage,searchTerm,fromDate,toDate);
+  const [updFrom, setUpdFrom] = useState('');
+  const [updTo, setUpdTo] = useState('');
 
+  const [status, setStatus] = useState('');
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const searchFields= ['title','first_name','last_name','patronymic','nickname'];
+  const [searchValues, setSearchValues] = useState([]);
+  const { data: podcasts, isLoading, refetch  } = usePodcasts(['moderator/podcasts'],['admin'],setLastPage, 
+    {
+      withAuthors: true,
+      page: page,
+      searchFields: searchFields,
+      searchValues: searchValues,
+      crtFrom:crtFrom,
+      crtTo:crtTo,
+      updFrom:updFrom,
+      updTo:updTo,
+      operator:'or',
+    });
   const changeStauts= async (status) => {
     const token = getToken();
     console.log(status)
@@ -80,25 +96,22 @@ function PodcastsSection() {
   };
   
   const renderFilters = () => (
-    <React.Fragment>
-      <FormControl size="sm">
-        <FormLabel>От</FormLabel>
-        <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-      </FormControl>
-      <FormControl size="sm">
-        <FormLabel>До</FormLabel>
-        <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-      </FormControl>
-      <FormControl size="sm">
-        <FormLabel>Статус</FormLabel>
-        <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-          <Option value="moderating">На проверке</Option>
-          <Option value="published">Опубликован</Option>
-          <Option value="archived">Заархивирован</Option>
-          <Option value="pending">На доработке</Option>
-        </Select>
-      </FormControl>
-    </React.Fragment>
+<>
+    <DatePopOver
+        label={'Дата создания'}
+        fromDate={crtFrom}
+        toDate={crtTo}
+        setFromDate={setСrtFrom}
+        setToDate={setСrtTo}
+      /> 
+      <DatePopOver
+        label={'Дата обновления'}
+        fromDate={updFrom}
+        toDate={updTo}
+        setFromDate={setUpdFrom}
+        setToDate={setUpdTo}
+      /> 
+    </>
   );
   function RowMenu({id}) {
     const handleStatusChange = (id) => {
@@ -127,13 +140,17 @@ function PodcastsSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setСrtTo('');
+    setСrtFrom('');
+    setUpdTo('');
+    setUpdFrom('');
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [
@@ -143,6 +160,7 @@ function PodcastsSection() {
     { field: 'title', headerName: 'Название', width: '200px' },
     { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'updated_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.updated_at).toLocaleDateString() },
     { field: 'status', headerName: 'Статус', width: '120px', render: (item) => getStatus(item.status)},
     { field: 'menu', width: '50px', render: (item) => <RowMenu id={item.id}/>},
   ];

@@ -2,13 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getBlogsByPage } from '../api/blogsApi';
 import { getToken } from '../localStorage/tokenStorage';
 
-const useBlogs = (queryKey,tags,page, setLastPage,searchFields,searchValues,) => {
+const useBlogs = (queryKey,tags,setLastPage,params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
       const token = getToken();
-      console.log(searchFields,searchValues)
-      const response = await getBlogsByPage(token, page,searchFields,searchValues);
+      const response = await getBlogsByPage(token, params);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;

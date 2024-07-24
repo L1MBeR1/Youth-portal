@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUsers } from '../api/usersApi';
+import { getOrganizationsByPage } from '../api/organizationsApi';
 import { getToken } from '../localStorage/tokenStorage';
 
-const useModerators = (queryKey,tags,setLastPage, params) => {
+const useOrganizations = (queryKey,tags,setLastPage, params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
       const token = getToken();
-      const response = await getUsers(token, params);
+      const response = await getOrganizationsByPage(token, params);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
@@ -21,4 +21,4 @@ const useModerators = (queryKey,tags,setLastPage, params) => {
   });
 };
 
-export default useModerators;
+export default useOrganizations;

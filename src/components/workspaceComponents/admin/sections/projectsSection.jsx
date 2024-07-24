@@ -8,6 +8,7 @@ import Input from '@mui/joy/Input';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
+import Button from '@mui/joy/Button';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Sheet from '@mui/joy/Sheet';
@@ -28,43 +29,9 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import useProjects from '../../../../hooks/useProjects.js';
 
+import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-const getStatus = (status) => {
-  switch (status) {
-    case 'moderating':
-      return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
-    case 'published':
-      return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
-    case 'archived':
-      return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
-    case 'pending':
-      return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
-    default:
-      return <Chip size="sm">{status}</Chip>;
-  }
-};
 
-const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
-  <React.Fragment>
-    <FormControl size="sm">
-      <FormLabel>От</FormLabel>
-      <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>До</FormLabel>
-      <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Статус</FormLabel>
-      <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-        <Option value="moderating">На проверке</Option>
-        <Option value="published">Опубликован</Option>
-        <Option value="archived">Заархивирован</Option>
-        <Option value="pending">На доработке</Option>
-      </Select>
-    </FormControl>
-  </React.Fragment>
-);
 
 function ProjectsSection() {
   const [openProject, setOpenProject] = useState(false);
@@ -72,36 +39,85 @@ function ProjectsSection() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
   const [searchTerm, setSearchTerm] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [status, setStatus] = useState('');
 
-  const { data: projects, isLoading, refetch  } = useProjects(['admin/projects'],['admin'],page, setLastPage);
+  const [crtFrom, setСrtFrom] = useState('');
+  const [crtTo, setСrtTo] = useState('');
+  
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const searchFields= ['name','first_name','last_name','patronymic','nickname'];
+  const [searchValues, setSearchValues] = useState([]);
+  const { data: projects, isLoading, refetch  } = useProjects(['admin/projects'],['admin'], setLastPage, 
+    {
+      withAuthors: true,
+      page: page,
+      searchFields: searchFields,
+      searchValues: searchValues,
+      crtFrom:crtFrom,
+      crtTo:crtTo,
+      operator:'or',
+    });
   useEffect(() => {
     refetch();
   }, [page,refetch]);
 
-  function RowMenu() {
-    return (
-      <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-        >
-          <MoreVertIcon />
-        </MenuButton>
-        <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
-          <MenuItem>Изменить</MenuItem>
-        </Menu>
-      </Dropdown>
-    );
-  }
+  const getStatus = (status) => {
+    switch (status) {
+      case 'moderating':
+        return <Chip color="warning" size="sm" variant="soft">На проверке</Chip>;
+      case 'published':
+        return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
+      case 'archived':
+        return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
+      case 'pending':
+        return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
+      default:
+        return <Chip size="sm">{status}</Chip>;
+    }
+  };
+  
+  const renderFilters = () => (
+    <>
+      <DatePopOver
+        label={'Дата создания'}
+        fromDate={crtFrom}
+        toDate={crtTo}
+        setFromDate={setСrtFrom}
+        setToDate={setСrtTo}
+      /> 
+    </>
+  );
+  // function RowMenu() {
+  //   return (
+  //     <Dropdown>
+  //       <MenuButton
+  //         slots={{ root: IconButton }}
+  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+  //       >
+  //         <MoreVertIcon />
+  //       </MenuButton>
+  //       <Menu size="sm" sx={{ minWidth: 140 }}>
+  //         <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
+  //         <MenuItem>Изменить</MenuItem>
+  //       </Menu>
+  //     </Dropdown>
+  //   );
+  // }
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
-    setToDate('');
-    setFromDate('');
+    setСrtTo('');
+    setСrtFrom('');
     setSearchTerm('');
+    setSearchValues([])
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [
@@ -154,7 +170,7 @@ function ProjectsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по названию или автору</FormLabel>
+          <FormLabel>Поиск по названию </FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -163,8 +179,12 @@ function ProjectsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-
+        {renderFilters()}
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"

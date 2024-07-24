@@ -2,20 +2,13 @@ import axios from "axios";
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
 
-export const getNewsByPage = async (token, page,searchColumnName,searchValue,crtFrom,crtTo) => {
+export const getNewsByPage = async (token, params) => {
   try {
     const response = await axios.get(`${API_URL}/news`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      params: {
-        withAuthors:true,
-        page: page,
-        searchColumnName:searchColumnName,
-        searchValue:searchValue,
-        crtFrom:crtFrom,
-        crtTo:crtTo
-      },
+      params: params
     });
     return response.data;
   } catch (error) {

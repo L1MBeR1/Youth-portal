@@ -2,21 +2,15 @@ import axios from 'axios';
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
 
-export const getBlogsByPage = async (token, page, searchFields, searchValues) => {
+export const getBlogsByPage = async (token, params) => {
   try {
     const response = await axios.get(`${API_URL}/blogs/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      params: {
-        withAuthors: true,
-        page: page,
-        searchFields: searchFields,
-        searchValues: searchValues,
-        operator:'or',
-      },
+      params: params
     });
-    console.log(response)
+    // console.log(response)
     return response.data;
   } catch (error) {
     console.error('Error fetching blogs:', error);

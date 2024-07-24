@@ -8,6 +8,8 @@ import News from '../moderator/sections/newsSection';
 import Events from './sections/eventsSection';
 import Projects from './sections/projectsSection';
 import Moderators from './sections/moderatorsSection'
+import Bloggers from './sections/bloggersSection'
+import Organizations from './sections/organizationsSection'
 
   function AdminMain({section}) {
     const getContent = (section) => {
@@ -17,7 +19,7 @@ import Moderators from './sections/moderatorsSection'
         case 'moderators':
           return <Moderators/>
         case 'organizations':
-          return 
+          return <Organizations/>
         case 'projects':
           return <Projects/>
         case 'events':
@@ -28,6 +30,8 @@ import Moderators from './sections/moderatorsSection'
           return <Blogs/>
         case 'news':
           return <News/>
+        case 'bloggers':
+          return <Bloggers/>
         default:
           return '';
       }

@@ -26,16 +26,16 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
 import WarningModal from '../../shared/modals/warningModal.jsx';
-import AddRoleModal from '../../shared/modals/addRoleModal.jsx';
+import AddModeratorModal from '../../shared/modals/addRoleModal.jsx';
 import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
+import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
 import { getToken } from '../../../../localStorage/tokenStorage.js';
 import useModerators from '../../../../hooks/useModerators.js';
 
 
-function ModeratorsSection() {
+function BlogersSection() {
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -46,35 +46,37 @@ function ModeratorsSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setBdFrom] = useState('');
-  const [bdTo, setBdTo] = useState('');
+  const [bdFrom, setFromDate] = useState('');
+  const [bdTo, setToDate] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const searchFields =['email','first_name','last_name','patronymic','nickname'];
+  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
   const [searchValues, setSearchValues] = useState([]);
-  const { data: moderators, isLoading, refetch  } = useModerators(['admin/moderators'],['admin'],setLastPage, 
+  const { data: moderators, isLoading, refetch  } = useModerators(['admin/bloggers'],['admin'],setLastPage, 
     { 
-      role_name:'moderator',
+      role_name:'blogger',
       page: page,
       searchFields: searchFields,
       searchValues: searchValues,
-      bdTo:bdTo,
-      bdFrom:bdFrom,
+      // crtFrom:crtFrom,
+      // crtTo:crtTo,
+      // updFrom:updFrom,
+      // updTo:updTo,
       operator:'or',
     });
-  const addNewModerator = async (email) => {
+  const addNewBlogger = async (email) => {
     const token = getToken();
-    const response = await addModerator(token, email)
+    const response = await addBlogger(token, email)
     if (response) {
       console.log(response);
       refetch()
     }
   };
   
-  const delModerator = async (confirmed) => {
+  const delBlogger = async (confirmed) => {
     if (confirmed) {
       const token = getToken();
-      const response = await deleteModerator(token, deleteId)
+      const response = await deleteBlogger(token, deleteId)
       if (response) {
         console.log(response);
         setIsSuccess(true);
@@ -116,8 +118,8 @@ function ModeratorsSection() {
         label={'Дата рождения'}
         fromDate={bdFrom}
         toDate={bdTo}
-        setFromDate={setBdFrom}
-        setToDate={setBdTo}
+        setFromDate={setFromDate}
+        setToDate={setToDate}
       />  
     </>
   );
@@ -133,16 +135,16 @@ function ModeratorsSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setBdFrom('');
-    setBdTo('')
+    setToDate('');
+    setFromDate('');
     setSearchTerm('');
-    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
-    setFiltersCleared(true);
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
+    refetch();
   };
+
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
     { field: 'avatar', width: '70px' ,render: (item) => <Avatar variant='outlined' src={item.profile_image_uri}/>},
@@ -161,12 +163,12 @@ function ModeratorsSection() {
       />
       <WarningModal
       message={`Вы действительно хотите удалить модератора с ID: ${deleteId}?`}
-      onConfirm={delModerator}
+      onConfirm={delBlogger}
       open={openDeleteModal}
       setOpen={setOpenDeleteModal}
       />
       <Typography  fontWeight={700} fontSize={30}>
-           Модераторы
+           Блогеры
       </Typography>
       <Box
         sx={{
@@ -178,7 +180,7 @@ function ModeratorsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск</FormLabel>
+          <FormLabel>Поиск по почте или ФИО</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -203,11 +205,11 @@ function ModeratorsSection() {
         >
           <SearchOffIcon />
         </IconButton>
-        <AddRoleModal
-        label={'Добавление модератора'}
-        func={addNewModerator}
-        message={'Вы точно хотите добавить модератора с почтой: '}
-        successMessage={'Модератор успешно добавлен'}
+        <AddModeratorModal
+        label={'Добавление блогера'}
+        func={addNewBlogger}
+        message={'Вы точно хотите добавить блогера с почтой: '}
+        successMessage={'Блогер успешно добавлен'}
         />
       </Box>
       {isLoading?(
@@ -250,4 +252,4 @@ function ModeratorsSection() {
   );
 }
 
-export default ModeratorsSection;
+export default BlogersSection;

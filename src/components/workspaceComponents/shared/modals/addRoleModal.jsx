@@ -15,7 +15,7 @@ import Add from "@mui/icons-material/Add";
 
 import SuccessNotification from "./successNotification.jsx";
 import WarningModal from "./warningModal.jsx";
-function AddModeratorModal({func}) {
+function AddRoleModal({func,label,message,successMessage}) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [waitConfirm, setWaitConfirm] = useState(false);
 
@@ -77,7 +77,7 @@ function AddModeratorModal({func}) {
             textColor="inherit"
             fontWeight="lg"
           >
-            Добавление модератора
+            {label}
           </Typography>
           <form onSubmit={handleSubmit}>
             <FormControl error={Boolean(error)}>
@@ -103,15 +103,15 @@ function AddModeratorModal({func}) {
           </form>
         </ModalDialog>
       </Modal>
-      <SuccessNotification open={isSuccess} message={'Модератор успешно добавлен'} setOpen={setIsSuccess}/>
+      <SuccessNotification open={isSuccess} message={successMessage} setOpen={setIsSuccess}/>
       <WarningModal
       open={waitConfirm}
       setOpen={setWaitConfirm}
       onConfirm={addModerator}
-      message={`Вы действительно хотите добавить модератора с почтой ${email}?`}
+      message={`${message} ${email}?`}
       />
     </>
   );
 }
 
-export default AddModeratorModal;
+export default AddRoleModal;

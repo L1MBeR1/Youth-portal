@@ -10,6 +10,7 @@ import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Sheet from '@mui/joy/Sheet';
+import Button from '@mui/joy/Button';
 import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
@@ -37,19 +38,46 @@ function EventsSection() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
   const [searchTerm, setSearchTerm] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  
+  const [crtFrom, setСrtFrom] = useState('');
+  const [crtTo, setСrtTo] = useState('');
+  
+  const [updFrom, setUpdFrom] = useState('');
+  const [updTo, setUpdTo] = useState('');
+
   const [status, setStatus] = useState('');
-  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['admin'],page, setLastPage);
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const searchFields= ['name','first_name','last_name','patronymic','nickname'];
+  const [searchValues, setSearchValues] = useState([]);
+
+  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['admin'], setLastPage, 
+    {
+      withAuthors: true,
+      page: page,
+      searchFields: searchFields,
+      searchValues: searchValues,
+      crtFrom:crtFrom,
+      crtTo:crtTo,
+      updFrom:updFrom,
+      updTo:updTo,
+      operator:'or',
+    });
 
   const renderFilters = () => (
     <>
       <DatePopOver
       label={'Дата создания'}
-      fromDate={fromDate}
-      toDate={toDate}
-      setFromDate={setFromDate}
-      setToDate={setToDate}
+      fromDate={crtFrom}
+      toDate={crtTo}
+      setFromDate={setСrtFrom}
+      setToDate={setСrtTo}
+      />
+      <DatePopOver
+      label={'Дата обновления'}
+      fromDate={updFrom}
+      toDate={updTo}
+      setFromDate={setUpdFrom}
+      setToDate={setUpdTo}
       />
     </>
   );
@@ -57,27 +85,40 @@ function EventsSection() {
     refetch();
   }, [page,refetch]);
 
-  function RowMenu() {
-    return (
-      <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-        >
-          <MoreVertIcon />
-        </MenuButton>
-        <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
-          <MenuItem>Изменить</MenuItem>
-        </Menu>
-      </Dropdown>
-    );
-  }
+  // function RowMenu() {
+  //   return (
+  //     <Dropdown>
+  //       <MenuButton
+  //         slots={{ root: IconButton }}
+  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+  //       >
+  //         <MoreVertIcon />
+  //       </MenuButton>
+  //       <Menu size="sm" sx={{ minWidth: 140 }}>
+  //         <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
+  //         <MenuItem>Изменить</MenuItem>
+  //       </Menu>
+  //     </Dropdown>
+  //   );
+  // }
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
-    setToDate('');
-    setFromDate('');
+    setСrtTo('');
+    setСrtFrom('');
+    setUpdTo('');
+    setUpdFrom('');
     setSearchTerm('');
+    setSearchValues([])
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [
@@ -87,6 +128,7 @@ function EventsSection() {
     { field: 'author',headerName: 'Организатор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
     { field: 'location', headerName: 'Адрес', width: '200px' },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'updated_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.updated_at).toLocaleDateString() },
     { field: 'start_time', headerName: 'Дата начала', width: '90px', render: (item) => new Date(item.start_time).toLocaleDateString() },
   ];
 
@@ -140,8 +182,12 @@ function EventsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-
+        {renderFilters()}
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"
@@ -171,7 +217,6 @@ function EventsSection() {
         <CustomTable 
         columns={columns} 
         data={events}
-        rowMenu={RowMenu()}
         />
       </Sheet>
       <CustomList 

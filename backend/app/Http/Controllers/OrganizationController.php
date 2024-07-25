@@ -74,8 +74,8 @@ class OrganizationController extends Controller
      */
     public function getOrganizations(Request $request)
     {//TODO: Переделать
-        if (!Auth::user()->can('view')) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        if (!Auth::user()->can('view', Organization::class)) {
+            return $this->errorResponse('Нет прав на просмотр.', [], 403);
         }
 
         $perPage = $request->get('per_page', 5);
@@ -187,7 +187,25 @@ class OrganizationController extends Controller
     }
 
 
+/**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
 
     /**
      * Обновить

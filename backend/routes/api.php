@@ -13,6 +13,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
+use App\Http\Controllers\OrganizationController;
+use App\Models\Organization;
+
 // use App\Http\Controllers\CommentToResourceController;
 
 /**
@@ -221,8 +224,8 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'organizations'
 ], function () {
-    Route::get('', [ProjectController::class, 'getOrganizations']);
-    Route::post('', [ProjectController::class, 'store']);
-    Route::put('{id}', [ProjectController::class, 'update']);
-    Route::delete('{id}', [ProjectController::class, 'destroy']);
+    Route::get('', [OrganizationController::class, 'getOrganizations']);
+    Route::post('', [OrganizationController::class, 'store']);
+    Route::put('{id}', [OrganizationController::class, 'update']);
+    Route::delete('{id}', [OrganizationController::class, 'destroy']);
 });

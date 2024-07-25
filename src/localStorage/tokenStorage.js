@@ -1,82 +1,38 @@
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
-const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
+import { refresh } from '../api/authApi.js';
 
-export const setToken = (token) => {
-    localStorage.setItem('accessToken', token);
+export const setToken = (token, hours = 1) => {
+    const now = new Date();
+    const expireTime = now.getTime() + hours * 1 * 20 * 1000;
+    const tokenData = {
+        value: token,
+        expire: expireTime
+    };
+    localStorage.setItem('accessToken', JSON.stringify(tokenData));
 };
 
 export const getToken = () => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-        const decoded = jwtDecode(token);
-        const currentTime = new Date().getTime() / 1000;
+    const tokenData = JSON.parse(localStorage.getItem('accessToken'));
+    const now = new Date();
 
-        if (decoded && currentTime < decoded.exp) {
-            console.log('Токен не истекает');
-            return token;
-        }
-    } else {
-        return null;
+    if ((tokenData) && (now.getTime() < tokenData.expire)) {
+        return tokenData.value;
+    }
+    else {
+        tryRefresh();
     }
 };
 
-/**
- * Получает токен из localStorage и проверяет его валидность.
- * Если токен истёк, выполняет refresh-запрос на сервер.
- * Если refresh-запрос не удался, удаляет токен из localStorage и перенаправляет на страницу логина.
- * @returns {string|null} Токен или null, если токен не был найден или истёк.
- */
-export const getTokenWithRefresh = () => {
-    // Получаем токен из localStorage
-    const token = localStorage.getItem('accessToken');
-    if (token && token !== 'undefined') {
-        const decoded = jwtDecode(token);
-        const currentTime = new Date().getTime() / 1000;
-
-        // Проверяем, что токен существует и не равен строке 'undefined'
-        if (decoded && currentTime < decoded.exp) {
-            return token;
-            // Получаем текущее время в секундах
-        }
-        // Если токен валиден, возвращаем его
+function tryRefresh(params) {
+    const access_token = refresh();
+    if (!access_token) {
+        // Возможно убрать, если редирект в authApi, но там 
+        // не красиво...
+        console.log('Failed to refresh access token');
     }
-
-    // Используем синхронную обёртку для асинхронного вызова
-    let newToken = null;
-    (async () => {
-        // Создаём переменную для нового токена
-        try {
-            const response = await axios.post(`${API_URL}/auth/refresh`, null, {
-                withCredentials: true,
-            });
-            if (response.status === 200) {
-                setToken(response.data.access_token);
-                newToken = response.data.access_token;
-            }
-        } catch (error) {
-            console.log('ERR');
-            if (error.response) {
-                if (error.response.status === 401) {
-
-                    removeToken();
-
-                    if (window.location.pathname !== '/login') {
-                        // Выполняем асинхронную функцию, которая делает refresh-запрос на сервер
-                        window.location.href = '/login';
-                    }
-                    // Если refresh-запрос удался, устанавливаем новый токен и возвращаем его
-                }
-            }
-        }
-    })();
-
-    return newToken;
-};
-
-
+    // установить токен в случае успеха
+    console.log('tryRefresh::access_token', access_token);
+}
 
 export const removeToken = () => {
     localStorage.removeItem('accessToken');
-    // Возвращаем новый токен или null, если его не было в localStorage
 };

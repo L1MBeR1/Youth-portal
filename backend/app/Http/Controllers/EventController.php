@@ -204,10 +204,36 @@ class EventController extends Controller
      * 
      * @authenticated
      */
+    //Добавление мероприятия с привязкой к определенному проекту (если projectId указан в теле запроса) и без привязки к проекту (если projectId не указан)
     public function store(StoreEventRequest $request)
     {
-        //TODO: Сделать метод для добавление с проектом и без
+        try {
+            if (!Auth::user()->can('create', Event::class)) {
+                throw new AccessDeniedHttpException('You do not have permission to create a event');
+            }
+
+            $projectId = $request->input('projectId');
+            Log::info('projectId: ' . $projectId);
+
+            $this->validateRequest($request, $request->rules());
+
+            $eventData = array_merge($request->validated(), [
+                'author_id' => Auth::id(),
+            ]);
+
+            // Если projectId передан, добавляем его в данные события
+            if ($projectId) {
+                $eventData['project_id'] = $projectId;
+            }
+
+            $event = Event::create($eventData);
+
+            return $this->successResponse(['events' => $event], 'Event created successfully', 200);
+        } catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
+        }
     }
+
 
     /**
      * Display the specified resource.

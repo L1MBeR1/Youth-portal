@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Requests;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
@@ -29,5 +29,19 @@ class StoreEventRequest extends FormRequest
             'end_time' => 'required|date_format:Y-m-d\TH:i:s',
         ];
     }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::info('Validation failed: ', $validator->errors()->toArray());
+
+        $response = response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+
+        throw new \Illuminate\Http\Exceptions\HttpResponseException($response);
+    }
+
+
 
 }

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils.js';
-import { setToken} from '../../localStorage/tokenStorage.js'
+import { setCookie } from '../../cookie/cookieUtils.js';
+import { setToken } from '../../localStorage/tokenStorage.js'
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { login,refresh} from '../../api/authApi.js';
+import { login, refresh } from '../../api/authApi.js';
 import useProfile from '../../hooks/useProfile.js';
 
 import Card from '@mui/joy/Card';
@@ -22,7 +22,7 @@ import IconButton from '@mui/joy/IconButton';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 function LoginForm() {
 
@@ -42,8 +42,10 @@ function LoginForm() {
       console.log(data)
       const token = data.access_token;
       if (token) {
-        setToken(token)
+        setToken(token);
+        console.log(`%c установлен токен: ${token}`, 'background: #222; color: #bada55');
         const decoded = jwtDecode(token);
+        console.log(`%c декодирован токен: ${token}`, 'background: #222; color: #bada55');
         // await refresh();
         // await queryClient.prefetchQuery(useProfile.queryKey, useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
@@ -67,76 +69,76 @@ function LoginForm() {
   };
 
   return (
-      <Card
-        sx={{
-          width: '100%',
-          maxWidth: '450px',
-        }}
-      >
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={1.5}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography level="h4">Вход в аккаунт</Typography>
-            </Box>
-            {error && (
-              <Typography level="body-sm" color="danger">
-                {error}
-              </Typography>
-            )}
-            <FormControl>
-              <FormLabel>Почта</FormLabel>
-              <Input
-                placeholder="Введите почту"
-                required
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Пароль</FormLabel>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Введите пароль"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                endDecorator={
-                  <IconButton color="neutral" onClick={togglePasswordVisibility}>
-                    {showPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
-                  </IconButton>
-                }
-              />
-              <FormHelperText>
-                <Link to="/recovery">Забыли пароль?</Link>
-              </FormHelperText>
-            </FormControl>
-            <Button loading={Boolean(isLoading)} type="submit">Войти</Button>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'row',
-                paddingTop: '5px',
-                gap: '5px',
-              }}
-            >
-              <Typography level="body-sm">Нет аккаунта?</Typography>
-              <Link to="/registration">
-                <Typography level="body-sm">Зарегистрироваться</Typography>
-              </Link>
-            </Box>
-            
-          </Stack>
-        </form>
-      </Card>
+    <Card
+      sx={{
+        width: '100%',
+        maxWidth: '450px',
+      }}
+    >
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={1.5}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography level="h4">Вход в аккаунт</Typography>
+          </Box>
+          {error && (
+            <Typography level="body-sm" color="danger">
+              {error}
+            </Typography>
+          )}
+          <FormControl>
+            <FormLabel>Почта</FormLabel>
+            <Input
+              placeholder="Введите почту"
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Пароль</FormLabel>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Введите пароль"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              endDecorator={
+                <IconButton color="neutral" onClick={togglePasswordVisibility}>
+                  {showPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                </IconButton>
+              }
+            />
+            <FormHelperText>
+              <Link to="/recovery">Забыли пароль?</Link>
+            </FormHelperText>
+          </FormControl>
+          <Button loading={Boolean(isLoading)} type="submit">Войти</Button>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'row',
+              paddingTop: '5px',
+              gap: '5px',
+            }}
+          >
+            <Typography level="body-sm">Нет аккаунта?</Typography>
+            <Link to="/registration">
+              <Typography level="body-sm">Зарегистрироваться</Typography>
+            </Link>
+          </Box>
+
+        </Stack>
+      </form>
+    </Card>
   );
 }
 

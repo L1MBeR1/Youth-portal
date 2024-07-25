@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { setToken, removeToken } from '../localStorage/tokenStorage';
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
-
 
 export const login = async (email, password) => {
 	try {
@@ -32,34 +31,21 @@ export const refresh = async () => {
 		const response = await axios.post(`${API_URL}/auth/refresh`, null, {
 			withCredentials: true,
 		});
-
 		if (response.status === 200) {
-			console.log(response);
-			return response.data.access_token;
-		} else {
-			// Обработка непредвиденных статусов ответа
-			console.error('Unexpected response status:', response.status);
-			throw new Error('Token refresh failed: Unexpected response');
+			setToken(response.data.access_token);
+			console.log('Успешное обновление токена');
 		}
 	} catch (error) {
-		// Проверка наличия ответа и его данных
 		if (error.response) {
-			console.error('Error response data:', error.response.data);
-			console.error('Error response status:', error.response.status);
+			if (error.response.status === 401) {
+				console.log('Some problems: ', error.response.data.error);
+				console.log('Detailed: ', error.response);
 
-			// Сообщение об отсутствии токена обновления в куки
-			if (error.response.status === 401 && error.response.data.error === 'Refresh token is missing') {
-				// Выполнить редирект
-				// TODO: !
+				removeToken();
+
+				window.location.href = '/login'
 			}
-		} else if (error.request) {
-			// Ошибка запроса
-			console.error('Error request:', error.request);
-		} else {
-			// Другие ошибки
-			console.error('Error message:', error.message);
 		}
-		throw new Error('Token refresh failed');
 	}
 };
 

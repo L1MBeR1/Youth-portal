@@ -26,13 +26,16 @@ import { jwtDecode } from 'jwt-decode';
 import { getToken } from './localStorage/tokenStorage';
 function App() {
   const PrivateRoute = ({ element, roles }) => {
-    const token = getToken();
-    if (token) {
-      const decoded = jwtDecode(token);
-      // console.log(decoded)
+    const access_token = getToken();
+    if (access_token) {
+      console.log('есть токен, роли', access_token);
+      const decoded = jwtDecode(access_token);
       if (roles.some(role => decoded.roles.includes(role))) {
         return element;
       }
+    } else {
+      console.log('нет токена, редирект');
+      return <Navigate to="/login" />;
     }
     return <Navigate to="/404" />;
   };

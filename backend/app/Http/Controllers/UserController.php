@@ -28,6 +28,7 @@ class UserController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @queryParam page int Номер страницы.
+     * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -53,6 +54,8 @@ class UserController extends Controller
         $bdFrom = $request->query('bdFrom');
         $bdTo = $request->query('bdTo');
         $bdDate = $request->query('bdDate');
+
+        
 
         if (!empty($searchFields) && !empty($searchValues)) {
             foreach ($searchFields as $index => $field) {

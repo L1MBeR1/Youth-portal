@@ -193,9 +193,6 @@ class EventController extends Controller
         return $date;
     }
 
-
-
-
     /**
      * Создать 
      * 
@@ -209,13 +206,13 @@ class EventController extends Controller
     public function store(StoreEventRequest $request)
     {
         if (!Auth::user()->can('create', Event::class)) {
-            return $this->errorResponse('You do not have permission to create an event', [], 403);
+            return $this->errorResponse('Нет прав', [], 403);
         }
 
         $projectId = $request->input('projectId');
 
         if ($projectId && !Project::find($projectId)) {
-            return $this->errorResponse('Project not found', [], 404);
+            return $this->errorResponse('Проект не найден', [], Response::HTTP_NOT_FOUND);
         }
 
         $eventData = $request->validated() + [
@@ -225,11 +222,8 @@ class EventController extends Controller
 
         $event = Event::create($eventData);
 
-        return $this->successResponse(['events' => $event], 'Event created successfully', 200);
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно создано', 200);
     }
-
-
-
 
     /**
      * Display the specified resource.
@@ -256,19 +250,19 @@ class EventController extends Controller
      */
     public function update(UpdateEventRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $event = Event::findOrFail($id);
+        $event = Event::find($id);
 
-            if (!Auth::user()->can('update', $event)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this event');
-            }
+        if (!$event) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
-            $event->update($request->validated());
+        if (!Auth::user()->can('update', $event)) {
+            return $this->errorResponse('Нет прав на обновление мероприятия', [], 403);
+        }
 
-            return $this->successResponse(['events' => $event], 'Event updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } 
+        $event->update($request->validated());
+
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', 200); 
     }
 
 /**
@@ -276,9 +270,6 @@ class EventController extends Controller
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
-
-
-
 
     /**
      * Удалить
@@ -291,18 +282,18 @@ class EventController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try{
-            $event = Event::findOrFail($id);
+        $event = Event::find($id);
 
-            if (!Auth::user()->can('delete', $event)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this event');
-            }
-
-            $event->delete();
-
-            return $this->successResponse(['events' => $event], 'Event deleted successfully', 200);
-        }catch (ModelNotFoundException | AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$event) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('delete', $event)) {
+            return $this->errorResponse('Нет прав на удаление мероприятия', [], 403);
+        }
+
+        $event->delete();
+
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно удалено', 200);
     }
 }

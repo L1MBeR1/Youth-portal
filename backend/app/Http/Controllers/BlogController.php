@@ -267,20 +267,16 @@ class BlogController extends Controller
      */
     public function store(StoreBlogRequest $request)
     {
-        try {
-            if (!Auth::user()->can('create', Blog::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a blog');
-            }
-
-            $blog = Blog::create($request->validated() + [
-                'status' => 'moderating',
-                'author_id' => Auth::id(),
-            ]);     
-
-            return $this->successResponse(['blog' => $blog], 'Blog created successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', Blog::class)) {
+            return $this->errorResponse('Нет прав на создание блога', [], 403);
         }
+
+        $blog = Blog::create($request->validated() + [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]);     
+
+        return $this->successResponse(['blog' => $blog], 'Блог успешно создан', 200);
     }
 
 
@@ -303,21 +299,20 @@ class BlogController extends Controller
      */
     public function update (UpdateBlogRequest $request, $id)
     {
-        try {
+        $blog = Blog::find($id);
 
-            $blog = Blog::findOrFail($id);
-
-            if (!Auth::user()->can('update', $blog)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this blog');
-            }
-
-            $validatedData = $request->validated();
-            $blog->update($validatedData);
-
-            return $this->successResponse(['blog' => $blog], 'Blog updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$blog) {
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $blog)) {
+            return $this->errorResponse('Нет прав на обновление блога', [], 403);
+        }
+
+        $validatedData = $request->validated();
+        $blog->update($validatedData);
+
+        return $this->successResponse(['blog' => $blog], 'Блог успешно обновлен', 200);
     }
     
 
@@ -371,14 +366,12 @@ class BlogController extends Controller
         }
 
         if (!Auth::user()->can('delete', $blog)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+            return $this->errorResponse('Нет прав на удаление блога', [], 403);
         }
-
-
 
         $blog->delete();
 
-        return $this->successResponse(null, 'Запись удалена', Response::HTTP_OK);
+        return $this->successResponse(null, 'Блог успешно удален', Response::HTTP_OK);
     }
 
     /**
@@ -393,24 +386,25 @@ class BlogController extends Controller
      */
     public function likeBlog(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            $blog = Blog::findOrFail($id);
-            $user = Auth::user();
-
-            $like = $blog->likes()->where('user_id', $user->id)->first();
-
-            if ($like) {
-                $like->delete();
-                $blog->decrement('likes');
-                return $this->successResponse(['blogs' => $blog], 'Blog unliked successfully', 200);
-            } else {
-                $blog->likes()->create(['user_id' => $user->id]);
-                $blog->increment('likes');
-            }
-
-            return $this->successResponse(['blogs' => $blog], 'Blog liked successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
+        $blog = Blog::find($id);
+    
+        if (!$blog) {
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
+
+        $user = Auth::user();
+
+        $like = $blog->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            $like->delete();
+            $blog->decrement('likes');
+            return $this->successResponse(['blogs' => $blog], 'Лайк на блог успешно отменен', 200);
+        } else {
+            $blog->likes()->create(['user_id' => $user->id]);
+            $blog->increment('likes');
+        }
+
+        return $this->successResponse(['blogs' => $blog], 'Блог успешно лайкнут', 200);
     }
 }

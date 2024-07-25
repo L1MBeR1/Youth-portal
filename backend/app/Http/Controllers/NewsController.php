@@ -230,52 +230,43 @@ class NewsController extends Controller
      */
     public function store(StoreNewsRequest $request)
     {
-        try {
-            if (!Auth::user()->can('create', News::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a news');
-            }
-
-            $news = News::create($request->validated() + [
-                'status' => 'moderating',
-                'author_id' => Auth::id(),
-            ]);            
-
-            return $this->successResponse(['news' => $news], 'News created successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', News::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
+
+        $news = News::create($request->validated() + [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]);            
+
+        return $this->successResponse(['news' => $news], 'Новость успешно создана', 200);
     }
 
     public function likeNews(Request $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $news = News::findOrFail($id);
-            $user = Auth::user();
+        $news = News::find($id);
 
-            $like = $news->likes()->where('user_id', $user->id)->first();
-
-            if ($like) {
-                // Если пользователь уже лайкнул эту новость, и опять нажал на лайк то удаляем лайк
-                $like->delete();
-                $news->decrement('likes');
-                return $this->successResponse(['news' => $news], 'News unliked successfully', 200);
-            } else {
-                // Иначе добавляем новый лайк
-                $news->likes()->create(['user_id' => $user->id]);
-                $news->increment('likes');
-            }
-
-            return $this->successResponse(['news' => $news], 'News liked successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        $user = Auth::user();
+
+        $like = $news->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            // Если пользователь уже лайкнул эту новость, и опять нажал на лайк то удаляем лайк
+            $like->delete();
+            $news->decrement('likes');
+            return $this->successResponse(['news' => $news], 'News unliked successfully', 200);
+        } else {
+            // Иначе добавляем новый лайк
+            $news->likes()->create(['user_id' => $user->id]);
+            $news->increment('likes');
+        }
+
+        return $this->successResponse(['news' => $news], 'News liked successfully', 200);
     }
-
-    
-
-
-
-
 
     /**
      * Display the specified resource.
@@ -304,28 +295,24 @@ class NewsController extends Controller
      */
     public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            $newStatus = $request->input('status');
-            $news = News::findOrFail($id);
+        $newStatus = $request->input('status');
+        $news = News::find($id);
 
-            if (!$news) {
-                return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
-            }
-
-            if (!Auth::user()->can('updateStatus', $news)) {
-                throw new AccessDeniedHttpException('You do not have permission to update the status of this news');
-            }
-
-            if (!in_array($newStatus, News::STATUSES)) {
-                return $this->errorResponse('Invalid status entered', [], 404);
-            }
-
-            $news->update(['status' => $newStatus]);
-
-            return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
-        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('updateStatus', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        if (!in_array($newStatus, News::STATUSES)) {
+            return $this->errorResponse('Invalid status entered', [], 404);
+        }
+
+        $news->update(['status' => $newStatus]);
+
+        return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
     }
 
 
@@ -338,23 +325,20 @@ class NewsController extends Controller
      */
     public function update(UpdateNewsRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $news = News::findOrFail($id);
+        $news = News::find($id);
 
-            if (!Auth::user()->can('update', $news)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this news');
-            }
-
-            $news->update($request->validated());
-
-            return $this->successResponse(['news' => $news], 'News updated successfully', 200);
-        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $news->update($request->validated());
+
+        return $this->successResponse(['news' => $news], 'News updated successfully', 200);
     }
-
-
-
 
     /**
      * Удалить
@@ -372,19 +356,19 @@ class NewsController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $news = News::findOrFail($id);
+        $news = News::find($id);
 
-            if (!Auth::user()->can('delete', $news)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this news');
-            }
-
-            $news->delete();
-
-            return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
-        } catch (ModelNotFoundException | AccessDeniedHttpException$e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('delete', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $news->delete();
+
+        return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
     }
 }
 

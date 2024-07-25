@@ -198,19 +198,15 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            if (!Auth::user()->can('create', Project::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a project');
-            }
-
-            $project = Project::create($request->validated() + [
-                'author_id' => Auth::id(),
-            ]);
-
-            return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', Project::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
+
+        $project = Project::create($request->validated() + [
+            'author_id' => Auth::id(),
+        ]);
+
+        return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
     }
 
 
@@ -229,23 +225,20 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $project = Project::findOrFail($id);
+        $project = Project::find($id);
 
-            if (!Auth::user()->can('update', $project)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this project');
-            }
-
-            $project->update($request->validated());
-
-            return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$project) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $project)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $project->update($request->validated());
+
+        return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
     }
-
-
-
 
     /**
      * Remove the specified resource from storage.
@@ -257,19 +250,18 @@ class ProjectController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $project = Project::findOrFail($id);
+        $project = Project::find($id);
 
-            if (!Auth::user()->can('delete', $project)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this project');
-            }
+        if (!$project) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
-            $project->delete();
+        if (!Auth::user()->can('delete', $project)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
 
-            return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException$e) {
-            Log::info('catch_error', [$e]);
-            return $this->handleException($e);
-        } 
+        $project->delete();
+
+        return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200); 
     }
 }

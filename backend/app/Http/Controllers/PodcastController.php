@@ -226,25 +226,17 @@ class PodcastController extends Controller
      */
     public function store(StorePodcastRequest $request)
     {
-        try {
-            if (!Auth::user()->can('create', Podcast::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a podcast');
-            }
-
-            $podcast = Podcast::create($request->validated() + [
-                'status' => 'moderating',
-                'author_id' => Auth::id(),
-            ]);     
-
-            return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', Podcast::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
+
+        $podcast = Podcast::create($request->validated() + [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]);     
+
+        return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
     }
-
-
-
-
 
     /**
      * Обновить
@@ -264,21 +256,20 @@ class PodcastController extends Controller
      */
     public function update(UpdatePodcastRequest $request, $id)
     {
-        try {
+        $podcast = Podcast::find($id);
 
-            $podcast = Podcast::findOrFail($id);
-
-            if (!Auth::user()->can('update', $podcast)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this podcast');
-            }
-
-            $validatedData = $request->validated();
-            $podcast->update($validatedData);
-
-            return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$podcast) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $podcast)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $validatedData = $request->validated();
+        $podcast->update($validatedData);
+
+        return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
     }
 
     /**
@@ -292,28 +283,24 @@ class PodcastController extends Controller
      */
     public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            $newStatus = $request->input('status');
-            $podcast = Podcast::findOrFail($id);
+        $newStatus = $request->input('status');
+        $podcast = Podcast::find($id);
 
-            if (!$podcast) {
-                return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
-            }
-
-            if (!Auth::user()->can('updateStatus', $podcast)) {
-                throw new AccessDeniedHttpException('You do not have permission to update the status of this podcast');
-            }
-
-            if (!in_array($newStatus, Podcast::STATUSES)) {
-                return $this->errorResponse('Invalid status entered', [], 404);
-            }
-
-            $podcast->update(['status' => $newStatus]);
-
-            return $this->successResponse(['podcasts' => $podcast], 'Podcast status updated successfully', 200);
-        } catch (ModelNotFoundException | AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$podcast) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('updateStatus', $podcast)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        if (!in_array($newStatus, Podcast::STATUSES)) {
+            return $this->errorResponse('Invalid status entered', [], 404);
+        }
+
+        $podcast->update(['status' => $newStatus]);
+
+        return $this->successResponse(['podcasts' => $podcast], 'Podcast status updated successfully', 200);
     }
 
 
@@ -329,20 +316,20 @@ class PodcastController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $podcast = Podcast::findOrFail($id);
+        $podcast = Podcast::find($id);
 
-            // Проверка прав пользователя
-            if (!Auth::user()->can('delete', $podcast)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this podcast');
-            }
-
-            $podcast->delete();
-
-            return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
-        } catch (Exception | ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$podcast) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        // Проверка прав пользователя
+        if (!Auth::user()->can('delete', $podcast)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $podcast->delete();
+
+        return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
     }
 
     /**
@@ -386,24 +373,23 @@ class PodcastController extends Controller
      */
     public function likePodcast(Request $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $podcast = Podcast::findOrFail($id);
-            $user = Auth::user();
-
-            $like = $podcast->likes()->where('user_id', $user->id)->first();
-
-            if ($like) {
-                $like->delete();
-                $podcast->decrement('likes');
-                return $this->successResponse(['podcasts' => $podcast], 'Podcast unliked successfully', 200);
-            } else {
-                $podcast->likes()->create(['user_id' => $user->id]);
-                $podcast->increment('likes');
-            }
-
-            return $this->successResponse(['podcasts' => $podcast], 'Podcast liked successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
+        $podcast = Podcast::find($id);
+        if (!$podcast) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+        $user = Auth::user();
+
+        $like = $podcast->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            $like->delete();
+            $podcast->decrement('likes');
+            return $this->successResponse(['podcasts' => $podcast], 'Podcast unliked successfully', 200);
+        } else {
+            $podcast->likes()->create(['user_id' => $user->id]);
+            $podcast->increment('likes');
+        }
+
+        return $this->successResponse(['podcasts' => $podcast], 'Podcast liked successfully', 200);
     }
 }

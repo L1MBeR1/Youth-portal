@@ -303,19 +303,33 @@ class AuthController extends Controller
         $refreshToken = $request->cookie('refresh_token');
 
         if (!$refreshToken) {
+            Log::info('Нет токена');
             return $this->errorResponse('Refresh token is missing', [], 401);
         }
+
+        Log::info('Есть токен =');
+        Log::info($refreshToken);
 
         $decodedToken = base64_decode($refreshToken);
         list($uuid, $expiresAt) = explode('.', $decodedToken);
 
         if (now()->timestamp > $expiresAt) {
-            return $this->errorResponse('Refresh token has expired', [], 401);
+            Log::info('Токен истёк');
+            return response()->json([
+                'message' => 'Refresh token has expired',
+                'data' => [],
+                'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
         }
 
         $user = User::where('remember_token', $refreshToken)->first();
         if (!$user) {
-            return $this->errorResponse('Invalid refresh token', [], 401);
+            Log::info('Нет токена у пользователей');
+            return response()->json([
+                'message' => 'Invalid refresh token',
+                'data' => [],
+                'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
         }
 
         Auth::login($user);
@@ -323,8 +337,10 @@ class AuthController extends Controller
         $newToken = Auth::refresh();
         $newRefreshToken = $this->generateRefreshToken($user);
 
+        Log::info('Отдаю токен');
         return $this->respondWithToken($newToken, $newRefreshToken);
     }
+
 
 
 
@@ -479,6 +495,7 @@ class AuthController extends Controller
             'token_type' => 'bearer',
         ]);
 
+
         if ($refreshToken) {
             $cookie = cookie(
                 'refresh_token',
@@ -486,9 +503,10 @@ class AuthController extends Controller
                 60 * 24 * 7,
                 '/',
                 null,
-                true, // Secure
+                false, // Secure
                 true, // HttpOnly
                 false, // Raw
+                // 'Lax',
             );
             $response->withCookie($cookie);
         }

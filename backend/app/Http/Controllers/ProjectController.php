@@ -203,11 +203,9 @@ class ProjectController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to create a project');
             }
 
-            $this->validateRequest($request, $request->rules());
-
-            $project = Project::create(array_merge($request->validated(), [
+            $project = Project::create($request->validated() + [
                 'author_id' => Auth::id(),
-            ]));
+            ]);
 
             return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
         } catch (AccessDeniedHttpException $e) {

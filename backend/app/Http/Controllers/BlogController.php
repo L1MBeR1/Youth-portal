@@ -7,7 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreBlogRequest;
+use App\Http\Requests\UpdateBlogRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BlogController extends Controller
@@ -261,29 +265,22 @@ class BlogController extends Controller
      * @authenticated
      * 
      */
-    public function store(Request $request)
+    public function store(StoreBlogRequest $request)
     {
-        if (!Auth::user()->can('create')) {
-            return $this->errorResponse('Нет прав', [], 403);
+        try {
+            if (!Auth::user()->can('create', Blog::class)) {
+                throw new AccessDeniedHttpException('You do not have permission to create a blog');
+            }
+
+            $blog = Blog::create($request->validated() + [
+                'status' => 'moderating',
+                'author_id' => Auth::id(),
+            ]);     
+
+            return $this->successResponse(['blog' => $blog], 'Blog created successfully', 200);
+        } catch (AccessDeniedHttpException $e) {
+            return $this->handleException($e);
         }
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
-        ]);
-
-        $input = $request->all();
-        $input['status'] = 'moderating';
-
-        // Создаем новый блог
-        $blog = new Blog($input);
-        $blog->author_id = Auth::id(); // Устанавливаем автора блога как текущего пользователя
-
-        $blog->save();
-
-        return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
     }
 
 
@@ -304,48 +301,25 @@ class BlogController extends Controller
      * @bodyParam reposts int Количество репостов.
      * 
      */
-    public function update(Request $request, $id)
+    public function update (UpdateBlogRequest $request, $id)
     {
-        $blog = Blog::find($id);
+        try {
 
+            $blog = Blog::findOrFail($id);
 
+            if (!Auth::user()->can('update', $blog)) {
+                throw new AccessDeniedHttpException('You do not have permission to update this blog');
+            }
 
-        if (!$blog) {
-            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+            $validatedData = $request->validated();
+            $blog->update($validatedData);
+
+            return $this->successResponse(['blog' => $blog], 'Blog updated successfully', 200);
+        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
+            return $this->handleException($e);
         }
-
-        if (!Auth::user()->can('update', $blog)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
-        }
-
-        $this->validateRequest($request, [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'content' => 'nullable|string',
-            'cover_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
-        ]);
-
-        $updateData = $request->only([
-            'title',
-            'description',
-            'content',
-            'cover_uri',
-            'status',
-            'views',
-            'likes',
-            'reposts',
-        ]);
-
-
-
-        $blog->update($updateData);
-
-        return $this->successResponse($blog, 'Запись успешно обновлена', Response::HTTP_OK);
     }
+    
 
     /**
      * Сменить статус

@@ -231,12 +231,11 @@ class PodcastController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to create a podcast');
             }
 
-            $this->validateRequest($request, $request->rules());
-
-            $podcast = Podcast::create(array_merge($request->validated(), [
+            $podcast = Podcast::create($request->validated() + [
                 'status' => 'moderating',
                 'author_id' => Auth::id(),
-            ]));
+            ]);     
+
             return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
         } catch (AccessDeniedHttpException $e) {
             return $this->handleException($e);
@@ -273,7 +272,6 @@ class PodcastController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to update this podcast');
             }
 
-            $this->validateRequest($request, $request->rules());
             $validatedData = $request->validated();
             $podcast->update($validatedData);
 

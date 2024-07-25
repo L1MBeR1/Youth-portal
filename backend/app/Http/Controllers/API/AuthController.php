@@ -45,6 +45,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
         $this->validateRequest($request, [
@@ -102,6 +103,7 @@ class AuthController extends Controller
      * @bodyParam password string required password
      * 
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
     {
         $this->validateRequest($request, [
@@ -349,6 +351,7 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function updateProfile(Request $request)
     {
         try {

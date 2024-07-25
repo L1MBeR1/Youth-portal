@@ -101,9 +101,6 @@ class CommentController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to create this comment');
             }
 
-            // Валидация данных запроса с использованием validateRequest
-            $this->validateRequest($request, $request->rules());
-
             // Создаем комментарий на основе проверенных данных
             $comment = Comment::createComment($request->validated(), $resource_type, $resource_id);
 
@@ -142,9 +139,6 @@ class CommentController extends Controller
             if (!Auth::user()->can('update', $comment)) {
                 throw new AccessDeniedHttpException('You do not have permission to update this comment');
             }
-
-            // Валидация данных запроса с использованием метода validateRequest
-            $this->validateRequest($request, $request->rules());
 
             // Обновление комментария с использованием проверенных данных
             $comment->content = $request->validated();

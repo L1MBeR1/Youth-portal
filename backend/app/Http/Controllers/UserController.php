@@ -164,6 +164,7 @@ class UserController extends Controller
      * 
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function updateUserRoles(Request $request)
     {
         $this->validateRequest($request, [

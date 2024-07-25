@@ -62,7 +62,7 @@ class ProjectPolicy
         Log::info('Entering delete project policy');
 
         if ($user->hasRole('admin') || $user->hasRole('moderator')) {
-            Log::info('User ' . $user->id . ' is an admin or moderator and can delete projects ' . $projec->id);
+            Log::info('User ' . $user->id . ' is an admin or moderator and can delete projects ' . $project->id);
             return true;
         }
 

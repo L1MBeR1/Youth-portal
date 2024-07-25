@@ -29,7 +29,7 @@ class OrganizationPolicy
     public function update(User $user, Organization $blog): bool
     {
         //TODO: Сделать роль organization_owner?
-        
+        //return $user->hasRole('admin') || $user->hasRole('su');
         return true;
         // return $user->id === $blog->author_id;
     }

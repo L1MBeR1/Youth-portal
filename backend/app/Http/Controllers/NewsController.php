@@ -235,13 +235,10 @@ class NewsController extends Controller
                 throw new AccessDeniedHttpException('You do not have permission to create a news');
             }
 
-            $this->validateRequest($request, $request->rules());
-
-            // Создание новой новости с использованием проверенных данных
-            $news = News::create(array_merge($request->validated(), [
+            $news = News::create($request->validated() + [
                 'status' => 'moderating',
                 'author_id' => Auth::id(),
-            ]));
+            ]);            
 
             return $this->successResponse(['news' => $news], 'News created successfully', 200);
         } catch (AccessDeniedHttpException $e) {

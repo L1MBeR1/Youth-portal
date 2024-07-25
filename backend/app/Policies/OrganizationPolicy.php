@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\Organization;
 use App\Models\User;
 
-class BlogPolicy
+class OrganizationPolicy
 {
     /**
      * Determine whether the user can view the model.

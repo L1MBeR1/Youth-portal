@@ -28,13 +28,17 @@ class UserController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @queryParam page int Номер страницы.
+     * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function listUsers(Request $request)
-    { //TODO: Переделать
+    {
         $roleName = $request->query('role_name');
         $query = User::query();
+
+        // Объединение таблиц
+        $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id');
 
         if ($roleName) {
             $query->whereHas('roles', function ($roleQuery) use ($roleName) {
@@ -49,20 +53,19 @@ class UserController extends Controller
 
         $bdFrom = $request->query('bdFrom');
         $bdTo = $request->query('bdTo');
-
         $bdDate = $request->query('bdDate');
 
-        // $crtFrom = $request->query('crtFrom');
-        // $crtTo = $request->query('crtTo');
-        // $updFrom = $request->query('updFrom');
-        // $updTo = $request->query('updTo');
-
+        
 
         if (!empty($searchFields) && !empty($searchValues)) {
             foreach ($searchFields as $index => $field) {
                 $value = $searchValues[$index] ?? null;
                 if ($value) {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
+                    if (in_array($field, ['email', 'phone'])) {
+                        $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                    } else {
+                        $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                    }
                 }
             }
         }
@@ -71,8 +74,7 @@ class UserController extends Controller
             if (in_array($searchColumnName, ['email', 'phone'])) {
                 $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
             } else {
-                $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                    ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+                $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
             }
         }
 
@@ -80,28 +82,16 @@ class UserController extends Controller
         $bdTo = $this->parseDate($bdTo);
 
         if ($bdFrom && $bdTo) {
-            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                  ->whereBetween('user_metadata.birthday', [$bdFrom, $bdTo]);
+            $query->whereBetween('user_metadata.birthday', [$bdFrom, $bdTo]);
         } elseif ($bdFrom) {
-            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                  ->where('user_metadata.birthday', '>=', $bdFrom);
+            $query->where('user_metadata.birthday', '>=', $bdFrom);
         } elseif ($bdTo) {
-            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                  ->where('user_metadata.birthday', '<=', $bdTo);
+            $query->where('user_metadata.birthday', '<=', $bdTo);
         }
 
         if ($bdDate) {
             $query->whereDate('user_metadata.birthday', '=', $bdDate);
         }
-    
-
-        // if ($updFrom && $updTo) {
-        //     $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
-        // } elseif ($updFrom) {
-        //     $query->where('users.updated_at', '>=', $updFrom);
-        // } elseif ($updTo) {
-        //     $query->where('users.updated_at', '<=', $updTo);
-        // }
 
         // Выполняем запрос с пагинацией
         $users = $query->paginate(10);
@@ -133,6 +123,7 @@ class UserController extends Controller
 
         return $this->successResponse($response, $paginationData, 200);
     }
+
 
     /**
      * Parses the date from the given input.

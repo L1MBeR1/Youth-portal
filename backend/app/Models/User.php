@@ -92,4 +92,5 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             'permissions' => $permissions,
         ];
     }
+
 }

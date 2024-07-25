@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\UpdatePodcastRequest;
-use App\Http\Requests\StorePodcastRequest;   
+use App\Http\Requests\StorePodcastRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,8 +28,8 @@ class PodcastController extends Controller
     public function index()
     {
         $podkasts = Podcast::join('user_metadata', 'podcasts.author_id', '=', 'user_metadata.user_id')
-                ->select('podcasts.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-                ->get();
+            ->select('podcasts.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+            ->get();
         return response()->json($podkasts);
     }
 
@@ -58,6 +58,7 @@ class PodcastController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -85,6 +86,8 @@ class PodcastController extends Controller
 
         $updDate = $request->query('updDate');
         $crtDate = $request->query('crtDate');
+
+        $operator = $request->query('operator', 'and');
 
         $query = Podcast::query();
 
@@ -116,10 +119,21 @@ class PodcastController extends Controller
 
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    }
                 }
             }
         }
@@ -156,7 +170,7 @@ class PodcastController extends Controller
         if ($crtDate) {
             $query->whereDate('created_at', '=', $crtDate);
         }
-    
+
         if ($updDate) {
             $query->whereDate('updated_at', '=', $updDate);
         }
@@ -175,7 +189,7 @@ class PodcastController extends Controller
         return $this->successResponse($podcasts->items(), $paginationData, 200);
     }
 
-/**
+    /**
      * Parses the date from the given input.
      * Supports both Y-m-d H:i:s and Y-m-d formats.
      * 
@@ -230,10 +244,10 @@ class PodcastController extends Controller
     }
 
 
-  
 
 
-   /**
+
+    /**
      * Обновить
      * 
      * Обновление подкаста
@@ -251,11 +265,11 @@ class PodcastController extends Controller
      */
     public function update(UpdatePodcastRequest $request, $id)
     {
-        try{
+        try {
 
             $podcast = Podcast::findOrFail($id);
 
-            if(!Auth::user()->can('update', $podcast)) {
+            if (!Auth::user()->can('update', $podcast)) {
                 throw new AccessDeniedHttpException('You do not have permission to update this podcast');
             }
 
@@ -266,10 +280,10 @@ class PodcastController extends Controller
             return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
         } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
             return $this->handleException($e);
-        } 
+        }
     }
 
-     /**
+    /**
      * Обновить
      * 
      * Обновление статуса подкаста
@@ -317,7 +331,7 @@ class PodcastController extends Controller
      */
     public function destroy($id)
     {
-        try{
+        try {
             $podcast = Podcast::findOrFail($id);
 
             // Проверка прав пользователя
@@ -328,7 +342,7 @@ class PodcastController extends Controller
             $podcast->delete();
 
             return $this->successResponse(['podcast' => $podcast], 'Podcast deleted successfully', 200);
-        }catch (Exception | ModelNotFoundException$e) {
+        } catch (Exception | ModelNotFoundException $e) {
             return $this->handleException($e);
         }
     }

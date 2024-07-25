@@ -62,6 +62,7 @@ class NewsController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -89,6 +90,8 @@ class NewsController extends Controller
 
         $updDate = $request->query('updDate');
         $crtDate = $request->query('crtDate');
+
+        $operator = $request->query('operator', 'and');
 
         $query = News::query();
 
@@ -119,10 +122,21 @@ class NewsController extends Controller
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    }
                 }
             }
         }

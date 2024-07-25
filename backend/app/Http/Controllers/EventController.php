@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Models\Project;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -207,32 +208,27 @@ class EventController extends Controller
     //Добавление мероприятия с привязкой к определенному проекту (если projectId указан в теле запроса) и без привязки к проекту (если projectId не указан)
     public function store(StoreEventRequest $request)
     {
-        try {
-            if (!Auth::user()->can('create', Event::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a event');
-            }
-
-            $projectId = $request->input('projectId');
-            Log::info('projectId: ' . $projectId);
-
-            $this->validateRequest($request, $request->rules());
-
-            $eventData = array_merge($request->validated(), [
-                'author_id' => Auth::id(),
-            ]);
-
-            // Если projectId передан, добавляем его в данные события
-            if ($projectId) {
-                $eventData['project_id'] = $projectId;
-            }
-
-            $event = Event::create($eventData);
-
-            return $this->successResponse(['events' => $event], 'Event created successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', Event::class)) {
+            return $this->errorResponse('You do not have permission to create an event', [], 403);
         }
+
+        $projectId = $request->input('projectId');
+
+        if ($projectId && !Project::find($projectId)) {
+            return $this->errorResponse('Project not found', [], 404);
+        }
+
+        $eventData = $request->validated() + [
+            'author_id' => Auth::id(),
+            'project_id' => $projectId,
+        ];
+
+        $event = Event::create($eventData);
+
+        return $this->successResponse(['events' => $event], 'Event created successfully', 200);
     }
+
+
 
 
     /**

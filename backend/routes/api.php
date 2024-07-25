@@ -194,7 +194,7 @@ Route::group([
     'prefix' => 'events'
 ], function () {
     Route::get('', [EventController::class, 'getEvents']);
-    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
+    Route::post('', [EventController::class, 'store']);
     Route::delete('{id}', [EventController::class, 'destroy']);
     Route::put('{id}', [EventController::class, 'update']);
 });

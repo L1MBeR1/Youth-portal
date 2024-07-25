@@ -25,6 +25,9 @@ class StoreEventRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string',
+            'start_time' => 'required|date_format:Y-m-d\TH:i:s',
+            'end_time' => 'required|date_format:Y-m-d\TH:i:s',
         ];
     }
+
 }

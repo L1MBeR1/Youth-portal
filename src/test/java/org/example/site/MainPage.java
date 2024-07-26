@@ -1,4 +1,4 @@
-package org.example;
+package org.example.site;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -15,7 +15,7 @@ public class MainPage {
     /**
      * определение локатора кнопки входа в аккаунт
      */
-    @FindBy(xpath = "//*[@id=\"root\"]/div/header/div/div[2]/a/button")
+    @FindBy(xpath = "//a[normalize-space()='']//button[@type='button']")
     private WebElement loginBtn;
     /**
      * определение локатора кнопки регистрации

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.site;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

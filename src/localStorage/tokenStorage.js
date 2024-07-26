@@ -1,27 +1,24 @@
-import {refresh} from '../api/authApi.js';
+import {jwtDecode} from 'jwt-decode';
 
-export const setToken = (token, hours=1) => {
-    const now = new Date();
-    const expiryTime = now.getTime() + hours  *60*60* 1000;
-    const tokenData = {
-      value: token,
-      expiry: expiryTime
-    };
-    localStorage.setItem('accessToken', JSON.stringify(tokenData));
-  };
-  
-  export const getToken = () => {
-    const tokenData = JSON.parse(localStorage.getItem('accessToken'));
-    const now = new Date();
-    if ((tokenData)&&(now.getTime() < tokenData.expiry)) {
-      return tokenData.value;
+export const setToken = (token) => {
+    if (token) {
+        localStorage.setItem('accessToken', token);
     }
-    else{
-      // refresh();
-      return null;
+};
+
+export const getToken = () => {
+    const token = localStorage.getItem('accessToken');
+    if (token && token !== 'undefined') {
+        const decoded = jwtDecode(token);
+        const currentTime = new Date().getTime() / 1000;
+
+        if (decoded && currentTime < decoded.exp) {
+            return token;
+        }
     }
-  };
-  
-  export const removeToken = () => {
+    return null;
+};
+
+export const removeToken = () => {
     localStorage.removeItem('accessToken');
-  };
+};

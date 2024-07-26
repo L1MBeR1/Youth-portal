@@ -24,7 +24,12 @@ import { CssVarsProvider } from '@mui/joy/styles';
 
 import { jwtDecode } from 'jwt-decode';
 import { getToken } from './localStorage/tokenStorage';
+import { getProfile } from './api/authApi';
 function App() {
+
+
+  console.log('PR', getProfile());
+
   const PrivateRoute = ({ element, roles }) => {
     const token = getToken();
     if (token) {
@@ -62,7 +67,7 @@ function App() {
           </Route>
 
           <Route path="/admin" element={<PrivateRoute element={<Admin />} roles={['admin']} />} />
-          <Route path="/moderator" element={<PrivateRoute element={<Moderator/>} roles={['moderator']}/>}/>
+          <Route path="/moderator" element={<PrivateRoute element={<Moderator />} roles={['moderator']} />} />
         </Routes>
       </Router>
     </CssVarsProvider>

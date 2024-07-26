@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
-
+use Illuminate\Support\Facades\Validator;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,21 +26,13 @@ class OrganizationController extends Controller
      * @authenticated
      * 
      */
-    public function store(Request $request)
+    public function store(StoreOrganizationRequest $request)
     {
-        if (!Auth::user()->can('create')) {
+        if (!Auth::user()->can('create', Organization::class)) {
             return $this->errorResponse('Нет прав', [], 403);
         }
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $input = $request->all();
-
-        $organization = new Organization($input);
-
-        $organization->save();
+        $organization = Organization::create($request->validated());  
 
         return $this->successResponse($organization, 'Организация создана', 201);
     }
@@ -232,29 +224,21 @@ class OrganizationController extends Controller
      * @bodyParam name string Название.
      * 
      */
-    public function update(Request $request, $id)
+    public function update(UpdateOrganizationRequest $request, $id)
     {
         $organization = Organization::find($id);
-
-
 
         if (!$organization) {
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
 
-        if (!Auth::user()->can('update')) {
+        if (!Auth::user()->can('update', $organization)) {
             return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
 
-        $this->validateRequest($request, [
-            'name' => 'nullable|string|max:255',
-        ]);
+        $validatedData = $request->validated();
 
-        $updateData = $request->only([
-            'title',
-        ]);
-
-        $organization->update($updateData);
+        $organization->update($validatedData);
 
         return $this->successResponse($organization, 'Запись успешно обновлена', Response::HTTP_OK);
     }

@@ -38,7 +38,19 @@ class UpdateNewsRequest extends FormRequest
             'views' => 'nullable|integer',
             'likes' => 'nullable|integer',
             'reposts' => 'nullable|integer',
-        ];
+        ]
+        ;
+    }
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::info('Validation failed: ', $validator->errors()->toArray());
+
+        $response = response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+
+        throw new \Illuminate\Http\Exceptions\HttpResponseException($response);
     }
 
 }

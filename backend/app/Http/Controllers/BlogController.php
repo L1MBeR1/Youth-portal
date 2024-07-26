@@ -7,7 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreBlogRequest;
+use App\Http\Requests\UpdateBlogRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BlogController extends Controller
@@ -261,29 +265,18 @@ class BlogController extends Controller
      * @authenticated
      * 
      */
-    public function store(Request $request)
+    public function store(StoreBlogRequest $request)
     {
-        if (!Auth::user()->can('create')) {
-            return $this->errorResponse('Нет прав', [], 403);
+        if (!Auth::user()->can('create', Blog::class)) {
+            return $this->errorResponse('Нет прав на создание блога', [], 403);
         }
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
-        ]);
+        $blog = Blog::create($request->validated() + [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]);     
 
-        $input = $request->all();
-        $input['status'] = 'moderating';
-
-        // Создаем новый блог
-        $blog = new Blog($input);
-        $blog->author_id = Auth::id(); // Устанавливаем автора блога как текущего пользователя
-
-        $blog->save();
-
-        return response()->json(['message' => 'Blog created successfully', 'blog' => $blog], 201);
+        return $this->successResponse(['blog' => $blog], 'Блог успешно создан', 200);
     }
 
 
@@ -304,48 +297,24 @@ class BlogController extends Controller
      * @bodyParam reposts int Количество репостов.
      * 
      */
-    public function update(Request $request, $id)
+    public function update (UpdateBlogRequest $request, $id)
     {
         $blog = Blog::find($id);
 
-
-
         if (!$blog) {
-            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
 
         if (!Auth::user()->can('update', $blog)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+            return $this->errorResponse('Нет прав на обновление блога', [], 403);
         }
 
-        $this->validateRequest($request, [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'content' => 'nullable|string',
-            'cover_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
-        ]);
+        $validatedData = $request->validated();
+        $blog->update($validatedData);
 
-        $updateData = $request->only([
-            'title',
-            'description',
-            'content',
-            'cover_uri',
-            'status',
-            'views',
-            'likes',
-            'reposts',
-        ]);
-
-
-
-        $blog->update($updateData);
-
-        return $this->successResponse($blog, 'Запись успешно обновлена', Response::HTTP_OK);
+        return $this->successResponse(['blog' => $blog], 'Блог успешно обновлен', 200);
     }
+    
 
     /**
      * Сменить статус
@@ -397,14 +366,12 @@ class BlogController extends Controller
         }
 
         if (!Auth::user()->can('delete', $blog)) {
-            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+            return $this->errorResponse('Нет прав на удаление блога', [], 403);
         }
-
-
 
         $blog->delete();
 
-        return $this->successResponse(null, 'Запись удалена', Response::HTTP_OK);
+        return $this->successResponse(null, 'Блог успешно удален', Response::HTTP_OK);
     }
 
     /**
@@ -419,24 +386,25 @@ class BlogController extends Controller
      */
     public function likeBlog(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            $blog = Blog::findOrFail($id);
-            $user = Auth::user();
-
-            $like = $blog->likes()->where('user_id', $user->id)->first();
-
-            if ($like) {
-                $like->delete();
-                $blog->decrement('likes');
-                return $this->successResponse(['blogs' => $blog], 'Blog unliked successfully', 200);
-            } else {
-                $blog->likes()->create(['user_id' => $user->id]);
-                $blog->increment('likes');
-            }
-
-            return $this->successResponse(['blogs' => $blog], 'Blog liked successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
+        $blog = Blog::find($id);
+    
+        if (!$blog) {
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
+
+        $user = Auth::user();
+
+        $like = $blog->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            $like->delete();
+            $blog->decrement('likes');
+            return $this->successResponse(['blogs' => $blog], 'Лайк на блог успешно отменен', 200);
+        } else {
+            $blog->likes()->create(['user_id' => $user->id]);
+            $blog->increment('likes');
+        }
+
+        return $this->successResponse(['blogs' => $blog], 'Блог успешно лайкнут', 200);
     }
 }

@@ -20,6 +20,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    //TODO Удалить после изменения валидации в AuthController и UserController
     protected function validateRequest(Request $request, array $rules)
     {
         Log::info('error val');

@@ -32,7 +32,7 @@ use App\Models\Organization;
 
 // Аутентификация
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'auth'
 ], function ($router) {
     Route::post('register', [AuthController::class, 'register']);

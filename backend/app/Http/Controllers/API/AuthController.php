@@ -131,36 +131,6 @@ class AuthController extends Controller
 
 
     /**
-     * sent_test_message
-     * 
-     * @group Авторизация
-     * @bodyParam email string required email
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // public function sendMessage(Request $request)
-    // {
-    //     $validatedData = $request->validate([
-    //         'email' => 'required|email',
-    //     ]);
-
-    //     $email = $validatedData['email'];
-
-    //     $user = User::where('email', $email)->first();
-
-    //     if (!$user) {
-    //         return response()->json(['error' => 'User not found.'], 404);
-    //     }
-
-    //     Mail::to($user->email)->send(new EmailVerification($user));
-
-    //     return response()->json(['message' => 'Message sent successfully.']);
-    // }
-
-
-
-    /**
      * Подтверждение почты
      * 
      * @group Авторизация
@@ -213,18 +183,10 @@ class AuthController extends Controller
 
 
 
+
     /**
      * Генерация уникального токена для запоминания пользователя
      */
-    // protected function generateRefreshToken($user)
-    // {
-    //     $refreshToken = $this->uuidv4();
-    //     $user->remember_token = $refreshToken;
-    //     $user->save();
-
-    //     return $refreshToken;
-    // }
-
     protected function generateRefreshToken($user, $ttl = 7 * 24 * 60 * 60)
     {
         $uuid = (string) Str::uuid();
@@ -253,53 +215,12 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    // public function refresh(Request $request)
-    // {
-    //     $request->validate([
-    //         'refresh_token' => 'required|string'
-    //     ]);
+ 
 
-    //     $user = User::where('remember_token', $request->refresh_token)->first();
 
-    //     if (!$user) {
-    //         return $this->errorResponse('Invalid refresh token', [], 401);
-    //     }
-
-    //     Auth::login($user);
-
-    //     $newToken = Auth::refresh();
-    //     $newRefreshToken = $this->generateRefreshToken($user);
-
-    //     return $this->respondWithToken($newToken, $newRefreshToken);
-    // }
-
-    // public function refresh(Request $request)
-    // {
-    //     $request->validate([
-    //         'refresh_token' => 'required|string'
-    //     ]);
-
-    //     $decodedToken = base64_decode($request->refresh_token);
-    //     list($uuid, $expiresAt) = explode('.', $decodedToken);
-
-    //     if (now()->timestamp > $expiresAt) {
-    //         return $this->errorResponse('Refresh token has expired', [], 401);
-    //     }
-
-    //     $user = User::where('remember_token', $request->refresh_token)->first();
-    //     if (!$user) {
-    //         return $this->errorResponse('Invalid refresh token', [], 401);
-    //     }
-
-    //     Auth::login($user);
-
-    //     $newToken = Auth::refresh();
-    //     $newRefreshToken = $this->generateRefreshToken($user);
-
-    //     return $this->respondWithToken($newToken, $newRefreshToken);
-    // }
     public function refresh(Request $request)
     {
+        Log::info('\n\n');
         $refreshToken = $request->cookie('refresh_token');
 
         if (!$refreshToken) {
@@ -419,6 +340,7 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
+            if (!$user) return $this->errorResponse('Неверные данные',[],400);
             $metadata = $user->metadata;
 
             return $this->successResponse($metadata, 'Profile retrieved successfully.');
@@ -438,20 +360,11 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    // public function logout()
-    // {
-    //     try {
-    //         $user = Auth::user();
-    //         $user->remember_token = null;
-    //         $user->save();
 
-    //         Auth::logout();
 
-    //         return $this->successResponse([], 'Successfully logged out.');
-    //     } catch (Exception $e) {
-    //         return $this->handleException($e);
-    //     }
-    // }
+
+
+
     public function logout()
     {
         try {
@@ -480,14 +393,6 @@ class AuthController extends Controller
      * @param  string $token
      * @return \Illuminate\Http\JsonResponse
      */
-    // protected function respondWithToken($token, $refreshToken = null)
-    // {
-    //     return response()->json([
-    //         'access_token' => $token,
-    //         'refresh_token' => $refreshToken,
-    //         'token_type' => 'bearer',
-    //     ]);
-    // }
     protected function respondWithToken($token, $refreshToken = null)
     {
         $response = response()->json([

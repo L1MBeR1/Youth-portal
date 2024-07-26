@@ -8,53 +8,86 @@ use Spatie\Permission\Models\Permission;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    //TODO: Сделать для всех ролей список разрешений
     public function run()
     {
         $roles = [
             'su' => [
-                'manage users',
-                'manage admins',
-                'manage roles',
+                'manage users',                // управление пользователями
+                'manage admins',               // управление администраторами
+                'manage roles',                // управление ролями
+                'manage permissions',          // управление разрешениями
+                'view all logs',               // просмотр всех логов
+                'manage system settings',      // управление системными настройками
+                'impersonate users',           // вход от имени другого пользователя
+                'view financial reports',      // просмотр финансовых отчетов
+                'delete any post',             // удаление любого поста
+                'restore deleted posts',       // восстановление удаленных постов
             ],
             'admin' => [
-                'manage posts',
-                'manage comments',
-                'block/unblock users',
-                'edit own news',
+                'manage posts',                // управление постами
+                'manage comments',             // управление комментариями
+                'block/unblock users',         // блокировка/разблокировка пользователей
+                'edit own news',               // редактирование собственных новостей
+                'delete any comment',          // удаление любого комментария
+                'view user profiles',          // просмотр профилей пользователей
+                'view site analytics',         // просмотр аналитики сайта
+                'manage categories',           // управление категориями
+                'manage tags',                 // управление тегами
+                'view reports',                // просмотр отчетов
             ],
             'blogger' => [
-                'view posts',
-                'create posts',
-                'edit own posts',
-                'delete own posts',
-                'comment posts',
-                'edit own profile',
-                'edit news',
+                'view posts',                  // просмотр постов
+                'create posts',                // создание постов
+                'edit own posts',              // редактирование собственных постов
+                'delete own posts',            // удаление собственных постов
+                'comment posts',               // комментирование постов
+                'edit own profile',            // редактирование собственного профиля
+                'edit news',                   // редактирование новостей
+                'view analytics for own posts',// просмотр аналитики собственных постов
+                'upload media',                // загрузка медиафайлов
             ],
             'guest' => [
-                'view posts',
+                'view posts',                  // просмотр постов
+                'view public comments',        // просмотр опубликованных комментариев
             ],
-            'organization' => [
-                'view posts',
-                'comment posts',
+            'organization' => [ 
+                'view posts',                  // просмотр постов
+                'comment posts',               // комментирование постов
+                'view organization profile',   // просмотр профиля организации
+                'edit organization profile',   // редактирование профиля организации
+                'create organization events',  // создание событий организации
             ],
-            'news_creator' => [
-                'view posts',
-                'comment posts',
-                'edit own news'
+            'news_creator' => [ 
+                'view posts',                  // просмотр постов
+                'comment posts',               // комментирование постов
+                'edit own news',               // редактирование собственных новостей
+                'create news',                 // создание новостей
+                'delete own news',             // удаление собственных новостей
+                'view news analytics',         // просмотр аналитики новостей
             ],
-            'user' => [
-                'view posts',
-                'comment posts',
+            'user' => [ 
+                'view posts',                  // просмотр постов
+                'comment posts',               // комментирование постов
+                'create own profile',          // создание собственного профиля
+                'edit own profile',            // редактирование собственного профиля
+                'send messages',               // отправка сообщений
+                'like posts',                  // лайк постов
+                'follow users',                // подписка на пользователей
+                'report posts',                // жалоба на посты
             ],
             'moderator' => [
-                'view posts',
-                'comment posts',
-                'edit own profile',
-                'edit news',
+                'view posts',                  // просмотр постов
+                'comment posts',               // комментирование постов
+                'edit own profile',            // редактирование собственного профиля
+                'edit news',                   // редактирование новостей
+                'approve posts',               // утверждение постов
+                'remove offensive comments',   // удаление оскорбительных комментариев
+                'block users',                 // блокировать пользователей
+                'view reports',                // просмотр отчетов
+                'resolve reports',             // разрешение отчетов
             ]
         ];
+
 
         $createdPermissions = [];
 

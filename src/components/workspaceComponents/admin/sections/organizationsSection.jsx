@@ -46,80 +46,91 @@ function OrganizationsSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setFromDate] = useState('');
-  const [bdTo, setToDate] = useState('');
+
+  const [crtFrom, setСrtFrom] = useState('');
+  const [crtTo, setСrtTo] = useState('');
+  
+  const [updFrom, setUpdFrom] = useState('');
+  const [updTo, setUpdTo] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const searchFields= ['name'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: moderators, isLoading, refetch  } = useOrganizations(['admin/organizations'],['admin'],setLastPage, 
+  const { data: organizations, isLoading, refetch  } = useOrganizations(['admin/organizations'],['service'],setLastPage, 
     { 
       page: page,
-    //   searchFields: searchFields,
-    //   searchValues: searchValues,
-      // crtFrom:crtFrom,
-      // crtTo:crtTo,
-      // updFrom:updFrom,
-      // updTo:updTo,
-    //   operator:'or',
+      searchFields: searchFields,
+      searchValues: searchValues,
+      crtFrom:crtFrom,
+      crtTo:crtTo,
+      updFrom:updFrom,
+      updTo:updTo,
+      operator:'or',
     });
-  const addNewModerator = async (email) => {
-    const token = getCookie('token');
-    const response = await addModerator(token, email)
-    if (response) {
-      console.log(response);
-      refetch()
-    }
-  };
+  // const addNewModerator = async (email) => {
+  //   const token = getCookie('token');
+  //   const response = await addModerator(token, email)
+  //   if (response) {
+  //     console.log(response);
+  //     refetch()
+  //   }
+  // };
   
-  const delModerator = async (confirmed) => {
-    if (confirmed) {
-      const token = getCookie('token');
-      const response = await deleteModerator(token, deleteId)
-      if (response) {
-        console.log(response);
-        setIsSuccess(true);
-        refetch()
-      }
-    }
-  };
+  // const delModerator = async (confirmed) => {
+  //   if (confirmed) {
+  //     const token = getCookie('token');
+  //     const response = await deleteModerator(token, deleteId)
+  //     if (response) {
+  //       console.log(response);
+  //       setIsSuccess(true);
+  //       refetch()
+  //     }
+  //   }
+  // };
   
 
-  const RowMenu = ({id}) => {
-    const handleRowDelete = (id) => {
-      setDeleteId(id);
-      setOpenDeleteModal(true);
-    };
-    return (
-      <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-        >
-          <MoreVertIcon />
-        </MenuButton>
-        <Menu size="sm" placement="bottom-end">
-          <MenuItem disabled onClick={() => setOpenModerator(true)}>Подробнее</MenuItem>
-          <ListDivider />
-          <MenuItem variant="soft" color="danger" onClick={() => handleRowDelete(id)}>
-            <ListItemDecorator sx={{ color: 'inherit' }}>
-              <DeleteIcon />
-            </ListItemDecorator>{' '}
-            Удалить
-          </MenuItem>
-        </Menu>
-      </Dropdown>
-    );
-  };
+  // const RowMenu = ({id}) => {
+  //   const handleRowDelete = (id) => {
+  //     setDeleteId(id);
+  //     setOpenDeleteModal(true);
+  //   };
+  //   return (
+  //     <Dropdown>
+  //       <MenuButton
+  //         slots={{ root: IconButton }}
+  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+  //       >
+  //         <MoreVertIcon />
+  //       </MenuButton>
+  //       <Menu size="sm" placement="bottom-end">
+  //         <MenuItem disabled onClick={() => setOpenModerator(true)}>Подробнее</MenuItem>
+  //         <ListDivider />
+  //         <MenuItem variant="soft" color="danger" onClick={() => handleRowDelete(id)}>
+  //           <ListItemDecorator sx={{ color: 'inherit' }}>
+  //             <DeleteIcon />
+  //           </ListItemDecorator>{' '}
+  //           Удалить
+  //         </MenuItem>
+  //       </Menu>
+  //     </Dropdown>
+  //   );
+  // };
   const renderFilters = () => (
     <>
       <DatePopOver
-        label={'Дата рождения'}
-        fromDate={bdFrom}
-        toDate={bdTo}
-        setFromDate={setFromDate}
-        setToDate={setToDate}
-      />  
+      label={'Дата создания'}
+      fromDate={crtFrom}
+      toDate={crtTo}
+      setFromDate={setСrtFrom}
+      setToDate={setСrtTo}
+      />
+      <DatePopOver
+      label={'Дата обновления'}
+      fromDate={updFrom}
+      toDate={updTo}
+      setFromDate={setUpdFrom}
+      setToDate={setUpdTo}
+      /> 
     </>
   );
 
@@ -134,30 +145,29 @@ function OrganizationsSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setСrtTo('');
+    setСrtFrom('');
+    setUpdTo('');
+    setUpdFrom('');
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
-    { field: 'avatar', width: '70px' ,render: (item) => <Avatar variant='outlined' src={item.profile_image_uri}/>},
-    { field: 'fullName', headerName: 'ФИО', width: '140px',render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic},
-    { field: 'nickname', headerName: 'Никнейм', width: '100px' },
-    { field: 'email', headerName: 'Почта', width: '140px' },
-    { field: 'gender', headerName: 'Пол', width: '100px' },
-    { field: 'birthday', headerName: 'День рождения', width: '90px', render: (item) => new Date(item.birthday).toLocaleDateString() },
-    { field: 'menu', width: '50px', render: (item) => <RowMenu id={item.id}/>},
+    { field: 'name', headerName: 'Название', width: '140px'},
+    { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'updated_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.updated_at).toLocaleDateString() },
   ];
 
   return (
     <> 
-      <SuccessNotification
+      {/* <SuccessNotification
       open={isSuccess} message={'Модератор успешно удалён'} setOpen={setIsSuccess}
       />
       <WarningModal
@@ -165,7 +175,7 @@ function OrganizationsSection() {
       onConfirm={delModerator}
       open={openDeleteModal}
       setOpen={setOpenDeleteModal}
-      />
+      /> */}
       <Typography  fontWeight={700} fontSize={30}>
            Организации
       </Typography>
@@ -204,9 +214,6 @@ function OrganizationsSection() {
         >
           <SearchOffIcon />
         </IconButton>
-        <AddModeratorModal
-        func={addNewModerator}
-        />
       </Box>
       {isLoading?(
         <>
@@ -227,18 +234,14 @@ function OrganizationsSection() {
       >
         <CustomTable 
         columns={columns} 
-        data={moderators}
-        RowMenu={RowMenu}
+        data={organizations}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        data={moderators}
-        colMenu={'menu'}
-        colAvatar={'avatar'}
-        colTitle={'fullName'}
-        colAuthor={'email'}
-        colDate={'birthday'}
+        data={organizations}
+        colTitle={'name'}
+        colDate={'created_at'}
         />
         </>
       )}

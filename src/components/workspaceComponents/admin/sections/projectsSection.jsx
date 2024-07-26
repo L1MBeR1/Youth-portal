@@ -46,7 +46,7 @@ function ProjectsSection() {
   const [filtersCleared, setFiltersCleared] = useState(false);
   const searchFields= ['name','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: projects, isLoading, refetch  } = useProjects(['admin/projects'],['admin'], setLastPage, 
+  const { data: projects, isLoading, refetch  } = useProjects(['admin/projects'],['service'], setLastPage, 
     {
       withAuthors: true,
       page: page,

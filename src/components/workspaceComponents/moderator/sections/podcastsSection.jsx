@@ -54,7 +54,7 @@ function PodcastsSection() {
   const [filtersCleared, setFiltersCleared] = useState(false);
   const searchFields= ['title','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: podcasts, isLoading, refetch  } = usePodcasts(['moderator/podcasts'],['admin'],setLastPage, 
+  const { data: podcasts, isLoading, refetch  } = usePodcasts(['moderator/podcasts'],['service'],setLastPage, 
     {
       withAuthors: true,
       page: page,

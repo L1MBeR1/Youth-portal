@@ -52,7 +52,7 @@ function BlogersSection() {
   const [filtersCleared, setFiltersCleared] = useState(false);
   const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
   const [searchValues, setSearchValues] = useState([]);
-  const { data: bloggers, isLoading, refetch  } = useModerators(['admin/bloggers'],['service'],setLastPage, 
+  const { data: bloggers, isLoading, refetch  } = useModerators(['su/bloggers'],['service'],setLastPage, 
     { 
       role_name:'blogger',
       page: page,

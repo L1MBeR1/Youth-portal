@@ -18,7 +18,7 @@ const queryClient = useQueryClient();
       console.log('Удаление кэша админа');
       queryClient.removeQueries({
         predicate: (query) => {
-          return query.meta?.tags?.includes('admin');
+          return query.meta?.tags?.includes('service');
         },
       });
     };

@@ -18,6 +18,7 @@ import CircularProgress from '@mui/joy/CircularProgress';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profile-blank.png'
 
@@ -42,7 +43,7 @@ const profileMenu=()=>{
             <Avatar size="sm" src={profileData.profile_image_uri || profileBlank} />
           </MenuButton>
           <Menu size="sm" placement="bottom-end">
-            <MenuItem>
+            <MenuItem component={Link} to="/profile">
               <PersonIcon />
               Профиль
             </MenuItem>
@@ -61,6 +62,10 @@ const profileMenu=()=>{
                 Панель модератора
               </MenuItem>
             )}
+            <MenuItem>
+              <SettingsIcon />
+              Настройки
+            </MenuItem>
             <ListDivider />
             <MenuItem
               onClick={handleLogout}

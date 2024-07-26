@@ -54,7 +54,7 @@ function BlogsSection() {
   const searchFields= ['title','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
 
-  const { data: blogs, isLoading, refetch  } = useBlogs(['moderator/blogs'],['admin'],setLastPage, 
+  const { data: blogs, isLoading, refetch  } = useBlogs(['moderator/blogs'],['service'],setLastPage, 
     {
       withAuthors: true,
       page: page,

@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
+import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
+import Button from '@mui/joy/Button';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import ModalClose from '@mui/joy/ModalClose';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
 import Sheet from '@mui/joy/Sheet';
-import Button from '@mui/joy/Button';
+import ListDivider from '@mui/joy/ListDivider';
+import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
@@ -20,39 +18,46 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import EditIcon from '@mui/icons-material/Edit';
 
 import CustomTable from '../../shared/workSpaceTable.jsx';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
-import useEvents from '../../../../hooks/useEvents.js';
 
+import WarningModal from '../../shared/modals/warningModal.jsx';
+import AddModeratorModal from '../../shared/modals/addRoleModal.jsx';
+import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
+import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
+import { getCookie } from '../../../../cookie/cookieUtils.js';
+import useOrganizations from '../../../../hooks/useOrganizations.js';
 
-function EventsSection() {
-  const [openEvents, setOpenEvents] = useState(false);
+
+function OrganizationsSection() {
+  const [openModerator, setOpenModerator] = useState(false);
+
+  const [deleteId, setDeleteId] = useState();
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
+
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [crtFrom, setСrtFrom] = useState('');
   const [crtTo, setСrtTo] = useState('');
   
   const [updFrom, setUpdFrom] = useState('');
   const [updTo, setUpdTo] = useState('');
 
-  const [status, setStatus] = useState('');
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const searchFields= ['name','first_name','last_name','patronymic','nickname'];
+  const searchFields= ['name'];
   const [searchValues, setSearchValues] = useState([]);
-
-  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['service'], setLastPage, 
-    {
-      withAuthors: true,
+  const { data: organizations, isLoading, refetch  } = useOrganizations(['su/organizations'],['service'],setLastPage, 
+    { 
       page: page,
       searchFields: searchFields,
       searchValues: searchValues,
@@ -62,7 +67,54 @@ function EventsSection() {
       updTo:updTo,
       operator:'or',
     });
+  // const addNewModerator = async (email) => {
+  //   const token = getCookie('token');
+  //   const response = await addModerator(token, email)
+  //   if (response) {
+  //     console.log(response);
+  //     refetch()
+  //   }
+  // };
+  
+  // const delModerator = async (confirmed) => {
+  //   if (confirmed) {
+  //     const token = getCookie('token');
+  //     const response = await deleteModerator(token, deleteId)
+  //     if (response) {
+  //       console.log(response);
+  //       setIsSuccess(true);
+  //       refetch()
+  //     }
+  //   }
+  // };
+  
 
+  // const RowMenu = ({id}) => {
+  //   const handleRowDelete = (id) => {
+  //     setDeleteId(id);
+  //     setOpenDeleteModal(true);
+  //   };
+  //   return (
+  //     <Dropdown>
+  //       <MenuButton
+  //         slots={{ root: IconButton }}
+  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+  //       >
+  //         <MoreVertIcon />
+  //       </MenuButton>
+  //       <Menu size="sm" placement="bottom-end">
+  //         <MenuItem disabled onClick={() => setOpenModerator(true)}>Подробнее</MenuItem>
+  //         <ListDivider />
+  //         <MenuItem variant="soft" color="danger" onClick={() => handleRowDelete(id)}>
+  //           <ListItemDecorator sx={{ color: 'inherit' }}>
+  //             <DeleteIcon />
+  //           </ListItemDecorator>{' '}
+  //           Удалить
+  //         </MenuItem>
+  //       </Menu>
+  //     </Dropdown>
+  //   );
+  // };
   const renderFilters = () => (
     <>
       <DatePopOver
@@ -78,29 +130,14 @@ function EventsSection() {
       toDate={updTo}
       setFromDate={setUpdFrom}
       setToDate={setUpdTo}
-      />
+      /> 
     </>
   );
+
   useEffect(() => {
     refetch();
   }, [page,refetch]);
-
-  // function RowMenu() {
-  //   return (
-  //     <Dropdown>
-  //       <MenuButton
-  //         slots={{ root: IconButton }}
-  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-  //       >
-  //         <MoreVertIcon />
-  //       </MenuButton>
-  //       <Menu size="sm" sx={{ minWidth: 140 }}>
-  //         <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
-  //         <MenuItem>Изменить</MenuItem>
-  //       </Menu>
-  //     </Dropdown>
-  //   );
-  // }
+  
   useEffect(() => {
     if (filtersCleared) {
       refetch();
@@ -122,46 +159,25 @@ function EventsSection() {
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: '60px' },
+    { field: 'id', headerName: 'ID', width: '80px' },
     { field: 'name', headerName: 'Название', width: '140px'},
-    { field: 'description', headerName: 'Описание', width: '200px', render: (item) => item.description.desc },
-    { field: 'author',headerName: 'Организатор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
-    { field: 'location', headerName: 'Адрес', width: '200px' },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
     { field: 'updated_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.updated_at).toLocaleDateString() },
-    { field: 'start_time', headerName: 'Дата начала', width: '90px', render: (item) => new Date(item.start_time).toLocaleDateString() },
   ];
 
   return (
     <> 
-        <Modal
-        aria-labelledby="close-modal-title"
-        open={openEvents}
-        onClose={() => {
-          setOpenEvents(false);
-        }}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <ModalDialog>
-          <EditIcon/>
-          <ModalClose variant="outlined" />
-          <Typography
-            component="h2"
-            id="close-modal-title"
-            level="h4"
-            textColor="inherit"
-            fontWeight="lg"
-          >
-            Modal title
-          </Typography>
-          </ModalDialog>
-      </Modal>
+      {/* <SuccessNotification
+      open={isSuccess} message={'Модератор успешно удалён'} setOpen={setIsSuccess}
+      />
+      <WarningModal
+      message={`Вы действительно хотите удалить модератора с ID: ${deleteId}?`}
+      onConfirm={delModerator}
+      open={openDeleteModal}
+      setOpen={setOpenDeleteModal}
+      /> */}
       <Typography  fontWeight={700} fontSize={30}>
-           Мероприятия
+           Организации
       </Typography>
       <Box
         sx={{
@@ -173,7 +189,7 @@ function EventsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по названию или организатору</FormLabel>
+          <FormLabel>Поиск по почте или ФИО</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -183,6 +199,7 @@ function EventsSection() {
           />
         </FormControl>
         {renderFilters()}
+
         <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
         onClick={()=>applyFilters()}
         >
@@ -204,7 +221,8 @@ function EventsSection() {
 
       ):(
         <>
-      <Sheet
+        <Sheet
+        className="OrderTableContainer"
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'flex' },
@@ -216,23 +234,21 @@ function EventsSection() {
       >
         <CustomTable 
         columns={columns} 
-        data={events}
+        data={organizations}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        data={events}
-        // rowMenu={RowMenu()}
+        data={organizations}
         colTitle={'name'}
-        colAuthor={'author'}
-        colDescription={'description'}
-        colDate={'start_time'}
+        colDate={'created_at'}
         />
         </>
       )}
+      
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );
 }
 
-export default EventsSection;
+export default OrganizationsSection;

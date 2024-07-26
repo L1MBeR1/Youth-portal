@@ -50,9 +50,12 @@ function LoginForm() {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {
           navigate('/moderator');
+        } else if (decoded.roles.includes('su')) {
+          navigate('/su');
         } else {
           navigate('/');
         }
+        
       }
       setIsLoading(false);
     } catch (error) {

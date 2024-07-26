@@ -26,16 +26,16 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
 import WarningModal from '../../shared/modals/warningModal.jsx';
-import AddModeratorModal from '../../shared/modals/addRoleModal.jsx';
+import AddRoleModal from '../../shared/modals/addRoleModal.jsx';
 import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
+import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
 import { getToken } from '../../../../localStorage/tokenStorage.js';
 import useModerators from '../../../../hooks/useModerators.js';
 
 
-function BlogersSection() {
+function ModeratorsSection() {
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -46,37 +46,35 @@ function BlogersSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setFromDate] = useState('');
-  const [bdTo, setToDate] = useState('');
+  const [bdFrom, setBdFrom] = useState('');
+  const [bdTo, setBdTo] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const searchFields =['email','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: bloggers, isLoading, refetch  } = useModerators(['admin/bloggers'],['service'],setLastPage, 
+  const { data: moderators, isLoading, refetch  } = useModerators(['su/moderators'],['service'],setLastPage, 
     { 
-      role_name:'blogger',
+      role_name:'moderator',
       page: page,
       searchFields: searchFields,
       searchValues: searchValues,
-      // crtFrom:crtFrom,
-      // crtTo:crtTo,
-      // updFrom:updFrom,
-      // updTo:updTo,
+      bdTo:bdTo,
+      bdFrom:bdFrom,
       operator:'or',
     });
-  const addNewBlogger = async (email) => {
+  const addNewModerator = async (email) => {
     const token = getToken();
-    const response = await addBlogger(token, email)
+    const response = await addModerator(token, email)
     if (response) {
       console.log(response);
       refetch()
     }
   };
   
-  const delBlogger = async (confirmed) => {
+  const delModerator = async (confirmed) => {
     if (confirmed) {
       const token = getToken();
-      const response = await deleteBlogger(token, deleteId)
+      const response = await deleteModerator(token, deleteId)
       if (response) {
         console.log(response);
         setIsSuccess(true);
@@ -118,8 +116,8 @@ function BlogersSection() {
         label={'Дата рождения'}
         fromDate={bdFrom}
         toDate={bdTo}
-        setFromDate={setFromDate}
-        setToDate={setToDate}
+        setFromDate={setBdFrom}
+        setToDate={setBdTo}
       />  
     </>
   );
@@ -135,16 +133,16 @@ function BlogersSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setBdFrom('');
+    setBdTo('')
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
-
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
     { field: 'avatar', width: '70px' ,render: (item) => <Avatar variant='outlined' src={item.profile_image_uri}/>},
@@ -163,12 +161,12 @@ function BlogersSection() {
       />
       <WarningModal
       message={`Вы действительно хотите удалить модератора с ID: ${deleteId}?`}
-      onConfirm={delBlogger}
+      onConfirm={delModerator}
       open={openDeleteModal}
       setOpen={setOpenDeleteModal}
       />
       <Typography  fontWeight={700} fontSize={30}>
-           Блогеры
+           Модераторы
       </Typography>
       <Box
         sx={{
@@ -180,7 +178,7 @@ function BlogersSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по почте или ФИО</FormLabel>
+          <FormLabel>Поиск</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -205,11 +203,11 @@ function BlogersSection() {
         >
           <SearchOffIcon />
         </IconButton>
-        <AddModeratorModal
-        label={'Добавление блогера'}
-        func={addNewBlogger}
-        message={'Вы точно хотите добавить блогера с почтой: '}
-        successMessage={'Блогер успешно добавлен'}
+        <AddRoleModal
+        label={'Добавление модератора'}
+        func={addNewModerator}
+        message={'Вы точно хотите добавить модератора с почтой: '}
+        successMessage={'Модератор успешно добавлен'}
         />
       </Box>
       {isLoading?(
@@ -231,13 +229,13 @@ function BlogersSection() {
       >
         <CustomTable 
         columns={columns} 
-        data={bloggers}
+        data={moderators}
         RowMenu={RowMenu}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        data={bloggers}
+        data={moderators}
         colMenu={'menu'}
         colAvatar={'avatar'}
         colTitle={'fullName'}
@@ -252,4 +250,4 @@ function BlogersSection() {
   );
 }
 
-export default BlogersSection;
+export default ModeratorsSection;

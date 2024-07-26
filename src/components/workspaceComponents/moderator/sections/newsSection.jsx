@@ -58,7 +58,7 @@ function NewsSection() {
   const [filtersCleared, setFiltersCleared] = useState(false);
   const searchFields= ['title','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: news, isLoading, refetch  } = useNews(['moderator/news'],['admin'], setLastPage, 
+  const { data: news, isLoading, refetch  } = useNews(['moderator/news'],['service'], setLastPage, 
     {
       withAuthors: true,
       page: page,

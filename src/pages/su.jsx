@@ -4,18 +4,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import Stack from '@mui/joy/Stack';
 
 import Header from '../components/workspaceComponents/shared/workSpaceHeader';
-import ModeratorSidebar from '../components/workspaceComponents/moderator/moderatorSidebar'
-import ModeratorMain from '../components/workspaceComponents/moderator/moderatorMain';
-function Moderator() {
+import SuMain from '../components/workspaceComponents/superUser/suMain'
+import SuSidebar from '../components/workspaceComponents/superUser/suSidebar';
+function Admin() {
 
-const [section, setSection] = useState('blogs');
+const [section, setSection] = useState('moderators');
 const [open, setOpen] = useState(false);
 
 const queryClient = useQueryClient();
 
   useEffect(() => {
     return () => {
-      console.log('Удаление кэша модератора');
+      console.log('Удаление кэша админа');
       queryClient.removeQueries({
         predicate: (query) => {
           return query.meta?.tags?.includes('service');
@@ -42,17 +42,17 @@ const queryClient = useQueryClient();
             overflow:'hidden',
             }}
             >
-            <ModeratorSidebar
+            <SuSidebar
             selectedSection={section} 
             setSection={setSection}
             open={open}
             setOpen={setOpen}
             />
-            <ModeratorMain section={section}/>
+            <SuMain section={section}/>
         </Stack>
       </main>
     </Stack>
   );
 }
 
-export default Moderator;
+export default Admin;

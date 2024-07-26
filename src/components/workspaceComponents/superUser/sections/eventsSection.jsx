@@ -50,7 +50,7 @@ function EventsSection() {
   const searchFields= ['name','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
 
-  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['service'], setLastPage, 
+  const { data: events, isLoading, refetch  } = useEvents(['su/events'],['service'], setLastPage, 
     {
       withAuthors: true,
       page: page,

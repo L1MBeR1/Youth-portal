@@ -52,8 +52,12 @@ function SuccessNotification({ open, setOpen, message }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         sx={{ p: 0 }}
       >
-        <Stack direction="column" justifyContent="flex-start" alignItems="stretch" spacing={0}>
-          <Stack direction="row" justifyContent="flex-start" alignItems="center" gap={2} p={1}>
+        <Stack direction="column"  alignItems="stretch" spacing={0}
+        sx={{
+          width:'100%'
+        }}
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2} p={1}>
             <PlaylistAddCheckCircleRoundedIcon />
             {message}
             <IconButton onClick={() => handleClose()} size="sm" variant="soft" color="success">

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { setCookie} from '../../cookie/cookieUtils.js';
+import { setToken} from '../../localStorage/tokenStorage.js'
+
 import { useQueryClient } from '@tanstack/react-query';
 
-import { login,getProfile} from '../../api/authApi.js';
+import { login,refresh} from '../../api/authApi.js';
+import useProfile from '../../hooks/useProfile.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
@@ -22,7 +25,6 @@ import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import {jwtDecode} from 'jwt-decode';
 
 function LoginForm() {
-  const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -30,25 +32,30 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  // const queryClient = useQueryClient();
 
   const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
     try {
       const data = await login(email, password);
+      console.log(data)
       const token = data.access_token;
       if (token) {
-        setCookie('token',token,2);
-        const profileData = await getProfile(token);
-        queryClient.setQueryData(['profile'], profileData.data);
+        setToken(token)
         const decoded = jwtDecode(token);
+        // await refresh();
+        // await queryClient.prefetchQuery(useProfile.queryKey, useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {
           navigate('/moderator');
+        } else if (decoded.roles.includes('su')) {
+          navigate('/su');
         } else {
           navigate('/');
         }
+        
       }
       setIsLoading(false);
     } catch (error) {

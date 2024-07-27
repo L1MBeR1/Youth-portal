@@ -25,6 +25,7 @@ import DesignServicesIcon from '@mui/icons-material/DesignServices';
 import PublishIcon from '@mui/icons-material/Publish';
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ArticleIcon from '@mui/icons-material/Article';
 
 function Toggler({ defaultExpanded = false, renderToggle, children }) {
   const [open, setOpen] = useState(defaultExpanded);
@@ -83,9 +84,10 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
+        minWidth:'200px'
       }}
       >
-        <Input size="sm" startDecorator={<SearchRoundedIcon />} placeholder="Search" />
+        <Typography level="h4">Администратор</Typography>
          <List
           size="sm"
           sx={{
@@ -94,19 +96,27 @@ function AdminSidebar({selectedSection, setSection,setOpen,open} ) {
             '--ListItem-radius': (theme) => theme.vars.radius.sm,
           }}
         >
-            <ListItem>
+            {/* <ListItem>
             <ListItemButton selected={selectedSection === 'statistics'} onClick={() => handleSetSection('statistics')}>
                 <BarChartIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Статистика</Typography>
                 </ListItemContent>
             </ListItemButton>
-            </ListItem>
+            </ListItem> */}
             <ListItem>
             <ListItemButton selected={selectedSection === 'moderators'} onClick={() => handleSetSection('moderators')}>
                 <ShieldIcon />
                 <ListItemContent>
                 <Typography level="title-sm">Модераторы</Typography>
+                </ListItemContent>
+            </ListItemButton>
+            </ListItem>
+            <ListItem>
+            <ListItemButton selected={selectedSection === 'bloggers'} onClick={() => handleSetSection('bloggers')}>
+                <ArticleIcon />
+                <ListItemContent>
+                <Typography level="title-sm">Блогеры</Typography>
                 </ListItemContent>
             </ListItemButton>
             </ListItem>

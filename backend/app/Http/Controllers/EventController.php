@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Models\Project;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -42,6 +43,7 @@ class EventController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -70,6 +72,8 @@ class EventController extends Controller
         $updDate = $request->query('updDate');
         $crtDate = $request->query('crtDate');
 
+        $operator = $request->query('operator', 'and');
+
         $query = Event::query();
 
         if ($withAuthors) {
@@ -92,13 +96,28 @@ class EventController extends Controller
             }
         } elseif ($eventId) {
             $query->where('id', $eventId);
+            $event = $query->first(); 
+            if ($event) {
+                $event->increment('views'); 
+            }
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    }
                 }
             }
         }
@@ -174,9 +193,6 @@ class EventController extends Controller
         return $date;
     }
 
-
-
-
     /**
      * Создать 
      * 
@@ -186,9 +202,27 @@ class EventController extends Controller
      * 
      * @authenticated
      */
+    //Добавление мероприятия с привязкой к определенному проекту (если projectId указан в теле запроса) и без привязки к проекту (если projectId не указан)
     public function store(StoreEventRequest $request)
     {
-        //TODO: Сделать метод для добавление с проектом и без
+        if (!Auth::user()->can('create', Event::class)) {
+            return $this->errorResponse('Нет прав', [], 403);
+        }
+
+        $projectId = $request->input('projectId');
+
+        if ($projectId && !Project::find($projectId)) {
+            return $this->errorResponse('Проект не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        $eventData = $request->validated() + [
+            'author_id' => Auth::id(),
+            'project_id' => $projectId,
+        ];
+
+        $event = Event::create($eventData);
+
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно создано', 200);
     }
 
     /**
@@ -216,19 +250,19 @@ class EventController extends Controller
      */
     public function update(UpdateEventRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $event = Event::findOrFail($id);
+        $event = Event::find($id);
 
-            if (!Auth::user()->can('update', $event)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this event');
-            }
+        if (!$event) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
-            $event->update($request->validated());
+        if (!Auth::user()->can('update', $event)) {
+            return $this->errorResponse('Нет прав на обновление мероприятия', [], 403);
+        }
 
-            return $this->successResponse(['events' => $event], 'Event updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } 
+        $event->update($request->validated());
+
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', 200); 
     }
 
 /**
@@ -236,9 +270,6 @@ class EventController extends Controller
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
-
-
-
 
     /**
      * Удалить
@@ -251,18 +282,18 @@ class EventController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try{
-            $event = Event::findOrFail($id);
+        $event = Event::find($id);
 
-            if (!Auth::user()->can('delete', $event)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this event');
-            }
-
-            $event->delete();
-
-            return $this->successResponse(['events' => $event], 'Event deleted successfully', 200);
-        }catch (ModelNotFoundException | AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$event) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('delete', $event)) {
+            return $this->errorResponse('Нет прав на удаление мероприятия', [], 403);
+        }
+
+        $event->delete();
+
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно удалено', 200);
     }
 }

@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-export const setCookie = (name, value, hours, options = {}) => {
+export const setCookie = (name, value, hours=1, options = {}) => {
   if (hours) {
     const date = new Date();
     date.setTime(date.getTime() + (hours * 60 * 60 * 1000));

@@ -1,13 +1,29 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Stack from '@mui/joy/Stack';
 
-import Header from '../components/adminPage/adminHeader';
-import AdminSidebar from '../components/adminPage/adminSidebar'
-import AdminMain from '../components/adminPage/adminMain';
-function WorkLayout() {
-const [section, setSection] = useState('statistics');
+import Header from '../components/workspaceComponents/shared/workSpaceHeader';
+import AdminSidebar from '../components/workspaceComponents/admin/adminSidebar'
+import AdminMain from '../components/workspaceComponents/admin/adminMain';
+function Admin() {
+
+const [section, setSection] = useState('moderators');
 const [open, setOpen] = useState(false);
+
+const queryClient = useQueryClient();
+
+  useEffect(() => {
+    return () => {
+      console.log('Удаление кэша админа');
+      queryClient.removeQueries({
+        predicate: (query) => {
+          return query.meta?.tags?.includes('service');
+        },
+      });
+    };
+  }, [queryClient]); 
+
   return (
     <Stack 
     sx={{
@@ -39,4 +55,4 @@ const [open, setOpen] = useState(false);
   );
 }
 
-export default WorkLayout;
+export default Admin;

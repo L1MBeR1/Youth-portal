@@ -12,13 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comment_to_resource', function (Blueprint $table) {
-            $table->bigIncrements('id');
+
+            
+            // $table->bigIncrements('id');
+            $table->bigInteger('comment_id')->unsigned();
+            $table->primary(['comment_id']);
+
             $table->integer('podcast_id')->unsigned()->nullable();
             $table->integer('blog_id')->unsigned()->nullable();
             $table->integer('news_id')->unsigned()->nullable();
-            $table->bigInteger('comment_id')->unsigned();
-            $table->integer('reply_to')->unsigned()->nullable();
-            $table->timestamps();
+            $table->bigInteger('reply_to')->unsigned()->nullable();
+            
+            // TODO: дублирует поле created_at и updated_at в comments?, как-то убрать?
+            $table->timestamps(); 
 
             $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');
             $table->foreign('blog_id')->references('id')->on('blogs')->onDelete('cascade');

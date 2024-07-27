@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\Organization;
 use App\Models\User;
 
-class BlogPolicy
+class OrganizationPolicy
 {
     /**
      * Determine whether the user can view the model.
@@ -29,7 +29,7 @@ class BlogPolicy
     public function update(User $user, Organization $blog): bool
     {
         //TODO: Сделать роль organization_owner?
-        
+        //return $user->hasRole('admin') || $user->hasRole('su');
         return true;
         // return $user->id === $blog->author_id;
     }

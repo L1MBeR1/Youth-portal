@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
-import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
@@ -13,9 +9,9 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import Button from '@mui/joy/Button';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -24,92 +20,105 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 
-import CustomTable from '../customTable.jsx';
-import CustomList from '../customList.jsx';
-import Pagination from '../pagination.jsx';
-import {getEventsByPage } from '../../../api/eventsApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
+import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../shared/workSpaceList.jsx';
+import Pagination from '../../shared/workSpacePagination.jsx';
+import useEvents from '../../../../hooks/useEvents.js';
 
-const fetchEvents = async (token, page, setFunc,setLastPage) => {
-  try {
-    const response = await getEventsByPage(token, page);
-    console.log(response);
-    if (response) {
-      setFunc(response.data);
-      setLastPage(response.message.last_page)
-    } else {
-      console.error('Fetched data is not an array:', response);
-    }
-  } catch (error) {
-    console.error('Fetching blogs failed', error);
-  }
-};
+import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-
-const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
-  <React.Fragment>
-    <FormControl size="sm">
-      <FormLabel>От</FormLabel>
-      <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>До</FormLabel>
-      <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Статус</FormLabel>
-      <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-        <Option value="moderating">На проверке</Option>
-        <Option value="published">Опубликован</Option>
-        <Option value="archived">Заархивирован</Option>
-        <Option value="pending">На доработке</Option>
-      </Select>
-    </FormControl>
-  </React.Fragment>
-);
 
 function EventsSection() {
   const [openEvents, setOpenEvents] = useState(false);
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState();
-  const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  
+  const [crtFrom, setСrtFrom] = useState('');
+  const [crtTo, setСrtTo] = useState('');
+  
+  const [updFrom, setUpdFrom] = useState('');
+  const [updTo, setUpdTo] = useState('');
+
   const [status, setStatus] = useState('');
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const searchFields= ['name','first_name','last_name','patronymic','nickname'];
+  const [searchValues, setSearchValues] = useState([]);
 
+  const { data: events, isLoading, refetch  } = useEvents(['admin/events'],['service'], setLastPage, 
+    {
+      withAuthors: true,
+      page: page,
+      searchFields: searchFields,
+      searchValues: searchValues,
+      crtFrom:crtFrom,
+      crtTo:crtTo,
+      updFrom:updFrom,
+      updTo:updTo,
+      operator:'or',
+    });
+
+  const renderFilters = () => (
+    <>
+      <DatePopOver
+      label={'Дата создания'}
+      fromDate={crtFrom}
+      toDate={crtTo}
+      setFromDate={setСrtFrom}
+      setToDate={setСrtTo}
+      />
+      <DatePopOver
+      label={'Дата обновления'}
+      fromDate={updFrom}
+      toDate={updTo}
+      setFromDate={setUpdFrom}
+      setToDate={setUpdTo}
+      />
+    </>
+  );
   useEffect(() => {
-    const token = getCookie('token');
-    fetchEvents(token, page, setEvents,setLastPage);
-  }, [page]);
+    refetch();
+  }, [page,refetch]);
 
-  function RowMenu() {
-    return (
-      <Dropdown>
-        <MenuButton
-          slots={{ root: IconButton }}
-          slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-        >
-          <MoreVertIcon />
-        </MenuButton>
-        <Menu size="sm" sx={{ minWidth: 140 }}>
-          <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
-          <MenuItem>Изменить</MenuItem>
-        </Menu>
-      </Dropdown>
-    );
-  }
+  // function RowMenu() {
+  //   return (
+  //     <Dropdown>
+  //       <MenuButton
+  //         slots={{ root: IconButton }}
+  //         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+  //       >
+  //         <MoreVertIcon />
+  //       </MenuButton>
+  //       <Menu size="sm" sx={{ minWidth: 140 }}>
+  //         <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
+  //         <MenuItem>Изменить</MenuItem>
+  //       </Menu>
+  //     </Dropdown>
+  //   );
+  // }
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
-    setToDate('');
-    setFromDate('');
+    setСrtTo('');
+    setСrtFrom('');
+    setUpdTo('');
+    setUpdFrom('');
     setSearchTerm('');
+    setSearchValues([])
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [
@@ -119,6 +128,7 @@ function EventsSection() {
     { field: 'author',headerName: 'Организатор', width: '140px', render: (item) => item.last_name + ' ' + item.first_name + ' ' + item.patronymic },
     { field: 'location', headerName: 'Адрес', width: '200px' },
     { field: 'created_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.created_at).toLocaleDateString() },
+    { field: 'updated_at', headerName: 'Дата создания', width: '90px', render: (item) => new Date(item.updated_at).toLocaleDateString() },
     { field: 'start_time', headerName: 'Дата начала', width: '90px', render: (item) => new Date(item.start_time).toLocaleDateString() },
   ];
 
@@ -172,8 +182,12 @@ function EventsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-
+        {renderFilters()}
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"
@@ -184,8 +198,13 @@ function EventsSection() {
           <SearchOffIcon />
         </IconButton>
       </Box>
+      {isLoading?(
+        <>
+        </>
+
+      ):(
+        <>
       <Sheet
-        className="OrderTableContainer"
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'flex' },
@@ -198,7 +217,6 @@ function EventsSection() {
         <CustomTable 
         columns={columns} 
         data={events}
-        rowMenu={RowMenu()}
         />
       </Sheet>
       <CustomList 
@@ -210,6 +228,8 @@ function EventsSection() {
         colDescription={'description'}
         colDate={'start_time'}
         />
+        </>
+      )}
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
     </>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils.js';
+import { setToken} from '../../localStorage/tokenStorage.js';
 import { register,getProfile} from '../../api/authApi.js';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -22,6 +22,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import {jwtDecode} from 'jwt-decode';
+import useProfile from '../../hooks/useProfile.js';
 
 import PasswordField from './formComponents/passwordField.jsx';
 import EmailField from './formComponents/emailField.jsx';
@@ -123,10 +124,9 @@ function RegistrationForm() {
       const token = data.access_token;
 
       if (token) {
-        setCookie('token', token, { expires: 1 / 12 });
-        const profileData = await getProfile(token);
-        queryClient.setQueryData(['profile'], profileData.data);
+        setToken(token)
         const decoded = jwtDecode(token);
+        // await queryClient.prefetchQuery('profile', useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {

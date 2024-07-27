@@ -3,22 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
-import Chip from '@mui/joy/Chip';
-import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import ModalClose from '@mui/joy/ModalClose';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import Stack from '@mui/joy/Stack';
-import Table from '@mui/joy/Table';
 import Sheet from '@mui/joy/Sheet';
 import ListDivider from '@mui/joy/ListDivider';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
+import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
@@ -27,63 +18,24 @@ import Dropdown from '@mui/joy/Dropdown';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import EditIcon from '@mui/icons-material/Edit';
-import Add from '@mui/icons-material/Add';
 
-import CustomTable from '../customTable.jsx';
-import CustomList from '../customList.jsx';
-import Pagination from '../pagination.jsx';
+import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../shared/workSpaceList.jsx';
+import Pagination from '../../shared/workSpacePagination.jsx';
 
-import WarningModal from '../modals/warningModal.jsx';
-import AddModeratorModal from '../modals/addModeratorModal.jsx';
-import SuccessNotification from '../modals/successNotification.jsx';
+import WarningModal from '../../shared/modals/warningModal.jsx';
+import AddModeratorModal from '../../shared/modals/addRoleModal.jsx';
+import SuccessNotification from '../../shared/modals/successNotification.jsx';
+import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import {getModerators, deleteModerator,addModerator} from '../../../api/usersApi.js';
-import { getCookie } from '../../../cookie/cookieUtils.js';
-import useModerators from '../../../hooks/useModerators.js';
-// const fetchModerators = async (page, setFunc,setLastPage) => {
-//   try {
-//     const token = getCookie('token');
-//     const response = await getModerators(token, page);
-//     console.log(response);
-//     if (response) {
-//       setFunc(response.data);
-//       setLastPage(response.message.last_page)
-//     } else {
-//       console.error('Fetched data is not an array:', response);
-//     }
-//   } catch (error) {
-//     console.error('Fetching moderators failed', error);
-//   }
-// };
+import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
+import { getToken } from '../../../../localStorage/tokenStorage.js';
+import useModerators from '../../../../hooks/useModerators.js';
 
-const renderFilters = (fromDate, setFromDate, toDate, setToDate, status, setStatus) => (
-  <React.Fragment>
-    <FormControl size="sm">
-      <FormLabel>От</FormLabel>
-      <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>До</FormLabel>
-      <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-    </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Статус</FormLabel>
-      <Select size="sm" value={status} onChange={(e, newValue) => setStatus(newValue)} placeholder="Фильтр по статусу">
-        <Option value="moderating">На проверке</Option>
-        <Option value="published">Опубликован</Option>
-        <Option value="archived">Заархивирован</Option>
-        <Option value="pending">На доработке</Option>
-      </Select>
-    </FormControl>
-  </React.Fragment>
-);
 
-function ModeratorsSection() {
+function BlogersSection() {
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -94,34 +46,45 @@ function ModeratorsSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [status, setStatus] = useState('');
-  const { data: moderators, isLoading, refetch  } = useModerators(page);
+  const [bdFrom, setFromDate] = useState('');
+  const [bdTo, setToDate] = useState('');
 
-  const addNewModerator = async (email) => {
-    try {
-      const token = getCookie('token');
-      var response = await addModerator(token, email);
+  const [filtersCleared, setFiltersCleared] = useState(false);
+  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const [searchValues, setSearchValues] = useState([]);
+  const { data: bloggers, isLoading, refetch  } = useModerators(['admin/bloggers'],['service'],setLastPage, 
+    { 
+      role_name:'blogger',
+      page: page,
+      searchFields: searchFields,
+      searchValues: searchValues,
+      // crtFrom:crtFrom,
+      // crtTo:crtTo,
+      // updFrom:updFrom,
+      // updTo:updTo,
+      operator:'or',
+    });
+  const addNewBlogger = async (email) => {
+    const token = getToken();
+    const response = await addBlogger(token, email)
+    if (response) {
       console.log(response);
-      await refetch();
-    } catch (error) {
-      console.error('Fetching moderators failed', error);
+      refetch()
     }
   };
-  const delModerator = async (confirmed) => {
-    if (confirmed){
-      try {
-        const token = getCookie('token');
-        const response = await deleteModerator(token, deleteId);
+  
+  const delBlogger = async (confirmed) => {
+    if (confirmed) {
+      const token = getToken();
+      const response = await deleteBlogger(token, deleteId)
+      if (response) {
         console.log(response);
-        setIsSuccess(true)
-        await refetch();
-      } catch (error) {
-        console.error('Fetching moderators failed', error);
+        setIsSuccess(true);
+        refetch()
       }
     }
   };
+  
 
   const RowMenu = ({id}) => {
     const handleRowDelete = (id) => {
@@ -137,7 +100,7 @@ function ModeratorsSection() {
           <MoreVertIcon />
         </MenuButton>
         <Menu size="sm" placement="bottom-end">
-          <MenuItem onClick={() => setOpenModerator(true)}>Подробнее</MenuItem>
+          <MenuItem disabled onClick={() => setOpenModerator(true)}>Подробнее</MenuItem>
           <ListDivider />
           <MenuItem variant="soft" color="danger" onClick={() => handleRowDelete(id)}>
             <ListItemDecorator sx={{ color: 'inherit' }}>
@@ -149,12 +112,37 @@ function ModeratorsSection() {
       </Dropdown>
     );
   };
+  const renderFilters = () => (
+    <>
+      <DatePopOver
+        label={'Дата рождения'}
+        fromDate={bdFrom}
+        toDate={bdTo}
+        setFromDate={setFromDate}
+        setToDate={setToDate}
+      />  
+    </>
+  );
 
+  useEffect(() => {
+    refetch();
+  }, [page,refetch]);
+
+  useEffect(() => {
+    if (filtersCleared) {
+      refetch();
+      setFiltersCleared(false); 
+    }
+  }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setStatus('');
     setToDate('');
     setFromDate('');
     setSearchTerm('');
+    setFiltersCleared(true);
+  };
+  const applyFilters = () => {
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
+    refetch();
   };
 
   const columns = [
@@ -175,12 +163,12 @@ function ModeratorsSection() {
       />
       <WarningModal
       message={`Вы действительно хотите удалить модератора с ID: ${deleteId}?`}
-      onConfirm={delModerator}
+      onConfirm={delBlogger}
       open={openDeleteModal}
       setOpen={setOpenDeleteModal}
       />
       <Typography  fontWeight={700} fontSize={30}>
-           Модераторы
+           Блогеры
       </Typography>
       <Box
         sx={{
@@ -192,7 +180,7 @@ function ModeratorsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск ФИО или почте</FormLabel>
+          <FormLabel>Поиск по почте или ФИО</FormLabel>
           <Input
             size="sm"
             placeholder="Search"
@@ -201,12 +189,13 @@ function ModeratorsSection() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </FormControl>
-        {renderFilters(fromDate, setFromDate, toDate, setToDate, status, setStatus)}
-        <AddModeratorModal
-        func={addNewModerator}
-        />
+        {renderFilters()}
 
-
+        <Button size="sm"   variant='soft' startDecorator={<SearchIcon />}
+        onClick={()=>applyFilters()}
+        >
+          Поиск
+        </Button>
         <IconButton variant='outlined'
           onClick={clearFilters}
           color="danger"
@@ -216,6 +205,12 @@ function ModeratorsSection() {
         >
           <SearchOffIcon />
         </IconButton>
+        <AddModeratorModal
+        label={'Добавление блогера'}
+        func={addNewBlogger}
+        message={'Вы точно хотите добавить блогера с почтой: '}
+        successMessage={'Блогер успешно добавлен'}
+        />
       </Box>
       {isLoading?(
         <>
@@ -236,13 +231,13 @@ function ModeratorsSection() {
       >
         <CustomTable 
         columns={columns} 
-        data={moderators}
+        data={bloggers}
         RowMenu={RowMenu}
         />
       </Sheet>
       <CustomList 
         columns={columns} 
-        data={moderators}
+        data={bloggers}
         colMenu={'menu'}
         colAvatar={'avatar'}
         colTitle={'fullName'}
@@ -257,4 +252,4 @@ function ModeratorsSection() {
   );
 }
 
-export default ModeratorsSection;
+export default BlogersSection;

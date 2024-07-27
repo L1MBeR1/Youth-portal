@@ -41,6 +41,7 @@ class ProjectController extends Controller
      * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
@@ -69,6 +70,8 @@ class ProjectController extends Controller
         $updDate = $request->query('updDate');
         $crtDate = $request->query('crtDate');
 
+        $operator = $request->query('operator', 'and');
+
         $query = Project::query();
 
         if ($withAuthors) {
@@ -94,10 +97,21 @@ class ProjectController extends Controller
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    $query->where($field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    }
                 }
             }
         }
@@ -184,21 +198,15 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            if (!Auth::user()->can('create', Project::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a project');
-            }
-
-            $this->validateRequest($request, $request->rules());
-
-            $project = Project::create(array_merge($request->validated(), [
-                'author_id' => Auth::id(),
-            ]));
-
-            return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', Project::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
+
+        $project = Project::create($request->validated() + [
+            'author_id' => Auth::id(),
+        ]);
+
+        return $this->successResponse(['projects' => $project], 'Project created successfully', 231);
     }
 
 
@@ -217,23 +225,20 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $project = Project::findOrFail($id);
+        $project = Project::find($id);
 
-            if (!Auth::user()->can('update', $project)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this project');
-            }
-
-            $project->update($request->validated());
-
-            return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException $e) {
-            return $this->handleException($e);
+        if (!$project) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $project)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $project->update($request->validated());
+
+        return $this->successResponse(['projects' => $project], 'Project updated successfully', 200);
     }
-
-
-
 
     /**
      * Remove the specified resource from storage.
@@ -245,19 +250,18 @@ class ProjectController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $project = Project::findOrFail($id);
+        $project = Project::find($id);
 
-            if (!Auth::user()->can('delete', $project)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this project');
-            }
+        if (!$project) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
-            $project->delete();
+        if (!Auth::user()->can('delete', $project)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
 
-            return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200);
-        } catch (AccessDeniedHttpException | ModelNotFoundException$e) {
-            Log::info('catch_error', [$e]);
-            return $this->handleException($e);
-        } 
+        $project->delete();
+
+        return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200); 
     }
 }

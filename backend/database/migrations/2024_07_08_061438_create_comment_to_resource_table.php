@@ -24,7 +24,7 @@ return new class extends Migration
             $table->bigInteger('reply_to')->unsigned()->nullable();
             
             // TODO: дублирует поле created_at и updated_at в comments?, как-то убрать?
-            $table->timestamps(); 
+            // $table->timestamps(); 
 
             $table->foreign('podcast_id')->references('id')->on('podcasts')->onDelete('cascade');
             $table->foreign('blog_id')->references('id')->on('blogs')->onDelete('cascade');

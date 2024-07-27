@@ -26,4 +26,11 @@ class UserMetadataFactory extends Factory
             'birthday' => $this->faker->date,
         ];
     }
+
+    public function configure()
+    {
+        return $this->afterMaking(function (UserMetadata $userMetadata) {
+            $userMetadata->setKeyName('user_id');
+        });
+    }
 }

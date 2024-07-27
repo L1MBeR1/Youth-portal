@@ -8,7 +8,6 @@ use App\Models\CommentToResource;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Faker\Factory as FakerFactory;
 
-
 class Blog12 extends Seeder
 {
     private $faker;
@@ -17,6 +16,7 @@ class Blog12 extends Seeder
     {
         $this->faker = FakerFactory::create();
     }
+
     public function run()
     {
         $blogId = 12; // ID ресурса (блог)
@@ -38,8 +38,6 @@ class Blog12 extends Seeder
 
     private function createReplies($comments)
     {
-        $commentCount = count($comments);
-
         foreach ($comments as $comment) {
             // Случайно выбираем, будет ли у текущего комментария ответ
             if ($this->faker->boolean(30)) {
@@ -47,8 +45,8 @@ class Blog12 extends Seeder
                 $replyTo = $comments->random()->id;
 
                 // Устанавливаем reply_to для текущего комментария
-                $comment = CommentToResource::where('comment_id', $comment->id)->first();
-                $comment->update(['reply_to' => $replyTo]);
+                CommentToResource::where('comment_id', $comment->id)
+                    ->update(['reply_to' => $replyTo]);
             }
         }
     }

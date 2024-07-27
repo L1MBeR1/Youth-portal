@@ -10,6 +10,11 @@ class UserMetadata extends Model
     use HasFactory;
 
     protected $table = 'user_metadata';
+
+
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    // protected $keyType = 'int';
     public $timestamps = false;
     protected $fillable = [
         'user_id',

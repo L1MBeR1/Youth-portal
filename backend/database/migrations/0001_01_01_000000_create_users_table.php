@@ -51,8 +51,10 @@ return new class extends Migration {
         });
 
         Schema::create('user_metadata', function (Blueprint $table) {
-            $table->increments('id');
+            // $table->increments('id');
             $table->unsignedInteger('user_id');
+            $table->primary('user_id');
+
             $table->text('first_name')->nullable();
             $table->text('last_name')->nullable();
             $table->text('patronymic')->nullable();

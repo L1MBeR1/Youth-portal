@@ -32,14 +32,27 @@ use App\Models\Organization;
 
 // Аутентификация
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['api'],
     'prefix' => 'auth'
-], function ($router) {
+], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
+    // Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('verify_email', [AuthController::class, 'verifyEmail']);
+    // Route::get('profile', [AuthController::class, 'getProfile']);
+    // Route::put('profile', [AuthController::class, 'updateProfile']);
+    // Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'auth'
+], function () {
+    // Route::post('register', [AuthController::class, 'register']);
+    // Route::post('login', [AuthController::class, 'login']);
+    // Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    // Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
@@ -133,7 +146,10 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('old', [BlogController::class, 'listBlogs']);
+    Route::get('my', [BlogController::class, 'getOwnBlogs']);
+    Route::get('published', [BlogController::class, 'getPublishedBlogs']);
     Route::get('', [BlogController::class, 'getBlogs']);
+    Route::get('{id}', [BlogController::class, 'getBlogById']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);

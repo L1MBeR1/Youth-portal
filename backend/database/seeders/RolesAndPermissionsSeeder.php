@@ -12,6 +12,9 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $roles = [
             'su' => [
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'manage users',                // управление пользователями
                 'manage admins',               // управление администраторами
                 'manage roles',                // управление ролями
@@ -21,13 +24,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'impersonate users',           // вход от имени другого пользователя
                 'view financial reports',      // просмотр финансовых отчетов
                 'delete any post',             // удаление любого поста
-                'restore deleted posts',       // восстановление удаленных постов
+                'restore deleted post',        // восстановление удаленных постов
             ],
             'admin' => [
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'manage posts',                // управление постами
                 'manage comments',             // управление комментариями
                 'block/unblock users',         // блокировка/разблокировка пользователей
-                'edit own news',               // редактирование собственных новостей
                 'delete any comment',          // удаление любого комментария
                 'view user profiles',          // просмотр профилей пользователей
                 'view site analytics',         // просмотр аналитики сайта
@@ -36,37 +41,47 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view reports',                // просмотр отчетов
             ],
             'blogger' => [
-                'view posts',                  // просмотр постов
-                'create posts',                // создание постов
-                'edit own posts',              // редактирование собственных постов
-                'delete own posts',            // удаление собственных постов
-                'comment posts',               // комментирование постов
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
+                'view own blogs',              // просмотр своих постов
+                'create blogs',                // создание постов
+                'edit own blogs',              // редактирование собственных постов
+                'delete own blogs',            // удаление собственных постов
+                'comment blogs',               // комментирование постов
                 'edit own profile',            // редактирование собственного профиля
-                'edit news',                   // редактирование новостей
-                'view analytics for own posts',// просмотр аналитики собственных постов
+                'view analytics for own blogs',// просмотр аналитики собственных постов
                 'upload media',                // загрузка медиафайлов
             ],
             'guest' => [
-                'view posts',                  // просмотр постов
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'view public comments',        // просмотр опубликованных комментариев
             ],
-            'organization' => [ 
-                'view posts',                  // просмотр постов
+            'organization' => [
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'comment posts',               // комментирование постов
                 'view organization profile',   // просмотр профиля организации
                 'edit organization profile',   // редактирование профиля организации
                 'create organization events',  // создание событий организации
             ],
-            'news_creator' => [ 
-                'view posts',                  // просмотр постов
+            'news_creator' => [
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'comment posts',               // комментирование постов
                 'edit own news',               // редактирование собственных новостей
                 'create news',                 // создание новостей
                 'delete own news',             // удаление собственных новостей
                 'view news analytics',         // просмотр аналитики новостей
             ],
-            'user' => [ 
-                'view posts',                  // просмотр постов
+            'user' => [
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'comment posts',               // комментирование постов
                 'create own profile',          // создание собственного профиля
                 'edit own profile',            // редактирование собственного профиля
@@ -76,7 +91,9 @@ class RolesAndPermissionsSeeder extends Seeder
                 'report posts',                // жалоба на посты
             ],
             'moderator' => [
-                'view posts',                  // просмотр постов
+                'view published news',         // просмотр постов
+                'view published blogs',        // просмотр постов
+                'view published podcasts',     // просмотр постов
                 'comment posts',               // комментирование постов
                 'edit own profile',            // редактирование собственного профиля
                 'edit news',                   // редактирование новостей

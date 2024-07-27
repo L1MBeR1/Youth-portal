@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('comment_to_resource', function (Blueprint $table) {
 
-            // TODO: тут id нужно убрать, он совпадает с comment_id, так как хранятся в одной таблице
-            // К comment_id добавить код  $table->primary(['comment_id']);
-            // Чтобы получить уникальные ключи
-
-            $table->bigIncrements('id');
+            
+            // $table->bigIncrements('id');
             $table->bigInteger('comment_id')->unsigned();
-
+            $table->primary(['comment_id']);
 
             $table->integer('podcast_id')->unsigned()->nullable();
             $table->integer('blog_id')->unsigned()->nullable();

@@ -13,6 +13,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
+use App\Http\Controllers\OrganizationController;
+use App\Models\Organization;
+
 // use App\Http\Controllers\CommentToResourceController;
 
 /**
@@ -29,14 +32,27 @@ use App\Http\Controllers\Auth\VKAuthController;
 
 // Аутентификация
 Route::group([
-    'middleware' => 'api',
+    'middleware' => ['api'],
     'prefix' => 'auth'
-], function ($router) {
+], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
-    // Route::post('refresh', [AuthController::class, 'refresh'])->middleware('refresh.token');
+    // Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::get('verify_email', [AuthController::class, 'verifyEmail']);
+    // Route::get('profile', [AuthController::class, 'getProfile']);
+    // Route::put('profile', [AuthController::class, 'updateProfile']);
+    // Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'auth'
+], function () {
+    // Route::post('register', [AuthController::class, 'register']);
+    // Route::post('login', [AuthController::class, 'login']);
+    // Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
+    // Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
@@ -130,12 +146,16 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('old', [BlogController::class, 'listBlogs']);
+    Route::get('my', [BlogController::class, 'getOwnBlogs']);
+    Route::get('published', [BlogController::class, 'getPublishedBlogs']);
     Route::get('', [BlogController::class, 'getBlogs']);
+    Route::get('{id}', [BlogController::class, 'getBlogById']);
     Route::post('', [BlogController::class, 'store']);
     Route::get('/index', [BlogController::class, 'index']);
     Route::delete('{id}', [BlogController::class, 'destroy']);
     Route::put('{id}', [BlogController::class, 'update']);
     Route::put('{id}/status', [BlogController::class, 'setStatus']);
+    Route::post('{id}/like', [BlogController::class, 'likeBlog']);
 });
 
 
@@ -150,7 +170,10 @@ Route::group([
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
      Route::delete('{id}', [NewsController::class, 'destroy']);
-    //  Route::get('', [NewsController::class, 'listNews']);
+     Route::put('{id}/status', [NewsController::class, 'updateStatus']);
+     Route::post('like/{id}', [NewsController::class, 'likeNews']);
+
+
 });
 
 
@@ -165,6 +188,8 @@ Route::group([
     Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);
+    Route::put('{id}/status', [PodcastController::class, 'updateStatus']);
+    Route::post('like/{id}', [PodcastController::class, 'likePodcast']);
 });
 
 
@@ -175,23 +200,23 @@ Route::group([
     'prefix' => 'comments'
 ], function () {
     Route::get('/index', [CommentController::class, 'index']);
-    Route::post('/create/{resource_type}/{resource_id}', [CommentController::class, 'store']);
+    Route::post('/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
-    Route::get('/{id}/{type}', [CommentController::class, 'getForContent']);
+    Route::get('/{type}/{id}', [CommentController::class, 'getForContent']);
 });
 
 
 
 // Работа с событиями
 Route::group([
-    'middleware' => ['auth:api', 'role:admin'],
+    'middleware' => ['auth:api'],
     'prefix' => 'events'
 ], function () {
     Route::get('', [EventController::class, 'getEvents']);
-    //? Route::post('/create/{resource_type}/{resource_id}', [EventController::class, 'store']);
-    //? Route::delete('{id}', [EventController::class, 'destroy']);
-    //? Route::put('{id}', [EventController::class, 'update']);
+    Route::post('', [EventController::class, 'store']);
+    Route::delete('{id}', [EventController::class, 'destroy']);
+    Route::put('{id}', [EventController::class, 'update']);
 });
 
 
@@ -205,7 +230,18 @@ Route::group([
     Route::get('', [ProjectController::class, 'getProjects']);
     // Route::get('/index', [ProjectController::class, 'index']);
     Route::post('', [ProjectController::class, 'store']);
+    
     Route::delete('{id}', [ProjectController::class, 'destroy']);
     Route::put('{id}', [ProjectController::class, 'update']);
 });
 
+// Работа с организациями
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'organizations'
+], function () {
+    Route::get('', [OrganizationController::class, 'getOrganizations']);
+    Route::post('', [OrganizationController::class, 'store']);
+    Route::put('{id}', [OrganizationController::class, 'update']);
+    Route::delete('{id}', [OrganizationController::class, 'destroy']);
+});

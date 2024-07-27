@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Requests;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
@@ -11,7 +11,7 @@ class StoreEventRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,26 @@ class StoreEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string',
+            'start_time' => 'required|date_format:Y-m-d\TH:i:s',
+            'end_time' => 'required|date_format:Y-m-d\TH:i:s',
         ];
     }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::info('Validation failed: ', $validator->errors()->toArray());
+
+        $response = response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+
+        throw new \Illuminate\Http\Exceptions\HttpResponseException($response);
+    }
+
+
+
 }

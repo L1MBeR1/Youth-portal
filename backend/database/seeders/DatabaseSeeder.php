@@ -21,5 +21,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CommentToResourceSeeder::class);
         $this->call(ProjectSeeder::class);
         $this->call(EventSeeder::class);
+        $this->call(OrganizationSeeder::class);
+        $this->call(Blog12::class);
+        $this->call(Blog13::class);
     }
 }

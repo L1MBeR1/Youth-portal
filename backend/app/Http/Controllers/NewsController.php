@@ -53,17 +53,22 @@ class NewsController extends Controller
      * @urlParam page int Номер страницы.
      * @urlParam searchColumnName string Поиск по столбцу.
      * @urlParam searchValue string Поисковый запрос.
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
-     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s).
-     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s).
-     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s).
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtDate string Дата создания (формат: Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function getNews(Request $request)
-    {
+    {//TODO: Переделать
         if (!Auth::user()->can('view', News::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
@@ -73,6 +78,8 @@ class NewsController extends Controller
         $currentUser = $request->query('currentUser');
         $newsId = $request->query('newsId');
         $withAuthors = $request->query('withAuthors', false);
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
         $tagFilter = $request->query('tagFilter');
@@ -80,6 +87,11 @@ class NewsController extends Controller
         $crtTo = $request->query('crtTo');
         $updFrom = $request->query('updFrom');
         $updTo = $request->query('updTo');
+
+        $updDate = $request->query('updDate');
+        $crtDate = $request->query('crtDate');
+
+        $operator = $request->query('operator', 'and');
 
         $query = News::query();
 
@@ -103,6 +115,30 @@ class NewsController extends Controller
             }
         } elseif ($newsId) {
             $query->where('id', $newsId);
+            $news = $query->first(); 
+            if ($news) {
+                $news->increment('views'); 
+            }
+        }
+
+        if (!empty($searchFields) && !empty($searchValues)) {
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    }
+                }
+            }
         }
 
         if ($searchColumnName) {
@@ -112,6 +148,11 @@ class NewsController extends Controller
         if ($tagFilter) {
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
+
+        $crtFrom = $this->parseDate($crtFrom);
+        $crtTo = $this->parseDate($crtTo);
+        $updFrom = $this->parseDate($updFrom);
+        $updTo = $this->parseDate($updTo);
 
         if ($crtFrom && $crtTo) {
             $query->whereBetween('created_at', [$crtFrom, $crtTo]);
@@ -129,6 +170,14 @@ class NewsController extends Controller
             $query->where('updated_at', '<=', $updTo);
         }
 
+        if ($crtDate) {
+            $query->whereDate('created_at', '=', $crtDate);
+        }
+    
+        if ($updDate) {
+            $query->whereDate('updated_at', '=', $updDate);
+        }
+
         $news = $query->paginate($perPage);
 
         $paginationData = [
@@ -143,7 +192,25 @@ class NewsController extends Controller
         return $this->successResponse($news->items(), $paginationData, 200);
     }
 
+/**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
 
 
     /**
@@ -163,43 +230,94 @@ class NewsController extends Controller
      */
     public function store(StoreNewsRequest $request)
     {
-        try {
-            if (!Auth::user()->can('create', News::class)) {
-                throw new AccessDeniedHttpException('You do not have permission to create a news');
-            }
-
-            $this->validateRequest($request, $request->rules());
-
-            // Создание новой новости с использованием проверенных данных
-            $news = News::create(array_merge($request->validated(), [
-                'status' => 'moderating',
-                'author_id' => Auth::id(),
-            ]));
-
-            return $this->successResponse(['news' => $news], 'News created successfully', 200);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!Auth::user()->can('create', News::class)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
+
+        $news = News::create($request->validated() + [
+            'status' => 'moderating',
+            'author_id' => Auth::id(),
+        ]);            
+
+        return $this->successResponse(['news' => $news], 'Новость успешно создана', 200);
     }
 
+    public function likeNews(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $news = News::find($id);
 
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
+        $user = Auth::user();
+
+        $like = $news->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            // Если пользователь уже лайкнул эту новость, и опять нажал на лайк то удаляем лайк
+            $like->delete();
+            $news->decrement('likes');
+            return $this->successResponse(['news' => $news], 'News unliked successfully', 200);
+        } else {
+            // Иначе добавляем новый лайк
+            $news->likes()->create(['user_id' => $user->id]);
+            $news->increment('likes');
+        }
+
+        return $this->successResponse(['news' => $news], 'News liked successfully', 200);
+    }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(News $news)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Request $request)
+    {
+
+    }
+
+     /**
      * Обновить
      * 
-     * Обновление новости
+     * Обновление статуса новости
      * 
      * @group Новости
      * 
-     * @bodyParam title string Название.
-     * @bodyParam description string Описание.
-     * @bodyParam content string Содержание.
-     * @bodyParam cover_uri string URI обложки.
-     * @bodyParam status string Статус.
-     * @bodyParam views int Количество просмотров.
-     * @bodyParam likes int Количество лайков.
-     * @bodyParam reposts int Количество репостов.
+     * @bodyParam status string required Статус
+     */
+    public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        $newStatus = $request->input('status');
+        $news = News::find($id);
+
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('updateStatus', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        if (!in_array($newStatus, News::STATUSES)) {
+            return $this->errorResponse('Invalid status entered', [], 404);
+        }
+
+        $news->update(['status' => $newStatus]);
+
+        return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
+    }
+
+
+    /**
+     * Update the specified resource in storage.
      *
      * @param UpdateNewsRequest $request
      * @param int $id
@@ -207,25 +325,20 @@ class NewsController extends Controller
      */
     public function update(UpdateNewsRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $news = News::findOrFail($id);
+        $news = News::find($id);
 
-            if (!Auth::user()->can('update', $news)) {
-                throw new AccessDeniedHttpException('You do not have permission to update this news');
-            }
-
-            $news->update($request->validated());
-
-            return $this->successResponse(['news' => $news], 'News updated successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('update', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $news->update($request->validated());
+
+        return $this->successResponse(['news' => $news], 'News updated successfully', 200);
     }
-
-
-
 
     /**
      * Удалить
@@ -243,23 +356,19 @@ class NewsController extends Controller
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
     {
-        try {
-            $news = News::findOrFail($id);
+        $news = News::find($id);
 
-            if (!Auth::user()->can('delete', $news)) {
-                throw new AccessDeniedHttpException('You do not have permission to delete this news');
-            }
-
-            $news->delete();
-
-            return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->handleException($e);
-        } catch (AccessDeniedHttpException $e) {
-            return $this->handleException($e);
+        if (!$news) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
+
+        if (!Auth::user()->can('delete', $news)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        $news->delete();
+
+        return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
     }
-
-
 }
 

@@ -12,7 +12,6 @@ class StoreProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        Log::info('fdvfdvd');
         return true;
         
     }
@@ -29,5 +28,17 @@ class StoreProjectRequest extends FormRequest
             'description' => 'required|string',
             'location' => 'required|string',
         ];
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::info('Validation failed: ', $validator->errors()->toArray());
+
+        $response = response()->json([
+            'message' => 'Validation Error',
+            'errors' => $validator->errors(),
+        ], 422);
+
+        throw new \Illuminate\Http\Exceptions\HttpResponseException($response);
     }
 }

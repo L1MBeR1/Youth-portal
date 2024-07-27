@@ -1,27 +1,24 @@
-export const setToken = (token, hours) => {
-    const now = new Date();
-    const expiryTime = now.getTime() + hours * 60 * 60 * 1000;
-    const tokenData = {
-      value: token,
-      expiry: expiryTime
-    };
-    localStorage.setItem('accessToken', JSON.stringify(tokenData));
-  };
-  
-  export const getToken = () => {
-    const tokenData = JSON.parse(localStorage.getItem('accessToken'));
-    if (!tokenData) {
-      return null;
+import {jwtDecode} from 'jwt-decode';
+
+export const setToken = (token) => {
+    if (token) {
+        localStorage.setItem('accessToken', token);
     }
-  
-    const now = new Date();
-    if (now.getTime() > tokenData.expiry) {
-      localStorage.removeItem('accessToken');
-      return null;
+};
+
+export const getToken = () => {
+    const token = localStorage.getItem('accessToken');
+    if (token && token !== 'undefined') {
+        const decoded = jwtDecode(token);
+        const currentTime = new Date().getTime() / 1000;
+
+        if (decoded && currentTime < decoded.exp) {
+            return token;
+        }
     }
-    return tokenData.value;
-  };
-  
-  export const removeToken = () => {
+    return null;
+};
+
+export const removeToken = () => {
     localStorage.removeItem('accessToken');
-  };
+};

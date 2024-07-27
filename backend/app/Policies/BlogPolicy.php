@@ -13,10 +13,42 @@ class BlogPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }
+
+    public function search(User $user): bool
+    {
+        Log::info('Checking search permission for user ' . $user);
+        
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
+    }
+
+    public function viewPublishedBlogs(User $user): bool
+    {
+        return true;
+    }
+
+    public function requestCurrentBlog(User $user, Blog $blog): bool
+    {
+        if ($user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su')){
+            return true;
+        }        
+
+        if ($blog->status === 'published') {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public function viewOwnBlogs(User $user): bool
+    {
+        return $user->hasPermissionTo('view own blogs');
+    }
+
 
     /**
      * Determine whether the user can create models.

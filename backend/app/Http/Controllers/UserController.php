@@ -20,11 +20,15 @@ class UserController extends Controller
      * @urlParam role_name string Название роли для фильтрации пользователей.
      * @queryParam searchColumnName string Поиск по столбцу.
      * @queryParam searchValue string Поисковый запрос.
-     * @queryParam crtFrom string Дата начала создания (формат: Y-m-d H:i:s).
-     * @queryParam crtTo string Дата окончания создания (формат: Y-m-d H:i:s).
-     * @queryParam updFrom string Дата начала обновления (формат: Y-m-d H:i:s).
-     * @queryParam updTo string Дата окончания обновления (формат: Y-m-d H:i:s).
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam bdDate string Дата создания (формат: Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @queryParam page int Номер страницы.
+     * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -33,40 +37,60 @@ class UserController extends Controller
         $roleName = $request->query('role_name');
         $query = User::query();
 
+        // Объединение таблиц
+        $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id');
+
         if ($roleName) {
             $query->whereHas('roles', function ($roleQuery) use ($roleName) {
                 $roleQuery->where('name', $roleName);
             });
         }
 
-        // Дополнительные фильтры
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
         $searchColumnName = $request->query('searchColumnName');
         $searchValue = $request->query('searchValue');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
+
+        $bdFrom = $request->query('bdFrom');
+        $bdTo = $request->query('bdTo');
+        $bdDate = $request->query('bdDate');
+
+        
+
+        if (!empty($searchFields) && !empty($searchValues)) {
+            foreach ($searchFields as $index => $field) {
+                $value = $searchValues[$index] ?? null;
+                if ($value) {
+                    if (in_array($field, ['email', 'phone'])) {
+                        $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                    } else {
+                        $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                    }
+                }
+            }
+        }
 
         if ($searchColumnName && $searchValue) {
-            $query->leftJoin('user_metadata', 'user_login_data.id', '=', 'user_metadata.user_id')
-                ->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-
+            if (in_array($searchColumnName, ['email', 'phone'])) {
+                $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+            } else {
+                $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+            }
         }
 
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('users.created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('users.created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('users.created_at', '<=', $crtTo);
+        $bdFrom = $this->parseDate($bdFrom);
+        $bdTo = $this->parseDate($bdTo);
+
+        if ($bdFrom && $bdTo) {
+            $query->whereBetween('user_metadata.birthday', [$bdFrom, $bdTo]);
+        } elseif ($bdFrom) {
+            $query->where('user_metadata.birthday', '>=', $bdFrom);
+        } elseif ($bdTo) {
+            $query->where('user_metadata.birthday', '<=', $bdTo);
         }
 
-        if ($updFrom && $updTo) {
-            $query->whereBetween('users.updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('users.updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('users.updated_at', '<=', $updTo);
+        if ($bdDate) {
+            $query->whereDate('user_metadata.birthday', '=', $bdDate);
         }
 
         // Выполняем запрос с пагинацией
@@ -101,6 +125,25 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Parses the date from the given input.
+     * Supports both Y-m-d H:i:s and Y-m-d formats.
+     * 
+     * @param string|null $date
+     * @return string|null
+     */
+    private function parseDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return $date . ' 00:00:00';
+        }
+
+        return $date;
+    }
 
 
     /**
@@ -121,6 +164,7 @@ class UserController extends Controller
      * 
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function updateUserRoles(Request $request)
     {
         $this->validateRequest($request, [

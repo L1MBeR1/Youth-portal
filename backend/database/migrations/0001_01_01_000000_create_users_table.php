@@ -4,8 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-//TODO: Вынести сессии и
-
 return new class extends Migration {
     /**
      * Run the migrations.
@@ -53,8 +51,10 @@ return new class extends Migration {
         });
 
         Schema::create('user_metadata', function (Blueprint $table) {
-            $table->increments('id');
+            // $table->increments('id');
             $table->unsignedInteger('user_id');
+            $table->primary('user_id');
+
             $table->text('first_name')->nullable();
             $table->text('last_name')->nullable();
             $table->text('patronymic')->nullable();

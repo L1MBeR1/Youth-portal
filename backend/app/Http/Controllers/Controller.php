@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 use Exception;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,12 +20,15 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    //TODO Удалить после изменения валидации в AuthController и UserController
     protected function validateRequest(Request $request, array $rules)
     {
+        Log::info('error val');
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
+            Log::info('error val');
         }
     }
 
@@ -63,7 +67,6 @@ class Controller extends BaseController
             return $this->errorResponse('Not Found', ['description' => 'The requested resource was not found.'], 404);
         }
         
-
         Log::error($e->getMessage());
         return $this->errorResponse('Server Error', [], 500);
     }

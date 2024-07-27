@@ -7,21 +7,32 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Mail\EmailVerification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 // use Illuminate\Http\RedirectResponse;
-use Illuminate\Validation\ValidationException;
+// use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
+use PHPOpenSourceSaver\JWTAuth\Validators\Validator;
+
 class AuthController extends Controller
 {
+    protected $jwtSecret;
+
+    public function __construct()
+    {
+        $this->jwtSecret = config('app.JWT_SECRET');
+    }
     /**
      * Регистрация 
      * 
@@ -34,40 +45,48 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
-        try {
-            $this->validateRequest($request, [
-                'email' => 'nullable|email|unique:user_login_data,email',
-                'phone' => 'nullable|string|unique:user_login_data,phone',
-                'password' => 'required',
-            ]);
+        $this->validateRequest($request, [
+            'email' => 'nullable|email|unique:user_login_data,email',
+            'phone' => 'nullable|string|unique:user_login_data,phone',
+            'password' => 'required',
+        ]);
 
-            if (empty($request->email) && empty($request->phone)) {
-                return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
-            }
-
-            $input = $request->all();
-            $input['password'] = bcrypt($input['password']);
-
-            $user = User::create($input);
-            $user->assignRole('user');
-
-            UserMetadata::create(['user_id' => $user->id]);
-
-            $credentials = $request->only('password');
-            $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
-
-            if (!$token = Auth::attempt($credentials)) {
-                return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
-            }
-
-            $refreshToken = $this->generateRefreshToken($user);
-
-            return $this->respondWithToken($token, $refreshToken);
-        } catch (Exception $e) {
-            return $this->handleException($e);
+        if (empty($request->email) && empty($request->phone)) {
+            return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
         }
+
+        if ($request->email && User::where('email', $request->email)->exists()) {
+            return $this->errorResponse('Данный email уже занят', [], 422);
+        }
+
+        if ($request->phone && User::where('phone', $request->phone)->exists()) {
+            return $this->errorResponse('Данный телефон уже занят', [], 422);
+        }
+
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+
+        $user = User::create($input);
+        $user->assignRole('guest');
+
+        UserMetadata::create(['user_id' => $user->id]);
+
+        $credentials = $request->only('password');
+        $credentials[$request->email ? 'email' : 'phone'] = $request->{$request->email ? 'email' : 'phone'};
+
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+        }
+
+
+        Mail::to($user->email)->send(new EmailVerification($user, $token));
+        $refreshToken = $this->generateRefreshToken($user);
+
+        return $this->respondWithToken($token, $refreshToken);
+
     }
 
 
@@ -84,6 +103,7 @@ class AuthController extends Controller
      * @bodyParam password string required password
      * 
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
     {
         $this->validateRequest($request, [
@@ -113,6 +133,44 @@ class AuthController extends Controller
 
 
     /**
+     * Подтверждение почты
+     * 
+     * @group Авторизация
+     * 
+     */
+    public function verifyEmail(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            return $this->errorResponse('Token is missing', [], 400);
+        }
+
+        // Попробуйте декодировать токен
+        $user = JWTAuth::setToken($token)->toUser();
+
+        if (!$user) {
+            return $this->errorResponse('Invalid or expired token', [], 400);
+        }
+
+        // Проверка, подтвержден ли email
+        if ($user->email_verified_at) {
+            return $this->errorResponse('Email already verified', [], 422);
+        }
+
+        // Подтверждение email
+        $user->email_verified_at = now();
+        $user->removeRole('guest');
+        $user->assignRole('user');
+        $user->save();
+
+        return $this->successResponse('Email verified successfully');
+    }
+
+
+
+
+    /**
      * Генерация uuid v4
      */
     protected function uuidv4()
@@ -127,18 +185,10 @@ class AuthController extends Controller
 
 
 
+
     /**
      * Генерация уникального токена для запоминания пользователя
      */
-    // protected function generateRefreshToken($user)
-    // {
-    //     $refreshToken = $this->uuidv4();
-    //     $user->remember_token = $refreshToken;
-    //     $user->save();
-
-    //     return $refreshToken;
-    // }
-
     protected function generateRefreshToken($user, $ttl = 7 * 24 * 60 * 60)
     {
         $uuid = (string) Str::uuid();
@@ -167,42 +217,42 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    // public function refresh(Request $request)
-    // {
-    //     $request->validate([
-    //         'refresh_token' => 'required|string'
-    //     ]);
+ 
 
-    //     $user = User::where('remember_token', $request->refresh_token)->first();
-
-    //     if (!$user) {
-    //         return $this->errorResponse('Invalid refresh token', [], 401);
-    //     }
-
-    //     Auth::login($user);
-
-    //     $newToken = Auth::refresh();
-    //     $newRefreshToken = $this->generateRefreshToken($user);
-
-    //     return $this->respondWithToken($newToken, $newRefreshToken);
-    // }
 
     public function refresh(Request $request)
     {
-        $request->validate([
-            'refresh_token' => 'required|string'
-        ]);
+        Log::info('\n\n');
+        $refreshToken = $request->cookie('refresh_token');
 
-        $decodedToken = base64_decode($request->refresh_token);
+        if (!$refreshToken) {
+            Log::info('Нет токена');
+            return $this->errorResponse('Refresh token is missing', [], 401);
+        }
+
+        Log::info('Есть токен =');
+        Log::info($refreshToken);
+
+        $decodedToken = base64_decode($refreshToken);
         list($uuid, $expiresAt) = explode('.', $decodedToken);
 
         if (now()->timestamp > $expiresAt) {
-            return $this->errorResponse('Refresh token has expired', [], 401);
+            Log::info('Токен истёк');
+            return response()->json([
+                'message' => 'Refresh token has expired',
+                'data' => [],
+                'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
         }
 
-        $user = User::where('remember_token', $request->refresh_token)->first();
+        $user = User::where('remember_token', $refreshToken)->first();
         if (!$user) {
-            return $this->errorResponse('Invalid refresh token', [], 401);
+            Log::info('Нет токена у пользователей');
+            return response()->json([
+                'message' => 'Invalid refresh token',
+                'data' => [],
+                'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
         }
 
         Auth::login($user);
@@ -210,8 +260,11 @@ class AuthController extends Controller
         $newToken = Auth::refresh();
         $newRefreshToken = $this->generateRefreshToken($user);
 
+        Log::info('Отдаю токен');
         return $this->respondWithToken($newToken, $newRefreshToken);
     }
+
+
 
 
 
@@ -235,6 +288,7 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
+    //TODO Изменить принцип валидации на валидацию через request
     public function updateProfile(Request $request)
     {
         try {
@@ -289,6 +343,7 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
+            if (!$user) return $this->errorResponse('Неверные данные',[],400);
             $metadata = $user->metadata;
 
             return $this->successResponse($metadata, 'Profile retrieved successfully.');
@@ -308,6 +363,11 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+
+
+
+
+
     public function logout()
     {
         try {
@@ -317,11 +377,15 @@ class AuthController extends Controller
 
             Auth::logout();
 
-            return $this->successResponse([], 'Successfully logged out.');
+            $response = response()->json(['message' => 'Successfully logged out.']);
+            $response->withCookie(cookie()->forget('refresh_token'));
+
+            return $response;
         } catch (Exception $e) {
             return $this->handleException($e);
         }
     }
+
 
 
 
@@ -334,10 +398,29 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token, $refreshToken = null)
     {
-        return response()->json([
+        $response = response()->json([
             'access_token' => $token,
-            'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
         ]);
+
+
+        if ($refreshToken) {
+            $cookie = cookie(
+                'refresh_token',
+                $refreshToken,
+                60 * 24 * 7,
+                '/',
+                null,
+                false, // Secure
+                true, // HttpOnly
+                false, // Raw
+                // 'Lax',
+            );
+            $response->withCookie($cookie);
+        }
+
+        return $response;
     }
+
+
 }

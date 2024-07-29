@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link,useNavigate} from 'react-router-dom';
-import {removeToken} from '../../../localStorage/tokenStorage.js';
+import {removeToken} from '../../../utils/authUtils/tokenStorage.js';
 import { useQueryClient } from '@tanstack/react-query';
 import useProfile from '../../../hooks/useProfile.js';
-
+import {logout} from '../../../api/authApi.js';
 
 import IconButton from '@mui/joy/IconButton';
 import Box from '@mui/joy/Box';
@@ -28,8 +28,9 @@ function HeaderProfile() {
   const navigate = useNavigate();
   const { data: profileData, isLoading } = useProfile();
 
-const handleLogout = () => {
+const handleLogout = async() => {
     removeToken();
+    // await logout();
     navigate('/login');
     queryClient.removeQueries(['profile']);
   };

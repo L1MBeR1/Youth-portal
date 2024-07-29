@@ -3,7 +3,9 @@ import Table from "@mui/joy/Table";
 
 const CustomTable = ({ columns, data}) => {
   return (
-    <Table
+    <>
+    {data ? (
+      <Table
       aria-labelledby="tableTitle"
       stickyHeader
       hoverRow
@@ -63,6 +65,11 @@ const CustomTable = ({ columns, data}) => {
         ))}
       </tbody>
     </Table>
+
+    ):(
+      <></>
+    )}
+    </>
   );
 };
 

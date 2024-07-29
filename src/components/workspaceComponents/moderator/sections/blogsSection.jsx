@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import Chip from '@mui/joy/Chip';
@@ -29,10 +30,11 @@ import useBlogs from '../../../../hooks/useBlogs.js';
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import { getToken } from '../../../../localStorage/tokenStorage.js';
+import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 import {changeBlogStatus} from '../../../../api/blogsApi.js';
 
 function BlogsSection() {
+  const navigate = useNavigate();
   const [openBlog, setOpenBlog] = useState(false);
 
 
@@ -72,7 +74,10 @@ function BlogsSection() {
   }, [page,refetch]);
 
   const changeStauts= async (status) => {
-    const token = getToken();
+    const {token,needsRedirect} = getToken('BloggerSection');
+    if (needsRedirect){
+      navigate('/login')
+    }
     console.log(status)
     const response = await changeBlogStatus(token, changeId,status)
     if (response) {

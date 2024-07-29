@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setToken} from '../../localStorage/tokenStorage.js';
+import { setToken} from '../../utils/authUtils/tokenStorage.js';
 import { register,getProfile} from '../../api/authApi.js';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -135,6 +135,7 @@ function RegistrationForm() {
           navigate('/');
         }
       }
+      queryClient.invalidateQueries(['profile']);
       setIsLoading(false);
     } catch (error) {
       setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');

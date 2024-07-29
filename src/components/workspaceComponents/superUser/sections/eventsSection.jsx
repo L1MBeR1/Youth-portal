@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import FormControl from '@mui/joy/FormControl';
@@ -33,6 +34,7 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 
 function EventsSection() {
+  const navigate = useNavigate();
   const [openEvents, setOpenEvents] = useState(false);
 
   const [page, setPage] = useState(1);

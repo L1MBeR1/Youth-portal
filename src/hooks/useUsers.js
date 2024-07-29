@@ -1,12 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../api/usersApi';
-import { getToken } from '../localStorage/tokenStorage';
+import { getToken } from '../utils/authUtils/tokenStorage';
 
-const useModerators = (queryKey,tags,setLastPage, params) => {
+const useUsers = (queryKey,tags,setLastPage, params) => {
+  
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const token = getToken();
+
+      const {token}= await getToken('useUsers');
+      if (!token) {
+        return null;
+      }
       const response = await getUsers(token, params);
       setLastPage(response.message.last_page)
       console.log(response)
@@ -21,4 +26,4 @@ const useModerators = (queryKey,tags,setLastPage, params) => {
   });
 };
 
-export default useModerators;
+export default useUsers;

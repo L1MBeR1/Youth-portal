@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
@@ -31,11 +32,12 @@ import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
-import { getToken } from '../../../../localStorage/tokenStorage.js';
-import useModerators from '../../../../hooks/useModerators.js';
+import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
+import useModerators from '../../../../hooks/useUsers.js';
 
 
 function ModeratorsSection() {
+  const navigate = useNavigate();
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -63,7 +65,10 @@ function ModeratorsSection() {
       operator:'or',
     });
   const addNewModerator = async (email) => {
-    const token = getToken();
+    const {token,needsRedirect} = getToken('BloggerSection');
+      if (needsRedirect){
+        navigate('/login')
+      }
     const response = await addModerator(token, email)
     if (response) {
       console.log(response);
@@ -73,7 +78,10 @@ function ModeratorsSection() {
   
   const delModerator = async (confirmed) => {
     if (confirmed) {
-      const token = getToken();
+      const {token,needsRedirect} = getToken('BloggerSection');
+      if (needsRedirect){
+        navigate('/login')
+      }
       const response = await deleteModerator(token, deleteId)
       if (response) {
         console.log(response);

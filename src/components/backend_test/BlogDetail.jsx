@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Avatar, Card, CardContent, CardActions, IconButton, Button, Input } from '@mui/joy';
 import { ThumbUpAltOutlined as ThumbUpIcon } from '@mui/icons-material';
 import { getCommentsForResource, postComment } from '../../api/commentsApi.js';
-import { getCookie } from '../../cookie/cookieUtils.js';
+import { getCookie } from '../../utils/cookie/cookieUtils.js';
 import { getBlogsActual } from '../../api/blogsApi.js';
 
 function Comment({ comment, allComments }) {

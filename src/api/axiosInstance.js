@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
-import { getToken, setToken, removeToken } from '../localStorage/tokenStorage';
+import { getToken, setToken, removeToken } from '../utils/authUtils/tokenStorage';
 
 const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
 

@@ -4,7 +4,7 @@ import Grid from '@mui/joy/Grid';
 import Card from '@mui/joy/Card';
 import Button from '@mui/joy/Button';
 import { getBlogsActual } from '../api/blogsApi.js';
-import { getCookie } from '../cookie/cookieUtils.js';
+import { getCookie } from '../utils/cookie/cookieUtils.js';
 
 function ContentGrid() {
   const [blogs, setBlogs] = useState([]);

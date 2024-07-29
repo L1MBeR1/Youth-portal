@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
@@ -31,11 +32,12 @@ import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
-import { getToken } from '../../../../localStorage/tokenStorage.js';
-import useModerators from '../../../../hooks/useModerators.js';
+import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
+import useUsers from '../../../../hooks/useUsers.js';
 
 
 function BlogersSection() {
+  const navigate = useNavigate();
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -52,7 +54,7 @@ function BlogersSection() {
   const [filtersCleared, setFiltersCleared] = useState(false);
   const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
   const [searchValues, setSearchValues] = useState([]);
-  const { data: bloggers, isLoading, refetch  } = useModerators(['su/bloggers'],['service'],setLastPage, 
+  const { data: bloggers, isLoading, refetch  } = useUsers(['su/bloggers'],['service'],setLastPage, 
     { 
       role_name:'blogger',
       page: page,
@@ -75,7 +77,10 @@ function BlogersSection() {
   
   const delBlogger = async (confirmed) => {
     if (confirmed) {
-      const token = getToken();
+      const {token,needsRedirect} = getToken('BloggerSection');
+      if (needsRedirect){
+        navigate('/login')
+      }
       const response = await deleteBlogger(token, deleteId)
       if (response) {
         console.log(response);

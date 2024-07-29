@@ -320,6 +320,7 @@ class BlogController extends Controller
      *
      * @urlParam orderBy string Сортировка (Столбец)
      * @urlParam orderDir string Сортировка (Направление "asc", "desc")
+     * @urlParam userId int ID пользователя. 
      *
      */
     public function getPublishedBlogs(Request $request)
@@ -348,6 +349,10 @@ class BlogController extends Controller
             $query->orderBy($orderBy, $orderDirection ?? 'desc');
         } else {
             $query->orderBy('updated_at', 'desc');
+        }
+
+        if ($userId = $request->query('userId')) {
+            $query->where('blogs.author_id', $userId);
         }
 
         $perPage = $request->query('perPage');

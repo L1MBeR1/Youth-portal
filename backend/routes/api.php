@@ -54,8 +54,8 @@ Route::group([
 ], function () {
     // Route::post('register', [AuthController::class, 'register']);
     // Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('logout', [AuthController::class, 'logout'])->withoutMiddleware('auth');
+    Route::post('refresh', [AuthController::class, 'refresh'])->withoutMiddleware('auth');
     // Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     Route::get('profile', [AuthController::class, 'getProfile']);
     Route::put('profile', [AuthController::class, 'updateProfile']);

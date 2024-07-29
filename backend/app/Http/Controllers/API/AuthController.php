@@ -124,6 +124,11 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        if ($user->blocked_at) {
+            return $this->errorResponse('Ваш аккаунт заблокирован', [], 403);
+        }
+
         $refreshToken = $this->generateRefreshToken($user);
 
         return $this->respondWithToken($token, $refreshToken);
@@ -217,7 +222,7 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
- 
+
 
 
     public function refresh(Request $request)
@@ -252,6 +257,14 @@ class AuthController extends Controller
                 'message' => 'Invalid refresh token',
                 'data' => [],
                 'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
+        }
+
+        if ($user->blocked_at) {
+            return response()->json([
+                'message' => 'User is blocked',
+                'data' => [],
+                'status_code' => 403
             ])->cookie(cookie()->forget('refresh_token'));
         }
 
@@ -343,7 +356,8 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user) return $this->errorResponse('Неверные данные',[],400);
+            if (!$user)
+                return $this->errorResponse('Неверные данные', [], 400);
             $metadata = $user->metadata;
 
             return $this->successResponse($metadata, 'Profile retrieved successfully.');
@@ -363,27 +377,20 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-
-
-
-
-
     public function logout()
     {
-        try {
-            $user = Auth::user();
-            $user->remember_token = null;
-            $user->save();
 
-            Auth::logout();
+        $user = Auth::user();
+        $user->remember_token = null;
+        $user->save();
 
-            $response = response()->json(['message' => 'Successfully logged out.']);
-            $response->withCookie(cookie()->forget('refresh_token'));
+        Auth::logout();
 
-            return $response;
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
+        $response = response()->json(['message' => 'Successfully logged out.']);
+        $response->withCookie(cookie()->forget('refresh_token'));
+
+        return $response;
+
     }
 
 

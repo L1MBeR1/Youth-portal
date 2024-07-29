@@ -15,7 +15,7 @@ class NewsPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -24,6 +24,21 @@ class NewsPolicy
     public function view(User $user): bool
     {
         return true;
+    }
+
+    public function search(User $user): bool
+    {        
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
+    }
+
+    public function viewPublishedPodcasts(User $user): bool
+    {
+        return true;
+    }
+
+    public function viewOwnNews(User $user): bool
+    {
+        return $user->hasPermissionTo('view own news');
     }
 
     /**

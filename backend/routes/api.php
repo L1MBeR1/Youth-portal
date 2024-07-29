@@ -1,7 +1,9 @@
 <?php
 
 // use App\Models\Project;
+// use App\Models\Organization;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\SUController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\UserController;
@@ -14,7 +16,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\Auth\VKAuthController;
 use App\Http\Controllers\OrganizationController;
-use App\Models\Organization;
+use App\Models\News;
 
 // use App\Http\Controllers\CommentToResourceController;
 
@@ -30,16 +32,18 @@ use App\Models\Organization;
 
 
 
+ 
+
 // Аутентификация
 Route::group([
     'middleware' => ['api'],
     'prefix' => 'auth'
 ], function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');
+    Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
+    Route::get('verify_email', [AuthController::class, 'verifyEmail'])->withoutMiddleware('auth');
+    // Route::post('logout', [AuthController::class, 'logout']);
     // Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     // Route::get('profile', [AuthController::class, 'getProfile']);
     // Route::put('profile', [AuthController::class, 'updateProfile']);
     // Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
@@ -50,7 +54,7 @@ Route::group([
 ], function () {
     // Route::post('register', [AuthController::class, 'register']);
     // Route::post('login', [AuthController::class, 'login']);
-    // Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     // Route::get('verify_email', [AuthController::class, 'verifyEmail']);
     Route::get('profile', [AuthController::class, 'getProfile']);
@@ -66,6 +70,14 @@ Route::group([
 ], function () {
     Route::get('hello', [AdminController::class, 'hello']);
 });
+
+// Супер Администрирование
+// Route::group([
+//     'middleware' => ['auth:api'],
+//     'prefix' => 'admin'
+// ], function () {
+//     Route::get('hello', [SUController::class, 'hello']);
+// });
 
 
 
@@ -87,7 +99,18 @@ Route::group([
     Route::get('', [UserController::class, 'listUsers']);
     Route::post('roles', [UserController::class, 'updateUserRoles']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
-    
+    Route::patch('{user_id}/block', [SUController::class, 'blockUser']);
+});
+
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'users'
+], function () {
+    // Route::get('', [UserController::class, 'listUsers']);
+    // Route::post('roles', [UserController::class, 'updateUserRoles']);
+    // Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
+    Route::patch('{user_id}/block', [SUController::class, 'blockUser']);
+    Route::patch('{user_id}/unblock', [SUController::class, 'unblockUser']);
 });
 
 
@@ -166,6 +189,8 @@ Route::group([
     'prefix' => 'news'
 ], function () {
      Route::get('/index', [NewsController::class, 'index']);
+     Route::get('my', [NewsController::class, 'getOwnNews']);
+    Route::get('published', [NewsController::class, 'getPublishedNews']);
      Route::get('', [NewsController::class, 'getNews']);
      Route::post('', [NewsController::class, 'store']);
      Route::put('{id}', [NewsController::class, 'update']);
@@ -183,6 +208,8 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'podcasts'
 ], function () {
+    Route::get('my', [PodcastController::class, 'getOwnPodcasts']);
+    Route::get('published', [PodcastController::class, 'getPublishedPodcasts']);
     Route::get('', [PodcastController::class, 'getPodcasts']);
     Route::get('/index', [PodcastController::class, 'index']);
     Route::post('', [PodcastController::class, 'store']);

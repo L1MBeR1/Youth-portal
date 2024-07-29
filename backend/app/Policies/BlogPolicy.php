@@ -20,7 +20,7 @@ class BlogPolicy
 
     public function search(User $user): bool
     {
-        Log::info('Checking search permission for user ' . $user);
+        // Log::info('Checking search permission for user ' . $user);
         
         return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
     }

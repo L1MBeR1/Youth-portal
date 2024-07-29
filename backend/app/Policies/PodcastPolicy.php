@@ -10,11 +10,21 @@ use Illuminate\Support\Facades\Log;
 class PodcastPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view the model.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
+    }
+
+    public function search(User $user): bool
+    {
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
+    }
+
+    public function viewPublishedPodcasts(User $user): bool
+    {
+        return true;
     }
 
     /**
@@ -23,6 +33,11 @@ class PodcastPolicy
     public function view(User $user): bool
     {
         return true;
+    }
+
+    public function viewOwnPodcasts(User $user): bool
+    {
+        return $user->hasPermissionTo('view own podcasts');
     }
 
     /**

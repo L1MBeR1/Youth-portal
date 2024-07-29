@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\News;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,6 +20,17 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class NewsController extends Controller
 {
+    private function formPagination($q): array
+    {
+        return [
+            'current_page' => $q->currentPage(),
+            // 'from' => $q->firstItem(),
+            'last_page' => $q->lastPage(),
+            'per_page' => $q->perPage(),
+            // 'to' => $q->lastItem(),
+            'total' => $q->total(),
+        ];
+    }
     /**
      * Список
      * 
@@ -34,6 +46,16 @@ class NewsController extends Controller
             ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
             ->get();
         return response()->json($news);
+    }
+
+
+    private function checkSearchPermissions(Request $request)
+    {
+        if ($request->hasAny(['status', 'searchColumnName', 'searchValue', 'searchFields', 'searchValues'])) {
+            if (!Auth::user()->can('search', News::class)) {
+                $this->errorResponse('Нет прав на просмотр', [], 403);
+            }
+        }
     }
 
 
@@ -67,58 +89,228 @@ class NewsController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
+    // public function getNews(Request $request)
+    // {//TODO: Переделать
+    //     if (!Auth::user()->can('viewAny', News::class)) {
+    //         return $this->errorResponse('Нет прав на просмотр', [], 403);
+    //     }
+
+    //     $perPage = $request->get('per_page', 5);
+    //     $userId = $request->query('userId');
+    //     $currentUser = $request->query('currentUser');
+    //     $newsId = $request->query('newsId');
+    //     $withAuthors = $request->query('withAuthors', false);
+    //     $searchFields = $request->query('searchFields', []);
+    //     $searchValues = $request->query('searchValues', []);
+    //     $searchColumnName = $request->query('searchColumnName');
+    //     $searchValue = $request->query('searchValue');
+    //     $tagFilter = $request->query('tagFilter');
+    //     $crtFrom = $request->query('crtFrom');
+    //     $crtTo = $request->query('crtTo');
+    //     $updFrom = $request->query('updFrom');
+    //     $updTo = $request->query('updTo');
+
+    //     $updDate = $request->query('updDate');
+    //     $crtDate = $request->query('crtDate');
+
+    //     $operator = $request->query('operator', 'and');
+
+    //     $this->checkSearchPermissions($request);
+
+    //     $query = News::query();
+
+    //     if ($withAuthors) {
+    //         $query->join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
+    //             ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+    //     }
+
+    //     if ($userId) {
+    //         $user = User::find($userId);
+    //         if (!$user) {
+    //             return $this->errorResponse('User not found', [], 404);
+    //         }
+    //         $query->where('author_id', $userId);
+    //     } elseif ($currentUser) {
+    //         $currentUser = Auth::user();
+    //         if ($currentUser) {
+    //             $query->where('author_id', $currentUser->id);
+    //         } else {
+    //             return $this->errorResponse('Current user not found', [], 404);
+    //         }
+    //     } elseif ($newsId) {
+    //         $query->where('id', $newsId);
+    //         $news = $query->first(); 
+    //         if ($news) {
+    //             $news->increment('views'); 
+    //         }
+    //     }
+
+    //     if (!empty($searchFields) && !empty($searchValues)) {
+    //         if ($operator === 'or') {
+    //             $query->where(function ($query) use ($searchFields, $searchValues) {
+    //                 foreach ($searchFields as $index => $field) {
+    //                     $value = $searchValues[$index] ?? null;
+    //                     if ($value) {
+    //                         $query->orWhere($field, 'LIKE', '%' . $value . '%');
+    //                     }
+    //                 }
+    //             });
+    //         } else {
+    //             foreach ($searchFields as $index => $field) {
+    //                 $value = $searchValues[$index] ?? null;
+    //                 if ($value) {
+    //                     $query->where($field, 'LIKE', '%' . $value . '%');
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     if ($searchColumnName) {
+    //         $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+    //     }
+
+    //     if ($tagFilter) {
+    //         $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+    //     }
+
+    //     $crtFrom = $this->parseDate($crtFrom);
+    //     $crtTo = $this->parseDate($crtTo);
+    //     $updFrom = $this->parseDate($updFrom);
+    //     $updTo = $this->parseDate($updTo);
+
+    //     if ($crtFrom && $crtTo) {
+    //         $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+    //     } elseif ($crtFrom) {
+    //         $query->where('created_at', '>=', $crtFrom);
+    //     } elseif ($crtTo) {
+    //         $query->where('created_at', '<=', $crtTo);
+    //     }
+
+    //     if ($updFrom && $updTo) {
+    //         $query->whereBetween('updated_at', [$updFrom, $updTo]);
+    //     } elseif ($updFrom) {
+    //         $query->where('updated_at', '>=', $updFrom);
+    //     } elseif ($updTo) {
+    //         $query->where('updated_at', '<=', $updTo);
+    //     }
+
+    //     if ($crtDate) {
+    //         $query->whereDate('created_at', '=', $crtDate);
+    //     }
+    
+    //     if ($updDate) {
+    //         $query->whereDate('updated_at', '=', $updDate);
+    //     }
+
+    //     $news = $query->paginate($perPage);
+
+    //     $paginationData = [
+    //         'current_page' => $news->currentPage(),
+    //         'from' => $news->firstItem(),
+    //         'last_page' => $news->lastPage(),
+    //         'per_page' => $news->perPage(),
+    //         'to' => $news->lastItem(),
+    //         'total' => $news->total(),
+    //     ];
+
+    //     return $this->successResponse($news->items(), $paginationData, 200);
+    // }
+
+
     public function getNews(Request $request)
-    {//TODO: Переделать
-        if (!Auth::user()->can('view', News::class)) {
+    {
+        if (!Auth::user()->can('viewAny', News::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
         $perPage = $request->get('per_page', 5);
-        $userId = $request->query('userId');
-        $currentUser = $request->query('currentUser');
-        $newsId = $request->query('newsId');
-        $withAuthors = $request->query('withAuthors', false);
-        $searchFields = $request->query('searchFields', []);
-        $searchValues = $request->query('searchValues', []);
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
-        $tagFilter = $request->query('tagFilter');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
+        $this->checkSearchPermissions($request);
+        $query = $this->buildNewsQuery($request);
 
-        $updDate = $request->query('updDate');
-        $crtDate = $request->query('crtDate');
+        $news = $query->paginate($perPage);
+        $paginationData = $this->formPagination($news);
+        return $this->successResponse($news->items(), $paginationData, 200);
+    }
 
-        $operator = $request->query('operator', 'and');
-
+    private function buildNewsQuery(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
         $query = News::query();
+        $this->joinAuthors($query);
+        $this->applyFilters($query, $request);
+        $this->applySearch($query, $request);
+        return $query;
+    }
 
-        if ($withAuthors) {
-            $query->join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
-                ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
-        }
+    private function joinAuthors($query)
+    {
+        $query->join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
+            ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+    }
 
-        if ($userId) {
+    private function applyFilters($query, Request $request)
+    {
+        if ($userId = $request->query('userId')) {
             $user = User::find($userId);
             if (!$user) {
                 return $this->errorResponse('User not found', [], 404);
             }
             $query->where('author_id', $userId);
-        } elseif ($currentUser) {
-            $currentUser = Auth::user();
-            if ($currentUser) {
-                $query->where('author_id', $currentUser->id);
-            } else {
-                return $this->errorResponse('Current user not found', [], 404);
-            }
-        } elseif ($newsId) {
+        } elseif ($newsId = $request->query('newsId')) {
             $query->where('id', $newsId);
-            $news = $query->first(); 
+            $news = $query->first();
             if ($news) {
-                $news->increment('views'); 
+                $news->increment('views');
             }
+        }
+
+        $this->applyDateFilters($query, $request);
+        $this->applyStatusFilter($query, $request);
+    }
+
+    protected function applyDateFilters($query, Request $request)
+    {
+        if ($crtFrom = $request->query('crtFrom')) {
+            $query->whereDate('created_at', '>=', Carbon::parse($crtFrom));
+        }
+
+        if ($crtTo = $request->query('crtTo')) {
+            $query->whereDate('created_at', '<=', Carbon::parse($crtTo));
+        }
+
+        if ($updFrom = $request->query('updFrom')) {
+            $query->whereDate('updated_at', '>=', Carbon::parse($updFrom));
+        }
+
+        if ($updTo = $request->query('updTo')) {
+            $query->whereDate('updated_at', '<=', Carbon::parse($updTo));
+        }
+
+        if ($crtDate = $request->query('crtDate')) {
+            $query->whereDate('created_at', Carbon::parse($crtDate));
+        }
+
+        if ($updDate = $request->query('updDate')) {
+            $query->whereDate('updated_at', Carbon::parse($updDate));
+        }
+    }
+
+    private function applyStatusFilter($query, Request $request)
+    {
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+    }
+
+    private function applySearch($query, Request $request)
+    {
+        $searchColumnName = $request->query('searchColumnName');
+        $searchValue = $request->query('searchValue');
+        $searchFields = $request->query('searchFields', []);
+        $searchValues = $request->query('searchValues', []);
+        $operator = $request->query('operator', 'and');
+
+        if ($searchColumnName) {
+            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
         }
 
         if (!empty($searchFields) && !empty($searchValues)) {
@@ -141,75 +333,105 @@ class NewsController extends Controller
             }
         }
 
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
-
-        if ($tagFilter) {
+        if ($tagFilter = $request->query('tagFilter')) {
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
+    }
 
-        $crtFrom = $this->parseDate($crtFrom);
-        $crtTo = $this->parseDate($crtTo);
-        $updFrom = $this->parseDate($updFrom);
-        $updTo = $this->parseDate($updTo);
+    /**
+     * Мои новости
+     *
+     * Получение списка новостей для текущего пользователя
+     *
+     * @group Новости
+     *
+     * @authenticated
+     *
+     * @urlParam orderBy string Сортировка (Столбец)
+     * @urlParam orderDir string Сортировка (Направление "asc", "desc")
+     * @urlParam status string Статус блога (moderating, published)
+     *
+     * @urlParam page int Номер страницы.
+     * @urlParam perPage int Количество элементов на странице.
+     */
+    public function getOwnNews(Request $request)
+    {
+        $user = Auth::user();
 
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('created_at', '<=', $crtTo);
+        if (!$user->can('viewOwnNews', News::class)) {
+            return $this->errorResponse('You do not have permission to view your own news.', [], 403);
         }
 
-        if ($updFrom && $updTo) {
-            $query->whereBetween('updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('updated_at', '<=', $updTo);
+        $query = News::where('author_id', $user->id);
+
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        $newsStatus = $request->query('status');
+
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
         }
 
-        if ($crtDate) {
-            $query->whereDate('created_at', '=', $crtDate);
-        }
-    
-        if ($updDate) {
-            $query->whereDate('updated_at', '=', $updDate);
+        if ($newsStatus) {
+            $query->where('status', $newsStatus);
         }
 
-        $news = $query->paginate($perPage);
-
-        $paginationData = [
-            'current_page' => $news->currentPage(),
-            'from' => $news->firstItem(),
-            'last_page' => $news->lastPage(),
-            'per_page' => $news->perPage(),
-            'to' => $news->lastItem(),
-            'total' => $news->total(),
-        ];
-
+        $perPage = $request->query('perPage');
+        $news = $query->paginate($perPage ? $perPage : 10);
+        $paginationData = $this->formPagination($news);
         return $this->successResponse($news->items(), $paginationData, 200);
     }
 
-/**
-     * Parses the date from the given input.
-     * Supports both Y-m-d H:i:s and Y-m-d formats.
-     * 
-     * @param string|null $date
-     * @return string|null
+
+
+
+
+
+    /**
+     * Список опубликованных новостей
+     *
+     * Получение списка опубликованных новостей
+     *
+     * @group Новости
+     *
+     * @authenticated
+     *
+     * @urlParam orderBy string Сортировка (Столбец)
+     * @urlParam orderDir string Сортировка (Направление "asc", "desc")
+     *
      */
-    private function parseDate($date)
+    public function getPublishedNews(Request $request)
     {
-        if (!$date) {
-            return null;
+        if (!Auth::user()->can('viewPublishedNews', News::class)) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            return $date . ' 00:00:00';
+        $query = News::where('status', 'published');
+        $query->leftJoin('user_metadata', 'news.author_id', '=', 'user_metadata.user_id');
+        $query->select(
+            'news.id',
+            'news.title',
+            'news.created_at',
+            'news.updated_at',
+            'news.likes',
+            'news.reposts',
+            'news.views',
+            'user_metadata.nickname',
+        );
+
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('updated_at', 'desc');
         }
 
-        return $date;
+        $perPage = $request->query('perPage');
+        $news = $query->paginate($perPage ? $perPage : 10);
+        $paginationData = $this->formPagination($news);
+        return $this->successResponse($news->items(), $paginationData, 200);
     }
 
 

@@ -99,7 +99,35 @@ class BlogController extends Controller
     }
 
 
-
+    /**
+     * Список (новый)
+     * 
+     * Получение списка новостей (новый. использовать этот метод)
+     * 
+     * @group Новости
+     * @authenticated
+     * 
+     * @bodyParam userId int ID пользователя.
+     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
+     * @bodyParam blogId int ID новости.
+     * @urlParam withAuthors bool Включать авторов в ответ.
+     * @urlParam page int Номер страницы.
+     * @urlParam searchColumnName string Поиск по столбцу.
+     * @urlParam searchValue string Поисковый запрос.
+     * @urlParam searchFields string[] Массив столбцов для поиска.
+     * @urlParam searchValues string[] Массив значений для поиска.
+     * @urlParam tagFilter string Фильтр по тегу в meta описания.
+     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam crtDate string Дата создания (формат: Y-m-d).
+     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
+     * @urlParam updDate string Дата обновления (формат: Y-m-d).
+     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getBlogs(Request $request)
     {
         if (!Auth::user()->can('viewAny', Blog::class)) {
@@ -115,25 +143,6 @@ class BlogController extends Controller
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
 
-    /**
-     * Parses the date from the given input.
-     * Supports both Y-m-d H:i:s and Y-m-d formats.
-     *
-     * @param string|null $date
-     * @return string|null
-     */
-    private function parseDate($date)
-    {
-        if (!$date) {
-            return null;
-        }
-
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            return $date . ' 00:00:00';
-        }
-
-        return $date;
-    }
 
     private function checkSearchPermissions(Request $request)
     {
@@ -147,16 +156,9 @@ class BlogController extends Controller
     private function buildBlogQuery(Request $request): \Illuminate\Database\Eloquent\Builder
     {
         $query = Blog::query();
-
         $this->joinAuthors($query);
-
-        // if ($request->query('withAuthors', false)) {
-        //     $this->joinAuthors($query);
-        // }
-
         $this->applyFilters($query, $request);
         $this->applySearch($query, $request);
-
         return $query;
     }
 

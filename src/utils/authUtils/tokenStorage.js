@@ -1,10 +1,10 @@
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { refresh } from '../../api/authApi.js';
 
 export const setToken = (token) => {
-    if (token) {
-        localStorage.setItem('accessToken', token);
-    }
+  if (token) {
+    localStorage.setItem('accessToken', token);
+  }
 };
 
 let refreshPromise = null;
@@ -36,7 +36,7 @@ const refreshToken = async () => {
   return refreshPromise;
 };
 
-export const getToken = async (check) => {
+export const getToken = async (check = 'default') => {
   console.log(check);
   const now = new Date();
   const currentToken = localStorage.getItem('accessToken');
@@ -61,5 +61,5 @@ export const getToken = async (check) => {
 };
 
 export const removeToken = () => {
-    localStorage.removeItem('accessToken');
+  localStorage.removeItem('accessToken');
 };

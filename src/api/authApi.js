@@ -52,12 +52,15 @@ export const login = async (email, password) => {
     }
   };
 
-  export const logout = async () => {
+  export const logout = async (token) => {
     try {
       const response = await axios.post(`${API_URL}/auth/logout`, null, {
         withCredentials: true,
+        headers: {
+            Authorization: `Bearer ${token}`,
+          },
       });
-      console.log(response)
+      console.log('logout', response)
       return response.data;
     } catch (error) {
       throw new Error('logout failed');

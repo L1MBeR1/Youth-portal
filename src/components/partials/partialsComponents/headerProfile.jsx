@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link,useNavigate} from 'react-router-dom';
-import {removeToken} from '../../../utils/authUtils/tokenStorage.js';
+import { Link, useNavigate } from 'react-router-dom';
+import { removeToken } from '../../../utils/authUtils/tokenStorage.js';
 import { useQueryClient } from '@tanstack/react-query';
 import useProfile from '../../../hooks/useProfile.js';
-import {logout} from '../../../api/authApi.js';
+import { logout } from '../../../api/authApi.js';
 
 import IconButton from '@mui/joy/IconButton';
 import Box from '@mui/joy/Box';
@@ -21,86 +21,93 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profile-blank.png'
+import { getToken } from '../../../utils/authUtils/tokenStorage.js';
 
-  
 function HeaderProfile() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: profileData, isLoading } = useProfile();
 
-const handleLogout = async() => {
+  const handleLogout = async () => {
+
+    // 1. get access token
+    // 2. logout
+    // 3. remove token from storage
+    const accessToken = await getToken();
+    await logout(accessToken.token);
     removeToken();
-    // await logout();
+
+
     navigate('/login');
     queryClient.removeQueries(['profile']);
   };
-const profileMenu=()=>{
-  return(
-    <Dropdown>
-          <MenuButton
-            slots={{ root: Avatar }}
-            slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
-          >
-            <Avatar size="sm" src={profileData.profile_image_uri || profileBlank} />
-          </MenuButton>
-          <Menu size="sm" placement="bottom-end">
-            <MenuItem component={Link} to="/profile">
-              <PersonIcon />
-              Профиль
-            </MenuItem>
-            {profileData.roles.includes('admin') && (
-          <MenuItem component={Link} to="/admin">
-            Панель админа
+  const profileMenu = () => {
+    return (
+      <Dropdown>
+        <MenuButton
+          slots={{ root: Avatar }}
+          slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+        >
+          <Avatar size="sm" src={profileData.profile_image_uri || profileBlank} />
+        </MenuButton>
+        <Menu size="sm" placement="bottom-end">
+          <MenuItem component={Link} to="/profile">
+            <PersonIcon />
+            Профиль
           </MenuItem>
-            )}
-            {profileData.roles.includes('superuser') && (
-              <MenuItem component={Link} to="/superuser">
-                Панель суперюзера
-              </MenuItem>
-            )}
-            {profileData.roles.includes('moderator') && (
-              <MenuItem component={Link} to="/moderator">
-                Панель модератора
-              </MenuItem>
-            )}
-            <MenuItem>
-              <SettingsIcon />
-              Настройки
+          {profileData.roles.includes('admin') && (
+            <MenuItem component={Link} to="/admin">
+              Панель админа
             </MenuItem>
-            <ListDivider />
-            <MenuItem
-              onClick={handleLogout}
-              variant="soft"
-              color="danger"
-            >
-              <LogoutIcon />
-              Выйти
+          )}
+          {profileData.roles.includes('superuser') && (
+            <MenuItem component={Link} to="/superuser">
+              Панель суперюзера
             </MenuItem>
-          </Menu>
-        </Dropdown>
-  )
-}
+          )}
+          {profileData.roles.includes('moderator') && (
+            <MenuItem component={Link} to="/moderator">
+              Панель модератора
+            </MenuItem>
+          )}
+          <MenuItem>
+            <SettingsIcon />
+            Настройки
+          </MenuItem>
+          <ListDivider />
+          <MenuItem
+            onClick={handleLogout}
+            variant="soft"
+            color="danger"
+          >
+            <LogoutIcon />
+            Выйти
+          </MenuItem>
+        </Menu>
+      </Dropdown>
+    )
+  }
   return (
     <Box
-    sx={{
-      display:'flex',
-      flexGrow:1,
-      height:'100%',
-      minWidth:'39px',
-      justifyContent:'center',
-      alignContent:'center'
-    }}
+      sx={{
+        display: 'flex',
+        flexGrow: 1,
+        height: '100%',
+        minWidth: '39px',
+        justifyContent: 'center',
+        alignContent: 'center'
+      }}
     >
       {/* <CircularProgress color="neutral"size="sm" variant="solid" /> */}
       {isLoading ? (
-        <CircularProgress color="neutral"size="sm" variant="solid" 
-        sx={{ '--CircularProgress-size': '30px' }}
+        <CircularProgress color="neutral" size="sm" variant="solid"
+          sx={{ '--CircularProgress-size': '30px' }}
         />
       ) : profileData ? (
         <>
-        {profileMenu()}
+          {profileMenu()}
         </>
-        
+
       ) : (
         <Link to="/login">
           <IconButton variant='outlined'>

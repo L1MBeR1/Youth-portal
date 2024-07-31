@@ -445,7 +445,7 @@ class NewsController extends Controller
             $query->where('news.author_id', $userId);
         }
 
-        $perPage = $request->query('perPage');
+        $perPage = $request->query('per_page');
         $news = $query->paginate($perPage ? $perPage : 10);
         $paginationData = $this->formPagination($news);
         return $this->successResponse($news->items(), $paginationData, 200);

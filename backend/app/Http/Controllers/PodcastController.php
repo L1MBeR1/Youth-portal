@@ -433,7 +433,7 @@ class PodcastController extends Controller
             $query->where('podcasts.author_id', $userId);
         }
 
-        $perPage = $request->query('perPage');
+        $perPage = $request->query('per_page');
         $podcasts = $query->paginate($perPage ? $perPage : 10);
         $paginationData = $this->formPagination($podcasts);
         return $this->successResponse($podcasts->items(), $paginationData, 200);

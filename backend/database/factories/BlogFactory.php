@@ -11,12 +11,52 @@ use Faker\Factory as FakerFactory;
  */
 class BlogFactory extends Factory
 {
-    private function generateImageURL(int $width = 320, int $height = 240): string 
+    private function generateImageURL(int $width = 320, int $height = 240): string
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000); 
+        $number = random_int(1, 100000);
         $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
         return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
+    }
+
+    private function generateContent(): string
+    {
+        $basePlainText = $this->faker->realText(10000);
+        $contentInnerPictures = [];
+        $finalText = '';
+        $paragraphs = explode("\n\n", wordwrap($basePlainText, 200, "\n\n", true)); // Add line breaks every 200 characters
+
+        // Generate image URLs
+        for ($i = 0; $i < random_int(1, 5); $i++) {
+            $contentInnerPictures[] = $this->generateImageURL();
+        }
+
+        // HTML tags for text formatting
+        $htmlTags = ['<b>', '</b>', '<i>', '</i>', '<u>', '</u>', '<strong>', '</strong>', '<em>', '</em>'];
+
+        foreach ($paragraphs as $paragraph) {
+            $finalText .= '<p>';
+
+            // Apply random HTML tags for formatting
+            $words = explode(' ', $paragraph);
+            foreach ($words as $word) {
+                if (random_int(0, 10) > 7) { // 30% chance to wrap a word in HTML tags
+                    $tag = $htmlTags[array_rand($htmlTags)];
+                    $word = $tag . $word . str_replace('<', '</', $tag);
+                }
+                $finalText .= $word . ' ';
+            }
+
+            $finalText = rtrim($finalText) . '</p>';
+
+            // Insert images at random positions
+            if (random_int(0, 10) > 7 && !empty($contentInnerPictures)) {
+                $image = array_shift($contentInnerPictures);
+                $finalText .= '<div style="text-align:center;"><img src="' . $image . '" alt="Blog Image" style="max-width:100%;height:auto;"></div>';
+            }
+        }
+
+        return $finalText;
     }
 
 
@@ -40,7 +80,7 @@ class BlogFactory extends Factory
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
                 ]
             ],
-            'content' => $this->faker->realText(100),
+            'content' => $this->generateContent(),
             'cover_uri' => $this->generateImageURL(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),

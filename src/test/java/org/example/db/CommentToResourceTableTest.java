@@ -135,18 +135,18 @@ public class CommentToResourceTableTest {
             ResultSet rs = stmt.executeQuery(
                     "INSERT INTO public.comment_to_resource (comment_id, blog_id) " +
                             "VALUES (1, 1) " +
-                            "RETURNING id;"
+                            "RETURNING comment_id;"
             );
 
             rs.next();
-            commentToResourceId = rs.getInt("id");
+            commentToResourceId = rs.getInt("comment_id");
             assertTrue(commentToResourceId > 0, "Failed to insert data into comment_to_resource");
 
         }
 
         // Обновление данных
         try (PreparedStatement pstmt = connection.prepareStatement(
-                "UPDATE public.comment_to_resource SET blog_id = NULL WHERE id = ? RETURNING blog_id;"
+                "UPDATE public.comment_to_resource SET blog_id = NULL WHERE comment_id = ? RETURNING blog_id;"
         )) {
             pstmt.setInt(1, commentToResourceId);
             ResultSet rs = pstmt.executeQuery();

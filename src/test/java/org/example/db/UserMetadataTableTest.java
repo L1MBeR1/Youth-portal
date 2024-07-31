@@ -150,18 +150,18 @@ public class UserMetadataTableTest {
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(
                     "INSERT INTO public.user_metadata (user_id, first_name, last_name, gender, birthday) " +
-                            "VALUES (1, 'John', 'Doe', 'm', '1990-01-01') " +
-                            "RETURNING id;"
+                            "VALUES (1, 'John', 'Doe', 'm', '1990-01-01')  " +
+                            "RETURNING user_id ;"
             );
 
             rs.next();
-            metadataId = rs.getInt("id");
+            metadataId = rs.getInt("user_id");
             assertTrue(metadataId > 0, "Failed to insert data into user_metadata");
         }
 
         // Обновление данных
         try (PreparedStatement pstmt = connection.prepareStatement(
-                "UPDATE public.user_metadata SET first_name = 'Jane' WHERE id = ? RETURNING first_name;"
+                "UPDATE public.user_metadata SET first_name = 'Jane' WHERE user_id = ? RETURNING first_name;"
         )) {
             pstmt.setInt(1, metadataId);
             ResultSet rs = pstmt.executeQuery();

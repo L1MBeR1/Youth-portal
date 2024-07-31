@@ -30,7 +30,7 @@ import CustomTable from '../../shared/workSpaceTable.jsx';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
-import useNews from '../../../../hooks/useNews.js';
+import useNews from '../../../../hooks/service/useNews.js';
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 

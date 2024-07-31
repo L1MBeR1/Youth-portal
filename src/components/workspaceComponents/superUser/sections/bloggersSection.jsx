@@ -33,7 +33,7 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-import useUsers from '../../../../hooks/useUsers.js';
+import useUsers from '../../../../hooks/service/useUsers.js';
 
 
 function BlogersSection() {

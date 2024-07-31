@@ -13,6 +13,13 @@ import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
 
+import Blogs from './pages/blogs';
+import BlogPage from './pages/blogPage';
+
+import News from './pages/news';
+
+import Podcasts from './pages/podcasts';
+
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
@@ -42,6 +49,13 @@ function App() {
             <Route index element={<Home />} />
             <Route path="404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" />} />
+
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="/blog/:id" element={<BlogPage />} />
+
+            <Route path="news" element={<News />} />
+
+            <Route path="podcasts" element={<Podcasts />} />
 
             {/* Пути только для гостя */}
             <Route path="login" element={<GuestRoute element={<Login />}/>} />

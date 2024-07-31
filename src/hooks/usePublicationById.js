@@ -1,27 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectsByPage } from '../api/projectsApi';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
-const useProjects = (queryKey,tags,setLastPage, params) => {
+const useBlogs = (queryKey,api,id,setLastPage) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const {token}= await getToken('useProjects');
+      const {token}= await getToken('usePublications');
       if (!token) {
         return null;
       }
-      const response = await getProjectsByPage(token, params);
+      const response = await api(token, id);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
     },
-    meta: {
-      tags: tags
-    },
     keepPreviousData: true,
     staleTime: 300000,
-    cacheTime: 600000,
+    cacheTime: 300000,
+    retry:1
   });
 };
 
-export default useProjects;
+export default useBlogs;

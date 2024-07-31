@@ -40,7 +40,7 @@ export const getToken = async (check = 'default') => {
   console.log(check);
   const now = new Date();
   const currentToken = localStorage.getItem('accessToken');
-  console.log(currentToken);
+  // console.log(currentToken);
 
   if (currentToken) {
     const decoded = jwtDecode(currentToken);

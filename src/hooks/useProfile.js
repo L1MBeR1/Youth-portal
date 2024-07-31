@@ -21,8 +21,7 @@ const useProfile = () => {
       return null;
     },
     staleTime: 300000, 
-    cacheTime: 86400000, 
-    keepPreviousData: true,
+    cacheTime: 86400000,
     retry:1
   });
 };

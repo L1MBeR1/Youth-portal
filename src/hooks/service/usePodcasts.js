@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { getNewsByPage } from '../api/newsApi';
-import { getToken } from '../utils/authUtils/tokenStorage';
+import { getPodcastsByPage } from '../../api/podcastsApi';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 
-const useNews = (queryKey,tags,setLastPage, params) => {
+const usePodcasts = (queryKey,tags,setLastPage, params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const {token}= await getToken('useToken');
+      const {token}= await getToken('usePodcasts');
       if (!token) {
         return null;
       }
-      const response = await getNewsByPage(token, params);
+      const response = await getPodcastsByPage(token, params);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
@@ -24,4 +24,4 @@ const useNews = (queryKey,tags,setLastPage, params) => {
   });
 };
 
-export default useNews;
+export default usePodcasts;

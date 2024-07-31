@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Avatar, Card, CardContent, CardActions, IconButton, Button, Input } from '@mui/joy';
 import { ThumbUpAltOutlined as ThumbUpIcon } from '@mui/icons-material';
 import { getCommentsForResource, postComment } from '../../api/commentsApi.js';
-import { getCookie } from '../../utils/cookie/cookieUtils.js';
-import { getBlogsActual } from '../../api/blogsApi.js';
+import { getToken } from '../../utils/authUtils/tokenStorage.js';
+import { getBlogsByPage} from '../../api/blogsApi.js';
 
 function Comment({ comment, allComments }) {
     const getReplies = (commentId) => {
@@ -56,7 +56,8 @@ function BlogDetail() {
     useEffect(() => {
         const fetchBlog = async () => {
             try {
-                const res = await getBlogsActual(getCookie('token'), { blogId: 12 });
+                const {token} = await getToken()
+                const res = await getBlogsByPage(token, { blogId: 12 });
                 setBlog(res.data[0]);
                 console.log('DATA', res.data);
             } catch (error) {
@@ -66,7 +67,8 @@ function BlogDetail() {
 
         const fetchComments = async () => {
             try {
-                const res = await getCommentsForResource(getCookie('token'), 'blog', 12);
+                const {token} = await getToken()
+                const res = await getCommentsForResource(token, 'blog', 12);
                 console.log('COMMENTS', res.data);
                 setComments(res.data);
             } catch (error) {
@@ -87,8 +89,8 @@ function BlogDetail() {
 
         setIsSubmitting(true);
         try {
-            console.log(getCookie('token'));
-            const res = await postComment(getCookie('token'), 'blog', 12, { content: newComment });
+            const {token} = await getToken()
+            const res = await postComment(token, 'blog', 12, { content: newComment });
             setComments([res.data, ...comments]);
             setNewComment('');
         } catch (error) {

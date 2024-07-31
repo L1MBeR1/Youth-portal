@@ -33,17 +33,29 @@ export const changeBlogStatus = async (token, id, status) => {
   }
 };
 
-
-// Актуальный
-// TODO: Rename
-export const getBlogsActual = async (token, params) => {
+export const getPublishedBlogs = async (token, params) => {
   try {
-    const response = await axios.get(`${API_URL}/blogs`, {
+    const response = await axios.get(`${API_URL}/blogs/published`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       params: params
     });
+    // console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    throw error;
+  }
+};
+export const getBlog = async (token, id) => {
+  try {
+    const response = await axios.get(`${API_URL}/blogs/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // console.log(response)
     return response.data;
   } catch (error) {
     console.error('Error fetching blogs:', error);

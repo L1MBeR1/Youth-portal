@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { removeToken } from '../../../utils/authUtils/tokenStorage.js';
 import { useQueryClient } from '@tanstack/react-query';
 import useProfile from '../../../hooks/useProfile.js';
-import { logout } from '../../../api/authApi.js';
+
+import { logoutFunc } from '../../../utils/authUtils/logout.js';
 
 import IconButton from '@mui/joy/IconButton';
 import Box from '@mui/joy/Box';
@@ -20,8 +20,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import profileBlank from '../../../img/profile-blank.png'
-import { getToken } from '../../../utils/authUtils/tokenStorage.js';
+import profileBlank from '../../../img/profileBlank.png'
 
 function HeaderProfile() {
   const queryClient = useQueryClient();
@@ -30,16 +29,10 @@ function HeaderProfile() {
 
   const handleLogout = async () => {
 
-    // 1. get access token
-    // 2. logout
-    // 3. remove token from storage
-    const accessToken = await getToken();
-    await logout(accessToken.token);
-    removeToken();
+    await logoutFunc();
 
-
-    navigate('/login');
     queryClient.removeQueries(['profile']);
+    navigate('/login');
   };
   const profileMenu = () => {
     return (
@@ -47,6 +40,9 @@ function HeaderProfile() {
         <MenuButton
           slots={{ root: Avatar }}
           slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+          sx={{
+            cursor:'pointer'
+          }}
         >
           <Avatar size="sm" src={profileData.profile_image_uri || profileBlank} />
         </MenuButton>

@@ -33,7 +33,7 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-import useModerators from '../../../../hooks/useUsers.js';
+import useModerators from '../../../../hooks/service/useUsers.js';
 
 
 function ModeratorsSection() {

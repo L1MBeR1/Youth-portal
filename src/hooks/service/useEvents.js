@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { getBlogsByPage } from '../api/blogsApi';
-import { getToken } from '../utils/authUtils/tokenStorage';
+import { getEventsByPage } from '../../api/eventsApi';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 
-const useBlogs = (queryKey,tags,setLastPage,params) => {
+const useEvents = (queryKey,tags,setLastPage, params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const {token}= await getToken('useBlogs');
+      const {token}= await getToken('useEvents');
       if (!token) {
         return null;
       }
-      const response = await getBlogsByPage(token, params);
+      const response = await getEventsByPage(token, params);
       setLastPage(response.message.last_page)
       console.log(response)
       return response.data;
@@ -24,4 +24,4 @@ const useBlogs = (queryKey,tags,setLastPage,params) => {
   });
 };
 
-export default useBlogs;
+export default useEvents;

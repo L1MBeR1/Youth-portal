@@ -32,7 +32,7 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
 import { getCookie } from '../../../../utils/cookie/cookieUtils.js';
-import useOrganizations from '../../../../hooks/useOrganizations.js';
+import useOrganizations from '../../../../hooks/service/useOrganizations.js';
 
 
 function OrganizationsSection() {

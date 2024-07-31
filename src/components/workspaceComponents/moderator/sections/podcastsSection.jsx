@@ -29,7 +29,7 @@ import CustomTable from '../../shared/workSpaceTable.jsx';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
-import usePodcasts from '../../../../hooks/usePodcasts.js';
+import usePodcasts from '../../../../hooks/service/usePodcasts.js';
 
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';

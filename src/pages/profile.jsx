@@ -38,15 +38,14 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 function Profile() {
     const navigate = useNavigate();
     const { data: profileData, isLoading } = useProfile();
+    if (!profileData){
+        navigate('/login');
+    }
 
     const [tab, setTab] = useState(0);
     console.log(profileData);
 
-    useEffect(() => {
-        if (!profileData){
-            navigate('/login');
-        }
-      }, [profileData,navigate]);
+
     return (
         <Box
             sx={{
@@ -144,7 +143,7 @@ function Profile() {
                     >   
                         <Stack>
                         {profileData.roles.map((role) => (
-                            <Chip size='lg'>{role}</Chip>
+                            <Chip key={role} size='lg'>{role}</Chip>
                         ))}
                         </Stack>
                         <Stack

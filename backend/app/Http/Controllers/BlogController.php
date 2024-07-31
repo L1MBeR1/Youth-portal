@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,37 +10,27 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use Symfony\Component\HttpFoundation\Response;
-
+use App\Traits\QueryBuilderTrait;
+use App\Traits\PaginationTrait;
 class BlogController extends Controller
-{
-    private function formPagination($q): array
-    {
-        return [
-            'current_page' => $q->currentPage(),
-            // 'from' => $q->firstItem(),
-            'last_page' => $q->lastPage(),
-            'per_page' => $q->perPage(),
-            // 'to' => $q->lastItem(),
-            'total' => $q->total(),
-        ];
-    }
-
-
+{   
+    use QueryBuilderTrait, PaginationTrait;
+    
     /**
      * Список с авторами
      *
      * @group Блоги
      * @authenticated
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $perPage = $request->get('per_page', 10);
-        $blogs = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
-            ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
-            ->paginate($perPage);
+    // public function index(Request $request): \Illuminate\Http\JsonResponse
+    // {
+    //     $perPage = $request->get('per_page', 10);
+    //     $blogs = Blog::join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
+    //         ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname')
+    //         ->paginate($perPage);
 
-        return response()->json($blogs);
-    }
+    //     return response()->json($blogs);
+    // }
 
 
 
@@ -91,8 +80,12 @@ class BlogController extends Controller
     {
         $blog = Blog::find($id);
 
-        if (!Auth::user()->can('requestCurrentBlog', [Blog::class, $blog])) {
+        if (!Auth::user()->can('requestSpecificBlog', [Blog::class, $blog])) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+
+        if ($blog) {
+            $blog->increment('views');
         }
 
         return $this->successResponse($blog, '', 200);
@@ -104,16 +97,18 @@ class BlogController extends Controller
      * 
      * Получение списка новостей (новый. использовать этот метод)
      * 
-     * @group Новости
+     * @group Блоги
      * @authenticated
      * 
      * @bodyParam userId int ID пользователя.
      * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
-     * @bodyParam blogId int ID новости.
      * @urlParam withAuthors bool Включать авторов в ответ.
      * @urlParam page int Номер страницы.
+     * @urlParam per_page int Элементов на странице.
+     * 
      * @urlParam searchColumnName string Поиск по столбцу.
      * @urlParam searchValue string Поисковый запрос.
+     * 
      * @urlParam searchFields string[] Массив столбцов для поиска.
      * @urlParam searchValues string[] Массив значений для поиска.
      * @urlParam tagFilter string Фильтр по тегу в meta описания.
@@ -125,8 +120,6 @@ class BlogController extends Controller
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
      * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
      * 
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function getBlogs(Request $request)
     {
@@ -136,7 +129,7 @@ class BlogController extends Controller
 
         $perPage = $request->get('per_page', 5);
         $this->checkSearchPermissions($request);
-        $query = $this->buildBlogQuery($request);
+        $query = $this->buildPublicationQuery($request, Blog::class, 'blogs');
 
         $blogs = $query->paginate($perPage);
         $paginationData = $this->formPagination($blogs);
@@ -150,112 +143,6 @@ class BlogController extends Controller
             if (!Auth::user()->can('search', Blog::class)) {
                 $this->errorResponse('Нет прав на просмотр', [], 403);
             }
-        }
-    }
-
-    private function buildBlogQuery(Request $request): \Illuminate\Database\Eloquent\Builder
-    {
-        $query = Blog::query();
-        $this->joinAuthors($query);
-        $this->applyFilters($query, $request);
-        $this->applySearch($query, $request);
-        return $query;
-    }
-
-    private function joinAuthors($query)
-    {
-        $query->join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
-            ->select('blogs.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
-    }
-
-    private function applyFilters($query, Request $request)
-    {
-        if ($userId = $request->query('userId')) {
-            $user = User::find($userId);
-            if (!$user) {
-                return $this->errorResponse('User not found', [], 404);
-            }
-            $query->where('author_id', $userId);
-        } elseif ($blogId = $request->query('blogId')) {
-            $query->where('id', $blogId);
-            $blog = $query->first();
-            if ($blog) {
-                $blog->increment('views');
-            }
-        }
-
-        $this->applyDateFilters($query, $request);
-        $this->applyStatusFilter($query, $request);
-    }
-
-    protected function applyDateFilters($query, Request $request)
-    {
-        if ($crtFrom = $request->query('crtFrom')) {
-            $query->whereDate('created_at', '>=', Carbon::parse($crtFrom));
-        }
-
-        if ($crtTo = $request->query('crtTo')) {
-            $query->whereDate('created_at', '<=', Carbon::parse($crtTo));
-        }
-
-        if ($updFrom = $request->query('updFrom')) {
-            $query->whereDate('updated_at', '>=', Carbon::parse($updFrom));
-        }
-
-        if ($updTo = $request->query('updTo')) {
-            $query->whereDate('updated_at', '<=', Carbon::parse($updTo));
-        }
-
-        if ($crtDate = $request->query('crtDate')) {
-            $query->whereDate('created_at', Carbon::parse($crtDate));
-        }
-
-        if ($updDate = $request->query('updDate')) {
-            $query->whereDate('updated_at', Carbon::parse($updDate));
-        }
-    }
-
-    private function applyStatusFilter($query, Request $request)
-    {
-        if ($status = $request->query('status')) {
-            $query->where('status', $status);
-        }
-    }
-
-    private function applySearch($query, Request $request)
-    {
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
-        $searchFields = $request->query('searchFields', []);
-        $searchValues = $request->query('searchValues', []);
-        $operator = $request->query('operator', 'and');
-
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
-
-        if (!empty($searchFields) && !empty($searchValues)) {
-            if ($operator === 'or') {
-                $query->where(function ($query) use ($searchFields, $searchValues) {
-                    foreach ($searchFields as $index => $field) {
-                        $value = $searchValues[$index] ?? null;
-                        if ($value) {
-                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
-                        }
-                    }
-                });
-            } else {
-                foreach ($searchFields as $index => $field) {
-                    $value = $searchValues[$index] ?? null;
-                    if ($value) {
-                        $query->where($field, 'LIKE', '%' . $value . '%');
-                    }
-                }
-            }
-        }
-
-        if ($tagFilter = $request->query('tagFilter')) {
-            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
     }
 
@@ -401,7 +288,7 @@ class BlogController extends Controller
      * @bodyParam views int Количество просмотров.
      * @bodyParam likes int Количество лайков.
      * @bodyParam reposts int Количество репостов.
-     *
+     * 
      */
     public function update(UpdateBlogRequest $request, $id)
     {
@@ -482,7 +369,7 @@ class BlogController extends Controller
      *
      * Этот метод позволяет пользователю "лайкнуть" или "дизлайкнуть" блог.
      *
-     * @group    Блоги
+     * @group Блоги
      *
      * @urlParam id int Обязательно. Идентификатор блога.
      *

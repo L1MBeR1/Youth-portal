@@ -11,6 +11,16 @@ use Faker\Factory as FakerFactory;
  */
 class BlogFactory extends Factory
 {
+    private function generateImageURL(int $width = 320, int $height = 240): string 
+    {
+        // Для избежания кеширования изображений при многократном обращении к сайту
+        $number = random_int(1, 100000); 
+        return "https://loremflickr.com/{$width}/{$height}/?random={$number}";
+    }
+
+
+
+
     /**
      * Define the model's default state.
      *
@@ -30,7 +40,7 @@ class BlogFactory extends Factory
                 ]
             ],
             'content' => $this->faker->realText(100),
-            'cover_uri' => $this->faker->imageUrl(),
+            'cover_uri' => $this->generateImageURL(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),

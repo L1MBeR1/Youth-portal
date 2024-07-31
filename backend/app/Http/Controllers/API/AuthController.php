@@ -379,19 +379,43 @@ class AuthController extends Controller
      */
     public function logout()
     {
-
+        Log::info('LOGOUT STARTING...');
         $user = Auth::user();
+        Log::info('DEFINED USER: ' . $user->email);
+        Log::info('SETTING REMEMBER TOKEN TO NULL...');
         $user->remember_token = null;
+        Log::info('REMEMBER TOKEN SET TO NULL');
         $user->save();
+        Log::info('SAVED USER');
 
+        Log::info('LOGGING OUT...');
         Auth::logout();
+        Log::info('LOGGED OUT');
 
+        Log::info('RESPONDING...');
         $response = response()->json(['message' => 'Successfully logged out.']);
         $response->withCookie(cookie()->forget('refresh_token'));
 
+        Log::info('LOGOUT DONE');
         return $response;
-
     }
+    // public function logout()
+    // {
+    //     $user = Auth::user();
+
+    //     if ($user) {
+    //         $user->remember_token = null;
+    //         $user->save();
+    //     }
+
+    //     Auth::logout();
+
+    //     $response = response()->json(['message' => 'Successfully logged out.']);
+    //     $response->withCookie(cookie()->forget('refresh_token'));
+
+    //     return $response;
+    // }
+
 
 
 

@@ -413,6 +413,7 @@ class PodcastController extends Controller
             'podcasts.reposts',
             'podcasts.views',
             'user_metadata.nickname',
+            'user_metadata.profile_image_uri'
         );
 
         $orderBy = $request->query('orderBy');

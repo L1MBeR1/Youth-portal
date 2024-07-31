@@ -10,6 +10,12 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class UserMetadataFactory extends Factory
 {
+    private function generateImageURL(int $width = 320, int $height = 240): string 
+    {
+        // Для избежания кеширования изображений при многократном обращении к сайту
+        $number = random_int(1, 100000); 
+        return "https://loremflickr.com/{$width}/{$height}/?random={$number}";
+    }
     protected $model = UserMetadata::class;
 
     public function definition()
@@ -20,7 +26,7 @@ class UserMetadataFactory extends Factory
             'last_name' => $this->faker->lastName,
             'patronymic' => $this->faker->middleName,
             'nickname' => $this->faker->userName,
-            'profile_image_uri' => $this->faker->imageUrl,
+            'profile_image_uri' => $this->generateImageURL(128, 128),
             'gender' => $this->faker->randomElement(['m', 'f']),
             'city' => $this->faker->city,
             'birthday' => $this->faker->date,

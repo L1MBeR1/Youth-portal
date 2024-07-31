@@ -30,13 +30,17 @@ class BlogPolicy
         return true;
     }
 
-    public function requestCurrentBlog(User $user, Blog $blog): bool
+    public function requestSpecificBlog(User $user, Blog $blog): bool
     {
-        if ($user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su')){
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
             return true;
         }        
 
         if ($blog->status === 'published') {
+            return true;
+        }
+
+        if ($blog->author_id === $user->id) {
             return true;
         }
 

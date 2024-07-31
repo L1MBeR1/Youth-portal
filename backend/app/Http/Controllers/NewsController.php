@@ -244,7 +244,14 @@ class NewsController extends Controller
     private function joinAuthors($query)
     {
         $query->join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
-            ->select('news.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+            ->select(
+                'news.*', 
+                'user_metadata.first_name', 
+                'user_metadata.last_name', 
+                'user_metadata.patronymic', 
+                'user_metadata.nickname',
+                'user_metadata.profile_image_uri'
+            );
     }
 
     private function applyFilters($query, Request $request)

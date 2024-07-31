@@ -419,12 +419,17 @@ class NewsController extends Controller
         $query->select(
             'news.id',
             'news.title',
+            'news.description',
             'news.created_at',
             'news.updated_at',
             'news.likes',
             'news.reposts',
             'news.views',
+            'news.cover_uri',
             'user_metadata.nickname',
+            'user_metadata.first_name',
+            'user_metadata.last_name',
+            'user_metadata.profile_image_uri',
         );
 
         $orderBy = $request->query('orderBy');

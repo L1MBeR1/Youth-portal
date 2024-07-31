@@ -407,13 +407,17 @@ class PodcastController extends Controller
         $query->select(
             'podcasts.id',
             'podcasts.title',
+            'podcasts.description',
             'podcasts.created_at',
             'podcasts.updated_at',
             'podcasts.likes',
             'podcasts.reposts',
             'podcasts.views',
+            'podcasts.cover_uri',
             'user_metadata.nickname',
-            'user_metadata.profile_image_uri'
+            'user_metadata.first_name',
+            'user_metadata.last_name',
+            'user_metadata.profile_image_uri',
         );
 
         $orderBy = $request->query('orderBy');

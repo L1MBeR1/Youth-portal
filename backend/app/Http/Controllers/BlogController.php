@@ -93,16 +93,15 @@ class BlogController extends Controller
 
 
     /**
-     * Список (новый)
+     * Поиск
      * 
-     * Получение списка новостей (новый. использовать этот метод)
+     * Получение списка блогов
      * 
      * @group Блоги
      * @authenticated
      * 
      * @bodyParam userId int ID пользователя.
      * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
-     * @urlParam withAuthors bool Включать авторов в ответ.
      * @urlParam page int Номер страницы.
      * @urlParam per_page int Элементов на странице.
      * 

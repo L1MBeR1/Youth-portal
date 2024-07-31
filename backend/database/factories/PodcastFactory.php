@@ -12,7 +12,8 @@ class PodcastFactory extends Factory
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
         $number = random_int(1, 100000); 
-        return "https://loremflickr.com/{$width}/{$height}/?random={$number}";
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
     }
 
 

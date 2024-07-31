@@ -31,7 +31,7 @@ class NewsPolicy
         return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
     }
 
-    public function viewPublishedPodcasts(User $user): bool
+    public function viewPublishedNews(User $user): bool
     {
         return true;
     }

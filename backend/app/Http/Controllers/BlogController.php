@@ -222,6 +222,8 @@ class BlogController extends Controller
             'blogs.title',
             'blogs.created_at',
             'blogs.updated_at',
+            'blogs.description',
+            'blogs.cover_uri',
             'blogs.likes',
             'blogs.reposts',
             'blogs.views',
@@ -241,7 +243,7 @@ class BlogController extends Controller
             $query->where('blogs.author_id', $userId);
         }
 
-        $perPage = $request->query('perPage');
+        $perPage = $request->query('per_page');
         $blogs = $query->paginate($perPage ? $perPage : 10);
         $paginationData = $this->formPagination($blogs);
         return $this->successResponse($blogs->items(), $paginationData, 200);

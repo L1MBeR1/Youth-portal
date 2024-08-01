@@ -102,6 +102,7 @@ class BlogController extends Controller
                 "id",
                 "title",
                 "description",
+                "content",
                 "status",
                 "created_at",
                 "updated_at",

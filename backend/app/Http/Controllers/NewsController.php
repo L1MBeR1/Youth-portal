@@ -41,6 +41,7 @@ class NewsController extends Controller
                 "title",
                 "description",
                 "status",
+                "content",
                 "created_at",
                 "updated_at",
                 "likes",

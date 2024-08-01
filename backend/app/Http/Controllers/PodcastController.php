@@ -40,6 +40,7 @@ class PodcastController extends Controller
                 "id",
                 "title",
                 "description",
+                "content",
                 "status",
                 "created_at",
                 "updated_at",

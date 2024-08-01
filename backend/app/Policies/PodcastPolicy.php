@@ -35,6 +35,23 @@ class PodcastPolicy
         return true;
     }
 
+    public function requestSpecificPodcast(User $user, Podcast $blog): bool
+    {
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+            return true;
+        }        
+
+        if ($blog->status === 'published') {
+            return true;
+        }
+
+        if ($blog->author_id === $user->id) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function viewOwnPodcasts(User $user): bool
     {
         return $user->hasPermissionTo('view own podcasts');

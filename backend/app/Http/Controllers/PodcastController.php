@@ -27,7 +27,7 @@ class PodcastController extends Controller
     {
         $podcast = Podcast::find($id);
 
-        if (!Auth::user()->can('requestSpecificBlog', [Podcast::class, $podcast])) {
+        if (!Auth::user()->can('requestSpecificPodcast', [Podcast::class, $podcast])) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
@@ -63,7 +63,7 @@ class PodcastController extends Controller
     }
 
 
-    
+
     private function formPagination($q): array
     {
         return [

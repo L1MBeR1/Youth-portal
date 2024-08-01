@@ -41,6 +41,23 @@ class NewsPolicy
         return $user->hasPermissionTo('view own news');
     }
 
+    public function requestSpecificNews(User $user, News $blog): bool
+    {
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+            return true;
+        }        
+
+        if ($blog->status === 'published') {
+            return true;
+        }
+
+        if ($blog->author_id === $user->id) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Determine whether the user can create models.
      *

@@ -27,7 +27,7 @@ class NewsController extends Controller
     {
         $news = News::find($id);
         
-        if (!Auth::user()->can('requestSpecificBlog', [News::class, $news])) {
+        if (!Auth::user()->can('requestSpecificNews', [News::class, $news])) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
         

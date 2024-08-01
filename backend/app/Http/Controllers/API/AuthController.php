@@ -23,7 +23,7 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
-use PHPOpenSourceSaver\JWTAuth\Validators\Validator;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -111,9 +111,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email|unique:user_login_data,email',
-            'phone' => 'nullable|string|unique:user_login_data,phone',
-            'password' => 'required',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+            'password' => 'required|string',
         ]);
         
         if ($validator->fails()) {

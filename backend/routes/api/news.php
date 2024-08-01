@@ -12,6 +12,7 @@ Route::group([
     Route::get('my', [NewsController::class, 'getOwnNews']);
     Route::get('published', [NewsController::class, 'getPublishedNews']);
     Route::get('', [NewsController::class, 'getNews']);
+    Route::get('{id}', [NewsController::class, 'getNewsById']);
     Route::post('', [NewsController::class, 'store']);
     Route::put('{id}', [NewsController::class, 'update']);
     Route::delete('{id}', [NewsController::class, 'destroy']);

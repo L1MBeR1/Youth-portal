@@ -17,8 +17,53 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+use App\Traits\QueryBuilderTrait; //не уверен что это стоит того
+use App\Traits\PaginationTrait;   //.
+
 class PodcastController extends Controller
 {
+    use QueryBuilderTrait, PaginationTrait;
+    public function getPodcastById($id)
+    {
+        $podcast = Podcast::find($id);
+
+        if (!Auth::user()->can('requestSpecificBlog', [Podcast::class, $podcast])) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+
+        if ($podcast) {
+            $podcast->increment('views');
+        }
+
+        $requiredFields = [
+            "podcasts" => [
+                "id",
+                "title",
+                "description",
+                "status",
+                "created_at",
+                "updated_at",
+                "likes",
+                "reposts",
+                "views",
+                "cover_uri",
+            ],
+            "user_metadata" => [
+                "first_name",
+                "last_name",
+                "patronymic",
+                "nickname",
+                "profile_image_uri",
+            ]
+        ];
+
+        $podcast = $this->connectFields($podcast, $requiredFields);
+
+        return $this->successResponse($podcast, '', 200);
+    }
+
+
+    
     private function formPagination($q): array
     {
         return [
@@ -463,7 +508,7 @@ class PodcastController extends Controller
         $podcast = Podcast::create($request->validated() + [
             'status' => 'moderating',
             'author_id' => Auth::id(),
-        ]);     
+        ]);
 
         return $this->successResponse(['podcast' => $podcast], 'Podcast created successfully', 200);
     }

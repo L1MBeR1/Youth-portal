@@ -12,6 +12,8 @@ Route::group([
     Route::get('published', [PodcastController::class, 'getPublishedPodcasts']);
     Route::get('', [PodcastController::class, 'getPodcasts']);
     Route::get('/index', [PodcastController::class, 'index']);
+    Route::get('{id}', [PodcastController::class, 'getPodcastById']);
+
     Route::post('', [PodcastController::class, 'store']);
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);

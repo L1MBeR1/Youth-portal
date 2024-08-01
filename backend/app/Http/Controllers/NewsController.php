@@ -17,9 +17,53 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+use App\Traits\QueryBuilderTrait; //не уверен что это стоит того
+use App\Traits\PaginationTrait;   //.
 
 class NewsController extends Controller
 {
+    use QueryBuilderTrait, PaginationTrait;
+    public function getNewsById($id)
+    {
+        $news = News::find($id);
+        
+        if (!Auth::user()->can('requestSpecificBlog', [News::class, $news])) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+        
+        if ($news) {
+            $news->increment('views');
+        }
+        
+        $requiredFields = [
+            "news" => [
+                "id",
+                "title",
+                "description",
+                "status",
+                "created_at",
+                "updated_at",
+                "likes",
+                "reposts",
+                "views",
+                "cover_uri",
+            ],
+            "user_metadata" => [
+                "first_name",
+                "last_name",
+                "patronymic",
+                "nickname",
+                "profile_image_uri",
+                ]
+            ];
+            
+        $news = $this->connectFields($news, $requiredFields);
+
+        return $this->successResponse($news, '', 200);
+    }
+
+
+
     private function formPagination($q): array
     {
         return [

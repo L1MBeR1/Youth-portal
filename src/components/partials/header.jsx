@@ -102,6 +102,7 @@ function Header() {
               <ListItemButton> <Link to="/blogs">Блоги</Link></ListItemButton>
               <ListItemButton><Link to="/news">Новости</Link></ListItemButton>
               <ListItemButton><Link to="/podcasts">Подкасты</Link></ListItemButton>
+              //TODO Добавить закрытие при нажатии
             </List>
           </Drawer>
         </Box>

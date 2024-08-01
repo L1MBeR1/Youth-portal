@@ -44,8 +44,8 @@ export const CommentWrapper = ({ comment }) => {
                 alignItems="flex-start"
                 spacing={2}
                 sx={{
-                  margin: "10px 40px",
-                  padding: "0px 20px",
+                  margin: "10px 0 0 40px",
+                  paddingLeft: "20px",
                   borderLeft: "1px solid",
                   borderColor: "divider",
                 }}

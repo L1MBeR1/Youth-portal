@@ -2,6 +2,7 @@ import React from "react";
 import Stack from "@mui/joy/Stack";
 import { CommentWrapper } from "./commentWrapper.jsx";
 const buildCommentsStructure = (comments) => {
+    
     const commentsMap = {};
     const rootComments = [];
 
@@ -40,12 +41,22 @@ const buildCommentsStructure = (comments) => {
     console.log(rootComments)
     return rootComments;
 };
-const sortComments=(comments,sortType)=>{
-    return comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-}
+
+const sortComments = (comments, sortType) => {
+    switch (sortType) {
+        case 'newest':
+            return comments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        case 'oldest':
+            return comments.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        case 'popular':
+            return comments.sort((a, b) => b.likes - a.likes);
+        default:
+            return comments;
+    }
+};
 export const CommentSection=({data,sortType})=>{
 
-    const comments=sortComments(buildCommentsStructure(data));
+    const comments=sortComments(buildCommentsStructure(data),'popular');
 
     return(
         <Stack

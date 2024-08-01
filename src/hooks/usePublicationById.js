@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
-const useBlogs = (queryKey,api,id,setLastPage) => {
+const usePublicationsById = (queryKey,api,id,setLastPage) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
       const {token}= await getToken('usePublications');
+      
       if (!token) {
         return null;
       }
       const response = await api(token, id);
-      setLastPage(response.message.last_page)
+      console.log(1)
       console.log(response)
       return response.data;
     },
@@ -21,4 +22,4 @@ const useBlogs = (queryKey,api,id,setLastPage) => {
   });
 };
 
-export default useBlogs;
+export default usePublicationsById;

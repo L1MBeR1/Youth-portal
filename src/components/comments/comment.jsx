@@ -36,7 +36,7 @@ export const Comment = ({ comment }) => {
             <Typography level="title-md">
               {comment.first_name} {comment.last_name} ({comment.nickname})
             </Typography>
-            <Typography level="body-sm">
+            <Typography level="body-xs">
               {timeAgo(comment.created_at)}
             </Typography>
           </Stack>

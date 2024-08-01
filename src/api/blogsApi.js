@@ -55,7 +55,7 @@ export const getBlog = async (token, id) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    // console.log(response)
+    console.log(response)
     return response.data;
   } catch (error) {
     console.error('Error fetching blogs:', error);

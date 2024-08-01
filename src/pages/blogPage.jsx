@@ -28,7 +28,7 @@ function Blogs() {
     const fetchComments = async () => {
         try {
             const {token} = await getToken()
-            const res = await getCommentsForResource(token, 'blog', 12,{page:1});
+            const res = await getCommentsForResource(token, 'blog', 12,{page:1});//TODO Заменить id
             console.log('COMMENTS', res.data);
             setComments(res.data);
         } catch (error) {
@@ -51,7 +51,7 @@ const createMarkup = (html) => {
       }}
     >
       {" "}
-      {isFetching||!data ? (
+      {isFetching ? (
         <></>
       ) : (
         <Card
@@ -78,7 +78,7 @@ const createMarkup = (html) => {
             <Typography
                 level="body-lg"
               >
-              <div dangerouslySetInnerHTML={createMarkup(data.content)}/>
+              <Box dangerouslySetInnerHTML={createMarkup(data.content)}/>
               </Typography>
             </Box>
             <Stack>

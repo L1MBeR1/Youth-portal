@@ -21,26 +21,37 @@ class BlogFactory extends Factory
 
     private function generateContent(): string
     {
-        $basePlainText = $this->faker->realText(10000);
+        $basePlainText = $this->faker->realText(25000);
         $contentInnerPictures = [];
         $finalText = '';
-        $paragraphs = explode("\n\n", wordwrap($basePlainText, 200, "\n\n", true)); // Add line breaks every 200 characters
 
-        // Generate image URLs
+        $sentences = preg_split('/(?<=[.!?])\s+/', $basePlainText);
+        $paragraphs = [];
+        $paragraph = '';
+
+        foreach ($sentences as $sentence) {
+            $paragraph .= $sentence . ' ';
+            if (random_int(0, 10) > 7) {
+                $paragraphs[] = trim($paragraph);
+                $paragraph = '';
+            }
+        }
+        if (!empty($paragraph)) {
+            $paragraphs[] = trim($paragraph);
+        }
+
         for ($i = 0; $i < random_int(1, 5); $i++) {
             $contentInnerPictures[] = $this->generateImageURL();
         }
 
-        // HTML tags for text formatting
         $htmlTags = ['<b>', '</b>', '<i>', '</i>', '<u>', '</u>', '<strong>', '</strong>', '<em>', '</em>'];
 
         foreach ($paragraphs as $paragraph) {
             $finalText .= '<p>';
 
-            // Apply random HTML tags for formatting
             $words = explode(' ', $paragraph);
             foreach ($words as $word) {
-                if (random_int(0, 10) > 7) { // 30% chance to wrap a word in HTML tags
+                if (random_int(0, 10) > 7) { 
                     $tag = $htmlTags[array_rand($htmlTags)];
                     $word = $tag . $word . str_replace('<', '</', $tag);
                 }
@@ -49,7 +60,6 @@ class BlogFactory extends Factory
 
             $finalText = rtrim($finalText) . '</p>';
 
-            // Insert images at random positions
             if (random_int(0, 10) > 7 && !empty($contentInnerPictures)) {
                 $image = array_shift($contentInnerPictures);
                 $finalText .= '<div style="text-align:center;"><img src="' . $image . '" alt="Blog Image" style="max-width:100%;height:auto;"></div>';
@@ -58,6 +68,7 @@ class BlogFactory extends Factory
 
         return $finalText;
     }
+
 
 
 

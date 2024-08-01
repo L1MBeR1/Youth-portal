@@ -11,17 +11,15 @@ class BlogPolicy
    
 
     /**
-     * Determine whether the user can view the model.
+     * Определяет может ли пользователь просматривать любой блог.
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasRole('admin|moderator|su');
     }
 
     public function search(User $user): bool
-    {
-        // Log::info('Checking search permission for user ' . $user);
-        
+    {        
         return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
     }
 

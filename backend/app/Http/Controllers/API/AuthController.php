@@ -48,11 +48,15 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
-        $this->validateRequest($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'nullable|email|unique:user_login_data,email',
             'phone' => 'nullable|string|unique:user_login_data,phone',
             'password' => 'required',
         ]);
+        
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
 
         if (empty($request->email) && empty($request->phone)) {
             return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
@@ -106,11 +110,15 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
     {
-        $this->validateRequest($request, [
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'password' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'email' => 'nullable|email|unique:user_login_data,email',
+            'phone' => 'nullable|string|unique:user_login_data,phone',
+            'password' => 'required',
         ]);
+        
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
 
         if (empty($request->email) && empty($request->phone)) {
             return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
@@ -305,7 +313,7 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         try {
-            $this->validateRequest($request, [
+            $validator = Validator::make($request->all(), [
                 'first_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'patronymic' => 'nullable|string|max:255',
@@ -315,6 +323,10 @@ class AuthController extends Controller
                 'gender' => 'nullable|in:м,ж',
                 'birthday' => 'nullable|date',
             ]);
+            
+            if ($validator->fails()) {
+                return $this->errorResponse('Validation Error', $validator->errors(), 422);
+            }
 
             $user = Auth::user();
             $metadata = $user->metadata;

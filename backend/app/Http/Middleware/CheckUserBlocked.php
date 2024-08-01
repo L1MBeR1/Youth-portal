@@ -19,13 +19,10 @@ class CheckUserBlocked
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-
-        Log::info('MDW');
-        // Log::info($user->blocked_at);
         
         if ($user && $user->blocked_at) {
             Log::info('blocked');
-            return response()->json(['message' => 'Your account is blocked (middleware)'], 403);
+            return response()->json(['message' => 'Your account is blocked'], 403);
         }
 
         return $next($request);

@@ -8,48 +8,97 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait QueryBuilderTrait
 {
-    private function buildPublicationQuery(Request $request, string $modelClass, string $tablename): Builder
+    /**
+     * Summary of buildPublicationQuery
+     * @param \Illuminate\Http\Request $request
+     * @param string $modelClass
+     * @param array $requiredFields
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields): Builder
     {
         $query = $modelClass::query();
-        $this->joinAuthors($query, $tablename);
+        // $query->paginate($request->get('per_page', 10)); // не работает
+        $this->selectFields($query, $requiredFields);
         $this->applyFilters($query, $request);
         $this->applySearch($query, $request);
         return $query;
     }
 
-    private function joinAuthors($query, $tablename)
+    private function buildPublicationQueryWithoutRequest(string $modelClass, array $requiredFields): Builder
     {
-        $query->join('user_metadata', "{$tablename}.author_id", '=', 'user_metadata.user_id')
-            ->select(
-                "{$tablename}.id",
-                "{$tablename}.title",
-                "{$tablename}.description",
-                "{$tablename}.status",
-                "{$tablename}.created_at",
-                "{$tablename}.updated_at",
-                "{$tablename}.likes",
-                "{$tablename}.reposts",
-                "{$tablename}.views",
-                "{$tablename}.cover_uri", 
-                'user_metadata.first_name', 
-                'user_metadata.last_name', 
-                'user_metadata.patronymic', 
-                'user_metadata.nickname',
-                'user_metadata.profile_image_uri'
-            );
+        $query = $modelClass::query();
+        $this->selectFields($query, $requiredFields);
+        return $query;
     }
 
+
+    /**
+     * Summary of selectFields
+     * @param mixed $query
+     * @param mixed $requiredFields
+     * @return void
+     */
+    private function selectFields($query, $requiredFields)
+    {
+        $selectFields = [];
+        $keys = array_keys($requiredFields);
+
+        foreach ($requiredFields as $tableName => $fields) {
+            foreach ($fields as $field) {
+                if (count($keys) === 1) {
+                    $selectFields[] = "{$field}";
+                } else {
+                    $selectFields[] = "{$tableName}.{$field}";
+                }
+            }
+        }
+
+        if (count($keys) > 1) {
+            $query->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
+        }
+
+        $query->select($selectFields);
+    }
+
+    /**
+     * Summary of selectFields
+     * @param mixed $query
+     * @param mixed $requiredFields
+     */
+    private function connectFields($model, $requiredFields)
+    {
+        $selectFields = [];
+        $keys = array_keys($requiredFields);
+
+        foreach ($requiredFields as $tableName => $fields) {
+            foreach ($fields as $field) {
+                $selectFields[] = "{$tableName}.{$field}";
+            }
+        }
+
+        // Проверка наличия нескольких таблиц для join
+        if (count($keys) > 1) {
+            $model = $model->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
+        }
+
+        // Выборка необходимых полей
+        $model = $model->select($selectFields);
+
+        return $model->first();  // Получаем первую (и единственную) запись
+    }
+
+
+
+    /**
+     * Summary of applyFilters
+     * @param mixed $query
+     * @param \Illuminate\Http\Request $request
+     */
     private function applyFilters($query, Request $request)
     {
-        if ($userId = $request->query('userId')) {
-            $user = User::find($userId);
-            if (!$user) {
-                return $this->errorResponse('User not found', [], 404);
-            }
-            $query->where('author_id', $userId);
-        } 
         $this->applyDateFilters($query, $request);
-        $this->applyStatusFilter($query, $request);
+        $this->applyOtherFilters($query, $request);
     }
 
     private function applyDateFilters($query, Request $request)
@@ -79,24 +128,36 @@ trait QueryBuilderTrait
         }
     }
 
-    private function applyStatusFilter($query, Request $request)
+    private function applyOtherFilters($query, Request $request)
     {
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
         if ($status = $request->query('status')) {
             $query->where('status', $status);
         }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
     }
 
+
+
+
+
+
+    /**
+     * Summary of applySearch
+     * @param mixed $query
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
     private function applySearch($query, Request $request)
     {
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
         $searchFields = $request->query('searchFields', []);
         $searchValues = $request->query('searchValues', []);
         $operator = $request->query('operator', 'and');
-
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
 
         if (!empty($searchFields) && !empty($searchValues)) {
             if ($operator === 'or') {
@@ -122,5 +183,4 @@ trait QueryBuilderTrait
             $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         }
     }
-
 }

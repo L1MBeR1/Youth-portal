@@ -32,21 +32,15 @@
                     <!-- Logo -->
                     <tr>
                         <td class="header" style="background-color: #fff; padding: 40px 40px 0 40px; text-align: center;">
-                            <table role="presentation" style="margin: 0 auto; position: relative; width: 300px; height: 220px;">
+                            <table role="presentation" style="margin: 0 auto;">
                                 <tr>
-                                    <td style="padding: 0; position: absolute; top: 0; left: 25%; transform: translate(-50%, 0);">
-                                        <a href="http://185.242.118.145" target="_blank" style="position: absolute; top: 0; left: 0; display: block; width: 100px; height: 100px; background-color: #FF8911; border-radius: 50%; text-decoration: none;"></a>
-                                        <a href="http://185.242.118.145" target="_blank" style="position: absolute; top: 30px; left: 30px; display: block; width: 100px; height: 100px; background-color: #7F27FF; opacity: 0.8; border-radius: 50%; text-decoration: none;"></a>
-                                        <a href="http://185.242.118.145" target="_blank" style="position: absolute; top: 60px; left: 60px; display: block; width: 100px; height: 100px; background-color: #FFD700; opacity: 0.6; border-radius: 50%; text-decoration: none;"></a>
-                                        <a href="http://185.242.118.145" target="_blank" style="position: absolute; top: 90px; left: 90px; display: block; width: 100px; height: 100px; background-color: #9F70FD; opacity: 0.4; border-radius: 50%; text-decoration: none;"></a>
+                                    <td style="padding: 0; text-align: center;">
+                                        <a href="http://185.242.118.145" target="_blank" style="display: block; width: 100px; height: 100px; background-color: #FF8911; border-radius: 50%; text-decoration: none; margin: 0 auto;"></a>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
-                    
-                    
-                    
 
                     <!-- Body -->
                     <tr>

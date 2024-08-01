@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait PaginationTrait
 {
-    private function formPagination($q): array
+    private function makePaginationData($q): array
     {
         return [
             'current_page' => $q->currentPage(),

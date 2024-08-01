@@ -15,7 +15,7 @@ import { getToken } from "../utils/authUtils/tokenStorage.js";
 import Box from "@mui/joy/Box";
 
 import ProfileBlank from "../img/profileBlank.png";
-
+import {timeAgo} from "../utils/timeAgo.js";
 
 const BlogCart = ({id, title, description, img, avatar, creator, createDate }) => {
   const navigate = useNavigate();
@@ -32,16 +32,26 @@ const BlogCart = ({id, title, description, img, avatar, creator, createDate }) =
         p: 0,
         cursor:'pointer',
         "--Card-radius": "20px",
-        transition: 'transform 0.3s',
-          '&:hover': {
-            transform: 'scale(1.025)',
-          },
+        overflow: 'hidden', 
+        '&:hover img': {
+          transform: 'scale(1.075)',
+        },
       }}
       onClick={() => handleRedirect(id)}
     >
         
       <Stack direction="column" spacing={1.5} flexGrow={1}>
-        <AspectRatio minHeight="120px" maxHeight="200px">
+      <AspectRatio
+          minHeight="120px"
+          maxHeight="200px"
+          sx={{
+            overflow: 'hidden',
+            position: 'relative',
+            '& img': {
+              transition: 'transform 0.4s',
+            },
+          }}
+        >
           <img src={img} alt={title} loading="lazy" />
         </AspectRatio>
         <Stack
@@ -79,7 +89,7 @@ const BlogCart = ({id, title, description, img, avatar, creator, createDate }) =
               <Typography level="body-md">{creator}</Typography>
             </Stack>
             <Typography level="body-md">
-              {new Date(createDate).toLocaleDateString()}
+              {timeAgo(createDate)}
             </Typography>
           </Stack>
         </Stack>

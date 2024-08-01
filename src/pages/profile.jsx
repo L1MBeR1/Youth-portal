@@ -54,8 +54,8 @@ function Profile() {
                 flexDirection: 'column',
                 flexGrow:1,
                 marginX: { xs: '10px', md: '10%', lg: '15%' },
-                border: '1px solid',
-                borderColor: 'divider',
+                // border: '1px solid',
+                // borderColor: 'divider',
             }}
         >
             {isLoading ||!profileData ?(

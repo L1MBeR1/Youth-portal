@@ -3,7 +3,6 @@ import Grid from '@mui/joy/Grid';
 import usePublications from '../hooks/usePublications.js';
 import { getPublishedBlogs } from '../api/blogsApi.js';
 import Box from '@mui/joy/Box';
-
 import BlogCart from '../components/blogCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
 function Blogs() {

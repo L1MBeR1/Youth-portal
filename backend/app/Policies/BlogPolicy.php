@@ -86,7 +86,7 @@ class BlogPolicy
      */
     public function changeStatus(User $user, Blog $blog): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('moderator');
+        return $user->hasRole('admin|moderator|su');
     }
 
     /**
@@ -94,7 +94,7 @@ class BlogPolicy
      */
     public function delete(User $user, Blog $blog): bool
     {
-        $isAdminOrModerator = $user->hasRole('admin') || $user->hasRole('moderator');
+        $isAdminOrModerator = $user->hasRole('admin|moderator|su');
         $isAuthorAndBlogger = $user->hasRole('blogger') && $user->id === $blog->author_id;
 
         return $isAdminOrModerator || $isAuthorAndBlogger;

@@ -104,7 +104,7 @@ class NewsPolicy
     {
         Log::info('Checking update news status permission for user ' . $user->id);
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can update news status ' . $news->id);
             return true;
         }
@@ -123,7 +123,7 @@ class NewsPolicy
     {
         Log::info('Entering delete news policy');
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can delete news ' . $news->id);
             return true;
         }

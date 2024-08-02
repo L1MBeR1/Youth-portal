@@ -226,6 +226,6 @@ class UserController extends Controller
 
         $user->removeRole($role);
 
-        return $this->successResponse([], 'Role added successfully');
+        return $this->successResponse([], 'Роль отнята успешно');
     }
 }

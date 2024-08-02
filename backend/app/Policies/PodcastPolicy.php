@@ -94,7 +94,7 @@ class PodcastPolicy
     {
         Log::info('Checking update podcast status permission for user ' . $user->id);
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can update podcast status ' . $podcast->id);
             return true;
         }
@@ -110,7 +110,7 @@ class PodcastPolicy
         Log::info('Entering delete policy');
 
         // Администраторы и модераторы могут удалять любые подкасты
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can delete podcast ' . $podcast->id);
             return true;
         }

@@ -66,7 +66,7 @@ trait QueryBuilderTrait
      * @param mixed $query
      * @param mixed $requiredFields
      */
-    private function connectFields($model, $requiredFields)
+    private function connectFields($blogId, $requiredFields, $modelClass)
     {
         $selectFields = [];
         $keys = array_keys($requiredFields);
@@ -77,16 +77,19 @@ trait QueryBuilderTrait
             }
         }
 
+        $query = $modelClass::where('blogs.id', $blogId);
+
         // Проверка наличия нескольких таблиц для join
         if (count($keys) > 1) {
-            $model = $model->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
+            $query->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
         }
 
         // Выборка необходимых полей
-        $model = $model->select($selectFields);
+        $query->select($selectFields);
 
-        return $model->first();  // Получаем первую (и единственную) запись
+        return $query->first();  // Получаем первую (и единственную) запись
     }
+
 
 
 

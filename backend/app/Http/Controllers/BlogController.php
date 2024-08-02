@@ -54,7 +54,7 @@ class BlogController extends Controller
                 ]
             ];
             
-        $blog = $this->connectFields($blog, $requiredFields);
+        $blog = $this->connectFields($blog->id, $requiredFields, Blog::class);
 
         return $this->successResponse($blog, '', 200);
     }

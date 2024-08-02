@@ -60,7 +60,7 @@ class PodcastController extends Controller
             ]
         ];
 
-        $podcast = $this->connectFields($podcast, $requiredFields);
+        $podcast = $this->connectFields($podcast->id, $requiredFields, Podcast::class);
 
         return $this->successResponse($podcast, '', 200);
     }

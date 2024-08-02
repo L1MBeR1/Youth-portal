@@ -60,7 +60,7 @@ class NewsController extends Controller
                 ]
             ];
             
-        $news = $this->connectFields($news, $requiredFields);
+        $news = $this->connectFields($news->id, $requiredFields, News::class);
 
         return $this->successResponse($news, '', 200);
     }

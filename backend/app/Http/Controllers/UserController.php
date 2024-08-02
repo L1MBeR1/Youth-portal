@@ -55,28 +55,56 @@ class UserController extends Controller
         $bdTo = $request->query('bdTo');
         $bdDate = $request->query('bdDate');
 
-        
+        $operator = $request->query('operator', 'and');
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    if (in_array($field, ['email', 'phone'])) {
-                        $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
-                    } else {
-                        $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            if (in_array($field, ['email', 'phone'])) {
+                                $query->orWhere('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                            } else {
+                                $query->orWhere('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                            }
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        if (in_array($field, ['email', 'phone'])) {
+                            $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                        } else {
+                            $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                        }
                     }
                 }
             }
         }
 
-        if ($searchColumnName && $searchValue) {
-            if (in_array($searchColumnName, ['email', 'phone'])) {
-                $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-            } else {
-                $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-            }
-        }
+        // if (!empty($searchFields) && !empty($searchValues)) {
+        //     foreach ($searchFields as $index => $field) {
+        //         $value = $searchValues[$index] ?? null;
+        //         if ($value) {
+        //             if (in_array($field, ['email', 'phone'])) {
+        //                 $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+        //             } else {
+        //                 $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+        //             }
+        //         }
+        //     }
+        // }
+
+        // if ($searchColumnName && $searchValue) {
+        //     if (in_array($searchColumnName, ['email', 'phone'])) {
+        //         $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //     } else {
+        //         $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //     }
+        // }
 
         $bdFrom = $this->parseDate($bdFrom);
         $bdTo = $this->parseDate($bdTo);

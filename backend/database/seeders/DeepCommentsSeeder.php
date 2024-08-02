@@ -18,11 +18,11 @@ class DeepCommentsSeeder extends Seeder
 
     public function run()
     {
-        $resources = ['blog' => 50, 'news' => 50, 'podcast' => 50];
+        $resources = ['blog' => 30, 'news' => 30, 'podcast' => 10];
 
         foreach ($resources as $key => $value) {
             for ($i = 1; $i <= $value; $i++) {
-                $commentCount = rand(1, env('SEED_COMMENTS_MAX', 10));
+                $commentCount = rand(1, env('SEED_COMMENTS_MAX', 8));
                 for ($j = 0; $j < $commentCount; $j++) {
                     $this->create($i, $key);
                 }
@@ -48,7 +48,7 @@ class DeepCommentsSeeder extends Seeder
 
     private function createReplies($parentComment, $resourceId, $resourceType, $currentChance)
     {
-        $replyCount = rand(1, 10);
+        $replyCount = rand(1, 7);
 
         for ($i = 0; $i < $replyCount; $i++) {
             $branchComment = Comment::factory()->create();
@@ -58,8 +58,8 @@ class DeepCommentsSeeder extends Seeder
                 "reply_to" => $parentComment->id
             ]);
 
-            if ($this->faker->boolean($currentChance - 15)) {
-                $this->createReplies($branchComment, $resourceId, $resourceType, $currentChance - 15);
+            if ($this->faker->boolean($currentChance - 20)) {
+                $this->createReplies($branchComment, $resourceId, $resourceType, $currentChance - 20);
             }
         }
     }

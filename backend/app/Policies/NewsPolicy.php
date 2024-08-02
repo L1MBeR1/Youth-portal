@@ -41,17 +41,23 @@ class NewsPolicy
         return $user->hasPermissionTo('view own news');
     }
 
-    public function requestSpecificNews(User $user, News $blog): bool
+    public function requestSpecificNews(User $user, News $news): bool
     {
-        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
-            return true;
-        }        
-
-        if ($blog->status === 'published') {
+        if ($news->status === 'published') {
             return true;
         }
 
-        if ($blog->author_id === $user->id) {
+        
+        if (!$user) {
+            return false;
+        }
+        
+        
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+            return true;
+        }   
+
+        if ($news->author_id === $user->id) {
             return true;
         }
 

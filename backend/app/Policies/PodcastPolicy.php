@@ -35,17 +35,25 @@ class PodcastPolicy
         return true;
     }
 
-    public function requestSpecificPodcast(User $user, Podcast $blog): bool
+    public function requestSpecificPodcast(User $user, Podcast $podcast): bool
     {
+        if ($podcast->status === 'published') {
+            return true;
+        }
+
+
+        if (!$user) {
+            return false;
+        }
+
+
         if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
             return true;
         }        
 
-        if ($blog->status === 'published') {
-            return true;
-        }
+       
 
-        if ($blog->author_id === $user->id) {
+        if ($podcast->author_id === $user->id) {
             return true;
         }
 

@@ -25,11 +25,13 @@ class PodcastController extends Controller
     use QueryBuilderTrait, PaginationTrait;
     public function getPodcastById($id)
     {
-        $podcast = Podcast::find($id);
-
-        if (!Auth::user()->can('requestSpecificPodcast', [Podcast::class, $podcast])) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        $podcast = Podcast::find($id); //FIXME:
+        if (!$podcast->status === 'published') {
+            if (!Auth::user()->can('requestSpecificPodcast', [Podcast::class, $podcast])) {
+                return $this->errorResponse('Нет прав на просмотр', [], 403);
+            }
         }
+
 
         if ($podcast) {
             $podcast->increment('views');
@@ -444,9 +446,10 @@ class PodcastController extends Controller
      */
     public function getPublishedPodcasts(Request $request)
     {
-        if (!Auth::user()->can('viewPublishedPodcasts', Podcast::class)) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
-        }
+        // Без авторизации
+        // if (!Auth::user()->can('viewPublishedPodcasts', Podcast::class)) {
+        //     return $this->errorResponse('Нет прав на просмотр', [], 403);
+        // }
 
         $query = Podcast::where('status', 'published');
         $query->leftJoin('user_metadata', 'podcasts.author_id', '=', 'user_metadata.user_id');

@@ -19,11 +19,13 @@ class BlogController extends Controller
 
     public function getBlogById($id): \Illuminate\Http\JsonResponse
     {
-        $blog = Blog::find($id);
-        
-        if (!Auth::user()->can('requestSpecificBlog', [Blog::class, $blog])) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        $blog = Blog::find($id); //FIXME:
+        if ($blog->status !== 'published') {
+            if (!Auth::user()->can('requestSpecificBlog', [Blog::class, $blog])) {
+                return $this->errorResponse('Нет прав на просмотр', [], 403);
+            }
         }
+
         
         if ($blog) {
             $blog->increment('views');
@@ -192,8 +194,6 @@ class BlogController extends Controller
      *
      * @group Блоги
      *
-     * @authenticated
-     *
      * @urlParam orderBy string Сортировка (Столбец)
      * @urlParam orderDir string Сортировка (Направление "asc", "desc")
      * @urlParam userId int ID пользователя. 
@@ -201,9 +201,10 @@ class BlogController extends Controller
      */
     public function getPublishedBlogs(Request $request)
     {
-        if (!Auth::user()->can('viewPublishedBlogs', Blog::class)) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
-        }
+        // Без авторизации
+        // if (!Auth::user()->can('viewPublishedBlogs', Blog::class)) {
+        //     return $this->errorResponse('Нет прав на просмотр', [], 403);
+        // }
 
         // $query = Blog::where('status', 'published');
         // $query->leftJoin('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id');

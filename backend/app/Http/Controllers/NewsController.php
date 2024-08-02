@@ -25,11 +25,13 @@ class NewsController extends Controller
     use QueryBuilderTrait, PaginationTrait;
     public function getNewsById($id)
     {
-        $news = News::find($id);
-        
-        if (!Auth::user()->can('requestSpecificNews', [News::class, $news])) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        $news = News::find($id); //FIXME:
+        if ($news->status !== 'published') {
+            if (!Auth::user()->can('requestSpecificNews', [News::class, $news])) {
+                return $this->errorResponse('Нет прав на просмотр', [], 403);
+            }
         }
+        
         
         if ($news) {
             $news->increment('views');
@@ -455,9 +457,10 @@ class NewsController extends Controller
      */
     public function getPublishedNews(Request $request)
     {
-        if (!Auth::user()->can('viewPublishedNews', News::class)) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
-        }
+        // Без авторизации
+        // if (!Auth::user()->can('viewPublishedNews', News::class)) {
+        //     return $this->errorResponse('Нет прав на просмотр', [], 403);
+        // }
 
         $query = News::where('status', 'published');
         $query->leftJoin('user_metadata', 'news.author_id', '=', 'user_metadata.user_id');

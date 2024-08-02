@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -34,6 +35,9 @@ class UserController extends Controller
      */
     public function listUsers(Request $request)
     {
+        if (!Auth::user()->hasRole('admin|moderator|su')) {
+            return $this->errorResponse('Доступ запрещен', [], 403);
+        }
         $roleName = $request->query('role_name');
         $query = User::query();
 

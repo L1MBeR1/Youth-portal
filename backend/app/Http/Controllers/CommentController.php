@@ -69,6 +69,12 @@ class CommentController extends Controller
         //     ->get();
         // return $this->successResponse($comments);
 
+
+        // TODO: нужна проверка на:
+        // 1. Если админ,модератор,су - то вернуть комментарии
+        // 2. Если юзер - то вернуть комментарии только для опубликованного материала. Если не опубликован, то 403
+        // 3. Если владелец, то вернуть  комментарии
+
         // Исправлено дублирование
         $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
             ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')

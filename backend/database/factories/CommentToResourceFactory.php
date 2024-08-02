@@ -21,10 +21,10 @@ class CommentToResourceFactory extends Factory
         // 50 - макс. число ресурсов, заданное в сидерах
         $resourceId = $this->faker->numberBetween(1, 50);
 
-        $otherCommentIds = CommentToResource::where($resourceType . '_id', '>', -1)
-            ->where('comment_id', '!=', $comment->id)
-            ->pluck('comment_id')
-            ->toArray();
+        // $otherCommentIds = CommentToResource::where($resourceType . '_id', '>', -1)
+        //     ->where('comment_id', '!=', $comment->id)
+        //     ->pluck('comment_id')
+        //     ->toArray();
 
         return [
             'comment_id' => $comment->id,

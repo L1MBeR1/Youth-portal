@@ -20,6 +20,8 @@ class CommentFactory extends Factory
             'content' => $this->faker->sentence(),
             'user_id' => $this->faker->numberBetween(1, 50),
             'likes' => $this->faker->numberBetween(-50000, 1000000),
+            'created_at' => $this->faker->dateTimeBetween('-11 month', 'now'),
+            'updated_at' => $this->faker->dateTimeBetween('-11 month', 'now'),
         ];
     }
 }

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Grid from '@mui/joy/Grid';
 import Card from '@mui/joy/Card';
 import Button from '@mui/joy/Button';
-import { getBlogsActual } from '../api/blogsApi.js';
-import { getCookie } from '../cookie/cookieUtils.js';
+import { getBlogsByPage } from '../api/blogsApi.js';
+import { getToken } from '../utils/authUtils/tokenStorage.js';
 
 function ContentGrid() {
   const [blogs, setBlogs] = useState([]);
@@ -18,7 +18,9 @@ function ContentGrid() {
 
   const fetchBlogs = async (page) => {
     try {
-      const data = await getBlogsActual(getCookie('token'), {page: page});
+      const {token} = await getToken('blogs')
+      const data = await getBlogsByPage(token, {page: page});
+      console.log(data)
       setBlogs(data.data);
       setTotalPages(data.message.last_page);
     } catch (error) {

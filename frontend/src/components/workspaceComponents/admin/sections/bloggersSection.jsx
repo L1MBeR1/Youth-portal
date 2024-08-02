@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
@@ -31,11 +32,13 @@ import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
-import { getToken } from '../../../../localStorage/tokenStorage.js';
-import useModerators from '../../../../hooks/useModerators.js';
+import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
+import useUsers from '../../../../hooks/service/useUsers.js';
 
 
 function BlogersSection() {
+  const navigate = useNavigate();
+
   const [openModerator, setOpenModerator] = useState(false);
 
   const [deleteId, setDeleteId] = useState();
@@ -46,26 +49,27 @@ function BlogersSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setFromDate] = useState('');
-  const [bdTo, setToDate] = useState('');
+  const [bdFrom, setBdFrom] = useState('');
+  const [bdTo, setBdTo] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const searchFields =['email','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
-  const { data: bloggers, isLoading, refetch  } = useModerators(['admin/bloggers'],['service'],setLastPage, 
+  const { data: bloggers, isLoading, refetch  } = useUsers(['admin/bloggers'],['service'],setLastPage, 
     { 
       role_name:'blogger',
       page: page,
       searchFields: searchFields,
       searchValues: searchValues,
-      // crtFrom:crtFrom,
-      // crtTo:crtTo,
-      // updFrom:updFrom,
-      // updTo:updTo,
+      bdTo:bdTo,
+      bdFrom:bdFrom,
       operator:'or',
     });
   const addNewBlogger = async (email) => {
-    const token = getToken();
+    const {token,needsRedirect} = await getToken('BloggerSection');
+    if (needsRedirect){
+      navigate('/login')
+    }
     const response = await addBlogger(token, email)
     if (response) {
       console.log(response);
@@ -75,7 +79,10 @@ function BlogersSection() {
   
   const delBlogger = async (confirmed) => {
     if (confirmed) {
-      const token = getToken();
+      const {token,needsRedirect} = await getToken('BloggerSection');
+      if (needsRedirect){
+        navigate('/login')
+      }
       const response = await deleteBlogger(token, deleteId)
       if (response) {
         console.log(response);
@@ -118,8 +125,8 @@ function BlogersSection() {
         label={'Дата рождения'}
         fromDate={bdFrom}
         toDate={bdTo}
-        setFromDate={setFromDate}
-        setToDate={setToDate}
+        setFromDate={setBdFrom}
+        setToDate={setBdTo}
       />  
     </>
   );
@@ -135,14 +142,15 @@ function BlogersSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setBdFrom('');
+    setBdTo('')
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [

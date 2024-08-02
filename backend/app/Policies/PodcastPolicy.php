@@ -10,11 +10,21 @@ use Illuminate\Support\Facades\Log;
 class PodcastPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view the model.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
+    }
+
+    public function search(User $user): bool
+    {
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
+    }
+
+    public function viewPublishedPodcasts(User $user): bool
+    {
+        return true;
     }
 
     /**
@@ -23,6 +33,36 @@ class PodcastPolicy
     public function view(User $user): bool
     {
         return true;
+    }
+
+    public function requestSpecificPodcast(User $user, Podcast $podcast): bool
+    {
+        if ($podcast->status === 'published') {
+            return true;
+        }
+
+
+        if (!$user) {
+            return false;
+        }
+
+
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+            return true;
+        }        
+
+       
+
+        if ($podcast->author_id === $user->id) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function viewOwnPodcasts(User $user): bool
+    {
+        return $user->hasPermissionTo('view own podcasts');
     }
 
     /**
@@ -54,7 +94,7 @@ class PodcastPolicy
     {
         Log::info('Checking update podcast status permission for user ' . $user->id);
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can update podcast status ' . $podcast->id);
             return true;
         }
@@ -70,7 +110,7 @@ class PodcastPolicy
         Log::info('Entering delete policy');
 
         // Администраторы и модераторы могут удалять любые подкасты
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can delete podcast ' . $podcast->id);
             return true;
         }

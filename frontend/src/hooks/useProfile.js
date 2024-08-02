@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { getToken } from '../localStorage/tokenStorage.js';
-import { getProfile } from '../api/authApi.js';
 import {jwtDecode} from 'jwt-decode';
+import { getToken } from '../utils/authUtils/tokenStorage.js'; 
+import { getProfile } from '../api/authApi.js';
 
 const useProfile = () => {
-  const token = getToken();
-  const queryKey = token ? ['profile'] : [];
-
   return useQuery({
-    queryKey: queryKey,
+    queryKey: ['profile'],
     queryFn: async () => {
+
+      const {token}= await getToken('useProfile');
       if (!token) {
         return null;
       }
@@ -21,10 +20,9 @@ const useProfile = () => {
       }
       return null;
     },
-    enabled: !!token, 
-    staleTime: 600000, 
-    cacheTime: 86400000, 
-    keepPreviousData: true,
+    staleTime: 300000, 
+    cacheTime: 86400000,
+    retry:1
   });
 };
 

@@ -7,6 +7,7 @@ function Footer() {
     <footer>
         <Box
         sx={{
+          marginTop:'60px',
             display:'flex',
             height:'20vh',
             alignItems:'center',

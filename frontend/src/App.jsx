@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
+//Лейауты
 import MainLayout from './components/layouts/mainLayout';
 import WorkLayout from './components/layouts/workLayout';
 
+//Страницы
 import Home from './pages/home';
 import Login from './pages/login';
 import Registration from './pages/registration';
@@ -11,9 +13,22 @@ import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
 
+import Blogs from './pages/blogs';
+import BlogPage from './pages/blogPage';
+
+import News from './pages/news';
+import NewsPage from './pages/newPage';
+
+import Podcasts from './pages/podcasts';
+
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
+
+//Роуты
+import GuestRoute from './routes/guestRoute';
+import PrivateRoute from './routes/privateRoute';
+import NotGuestRoute from './routes/notGuestRoute';
 
 // Для тестов
 import BackendTestBlogList from './pages/BackendTestBlogList';
@@ -24,44 +39,7 @@ import './css/App.css'
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 
-import { jwtDecode } from 'jwt-decode';
-import { getToken } from './localStorage/tokenStorage';
-import { getProfile } from './api/authApi';
 function App() {
-
-
-  // console.log('PR', getProfile());
-
-  const PrivateRoute = ({ element, roles }) => {
-    const token = getToken();
-    if (token) {
-      const decoded = jwtDecode(token);
-       console.log(decoded)
-      if (roles.some(role => decoded.roles.includes(role))) {
-        return element;
-      }
-    }
-    return <Navigate to="/404" />;
-  };
-  const GuestRoute = ({ element }) => {
-    const token = getToken();
-    if (!token) {
-        return element;
-    }
-    return <Navigate to="/404" />;
-  };
-  const NotGuestRoute = ({ element }) => {
-    const token = getToken();
-    if (token) {
-        const decoded = jwtDecode(token);
-        if (decoded.roles)
-        {
-          return element;
-        }
-    }
-    return <Navigate to="/404" />;
-  };
-
   return (
     <CssVarsProvider>
       <CssBaseline />
@@ -72,6 +50,14 @@ function App() {
             <Route index element={<Home />} />
             <Route path="404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" />} />
+
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="/blog/:id" element={<BlogPage />} />
+
+            <Route path="news" element={<News />} />
+            <Route path="/news/:id" element={<NewsPage />} />
+
+            <Route path="podcasts" element={<Podcasts />} />
 
             {/* Пути только для гостя */}
             <Route path="login" element={<GuestRoute element={<Login />}/>} />

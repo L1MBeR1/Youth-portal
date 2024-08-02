@@ -15,7 +15,7 @@ class NewsPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -24,6 +24,44 @@ class NewsPolicy
     public function view(User $user): bool
     {
         return true;
+    }
+
+    public function search(User $user): bool
+    {        
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
+    }
+
+    public function viewPublishedNews(User $user): bool
+    {
+        return true;
+    }
+
+    public function viewOwnNews(User $user): bool
+    {
+        return $user->hasPermissionTo('view own news');
+    }
+
+    public function requestSpecificNews(User $user, News $news): bool
+    {
+        if ($news->status === 'published') {
+            return true;
+        }
+
+        
+        if (!$user) {
+            return false;
+        }
+        
+        
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+            return true;
+        }   
+
+        if ($news->author_id === $user->id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -66,7 +104,7 @@ class NewsPolicy
     {
         Log::info('Checking update news status permission for user ' . $user->id);
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can update news status ' . $news->id);
             return true;
         }
@@ -85,7 +123,7 @@ class NewsPolicy
     {
         Log::info('Entering delete news policy');
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
+        if ($user->hasRole('admin|moderator|su')) {
             Log::info('User ' . $user->id . ' is an admin or moderator and can delete news ' . $news->id);
             return true;
         }

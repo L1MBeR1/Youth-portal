@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { setCookie} from '../../cookie/cookieUtils.js';
-import { setToken} from '../../localStorage/tokenStorage.js'
-
+import { setCookie} from '../../utils/cookie/cookieUtils.js';
+import { setToken} from '../../utils/authUtils/tokenStorage.js'
 import { useQueryClient } from '@tanstack/react-query';
-
-import { login,refresh} from '../../api/authApi.js';
-import useProfile from '../../hooks/useProfile.js';
+import { login} from '../../api/authApi.js';
+// import useProfile from '../../hooks/useProfile.js';
 
 import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
@@ -25,7 +23,7 @@ import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import {jwtDecode} from 'jwt-decode';
 
 function LoginForm() {
-
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,8 +42,6 @@ function LoginForm() {
       if (token) {
         setToken(token)
         const decoded = jwtDecode(token);
-        // await refresh();
-        // await queryClient.prefetchQuery(useProfile.queryKey, useProfile.queryFn);
         if (decoded.roles.includes('admin')) {
           navigate('/admin');
         } else if (decoded.roles.includes('moderator')) {
@@ -57,6 +53,7 @@ function LoginForm() {
         }
         
       }
+      queryClient.invalidateQueries(['profile']);
       setIsLoading(false);
     } catch (error) {
       setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');

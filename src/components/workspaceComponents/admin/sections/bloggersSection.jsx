@@ -49,11 +49,11 @@ function BlogersSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setFromDate] = useState('');
-  const [bdTo, setToDate] = useState('');
+  const [bdFrom, setBdFrom] = useState('');
+  const [bdTo, setBdTo] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const searchFields =['email','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
   const { data: bloggers, isLoading, refetch  } = useUsers(['admin/bloggers'],['service'],setLastPage, 
     { 
@@ -127,8 +127,8 @@ function BlogersSection() {
         label={'Дата рождения'}
         fromDate={bdFrom}
         toDate={bdTo}
-        setFromDate={setFromDate}
-        setToDate={setToDate}
+        setFromDate={setBdFrom}
+        setToDate={setBdTo}
       />  
     </>
   );
@@ -144,14 +144,15 @@ function BlogersSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setBdFrom('');
+    setBdTo('')
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
 
   const columns = [

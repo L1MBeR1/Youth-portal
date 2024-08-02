@@ -20,23 +20,26 @@ import { CommentSection } from "../components/comments/commentsSection.jsx";
 function Blogs() {
   const { id } = useParams();
   const [comments, setComments] = useState([]);
-  const {data,isFetching,} = usePublicationById(["blog"], getBlog, id);
+  const {data,isFetching,} = usePublicationById("blog", getBlog, id);
   console.log(data)
 
   useEffect(() => {
-
     const fetchComments = async () => {
-        try {
-            const {token} = await getToken()
-            const res = await getCommentsForResource(token, 'blog', 12,{page:1});//TODO Заменить id
-            console.log('COMMENTS', res.data);
-            setComments(res.data);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        }
-    };
-    fetchComments();
-}, []);
+      try {
+          const {token} = await getToken()
+          console.log(id)
+          const res = await getCommentsForResource(token, 'blog',12,{page:1});
+          console.log('COMMENTS', res.data);
+          setComments(res.data);
+      } catch (error) {
+          console.error('Error fetching comments:', error);
+      }
+  };
+    if (data){
+      fetchComments();
+    }
+  
+}, [data]);
 const createMarkup = (html) => {
   return { __html: DOMPurify.sanitize(html) };
 };
@@ -51,7 +54,7 @@ const createMarkup = (html) => {
       }}
     >
       {" "}
-      {isFetching ? (
+      {isFetching||!data ? (
         <></>
       ) : (
         <Card
@@ -81,12 +84,8 @@ const createMarkup = (html) => {
               <Box dangerouslySetInnerHTML={createMarkup(data.content)}/>
               </Typography>
             </Box>
-            <Stack>
-            <Box sx={{ mt: 2 }}>
-                <Typography level="h2" gutterBottom>Comments</Typography>
-                <CommentSection data={comments}/>
-            </Box>
-            </Stack>
+            <CommentSection data={comments}/>
+
           </Stack>
         </Card>
       )}

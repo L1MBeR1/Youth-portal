@@ -169,7 +169,7 @@ function OrganizationsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по почте или ФИО</FormLabel>
+          <FormLabel>Поиск</FormLabel>
           <Input
             size="sm"
             placeholder="Search"

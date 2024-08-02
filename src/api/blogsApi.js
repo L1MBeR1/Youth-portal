@@ -36,9 +36,6 @@ export const changeBlogStatus = async (token, id, status) => {
 export const getPublishedBlogs = async (token, params) => {
   try {
     const response = await axios.get(`${API_URL}/blogs/published`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       params: params
     });
     // console.log(response)
@@ -49,11 +46,9 @@ export const getPublishedBlogs = async (token, params) => {
   }
 };
 export const getBlog = async (token, id) => {
+  console.log(id)
   try {
     const response = await axios.get(`${API_URL}/blogs/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
     console.log(response)
     return response.data;

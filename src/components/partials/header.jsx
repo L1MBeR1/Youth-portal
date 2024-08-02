@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import HeaderProfile from "./partialsComponents/headerProfile.jsx";
 
 import { useColorScheme } from "@mui/joy/styles";
@@ -53,7 +53,14 @@ function ColorSchemeToggle() {
 }
 
 function Header() {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false);
+
+  const handleLink = (link) =>{
+    navigate(link)
+    setOpen(false)
+  }
+
   return (
     <header>
       <Sheet
@@ -99,10 +106,10 @@ function Header() {
                 '& > div': { justifyContent: 'center' },
               }}
             >
-              <ListItemButton> <Link to="/blogs">Блоги</Link></ListItemButton>
-              <ListItemButton><Link to="/news">Новости</Link></ListItemButton>
-              <ListItemButton><Link to="/podcasts">Подкасты</Link></ListItemButton>
-              //TODO Добавить закрытие при нажатии
+              <ListItemButton onClick={()=>{handleLink('/blogs')}}> Блоги</ListItemButton>
+              <ListItemButton onClick={()=>{handleLink('/news')}}>Новости</ListItemButton>
+              <ListItemButton onClick={()=>{handleLink('/podcasts')}}>Подкасты</ListItemButton>
+              
             </List>
           </Drawer>
         </Box>

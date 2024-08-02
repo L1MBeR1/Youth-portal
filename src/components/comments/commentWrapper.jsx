@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { Comment } from "./comment";
+import { textDeclension } from "../../utils/textDeclension";
 
 import Button from "@mui/joy/Button";
 import Stack from "@mui/joy/Stack";
 import Box from '@mui/joy/Box';
-import { Comment } from "./comment";
+
 export const CommentWrapper = ({ comment }) => {
   const [openReplies, setOpenReplies] = useState(false);
 
@@ -33,7 +35,7 @@ export const CommentWrapper = ({ comment }) => {
               }}
               onClick={handleOpenReplies}
             >
-              Показать {comment.replies.length} ответов
+              {openReplies ? ('Скрыть'):'Показать'} {textDeclension(comment.replies.length,'ответ','ответа','ответов')} 
             </Button>
           </Box>
           <Stack>

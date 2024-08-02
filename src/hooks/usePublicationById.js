@@ -1,23 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
-const usePublicationsById = (queryKey,api,id,setLastPage) => {
+const usePublicationsById = (type,api,id) => {
   return useQuery({
-    queryKey: queryKey,
+    queryKey: [type,id],
     queryFn: async () => {
-      const {token}= await getToken('usePublications');
-      
-      if (!token) {
-        return null;
-      }
-      const response = await api(token, id);
-      console.log(1)
+      const response = await api(id);
       console.log(response)
       return response.data;
     },
-    keepPreviousData: true,
-    staleTime: 300000,
-    cacheTime: 300000,
+    
+    enabled: !!id,
+    staleTime: 180000,
+    cacheTime: 180000,
+    gcTime:60000,
     retry:1
   });
 };

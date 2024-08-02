@@ -31,12 +31,12 @@ class NewsController extends Controller
                 return $this->errorResponse('Нет прав на просмотр', [], 403);
             }
         }
-        
-        
+
+
         if ($news) {
             $news->increment('views');
         }
-        
+
         $requiredFields = [
             "news" => [
                 "id",
@@ -57,9 +57,9 @@ class NewsController extends Controller
                 "patronymic",
                 "nickname",
                 "profile_image_uri",
-                ]
-            ];
-            
+            ]
+        ];
+
         $news = $this->connectFields($news->id, $requiredFields, News::class);
 
         return $this->successResponse($news, '', 200);
@@ -244,7 +244,7 @@ class NewsController extends Controller
     //     if ($crtDate) {
     //         $query->whereDate('created_at', '=', $crtDate);
     //     }
-    
+
     //     if ($updDate) {
     //         $query->whereDate('updated_at', '=', $updDate);
     //     }
@@ -292,10 +292,10 @@ class NewsController extends Controller
     {
         $query->join('user_metadata', 'news.author_id', '=', 'user_metadata.user_id')
             ->select(
-                'news.*', 
-                'user_metadata.first_name', 
-                'user_metadata.last_name', 
-                'user_metadata.patronymic', 
+                'news.*',
+                'user_metadata.first_name',
+                'user_metadata.last_name',
+                'user_metadata.patronymic',
                 'user_metadata.nickname',
                 'user_metadata.profile_image_uri'
             );
@@ -430,7 +430,7 @@ class NewsController extends Controller
             $query->where('status', $newsStatus);
         }
 
-        $perPage = $request->query('perPage');
+        $perPage = $request->query('per_page');
         $news = $query->paginate($perPage ? $perPage : 10);
         $paginationData = $this->formPagination($news);
         return $this->successResponse($news->items(), $paginationData, 200);
@@ -524,7 +524,7 @@ class NewsController extends Controller
         $news = News::create($request->validated() + [
             'status' => 'moderating',
             'author_id' => Auth::id(),
-        ]);            
+        ]);
 
         return $this->successResponse(['news' => $news], 'Новость успешно создана', 200);
     }
@@ -571,7 +571,7 @@ class NewsController extends Controller
 
     }
 
-     /**
+    /**
      * Обновить
      * 
      * Обновление статуса новости

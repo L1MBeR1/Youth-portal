@@ -77,7 +77,7 @@ trait QueryBuilderTrait
             }
         }
 
-        $query = $modelClass::where('blogs.id', $blogId);
+        $query = $modelClass::where("{$keys[0]}.id", $blogId);
 
         // Проверка наличия нескольких таблиц для join
         if (count($keys) > 1) {

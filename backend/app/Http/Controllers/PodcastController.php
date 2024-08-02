@@ -419,7 +419,7 @@ class PodcastController extends Controller
             $query->where('status', $podcastStatus);
         }
 
-        $perPage = $request->query('perPage');
+        $perPage = $request->query('per_page');
         $podcasts = $query->paginate($perPage ? $perPage : 10);
         $paginationData = $this->formPagination($podcasts);
         return $this->successResponse($podcasts->items(), $paginationData, 200);

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Grid from '@mui/joy/Grid';
-import usePublications from '../hooks/usePublications.js';
+import usePublishedNews from '../hooks/usePublishedNews.js';
 import { getPublishedNews } from '../api/newsApi.js';
 import Box from '@mui/joy/Box';
 
-import BlogCart from '../components/blogCard.jsx';
+import NewsCard from '../components/newsCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
 function Blogs() {
     const [page, setPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
 
-    const { data: blogs, isLoading,refetch } = usePublications(['news'],getPublishedNews,setLastPage, 
+    const { data: blogs, isLoading,refetch } = usePublishedNews(['news'],getPublishedNews,setLastPage, 
       { 
         page: page,
         per_page:6,
@@ -34,7 +34,7 @@ function Blogs() {
           <Grid container spacing={6}sx={{ flexGrow: 1 }}>
           {blogs.map((blog) => (
             <Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
-              <BlogCart
+              <NewsCard
               id={blog.id}
               title={blog.title}
               description={blog.description.desc}

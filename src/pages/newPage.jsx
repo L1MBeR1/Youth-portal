@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import usePublicationById from "../hooks/usePublicationById.js";
-import { getBlog } from "../api/blogsApi.js";
+import { getNew } from "../api/newsApi.js";
 import { getCommentsForResource, postComment } from '../api/commentsApi.js'
 
 import Box from "@mui/joy/Box";
@@ -16,17 +16,17 @@ import DOMPurify from 'dompurify';
 import { CommentSection } from "../components/comments/commentsSection.jsx";
 
 
-function BlogPage() {
+function NewsPage() {
   const { id } = useParams();
   const [comments, setComments] = useState([]);
-  const {data,isFetching,} = usePublicationById("blog", getBlog, id);
+  const {data,isFetching,} = usePublicationById("news", getNew, id);
   console.log(data)
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
           console.log(id)
-          const res = await getCommentsForResource('blog',id,{page:1});
+          const res = await getCommentsForResource('news',id,{page:1});
           console.log('COMMENTS', res.data);
           setComments(res.data);
       } catch (error) {
@@ -91,4 +91,4 @@ const createMarkup = (html) => {
   );
 }
 
-export default BlogPage;
+export default NewsPage;

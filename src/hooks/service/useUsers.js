@@ -7,11 +7,11 @@ const useUsers = (queryKey,tags,setLastPage, params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-
       const {token}= await getToken('useUsers');
       if (!token) {
         return null;
       }
+      console.log(params)
       const response = await getUsers(token, params);
       setLastPage(response.message.last_page)
       console.log(response)

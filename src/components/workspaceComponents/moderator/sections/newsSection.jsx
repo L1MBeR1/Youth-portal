@@ -77,7 +77,7 @@ function NewsSection() {
   }, [page,refetch]);
 
   const changeStauts= async (status) => {
-    const {token,needsRedirect} = getToken('BloggerSection');
+    const {token,needsRedirect} = await getToken('BloggerSection');
     if (needsRedirect){
       navigate('/login')
     }

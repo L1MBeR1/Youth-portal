@@ -33,7 +33,7 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteBlogger,addBlogger} from '../../../../api/usersApi.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-import useUsers from '../../../../hooks/service/useBlogs.js';
+import useUsers from '../../../../hooks/service/useUsers.js';
 
 
 function BlogersSection() {
@@ -61,14 +61,12 @@ function BlogersSection() {
       page: page,
       searchFields: searchFields,
       searchValues: searchValues,
-      // crtFrom:crtFrom,
-      // crtTo:crtTo,
-      // updFrom:updFrom,
-      // updTo:updTo,
+      bdTo:bdTo,
+      bdFrom:bdFrom,
       operator:'or',
     });
   const addNewBlogger = async (email) => {
-    const {token,needsRedirect} = getToken('BloggerSection');
+    const {token,needsRedirect} = await getToken('BloggerSection');
     if (needsRedirect){
       navigate('/login')
     }
@@ -81,7 +79,7 @@ function BlogersSection() {
   
   const delBlogger = async (confirmed) => {
     if (confirmed) {
-      const {token,needsRedirect} = getToken('BloggerSection');
+      const {token,needsRedirect} = await getToken('BloggerSection');
       if (needsRedirect){
         navigate('/login')
       }

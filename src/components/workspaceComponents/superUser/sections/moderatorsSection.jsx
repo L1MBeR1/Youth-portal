@@ -65,7 +65,8 @@ function ModeratorsSection() {
       operator:'or',
     });
   const addNewModerator = async (email) => {
-    const {token,needsRedirect} = getToken('BloggerSection');
+    const {token,needsRedirect} = await getToken('BloggerSection');
+    console.log(token,needsRedirect)
     if (needsRedirect){
       navigate('/login')
     }
@@ -78,7 +79,8 @@ function ModeratorsSection() {
   
   const delModerator = async (confirmed) => {
     if (confirmed) {
-      const {token,needsRedirect} = getToken('BloggerSection');
+      const {token,needsRedirect} = await getToken('BloggerSection');
+      console.log(token,needsRedirect)
       if (needsRedirect){
         navigate('/login')
       }

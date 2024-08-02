@@ -48,11 +48,11 @@ function BlogersSection() {
   const [lastPage, setLastPage] = useState();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [bdFrom, setFromDate] = useState('');
-  const [bdTo, setToDate] = useState('');
+  const [bdFrom, setBdFrom] = useState('');
+  const [bdTo, setBdTo] = useState('');
 
   const [filtersCleared, setFiltersCleared] = useState(false);
-  const [searchFields, setSearchFields] = useState(['email','first_name','first_name','patronymic']);
+  const searchFields =['email','first_name','last_name','patronymic','nickname'];
   const [searchValues, setSearchValues] = useState([]);
   const { data: bloggers, isLoading, refetch  } = useUsers(['su/bloggers'],['service'],setLastPage, 
     { 
@@ -67,7 +67,10 @@ function BlogersSection() {
       operator:'or',
     });
   const addNewBlogger = async (email) => {
-    const token = getToken();
+    const {token,needsRedirect} = await getToken('BloggerSection');
+    if (needsRedirect){
+      navigate('/login')
+    }
     const response = await addBlogger(token, email)
     if (response) {
       console.log(response);
@@ -77,7 +80,7 @@ function BlogersSection() {
   
   const delBlogger = async (confirmed) => {
     if (confirmed) {
-      const {token,needsRedirect} = getToken('BloggerSection');
+      const {token,needsRedirect} = await getToken('BloggerSection');
       if (needsRedirect){
         navigate('/login')
       }
@@ -123,8 +126,8 @@ function BlogersSection() {
         label={'Дата рождения'}
         fromDate={bdFrom}
         toDate={bdTo}
-        setFromDate={setFromDate}
-        setToDate={setToDate}
+        setFromDate={setBdFrom}
+        setToDate={setBdTo}
       />  
     </>
   );
@@ -140,16 +143,16 @@ function BlogersSection() {
     }
   }, [filtersCleared, refetch]);
   const clearFilters = () => {
-    setToDate('');
-    setFromDate('');
+    setBdFrom('');
+    setBdTo('')
     setSearchTerm('');
+    setSearchValues([])
     setFiltersCleared(true);
   };
   const applyFilters = () => {
-    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm])
-    refetch();
+    setSearchValues([searchTerm,searchTerm,searchTerm,searchTerm,searchTerm])
+    setFiltersCleared(true);
   };
-
   const columns = [
     { field: 'id', headerName: 'ID', width: '80px' },
     { field: 'avatar', width: '70px' ,render: (item) => <Avatar variant='outlined' src={item.profile_image_uri}/>},

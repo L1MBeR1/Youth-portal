@@ -10,11 +10,13 @@ import useProfile from '../../hooks/useProfile';
 export const CommentInput = () => {
 const { data: profileData } = useProfile();
   return (
+  <>
+    {profileData ? (    
     <Stack
     direction='row'
     spacing={2}
     width='100%'
-    >
+    > 
         <Avatar
         src={profileData.profile_image_uri}
         alt={profileData.nickname}
@@ -35,5 +37,7 @@ const { data: profileData } = useProfile();
         >
         </Input>
     </Stack>
+  ):(<></>)}
+    </>
   );
 };

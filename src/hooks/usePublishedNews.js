@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
-const usePublications = (queryKey,api,setLastPage,params) => {
+const usePublishedNews= (queryKey,api,setLastPage,params) => {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
@@ -17,4 +17,4 @@ const usePublications = (queryKey,api,setLastPage,params) => {
   });
 };
 
-export default usePublications;
+export default usePublishedNews;

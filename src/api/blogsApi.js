@@ -33,7 +33,7 @@ export const changeBlogStatus = async (token, id, status) => {
   }
 };
 
-export const getPublishedBlogs = async (token, params) => {
+export const getPublishedBlogs = async (params) => {
   try {
     const response = await axios.get(`${API_URL}/blogs/published`, {
       params: params
@@ -45,7 +45,7 @@ export const getPublishedBlogs = async (token, params) => {
     throw error;
   }
 };
-export const getBlog = async (token, id) => {
+export const getBlog = async (id) => {
   console.log(id)
   try {
     const response = await axios.get(`${API_URL}/blogs/${id}`, {

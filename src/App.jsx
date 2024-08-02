@@ -17,6 +17,7 @@ import Blogs from './pages/blogs';
 import BlogPage from './pages/blogPage';
 
 import News from './pages/news';
+import NewsPage from './pages/newPage';
 
 import Podcasts from './pages/podcasts';
 
@@ -54,6 +55,7 @@ function App() {
             <Route path="/blog/:id" element={<BlogPage />} />
 
             <Route path="news" element={<News />} />
+            <Route path="/news/:id" element={<NewsPage />} />
 
             <Route path="podcasts" element={<Podcasts />} />
 

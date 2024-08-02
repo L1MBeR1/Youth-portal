@@ -12,7 +12,8 @@ function MainLayout() {
   return (
     <Stack 
     sx={{
-      minHeight:'100vh'
+      minHeight:'100vh',
+      paddingTop:'50px'
     }}
     >
       <Header />

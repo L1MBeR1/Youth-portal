@@ -5,7 +5,7 @@ import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 
 import Map from './map';
-import eventsData from '../../testFiles/events.json';
+import eventsData from '../../test/events.json';
 
 const MapContainer = () => {
     const [events, setEvents] = useState(eventsData);

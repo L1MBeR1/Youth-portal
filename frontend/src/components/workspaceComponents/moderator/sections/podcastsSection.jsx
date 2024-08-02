@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import Chip from '@mui/joy/Chip';
@@ -28,14 +29,15 @@ import CustomTable from '../../shared/workSpaceTable.jsx';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 
-import usePodcasts from '../../../../hooks/usePodcasts.js';
+import usePodcasts from '../../../../hooks/service/usePodcasts.js';
 
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
-import { getToken } from '../../../../localStorage/tokenStorage.js';
+import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 import {changePodcastStatus} from '../../../../api/podcastsApi.js';
 
 function PodcastsSection() {
+  const navigate = useNavigate();
   const [openPodcast, setOpenPodcast] = useState(false);
 
   const [changeId, setChangeId] = useState();
@@ -67,7 +69,10 @@ function PodcastsSection() {
       operator:'or',
     });
   const changeStauts= async (status) => {
-    const token = getToken();
+    const {token,needsRedirect} = await getToken('BloggerSection');
+    if (needsRedirect){
+      navigate('/login')
+    }
     console.log(status)
     const response = await changePodcastStatus(token, changeId,status)
     if (response) {

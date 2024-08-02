@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -34,6 +35,9 @@ class UserController extends Controller
      */
     public function listUsers(Request $request)
     {
+        if (!Auth::user()->hasRole('admin|moderator|su')) {
+            return $this->errorResponse('Доступ запрещен', [], 403);
+        }
         $roleName = $request->query('role_name');
         $query = User::query();
 
@@ -55,28 +59,56 @@ class UserController extends Controller
         $bdTo = $request->query('bdTo');
         $bdDate = $request->query('bdDate');
 
-        
+        $operator = $request->query('operator', 'and');
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            foreach ($searchFields as $index => $field) {
-                $value = $searchValues[$index] ?? null;
-                if ($value) {
-                    if (in_array($field, ['email', 'phone'])) {
-                        $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
-                    } else {
-                        $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+            if ($operator === 'or') {
+                $query->where(function ($query) use ($searchFields, $searchValues) {
+                    foreach ($searchFields as $index => $field) {
+                        $value = $searchValues[$index] ?? null;
+                        if ($value) {
+                            if (in_array($field, ['email', 'phone'])) {
+                                $query->orWhere('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                            } else {
+                                $query->orWhere('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                            }
+                        }
+                    }
+                });
+            } else {
+                foreach ($searchFields as $index => $field) {
+                    $value = $searchValues[$index] ?? null;
+                    if ($value) {
+                        if (in_array($field, ['email', 'phone'])) {
+                            $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                        } else {
+                            $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                        }
                     }
                 }
             }
         }
 
-        if ($searchColumnName && $searchValue) {
-            if (in_array($searchColumnName, ['email', 'phone'])) {
-                $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-            } else {
-                $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
-            }
-        }
+        // if (!empty($searchFields) && !empty($searchValues)) {
+        //     foreach ($searchFields as $index => $field) {
+        //         $value = $searchValues[$index] ?? null;
+        //         if ($value) {
+        //             if (in_array($field, ['email', 'phone'])) {
+        //                 $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+        //             } else {
+        //                 $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+        //             }
+        //         }
+        //     }
+        // }
+
+        // if ($searchColumnName && $searchValue) {
+        //     if (in_array($searchColumnName, ['email', 'phone'])) {
+        //         $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //     } else {
+        //         $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //     }
+        // }
 
         $bdFrom = $this->parseDate($bdFrom);
         $bdTo = $this->parseDate($bdTo);
@@ -226,6 +258,6 @@ class UserController extends Controller
 
         $user->removeRole($role);
 
-        return $this->successResponse([], 'Role added successfully');
+        return $this->successResponse([], 'Роль отнята успешно');
     }
 }

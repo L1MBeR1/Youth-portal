@@ -1,12 +1,13 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\CheckUserBlocked;
+use Illuminate\Auth\AuthenticationException;
+// use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Middleware\HandleCors;
-use App\Http\Middleware\CorsMiddleware;
 use PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate as JWTAuthenticate;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,10 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => JWTAuthenticate::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'check.blocked' => \App\Http\Middleware\CheckUserBlocked::class,
         ]);
         $middleware->group('api', [
             CorsMiddleware::class,
+            'auth',
+            'check.blocked',
         ]);
     })
     ->withCommands([

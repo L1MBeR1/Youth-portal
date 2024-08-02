@@ -31,8 +31,8 @@ import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
 import {deleteModerator,addModerator} from '../../../../api/usersApi.js';
-import { getCookie } from '../../../../cookie/cookieUtils.js';
-import useOrganizations from '../../../../hooks/useOrganizations.js';
+import { getCookie } from '../../../../utils/cookie/cookieUtils.js';
+import useOrganizations from '../../../../hooks/service/useOrganizations.js';
 
 
 function OrganizationsSection() {
@@ -67,26 +67,6 @@ function OrganizationsSection() {
       updTo:updTo,
       operator:'or',
     });
-  // const addNewModerator = async (email) => {
-  //   const token = getCookie('token');
-  //   const response = await addModerator(token, email)
-  //   if (response) {
-  //     console.log(response);
-  //     refetch()
-  //   }
-  // };
-  
-  // const delModerator = async (confirmed) => {
-  //   if (confirmed) {
-  //     const token = getCookie('token');
-  //     const response = await deleteModerator(token, deleteId)
-  //     if (response) {
-  //       console.log(response);
-  //       setIsSuccess(true);
-  //       refetch()
-  //     }
-  //   }
-  // };
   
 
   // const RowMenu = ({id}) => {
@@ -189,7 +169,7 @@ function OrganizationsSection() {
         }}
       >
         <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Поиск по почте или ФИО</FormLabel>
+          <FormLabel>Поиск</FormLabel>
           <Input
             size="sm"
             placeholder="Search"

@@ -23,7 +23,7 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
-use PHPOpenSourceSaver\JWTAuth\Validators\Validator;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -48,11 +48,15 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
-        $this->validateRequest($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'nullable|email|unique:user_login_data,email',
             'phone' => 'nullable|string|unique:user_login_data,phone',
             'password' => 'required',
         ]);
+        
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
 
         if (empty($request->email) && empty($request->phone)) {
             return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
@@ -106,11 +110,15 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
     {
-        $this->validateRequest($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
             'password' => 'required|string',
         ]);
+        
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
 
         if (empty($request->email) && empty($request->phone)) {
             return $this->errorResponse('По крайней мере одно из [email, phone] должны быть предоставлены', [], 422);
@@ -124,6 +132,11 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        if ($user->blocked_at) {
+            return $this->errorResponse('Ваш аккаунт заблокирован', [], 403);
+        }
+
         $refreshToken = $this->generateRefreshToken($user);
 
         return $this->respondWithToken($token, $refreshToken);
@@ -217,7 +230,7 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
- 
+
 
 
     public function refresh(Request $request)
@@ -252,6 +265,14 @@ class AuthController extends Controller
                 'message' => 'Invalid refresh token',
                 'data' => [],
                 'status_code' => 401
+            ])->cookie(cookie()->forget('refresh_token'));
+        }
+
+        if ($user->blocked_at) {
+            return response()->json([
+                'message' => 'User is blocked',
+                'data' => [],
+                'status_code' => 403
             ])->cookie(cookie()->forget('refresh_token'));
         }
 
@@ -292,7 +313,7 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         try {
-            $this->validateRequest($request, [
+            $validator = Validator::make($request->all(), [
                 'first_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'patronymic' => 'nullable|string|max:255',
@@ -302,6 +323,10 @@ class AuthController extends Controller
                 'gender' => 'nullable|in:м,ж',
                 'birthday' => 'nullable|date',
             ]);
+            
+            if ($validator->fails()) {
+                return $this->errorResponse('Validation Error', $validator->errors(), 422);
+            }
 
             $user = Auth::user();
             $metadata = $user->metadata;
@@ -343,7 +368,8 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user) return $this->errorResponse('Неверные данные',[],400);
+            if (!$user)
+                return $this->errorResponse('Неверные данные', [], 400);
             $metadata = $user->metadata;
 
             return $this->successResponse($metadata, 'Profile retrieved successfully.');
@@ -363,28 +389,45 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-
-
-
-
-
     public function logout()
     {
-        try {
-            $user = Auth::user();
-            $user->remember_token = null;
-            $user->save();
+        Log::info('LOGOUT STARTING...');
+        $user = Auth::user();
+        Log::info('DEFINED USER: ' . $user->email);
+        Log::info('SETTING REMEMBER TOKEN TO NULL...');
+        $user->remember_token = null;
+        Log::info('REMEMBER TOKEN SET TO NULL');
+        $user->save();
+        Log::info('SAVED USER');
 
-            Auth::logout();
+        Log::info('LOGGING OUT...');
+        Auth::logout();
+        Log::info('LOGGED OUT');
 
-            $response = response()->json(['message' => 'Successfully logged out.']);
-            $response->withCookie(cookie()->forget('refresh_token'));
+        Log::info('RESPONDING...');
+        $response = response()->json(['message' => 'Successfully logged out.']);
+        $response->withCookie(cookie()->forget('refresh_token'));
 
-            return $response;
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
+        Log::info('LOGOUT DONE');
+        return $response;
     }
+    // public function logout()
+    // {
+    //     $user = Auth::user();
+
+    //     if ($user) {
+    //         $user->remember_token = null;
+    //         $user->save();
+    //     }
+
+    //     Auth::logout();
+
+    //     $response = response()->json(['message' => 'Successfully logged out.']);
+    //     $response->withCookie(cookie()->forget('refresh_token'));
+
+    //     return $response;
+    // }
+
 
 
 

@@ -27,7 +27,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
-import useProjects from '../../../../hooks/useProjects.js';
+import useProjects from '../../../../hooks/service/useProjects.js';
 
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 

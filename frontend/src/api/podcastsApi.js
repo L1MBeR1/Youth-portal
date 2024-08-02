@@ -31,3 +31,18 @@ export const getPodcastsByPage = async (token, params) => {
       throw error;
     }
   };
+  export const getPublishedPodcasts = async (token, params) => {
+    try {
+      const response = await axios.get(`${API_URL}/podcasts/published`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: params
+      });
+      // console.log(response)
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching podcasts:', error);
+      throw error;
+    }
+  };

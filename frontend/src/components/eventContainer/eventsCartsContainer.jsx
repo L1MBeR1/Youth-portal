@@ -7,7 +7,7 @@ import Typography from '@mui/joy/Typography';
 import Carousel from './eventsCarousel';
 import EventCart from './eventCart';
 
-import eventsData from '../../testFiles/events.json';
+import eventsData from '../../test/events.json';
 
 const EventsCartsContainer = () => {
   return (

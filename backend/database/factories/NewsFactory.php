@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class NewsFactory extends Factory
 {
+    private function generateImageURL(int $width = 320, int $height = 240): string 
+    {
+        // Для избежания кеширования изображений при многократном обращении к сайту
+        $number = random_int(1, 100000); 
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
+    }
     protected $model = News::class;
 
     public function definition()
@@ -23,7 +30,7 @@ class NewsFactory extends Factory
                 ]
             ],
             'content' => $this->faker->realText(100),
-            'cover_uri' => $this->faker->imageUrl(),
+            'cover_uri' => $this->generateImageURL(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'views' => $this->faker->numberBetween(0, 1000),
             'likes' => $this->faker->numberBetween(0, 1000),

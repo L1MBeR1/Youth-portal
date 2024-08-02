@@ -11,17 +11,15 @@ class BlogPolicy
    
 
     /**
-     * Determine whether the user can view the model.
+     * Определяет может ли пользователь просматривать любой блог.
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasRole('admin|moderator|su');
     }
 
     public function search(User $user): bool
-    {
-        Log::info('Checking search permission for user ' . $user);
-        
+    {        
         return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');
     }
 
@@ -30,13 +28,30 @@ class BlogPolicy
         return true;
     }
 
-    public function requestCurrentBlog(User $user, Blog $blog): bool
+    public function requestSpecificPublishedBlog(User $user, Blog $blog): bool
     {
-        if ($user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su')){
+        if ($blog->status === 'published') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function requestSpecificBlog(User $user, Blog $blog): bool
+    {
+        if ($blog->status === 'published') {
+            return true;
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
             return true;
         }        
 
-        if ($blog->status === 'published') {
+        if ($blog->author_id === $user->id) {
             return true;
         }
 
@@ -71,7 +86,7 @@ class BlogPolicy
      */
     public function changeStatus(User $user, Blog $blog): bool
     {
-        return $user->hasRole('admin') || $user->hasRole('moderator');
+        return $user->hasRole('admin|moderator|su');
     }
 
     /**
@@ -79,7 +94,7 @@ class BlogPolicy
      */
     public function delete(User $user, Blog $blog): bool
     {
-        $isAdminOrModerator = $user->hasRole('admin') || $user->hasRole('moderator');
+        $isAdminOrModerator = $user->hasRole('admin|moderator|su');
         $isAuthorAndBlogger = $user->hasRole('blogger') && $user->id === $blog->author_id;
 
         return $isAdminOrModerator || $isAuthorAndBlogger;

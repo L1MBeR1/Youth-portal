@@ -32,3 +32,32 @@ export const changeNewStatus = async (token, id, status) => {
     throw error;
   }
 };
+
+export const getPublishedNews = async (token, params) => {
+  console.log(token,params)
+  try {
+    const response = await axios.get(`${API_URL}/news/published`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: params
+    });
+    // console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    throw error;
+  }
+};
+export const getNew = async (id) => {
+  console.log(id)
+  try {
+    const response = await axios.get(`${API_URL}/news/${id}`, {
+    });
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching new:', error);
+    throw error;
+  }
+};

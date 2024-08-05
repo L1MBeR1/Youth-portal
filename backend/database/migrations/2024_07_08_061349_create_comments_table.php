@@ -16,7 +16,8 @@ return new class extends Migration
             $table->integer('user_id')->unsigned();
             $table->text('content');
             $table->integer('likes')->unsigned()->default(0);
-            $table->timestamps();
+            // $table->timestamps();
+            $table->timestampsTz();
 
             $table->foreign('user_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });

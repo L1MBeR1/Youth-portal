@@ -26,11 +26,11 @@ class BlogController extends Controller
             }
         }
 
-        
+
         if ($blog) {
             $blog->increment('views');
         }
-        
+
         $requiredFields = [
             "blogs" => [
                 "id",
@@ -51,9 +51,9 @@ class BlogController extends Controller
                 "patronymic",
                 "nickname",
                 "profile_image_uri",
-                ]
-            ];
-            
+            ]
+        ];
+
         $blog = $this->connectFields($blog->id, $requiredFields, Blog::class);
 
         return $this->successResponse($blog, '', 200);

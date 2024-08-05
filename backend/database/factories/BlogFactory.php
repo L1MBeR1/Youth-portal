@@ -2,9 +2,10 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Faker\Factory as FakerFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Blog>
@@ -51,7 +52,7 @@ class BlogFactory extends Factory
 
             $words = explode(' ', $paragraph);
             foreach ($words as $word) {
-                if (random_int(0, 10) > 7) { 
+                if (random_int(0, 10) > 7) {
                     $tag = $htmlTags[array_rand($htmlTags)];
                     $word = $tag . $word . str_replace('<', '</', $tag);
                 }
@@ -80,9 +81,22 @@ class BlogFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = FakerFactory::create('ru_RU');
+        // TODO: 
+        $year = random_int(2019, 2022);
+        $month = random_int(1, 12);
+        $day = random_int(1, 28);
+        $time = "{$year}-{$month}-{$day} 10:00:00";
+
+        $timezone = 'Europe/Moscow';
+
+        $dateTime = Carbon::createFromFormat('Y-m-d H:i:s', $time, $timezone)->setTimezone('UTC');
+
+
+        echo "Carbon DateTime (UTC): " . $dateTime . "\n";
+        echo "Carbon DateTime (UTC): " . $dateTime->format('Y-m-d H:i:s.uP') . "\n";
+
         $userIds = User::pluck('id')->toArray();
-        $desc = $this->faker->realText(100);
+
         return [
             'title' => $this->faker->company(),
             'description' => [
@@ -94,9 +108,13 @@ class BlogFactory extends Factory
             'content' => $this->generateContent(),
             'cover_uri' => $this->generateImageURL(),
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
-            'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
-            'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'created_at' => $dateTime->format('Y-m-d H:i:s'),
+            'updated_at' => $dateTime->format('Y-m-d H:i:s'),
             'author_id' => $this->faker->randomElement($userIds),
         ];
+        ;
     }
+
+
+
 }

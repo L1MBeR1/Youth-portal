@@ -17,9 +17,9 @@ return new class extends Migration
             $table->text('description');
             $table->text('location');
             $table->integer('views')->unsigned()->default(0);;
-            $table->timestamp('start_time');
-            $table->timestamp('end_time');
-            $table->timestamps();
+            $table->timestampTz('start_time');
+            $table->timestampTz('end_time');
+            $table->timestampsTz();
 
             $table->integer('author_id')->unsigned();
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');

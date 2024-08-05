@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function getUserById($userId){
+        $user = User::where('id', $userId)->first();
+        $user_metadata = UserMetadata::where('user_id', $userId)->first();
+        $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+        $roles = $user->getRoleNames();
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+
+        $res = array_merge($user->toArray(), $user_metadata->toArray(), ['permissions' => $permissions, 'roles' => $roles]);
+        return $this->successResponse($res);
+    }
+
+
     /**
      * Получить список всех пользователей с фильтрацией по роли и дополнительными параметрами
      * 

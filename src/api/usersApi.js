@@ -30,6 +30,7 @@ export const getUsers= async (token,params) => {
   };
 
   export const addModerator = async (token, email) => {
+    console.log(token,email)
     try {
       const response = await axios.post(`${API_URL}/users/roles`,
         {

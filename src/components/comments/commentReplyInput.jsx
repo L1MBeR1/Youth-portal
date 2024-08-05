@@ -12,7 +12,7 @@ import { postComment } from '../../api/commentsApi';
 import useProfile from '../../hooks/useProfile';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 
-export const CommentInput = ({ resourceType, resourceId, refresh }) => {
+export const CommentReplyInput = ({ resourceType, resourceId, refresh }) => {
 	const { data: profileData } = useProfile();
 	const [comment, setComment] = useState('');
 	const navigate = useNavigate();
@@ -44,28 +44,34 @@ export const CommentInput = ({ resourceType, resourceId, refresh }) => {
 	return (
 		<>
 			{profileData ? (
-				<Stack direction='row' spacing={2} width='100%'>
+				<Stack
+					direction='row'
+					spacing={2}
+					sx={{
+						marginTop: '10px',
+						flexGrow: 1,
+					}}
+				>
 					<Avatar
 						src={profileData.profile_image_uri}
 						alt={profileData.nickname}
 						variant='outlined'
-						sx={{
-							'--Avatar-size': '60px',
-						}}
+						size='md'
 					/>
 					<Input
 						placeholder='Введите комментарий'
 						value={comment}
 						onChange={handleInputChange}
+						size='sm'
 						sx={{
 							flexGrow: 1,
-							'--Input-minHeight': '56px',
-							'--Input-paddingInline': '25px',
+							'--Input-minHeight': '40px',
+							'--Input-paddingInline': '20px',
 							'--Input-radius': '50px',
 						}}
 						endDecorator={
 							<IconButton
-								size='lg'
+								size='sm'
 								color='primary'
 								variant='soft'
 								onClick={handleSubmit}

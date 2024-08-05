@@ -16,10 +16,10 @@ export const getCommentsForResource = async (resource_type, resource_id,params) 
 };
 
 
-export const postComment = async (token, resource_type, resource_id, data) => {
+export const postComment = async (token, resource_type, resource_id, content) => {
     try {
         const response = await axios.post(`${API_URL}/comments/${resource_type}/${resource_id}`, {
-            content: data.content,
+            content: content,
         }, {
             headers: {
                 Authorization: `Bearer ${token}`,

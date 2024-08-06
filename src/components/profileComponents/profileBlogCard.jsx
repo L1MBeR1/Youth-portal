@@ -8,18 +8,10 @@ import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 
-import ProfileBlank from '../img/profileBlank.png';
-import { timeAgo } from '../utils/timeAndDate/timeAgo';
+import ProfileBlank from '../../img/profileBlank.png';
+import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 
-const BlogCart = ({
-	id,
-	title,
-	description,
-	img,
-	avatar,
-	creator,
-	createDate,
-}) => {
+const ProfileBlogCard = ({ id, title, img, createDate }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
@@ -60,23 +52,10 @@ const BlogCart = ({
 					direction='column'
 					flexGrow={1}
 					justifyContent='space-between'
+					paddingX={1}
 				>
 					<Stack spacing={1}>
 						<Typography level='title-lg'>{title}</Typography>
-						<Box
-							sx={{
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								display: '-webkit-box',
-								WebkitLineClamp: 2,
-								WebkitBoxOrient: 'vertical',
-								whiteSpace: 'normal',
-							}}
-						>
-							<Typography level='body-md'>
-								{description ? description : <></>}
-							</Typography>
-						</Box>
 					</Stack>
 
 					<Stack
@@ -85,10 +64,6 @@ const BlogCart = ({
 						alignItems='center'
 						spacing={2}
 					>
-						<Stack direction='row' alignItems='center' spacing={2}>
-							<Avatar alt={creator} src={avatar ? avatar : ProfileBlank} />
-							<Typography level='body-md'>{creator}</Typography>
-						</Stack>
 						<Typography level='body-md'>{timeAgo(createDate)}</Typography>
 					</Stack>
 				</Stack>
@@ -97,4 +72,4 @@ const BlogCart = ({
 	);
 };
 
-export default BlogCart;
+export default ProfileBlogCard;

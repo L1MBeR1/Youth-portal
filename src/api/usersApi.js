@@ -16,6 +16,16 @@ export const getUsers= async (token,params) => {
     }
   };
 
+  export const getUser= async (id) => {
+    try {
+      const response = await axios.get(`${API_URL}/users/${id}`, {
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch user');
+    }
+  };
+
   export const deleteModerator= async (token,id) => {
     try {
       const response = await axios.delete(`${API_URL}/users/${id}/roles/${'moderator'}`, {

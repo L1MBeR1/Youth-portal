@@ -16,7 +16,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import DOMPurify from 'dompurify';
 import { CommentSection } from '../components/comments/commentsSection.jsx';
-import { PublicationStatistic } from '../components/publicationStatistic .jsx';
+import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic .jsx';
 function BlogPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('blog', getBlog, id);

@@ -61,3 +61,15 @@ export const getNew = async (id) => {
     throw error;
   }
 };
+export const getUserPublishedNews = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/news/published/`, {
+      userId
+    });
+    // console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    throw error;
+  }
+};

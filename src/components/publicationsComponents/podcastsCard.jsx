@@ -1,5 +1,4 @@
 import AspectRatio from '@mui/joy/AspectRatio';
-import Avatar from '@mui/joy/Avatar';
 import Card from '@mui/joy/Card';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
@@ -8,51 +7,30 @@ import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 
-import ProfileBlank from '../img/profileBlank.png';
-import { timeAgo } from '../utils//timeAndDate/timeAgo.js';
-
-const NewsCard = ({
-	id,
-	title,
-	description,
-	img,
-	avatar,
-	creator,
-	createDate,
-}) => {
+const PodcastsCard = ({ id, title, description, img }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
-		navigate(`/news/${id}`);
+		navigate(`/blog/${id}`);
 	};
 	return (
 		<Card
 			variant='plain'
 			sx={{
 				display: 'flex',
-				// minHeight: "340px",
+				// maxWidth:'200px',
 				p: 0,
 				cursor: 'pointer',
 				'--Card-radius': '20px',
-				overflow: 'hidden',
-				'&:hover img': {
-					transform: 'scale(1.075)',
+				transition: 'transform 0.3s',
+				'&:hover': {
+					transform: 'scale(1.025)',
 				},
 			}}
 			onClick={() => handleRedirect(id)}
 		>
 			<Stack direction='column' spacing={1.5} flexGrow={1}>
-				<AspectRatio
-					minHeight='120px'
-					maxHeight='200px'
-					sx={{
-						overflow: 'hidden',
-						position: 'relative',
-						'& img': {
-							transition: 'transform 0.4s',
-						},
-					}}
-				>
+				<AspectRatio ratio='1'>
 					<img src={img} alt={title} loading='lazy' />
 				</AspectRatio>
 				<Stack
@@ -78,23 +56,10 @@ const NewsCard = ({
 							</Typography>
 						</Box>
 					</Stack>
-
-					<Stack
-						direction='row'
-						justifyContent='space-between'
-						alignItems='center'
-						spacing={2}
-					>
-						<Stack direction='row' alignItems='center' spacing={2}>
-							<Avatar alt={creator} src={avatar ? avatar : ProfileBlank} />
-							<Typography level='body-md'>{creator}</Typography>
-						</Stack>
-						<Typography level='body-md'>{timeAgo(createDate)}</Typography>
-					</Stack>
 				</Stack>
 			</Stack>
 		</Card>
 	);
 };
 
-export default NewsCard;
+export default PodcastsCard;

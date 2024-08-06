@@ -69,10 +69,7 @@ function App() {
 						/>
 
 						{/* Пути не для гостя */}
-						<Route
-							path='profile'
-							element={<NotGuestRoute element={<Profile />} />}
-						/>
+						<Route path='/profile/:id' element={<Profile />} />
 					</Route>
 
 					{/* Служебные пути */}

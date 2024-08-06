@@ -1,30 +1,36 @@
 <?php
+
 namespace App\Traits;
 
 use Carbon\Carbon;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
 trait QueryBuilderTrait
 {
     /**
-     * Summary of buildPublicationQuery
-     * @param \Illuminate\Http\Request $request
+     * Создание запроса для публикаций
+     * 
+     * @param Request $request
      * @param string $modelClass
      * @param array $requiredFields
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields): Builder
+    private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields, $onlyPublished = false): Builder
     {
         $query = $modelClass::query();
-        // $query->paginate($request->get('per_page', 10)); // не работает
         $this->selectFields($query, $requiredFields);
-        $this->applyFilters($query, $request);
+        $this->applyFilters($query, $request, $onlyPublished);
         $this->applySearch($query, $request);
         return $query;
     }
 
+    /**
+     * Создание запроса для публикаций без использования Request
+     * @param string $modelClass
+     * @param array $requiredFields
+     * @return Builder
+     */
     private function buildPublicationQueryWithoutRequest(string $modelClass, array $requiredFields): Builder
     {
         $query = $modelClass::query();
@@ -34,23 +40,20 @@ trait QueryBuilderTrait
 
 
     /**
-     * Summary of selectFields
+     * Выборка необходимых полей для запроса
+     * 
      * @param mixed $query
      * @param mixed $requiredFields
      * @return void
      */
-    private function selectFields($query, $requiredFields)
+    private function selectFields($query, $requiredFields): void
     {
         $selectFields = [];
-        $keys = array_keys($requiredFields);
+        $keys = array_keys($requiredFields); 
 
         foreach ($requiredFields as $tableName => $fields) {
             foreach ($fields as $field) {
-                if (count($keys) === 1) {
-                    $selectFields[] = "{$field}";
-                } else {
-                    $selectFields[] = "{$tableName}.{$field}";
-                }
+                $selectFields[] = count($keys) === 1 ? "{$field}" : "{$tableName}.{$field}";
             }
         }
 
@@ -62,11 +65,12 @@ trait QueryBuilderTrait
     }
 
     /**
-     * Summary of selectFields
+     * Подключение полей по ID публикации
+     * 
      * @param mixed $query
      * @param mixed $requiredFields
      */
-    private function connectFields($blogId, $requiredFields, $modelClass)
+    private function connectFields($publicationId, $requiredFields, $modelClass)
     {
         $selectFields = [];
         $keys = array_keys($requiredFields);
@@ -77,33 +81,41 @@ trait QueryBuilderTrait
             }
         }
 
-        $query = $modelClass::where("{$keys[0]}.id", $blogId);
+        $query = $modelClass::where("{$keys[0]}.id", $publicationId);
 
         // Проверка наличия нескольких таблиц для join
         if (count($keys) > 1) {
             $query->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
         }
 
-        // Выборка необходимых полей
         $query->select($selectFields);
 
-        return $query->first();  // Получаем первую (и единственную) запись
+        return $query->first(); 
     }
 
 
 
 
     /**
-     * Summary of applyFilters
+     * Применение фильтров к запросу
+     * 
      * @param mixed $query
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      */
-    private function applyFilters($query, Request $request)
+    private function applyFilters($query, Request $request, $onlyPublished)
     {
         $this->applyDateFilters($query, $request);
-        $this->applyOtherFilters($query, $request);
+        $this->applyOtherFilters($query, $request, $onlyPublished);
     }
 
+
+    /**
+     * Применение фильтров по дате
+     * 
+     * @param mixed $query
+     * @param Request $request
+     * @return void
+     */
     private function applyDateFilters($query, Request $request)
     {
         if ($crtFrom = $request->query('crtFrom')) {
@@ -131,7 +143,15 @@ trait QueryBuilderTrait
         }
     }
 
-    private function applyOtherFilters($query, Request $request)
+
+    /**
+     * Применение прочих фильтров
+     * 
+     * @param mixed $query
+     * @param Request $request
+     * @return void
+     */
+    private function applyOtherFilters($query, Request $request, $onlyPublished): void
     {
         $orderBy = $request->query('orderBy');
         $orderDirection = $request->query('orderDir');
@@ -143,6 +163,10 @@ trait QueryBuilderTrait
         } else {
             $query->orderBy('created_at', 'desc');
         }
+
+        if ($onlyPublished) {
+            $query->where('status', 'published');
+        }
     }
 
 
@@ -151,35 +175,26 @@ trait QueryBuilderTrait
 
 
     /**
-     * Summary of applySearch
+     * Применение поиска к запросу
+     * 
      * @param mixed $query
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return void
      */
-    private function applySearch($query, Request $request)
+    private function applySearch($query, Request $request): void
     {
         $searchFields = $request->query('searchFields', []);
         $searchValues = $request->query('searchValues', []);
         $operator = $request->query('operator', 'and');
 
         if (!empty($searchFields) && !empty($searchValues)) {
-            if ($operator === 'or') {
-                $query->where(function ($query) use ($searchFields, $searchValues) {
-                    foreach ($searchFields as $index => $field) {
-                        $value = $searchValues[$index] ?? null;
-                        if ($value) {
-                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
-                        }
-                    }
-                });
-            } else {
+            $query->where(function ($query) use ($searchFields, $searchValues, $operator) {
                 foreach ($searchFields as $index => $field) {
-                    $value = $searchValues[$index] ?? null;
-                    if ($value) {
-                        $query->where($field, 'LIKE', '%' . $value . '%');
+                    if (!empty($searchValues[$index])) {
+                        $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'LIKE', '%' . $searchValues[$index] . '%');
                     }
                 }
-            }
+            });
         }
 
         if ($tagFilter = $request->query('tagFilter')) {

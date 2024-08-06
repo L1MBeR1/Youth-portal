@@ -17,19 +17,29 @@ class BlogController extends Controller
 {
     use QueryBuilderTrait, PaginationTrait;
 
+    /**
+     * Get blog by id
+     * 
+     * 
+     * 
+     */
     public function getBlogById($id): \Illuminate\Http\JsonResponse
     {
-        $blog = Blog::find($id); //FIXME:
+        $blog = Blog::find($id);
+
+        if (!$blog) {
+            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
         if ($blog->status !== 'published') {
-            if (!Auth::user()->can('requestSpecificBlog', [Blog::class, $blog])) {
+            $user = Auth::user();
+            // Если не авторизован или нет прав
+            if (!$user || !$user->can('requestSpecificBlog', $blog)) {
                 return $this->errorResponse('Нет прав на просмотр', [], 403);
             }
         }
 
-
-        if ($blog) {
-            $blog->increment('views');
-        }
+        $blog->increment('views');
 
         $requiredFields = [
             "blogs" => [
@@ -73,8 +83,6 @@ class BlogController extends Controller
      * @urlParam page int Номер страницы.
      * @urlParam per_page int Элементов на странице.
      * 
-     * @urlParam searchColumnName string Поиск по столбцу.
-     * @urlParam searchValue string Поисковый запрос.
      * 
      * @urlParam searchFields string[] Массив столбцов для поиска.
      * @urlParam searchValues string[] Массив значений для поиска.
@@ -94,18 +102,11 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-        // if ($request->hasAny(['status', 'searchFields', 'searchValues'])) {
-        //     if (!Auth::user()->can('search', Blog::class)) {
-        //         $this->errorResponse('Нет прав на использование параметров', [], 403);
-        //     }
-        // }
-
         $requiredFields = [
             "blogs" => [
                 "id",
                 "title",
                 "description",
-                // "content",
                 "status",
                 "created_at",
                 "updated_at",
@@ -155,27 +156,6 @@ class BlogController extends Controller
             return $this->errorResponse('You do not have permission to view your own blogs.', [], 403);
         }
 
-
-        // $query = Blog::where('author_id', $user->id);
-
-        // $orderBy = $request->query('orderBy');
-        // $orderDirection = $request->query('orderDir');
-        // $blogStatus = $request->query('status');
-
-        // if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
-        //     $query->orderBy($orderBy, $orderDirection ?? 'desc');
-        // }
-
-        // if ($blogStatus) {
-        //     $query->where('status', $blogStatus);
-        // }
-
-        // $perPage = $request->query('perPage');
-        // $blogs = $query->paginate($perPage ? $perPage : 10);
-        // $paginationData = $this->makePaginationData($blogs);
-        // return $this->successResponse($blogs->items(), $paginationData, 200);
-
-
         $query = Blog::where('author_id', $user->id);
         $blogs = $query->get();
         $paginationData = $this->makePaginationData($blogs);
@@ -201,48 +181,6 @@ class BlogController extends Controller
      */
     public function getPublishedBlogs(Request $request)
     {
-        // Без авторизации
-        // if (!Auth::user()->can('viewPublishedBlogs', Blog::class)) {
-        //     return $this->errorResponse('Нет прав на просмотр', [], 403);
-        // }
-
-        // $query = Blog::where('status', 'published');
-        // $query->leftJoin('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id');
-        // $query->select(
-        //     'blogs.id',
-        //     'blogs.title',
-        //     'blogs.description',
-        //     'blogs.created_at',
-        //     'blogs.updated_at',
-        //     'blogs.likes',
-        //     'blogs.reposts',
-        //     'blogs.views',
-        //     'blogs.cover_uri',
-        //     'user_metadata.nickname',
-        //     'user_metadata.first_name',
-        //     'user_metadata.last_name',
-        //     'user_metadata.profile_image_uri',
-        // );
-
-        // $orderBy = $request->query('orderBy');
-        // $orderDirection = $request->query('orderDir');
-
-        // if ($orderBy && in_array($orderBy, ['created_at', 'updated_at'])) {
-        //     $query->orderBy($orderBy, $orderDirection ?? 'desc');
-        // } else {
-        //     $query->orderBy('updated_at', 'desc');
-        // }
-
-        // if ($userId = $request->query('userId')) {
-        //     $query->where('blogs.author_id', $userId);
-        // }
-
-        // $perPage = $request->query('per_page');
-        // $blogs = $query->paginate($perPage ? $perPage : 10);
-        // $paginationData = $this->makePaginationData($blogs);
-        // return $this->successResponse($blogs->items(), $paginationData, 200);
-
-
         $requiredFields = [
             "blogs" => [
                 "id",
@@ -257,18 +195,14 @@ class BlogController extends Controller
                 "cover_uri",
             ],
             "user_metadata" => [
-                // "first_name",
-                // "last_name",
-                // "patronymic",
                 "nickname",
                 "profile_image_uri",
             ]
         ];
 
 
-        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields);
-        $query->where('status', 'published');
-        // $this->selectFields($query, $requiredFields);
+        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields, $published=true);
+        // $query->where('status', 'published');
         $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);
         return $this->successResponse($blogs->items(), $paginationData, 200);

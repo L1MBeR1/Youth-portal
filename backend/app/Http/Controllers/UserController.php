@@ -67,8 +67,8 @@ class UserController extends Controller
 
         $searchFields = $request->query('searchFields', []);
         $searchValues = $request->query('searchValues', []);
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
+        // $searchColumnName = $request->query('searchColumnName');
+        // $searchValue = $request->query('searchValue');
 
         $bdFrom = $request->query('bdFrom');
         $bdTo = $request->query('bdTo');

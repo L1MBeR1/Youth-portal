@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Comment;
+use App\Models\User;
+use App\Models\Blog;
+use App\Models\News;
+use App\Models\Podcast;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Models\CommentToResource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -62,29 +67,128 @@ class CommentController extends Controller
      */
     public function getForContent(string $type, int $id): \Illuminate\Http\JsonResponse
     {
-        // $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
-        //     ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
-        //     ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
-        //     ->where('comment_to_resource.' . $type . '_id', '=', $id)
-        //     ->get();
-        // return $this->successResponse($comments);
+        $resource = $this->getResourceByType($type, $id);
 
+        if (!$resource) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
 
-        // TODO: нужна проверка на:
-        // 1. Если админ,модератор,су - то вернуть комментарии
-        // 2. Если юзер - то вернуть комментарии только для опубликованного материала. Если не опубликован, то 403
-        // 3. Если владелец, то вернуть  комментарии
+        $user = Auth::user();
 
-        // Исправлено дублирование
-        $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
-            ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
-            ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
-            ->where('comment_to_resource.' . $type . '_id', '=', $id)
-            ->distinct()
-            ->get();
+        // Проверка разрешений
+        $permissionError = $this->checkPermissions($user, $resource, $type);
+        if ($permissionError) {
+            return $permissionError;
+        }
+
+        // Запрос
+        $comments = $this->fetchComments($type, $id, $user);
+
         return $this->successResponse($comments);
     }
 
+    private function getResourceByType(string $type, int $id)
+    {
+        switch ($type) {
+            case 'blog':
+                return Blog::find($id);
+            case 'podcast':
+                return Podcast::find($id);
+            case 'news':
+                return News::find($id);
+            default:
+                return null;
+        }
+    }
+
+    private function checkPermissions($user, $resource, string $type)
+    {
+        if ($resource->status !== 'published') {
+            if (!$user) {
+                return $this->errorResponse('Доступ запрещен', [], Response::HTTP_FORBIDDEN);
+            }
+            if ($user->id !== $resource->author_id && !$user->hasRole('admin|moderator|su')) {
+                return $this->errorResponse('Доступ запрещен', [], Response::HTTP_FORBIDDEN);
+            }
+        }
+        return null;
+    }
+
+    private function fetchComments(string $type, int $id, $user)
+    {
+        if ($user) {
+            return $this->getCommentsWithLikes($type, $id);
+        } else {
+            return Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
+                ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
+                ->select('comments.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname', 'user_metadata.profile_image_uri', 'comment_to_resource.reply_to')
+                ->where('comment_to_resource.' . $type . '_id', '=', $id)
+                ->distinct()
+                ->get();
+        }
+    }
+
+
+    private function getCommentsWithLikes(string $type, int $id)
+    {
+        $comments = Comment::join('user_metadata', 'comments.user_id', '=', 'user_metadata.user_id')
+            ->join('comment_to_resource', 'comments.id', '=', 'comment_to_resource.comment_id')
+            ->leftJoin('likes', function ($join) {
+                $join->on('comments.id', '=', 'likes.likeable_id')
+                    ->where('likes.likeable_type', '=', 'comment');
+            })
+            ->select(
+                'comments.*',
+                'user_metadata.first_name',
+                'user_metadata.last_name',
+                'user_metadata.patronymic',
+                'user_metadata.nickname',
+                'user_metadata.profile_image_uri',
+                'comment_to_resource.reply_to',
+                DB::raw('COUNT(likes.id) > 0 as is_liked')
+            )
+            ->where('comment_to_resource.' . $type . '_id', '=', $id)
+            ->groupBy(
+                'comments.id',
+                'user_metadata.first_name',
+                'user_metadata.last_name',
+                'user_metadata.patronymic',
+                'user_metadata.nickname',
+                'user_metadata.profile_image_uri',
+                'comment_to_resource.reply_to'
+            )
+            ->get();
+
+        return $comments;
+    }
+
+
+
+    public function like($commentId)
+    {
+        $comment = Comment::find($commentId);
+        $comment->increment('likes');
+
+        DB::table('likes')->insert([
+            'user_id' => Auth::user()->id,
+            'likeable_id' => $commentId,
+            'likeable_type' => 'comment'
+        ]);
+    }
+
+    public function dislike($commentId)
+    {
+        $comment = Comment::find($commentId);
+        $comment->decrement('likes');
+
+        $like = DB::table('likes')
+            ->where('likeable_id', $commentId)
+            ->where('likeable_type', 'comment')
+            ->where('user_id', Auth::id())
+            ->first();
+
+        DB::table('likes')->where('id', $like->id)->delete();
+    }
 
 
     /**

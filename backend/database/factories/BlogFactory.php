@@ -22,7 +22,7 @@ class BlogFactory extends Factory
 
     private function generateContent(): string
     {
-        $basePlainText = $this->faker->realText(25000);
+        $basePlainText = $this->faker->realText(15000);
         $contentInnerPictures = [];
         $finalText = '';
 
@@ -92,8 +92,8 @@ class BlogFactory extends Factory
         $dateTime = Carbon::createFromFormat('Y-m-d H:i:s', $time, $timezone)->setTimezone('UTC');
 
 
-        echo "Carbon DateTime (UTC): " . $dateTime . "\n";
-        echo "Carbon DateTime (UTC): " . $dateTime->format('Y-m-d H:i:s.uP') . "\n";
+        // echo "Carbon DateTime (UTC): " . $dateTime . "\n";
+        // echo "Carbon DateTime (UTC): " . $dateTime->format('Y-m-d H:i:s.uP') . "\n";
 
         $userIds = User::pluck('id')->toArray();
 
@@ -112,9 +112,5 @@ class BlogFactory extends Factory
             'updated_at' => $dateTime->format('Y-m-d H:i:s'),
             'author_id' => $this->faker->randomElement($userIds),
         ];
-        ;
     }
-
-
-
 }

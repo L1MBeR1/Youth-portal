@@ -13,8 +13,12 @@ Route::group([
 ], function () {
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/{resource_type}/{resource_id}', [CommentController::class, 'store']);
+    // Route::post('/{resource_type}/{resource_id}', [CommentController::class, 'store']);
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
+
+    Route::post('{commentId}/like', [CommentController::class, 'like']);
+    Route::delete('{commentId}/dislike', [CommentController::class, 'dislike']);
     // Route::get('/{type}/{id}', [CommentController::class, 'getForContent'])->withoutMiddleware('auth');
 });
 

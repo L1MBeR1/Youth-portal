@@ -17,8 +17,8 @@ Route::group([
     Route::delete('{id}', [CommentController::class, 'destroy']);
     Route::put('{id}', [CommentController::class, 'update']);
 
-    Route::post('{commentId}/like', [CommentController::class, 'like']);
-    Route::delete('{commentId}/dislike', [CommentController::class, 'dislike']);
+    Route::put('{commentId}/like', [CommentController::class, 'like']);
+    Route::delete('{commentId}/like', [CommentController::class, 'dislike']);
     // Route::get('/{type}/{id}', [CommentController::class, 'getForContent'])->withoutMiddleware('auth');
 });
 

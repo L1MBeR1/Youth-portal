@@ -63,5 +63,10 @@ class Comment extends Model
 
         return $this;
     }
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+    
 }
 

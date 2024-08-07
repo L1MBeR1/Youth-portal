@@ -168,6 +168,7 @@ class CommentController extends Controller
     {
         $comment = Comment::find($commentId);
         $comment->increment('likes');
+        Log::info($comment);
 
         DB::table('likes')->insert([
             'user_id' => Auth::user()->id,

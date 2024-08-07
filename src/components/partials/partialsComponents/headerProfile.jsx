@@ -21,6 +21,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profileBlank.png';
+import { Button, Typography } from '@mui/joy';
 
 function HeaderProfile() {
 	const queryClient = useQueryClient();
@@ -44,7 +45,7 @@ function HeaderProfile() {
 					}}
 				>
 					<Avatar
-						size='sm'
+						size='lg'
 						src={profileData.profile_image_uri || profileBlank}
 					/>
 				</MenuButton>
@@ -103,9 +104,21 @@ function HeaderProfile() {
 				<>{profileMenu()}</>
 			) : (
 				<Link to='/login'>
-					<IconButton variant='outlined'>
-						<PermIdentityIcon />
-					</IconButton>
+					<Button
+						color='neutral'
+						sx={{
+							borderRadius: '50px',
+							backgroundColor: 'black',
+						}}
+					>
+						<Typography
+							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
+							fontWeight={'700'}
+							textColor={'white'}
+						>
+							Войти в аккаунт
+						</Typography>
+					</Button>
 				</Link>
 			)}
 		</Box>

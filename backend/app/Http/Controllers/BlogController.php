@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
+use App\Http\Requests\SetContentStatusRequest;
 use Symfony\Component\HttpFoundation\Response;
 use App\Traits\QueryBuilderTrait;
 use App\Traits\PaginationTrait;
@@ -285,7 +286,7 @@ class BlogController extends Controller
      * @bodyParam status string Новый статус
      *
      */
-    public function setStatus(Request $request, $id)
+    public function setStatus(SetContentStatusRequest $request, $id)
     {
         $blog = Blog::find($id);
 
@@ -296,10 +297,7 @@ class BlogController extends Controller
         if (!$blog) {
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
-
-        $this->validateRequest($request, [
-            'status' => 'nullable|string|max:255',
-        ]);
+        $request->validated();
 
         $blog->status = $request->input('status');
         $blog->save();

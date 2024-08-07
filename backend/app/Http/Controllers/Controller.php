@@ -19,19 +19,6 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    //TODO Удалить после изменения валидации в AuthController и UserController
-    protected function validateRequest(Request $request, array $rules)
-    {
-        Log::info('error val');
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return $this->errorResponse('Validation Error', $validator->errors(), 422);
-            Log::info('error val');
-        }
-    }
-
-
     protected function successResponse($data, $message = 'Success', $status = 200)
     {
         return response()->json([

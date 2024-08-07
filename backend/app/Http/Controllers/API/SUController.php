@@ -9,6 +9,7 @@ use App\Models\UserMetadata;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use App\Http\Requests\StoreUserRequest;
 use Spatie\Permission\Models\Permission;
 
 class SUController extends Controller
@@ -92,15 +93,10 @@ class SUController extends Controller
         return $this->successResponse([], 'Пользователь разблокирован');
     }
 
-    public function updateUserRoles(Request $request)
+    public function updateUserRoles(StoreUserRequest $request)
     {
-        $this->validateRequest($request, [
-            'email' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:15',
-            'user_id' => 'nullable|int|max:15',
-            'roles' => 'required|array',
-            'deleteMode' => 'boolean',
-        ]);
+        Log::info($request);
+        $request->validated();
 
         $user = null;
 

@@ -26,6 +26,7 @@ class BlogController extends Controller
     public function getBlogById($id): \Illuminate\Http\JsonResponse
     {
         $blog = Blog::find($id);
+        $user = null;
 
         if (!$blog) {
             return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
@@ -64,8 +65,9 @@ class BlogController extends Controller
             ]
         ];
 
-        $blog = $this->connectFields($blog->id, $requiredFields, Blog::class);
-
+        $user = Auth::user();
+        $userId = $user ? $user->id : null;
+        $blog = $this->connectFields($blog->id, $requiredFields, Blog::class, $userId);
         return $this->successResponse($blog, '', 200);
     }
 
@@ -200,8 +202,11 @@ class BlogController extends Controller
             ]
         ];
 
+        $user = Auth::user();
 
-        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields, $published=true);
+        $userId = $user ? $user->id : null;
+        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields, $published=true, $userId);
+
         // $query->where('status', 'published');
         $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);

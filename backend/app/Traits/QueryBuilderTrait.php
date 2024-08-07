@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 
 trait QueryBuilderTrait
@@ -16,10 +18,10 @@ trait QueryBuilderTrait
      * @param array $requiredFields
      * @return Builder
      */
-    private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields, $onlyPublished = false): Builder
+    private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields, $onlyPublished = false, $userId = null): Builder
     {
         $query = $modelClass::query();
-        $this->selectFields($query, $requiredFields);
+        $this->selectFields($query, $requiredFields, $userId);
         $this->applyFilters($query, $request, $onlyPublished);
         $this->applySearch($query, $request);
         return $query;
@@ -46,7 +48,7 @@ trait QueryBuilderTrait
      * @param mixed $requiredFields
      * @return void
      */
-    private function selectFields($query, $requiredFields): void
+    private function selectFields($query, $requiredFields, $userId = null): void
     {
         $selectFields = [];
         $keys = array_keys($requiredFields); 
@@ -62,6 +64,22 @@ trait QueryBuilderTrait
         }
 
         $query->select($selectFields);
+
+        if ($userId) {
+            $type = substr($keys[0], 0, -1);
+            $query->leftJoin('likes', function ($join) use ($userId, $type, $keys) {
+                $join->on('likes.likeable_id', '=', "{$keys[0]}.id")
+                    ->where('likes.likeable_type', '=', $type)
+                    ->where('likes.user_id', '=', $userId);
+            });
+            $query->addSelect(DB::raw('COUNT(likes.id) > 0 as is_liked'));
+
+            $arr = [];
+            foreach ($requiredFields[$keys[1]] as $value) {
+                $arr[] = $value;
+            }
+            $query->groupBy("{$keys[0]}.id", $arr);
+        }
     }
 
     /**
@@ -70,25 +88,57 @@ trait QueryBuilderTrait
      * @param mixed $query
      * @param mixed $requiredFields
      */
-    private function connectFields($publicationId, $requiredFields, $modelClass)
+    private function connectFields($publicationId, $requiredFields, $modelClass, $userId = null)
     {
         $selectFields = [];
         $keys = array_keys($requiredFields);
-
+        
         foreach ($requiredFields as $tableName => $fields) {
             foreach ($fields as $field) {
                 $selectFields[] = "{$tableName}.{$field}";
             }
         }
-
+        
         $query = $modelClass::where("{$keys[0]}.id", $publicationId);
-
+        
         // Проверка наличия нескольких таблиц для join
         if (count($keys) > 1) {
             $query->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
         }
-
+        
         $query->select($selectFields);
+
+        if ($userId) {
+        
+            $type = substr($keys[0], 0, -1);
+        
+            // Добавляем поле is_liked в выборку
+            $query->addSelect(DB::raw(
+                "(EXISTS (
+                    SELECT 1
+                    FROM likes
+                    WHERE likes.likeable_id = {$publicationId}
+                      AND likes.likeable_type = '{$type}'
+                      AND likes.user_id = {$userId}
+                )) AS is_liked"
+            ));
+        
+        
+            // Добавляем поля для группировки
+            $arr = [];
+            foreach ($requiredFields[$keys[1]] as $value) {
+                $arr[] = $value;
+            }
+        
+            $query->groupBy("{$keys[0]}.id");
+            foreach ($arr as $field) {
+                $query->groupBy($field);
+            }
+        }
+        
+        
+        
+
 
         return $query->first(); 
     }

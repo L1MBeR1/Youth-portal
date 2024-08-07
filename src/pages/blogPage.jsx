@@ -82,6 +82,8 @@ function BlogPage() {
 							</Typography>
 						</Box>
 						<PublicationStatistic
+							id={data.id}
+							liked={data.is_liked}
 							likes={data.likes}
 							reposts={data.reposts}
 							views={data.views}

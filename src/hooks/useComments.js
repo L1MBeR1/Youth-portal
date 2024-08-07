@@ -1,10 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCommentsForResource } from '../api/commentsApi';
+import { getToken } from '../utils/authUtils/tokenStorage';
+
 const useComments= (type,id) => {
   return useQuery({
     queryKey: ['Comment'+type,id],
     queryFn: async () => {
-      const response = await getCommentsForResource(type,id,{page:1});
+      const {token}= await getToken('useProfile');
+      const response = await getCommentsForResource(token,type,id,{page:1});
       console.log(response)
       return response.data;
     },

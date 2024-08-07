@@ -144,7 +144,13 @@ export const CommentSection = ({ type, id }) => {
 							comments
 								.slice(0, visibleComments)
 								.map(comment => (
-									<CommentWrapper key={comment.id} comment={comment} />
+									<CommentWrapper
+										key={comment.id}
+										comment={comment}
+										resourceType={type}
+										resourceId={id}
+										refetch={refetch}
+									/>
 								))
 						)}
 					</Stack>

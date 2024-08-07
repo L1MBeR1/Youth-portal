@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
-
+import { useNavigate } from 'react-router-dom';
 import { CommentReplyInput } from './commentReplyInput';
 
 import Avatar from '@mui/joy/Avatar';
@@ -13,11 +13,33 @@ import Typography from '@mui/joy/Typography';
 
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 
-export const Comment = ({ comment }) => {
+import { likeTheComment } from '../../api/commentsApi';
+import { getToken } from '../../utils/authUtils/tokenStorage';
+export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
+	const navigate = useNavigate();
 	const [openInput, setOpenInput] = useState(false);
+	const [isLiked, setIsLiked] = useState(comment.is_liked);
+	const [likesCounter, setLikesCounter] = useState(comment.likes);
 
 	const handelOpenInput = () => {
 		setOpenInput(!openInput);
+	};
+	const handleLikeTheComment = async () => {
+		const { token, needsRedirect } = await getToken();
+		if (needsRedirect) {
+			navigate('/login');
+		}
+		setIsLiked(!isLiked);
+		setLikesCounter(isLiked ? likesCounter - 1 : likesCounter + 1);
+
+		// console.log(token, id);
+		const response = await likeTheComment(token, comment.id);
+		if (response) {
+			console.log(response);
+		} else {
+			setIsLiked(!isLiked);
+			setLikesCounter(comment.likes);
+		}
 	};
 	return (
 		<Sheet
@@ -39,6 +61,7 @@ export const Comment = ({ comment }) => {
 				/>
 				<Stack
 					direction={'column'}
+					spacing={0.5}
 					sx={{
 						flexGrow: 1,
 					}}
@@ -81,19 +104,36 @@ export const Comment = ({ comment }) => {
 							}}
 							onClick={handelOpenInput}
 						>
-							Ответить
+							{openInput ? 'Отмена' : 'Ответить'}
 						</Button>
 
-						<IconButton
+						<Button
+							variant={isLiked ? 'soft' : 'plain'}
+							color={isLiked ? 'success' : 'neutral'}
+							size='sm'
 							sx={{
-								'--IconButton-size': '30px',
+								borderRadius: '50px',
+								'--Button-gap': '5px',
 							}}
+							startDecorator={<ThumbUpOffAltIcon />}
+							onClick={handleLikeTheComment}
 						>
-							<ThumbUpOffAltIcon />
-						</IconButton>
-						<Typography level='title-sm'>{comment.likes}</Typography>
+							<Typography
+								fontSize='12px'
+								color={isLiked ? 'success' : 'neutral'}
+							>
+								{likesCounter}
+							</Typography>
+						</Button>
 					</Stack>
-					{openInput && <CommentReplyInput />}
+					{openInput && (
+						<CommentReplyInput
+							replyTo={comment.id}
+							resourceId={resourceId}
+							resourceType={resourceType}
+							refetch={refetch}
+						/>
+					)}
 				</Stack>
 			</Stack>
 		</Sheet>

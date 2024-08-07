@@ -5,7 +5,8 @@ const usePublicationsById = (type,api,id) => {
   return useQuery({
     queryKey: [type,id],
     queryFn: async () => {
-      const response = await api(id);
+      const {token}= await getToken('useProfile');
+      const response = await api(token,id);
       console.log(response)
       return response.data;
     },

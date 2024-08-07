@@ -67,6 +67,9 @@ trait QueryBuilderTrait
 
         if ($userId) {
             $type = substr($keys[0], 0, -1);
+            $type = ucfirst($type);
+            $type = "App\Models\\$type";
+
             $query->leftJoin('likes', function ($join) use ($userId, $type, $keys) {
                 $join->on('likes.likeable_id', '=', "{$keys[0]}.id")
                     ->where('likes.likeable_type', '=', $type)
@@ -111,6 +114,10 @@ trait QueryBuilderTrait
         if ($userId) {
         
             $type = substr($keys[0], 0, -1);
+            $type = ucfirst($type);
+            $type = "App\Models\\$type";
+
+            Log::info($type);
         
             // Добавляем поле is_liked в выборку
             $query->addSelect(DB::raw(

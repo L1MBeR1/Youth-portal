@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Comment extends Model
 {
     use HasFactory;
-
+    // protected $guarded = [];
     protected $fillable = ['content', 'user_id']; // массовое присвоение атрибутов
 
      // Общий метод для связи

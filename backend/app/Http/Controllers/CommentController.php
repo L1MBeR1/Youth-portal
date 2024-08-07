@@ -167,6 +167,12 @@ class CommentController extends Controller
     public function like($commentId)
     {
         $comment = Comment::find($commentId);
+
+        $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
+        if ($isAlreadyLiked) {
+            return $this->errorResponse('You already liked this comment', [], 400);
+        }
+
         $comment->increment('likes');
         Log::info($comment);
 
@@ -175,12 +181,19 @@ class CommentController extends Controller
             'likeable_id' => $commentId,
             'likeable_type' => 'comment'
         ]);
+
+        return $this->successResponse([], 'liked');
     }
 
     public function dislike($commentId)
     {
         $comment = Comment::find($commentId);
         $comment->decrement('likes');
+
+        $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
+        if (!$isAlreadyLiked) {
+            return $this->errorResponse('You did not liked this comment', [], 400);
+        }
 
         $like = DB::table('likes')
             ->where('likeable_id', $commentId)
@@ -189,6 +202,8 @@ class CommentController extends Controller
             ->first();
 
         DB::table('likes')->where('id', $like->id)->delete();
+
+        return $this->successResponse([], 'unliked');
     }
 
 

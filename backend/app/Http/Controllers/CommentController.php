@@ -170,41 +170,46 @@ class CommentController extends Controller
 
         $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
         if ($isAlreadyLiked) {
-            return $this->errorResponse('You already liked this comment', [], 400);
+            $like = DB::table('likes')
+                ->where('likeable_id', $commentId)
+                ->where('likeable_type', 'comment')
+                ->where('user_id', Auth::id())
+                ->first();
+            $comment->decrement('likes');
+            DB::table('likes')->where('id', $like->id)->delete();
+            return $this->successResponse([], 'unliked');
         }
 
         $comment->increment('likes');
         Log::info($comment);
-
         DB::table('likes')->insert([
             'user_id' => Auth::user()->id,
             'likeable_id' => $commentId,
             'likeable_type' => 'comment'
         ]);
-
         return $this->successResponse([], 'liked');
     }
 
-    public function dislike($commentId)
-    {
-        $comment = Comment::find($commentId);
-        $comment->decrement('likes');
+    // public function dislike($commentId)
+    // {
+    //     $comment = Comment::find($commentId);
+    //     $comment->decrement('likes');
 
-        $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
-        if (!$isAlreadyLiked) {
-            return $this->errorResponse('You did not liked this comment', [], 400);
-        }
+    //     $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
+    //     if (!$isAlreadyLiked) {
+    //         return $this->errorResponse('You did not liked this comment', [], 400);
+    //     }
 
-        $like = DB::table('likes')
-            ->where('likeable_id', $commentId)
-            ->where('likeable_type', 'comment')
-            ->where('user_id', Auth::id())
-            ->first();
+    //     $like = DB::table('likes')
+    //         ->where('likeable_id', $commentId)
+    //         ->where('likeable_type', 'comment')
+    //         ->where('user_id', Auth::id())
+    //         ->first();
 
-        DB::table('likes')->where('id', $like->id)->delete();
+    //     DB::table('likes')->where('id', $like->id)->delete();
 
-        return $this->successResponse([], 'unliked');
-    }
+    //     return $this->successResponse([], 'unliked');
+    // }
 
 
     /**

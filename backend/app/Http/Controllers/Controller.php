@@ -30,7 +30,7 @@ class Controller extends BaseController
     protected function errorResponse($message, $errors = [], $status = 400)
     {
         return response()->json([
-            'error' => $message,
+            'error' => $message, //TODO: подумать над этим
             'messages' => $errors
         ], $status);
     }

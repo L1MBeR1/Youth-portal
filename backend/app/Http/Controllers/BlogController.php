@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Traits\PaginationTrait;
+use App\Traits\QueryBuilderTrait;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use App\Http\Requests\SetContentStatusRequest;
 use Symfony\Component\HttpFoundation\Response;
-use App\Traits\QueryBuilderTrait;
-use App\Traits\PaginationTrait;
 
 class BlogController extends Controller
 {
@@ -30,14 +29,14 @@ class BlogController extends Controller
         $user = null;
 
         if (!$blog) {
-            return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
+            return $this->errorResponse(message: 'Блог не найден', status: Response::HTTP_NOT_FOUND);
         }
 
         if ($blog->status !== 'published') {
             $user = Auth::user();
             // Если не авторизован или нет прав
             if (!$user || !$user->can('requestSpecificBlog', $blog)) {
-                return $this->errorResponse('Нет прав на просмотр', [], 403);
+                return $this->errorResponse(message: 'Нет прав на просмотр', status: 403);
             }
         }
 
@@ -69,7 +68,7 @@ class BlogController extends Controller
         $user = Auth::user();
         $userId = $user ? $user->id : null;
         $blog = $this->connectFields($blog->id, $requiredFields, Blog::class, $userId);
-        return $this->successResponse($blog, '', 200);
+        return $this->successResponse(data: $blog);
     }
 
 
@@ -203,12 +202,9 @@ class BlogController extends Controller
             ]
         ];
 
-        $user = Auth::user();
 
-        $userId = $user ? $user->id : null;
-        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields, $published=true, $userId);
-
-        // $query->where('status', 'published');
+        $userId = Auth::user()?->id;
+        $query = $this->buildPublicationQuery($request, Blog::class, $requiredFields, true, $userId);
         $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);
         return $this->successResponse($blogs->items(), $paginationData, 200);
@@ -235,7 +231,7 @@ class BlogController extends Controller
             'author_id' => Auth::id(),
         ]);
 
-        return $this->successResponse(['blog' => $blog], 'Блог успешно создан', 200);
+        return $this->successResponse($blog, 'Блог успешно создан', 200);
     }
 
 
@@ -268,9 +264,7 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на обновление блога', [], 403);
         }
 
-        $validatedData = $request->validated();
-        $blog->update($validatedData);
-
+        $blog->update($request->validated());
         return $this->successResponse(['blog' => $blog], 'Блог успешно обновлен', 200);
     }
 

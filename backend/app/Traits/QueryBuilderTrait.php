@@ -12,11 +12,6 @@ trait QueryBuilderTrait
 {
     /**
      * Создание запроса для публикаций
-     * 
-     * @param Request $request
-     * @param string $modelClass
-     * @param array $requiredFields
-     * @return Builder
      */
     private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields, $onlyPublished = false, $userId = null): Builder
     {
@@ -29,9 +24,6 @@ trait QueryBuilderTrait
 
     /**
      * Создание запроса для публикаций без использования Request
-     * @param string $modelClass
-     * @param array $requiredFields
-     * @return Builder
      */
     private function buildPublicationQueryWithoutRequest(string $modelClass, array $requiredFields): Builder
     {
@@ -43,10 +35,6 @@ trait QueryBuilderTrait
 
     /**
      * Выборка необходимых полей для запроса
-     * 
-     * @param mixed $query
-     * @param mixed $requiredFields
-     * @return void
      */
     private function selectFields($query, $requiredFields, $userId = null): void
     {
@@ -87,9 +75,6 @@ trait QueryBuilderTrait
 
     /**
      * Подключение полей по ID публикации
-     * 
-     * @param mixed $query
-     * @param mixed $requiredFields
      */
     private function connectFields($publicationId, $requiredFields, $modelClass, $userId = null)
     {
@@ -155,9 +140,6 @@ trait QueryBuilderTrait
 
     /**
      * Применение фильтров к запросу
-     * 
-     * @param mixed $query
-     * @param Request $request
      */
     private function applyFilters($query, Request $request, $onlyPublished)
     {
@@ -168,10 +150,6 @@ trait QueryBuilderTrait
 
     /**
      * Применение фильтров по дате
-     * 
-     * @param mixed $query
-     * @param Request $request
-     * @return void
      */
     private function applyDateFilters($query, Request $request)
     {
@@ -203,10 +181,6 @@ trait QueryBuilderTrait
 
     /**
      * Применение прочих фильтров
-     * 
-     * @param mixed $query
-     * @param Request $request
-     * @return void
      */
     private function applyOtherFilters($query, Request $request, $onlyPublished): void
     {
@@ -233,10 +207,6 @@ trait QueryBuilderTrait
 
     /**
      * Применение поиска к запросу
-     * 
-     * @param mixed $query
-     * @param Request $request
-     * @return void
      */
     private function applySearch($query, Request $request): void
     {

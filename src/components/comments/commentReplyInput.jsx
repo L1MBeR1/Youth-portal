@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { postReplyComment } from '../../api/commentsApi';
 import useProfile from '../../hooks/useProfile';
 import { getToken } from '../../utils/authUtils/tokenStorage';
-
+import EmojiPicker from '../common/emojiPicker';
 export const CommentReplyInput = ({
 	resourceType,
 	resourceId,
@@ -25,6 +25,9 @@ export const CommentReplyInput = ({
 	const [moveButtonDown, setMoveButtonDown] = useState(false);
 	const navigate = useNavigate();
 
+	const handleEmojiSelect = emoji => {
+		setComment(prevComment => prevComment + emoji);
+	};
 	const handleInputChange = e => {
 		const value = e.target.value;
 		setComment(value);
@@ -97,13 +100,16 @@ export const CommentReplyInput = ({
 								boxSizing: 'border-box',
 							}}
 						/>
-						<Box
+						<Stack
+							direction={'row'}
+							spacing={1}
 							sx={{
 								position: 'absolute',
 								right: '10px',
 								bottom: '8px',
 							}}
 						>
+							<EmojiPicker onSelect={handleEmojiSelect} />
 							<IconButton
 								size='lg'
 								color='primary'
@@ -115,7 +121,7 @@ export const CommentReplyInput = ({
 							>
 								<ArrowUpwardIcon />
 							</IconButton>
-						</Box>
+						</Stack>
 					</Sheet>
 				</Stack>
 			) : (

@@ -22,6 +22,9 @@ export const CommentInput = ({ resourceType, resourceId, refresh }) => {
 	const [moveButtonDown, setMoveButtonDown] = useState(false);
 	const navigate = useNavigate();
 
+	const handleEmojiSelect = emoji => {
+		setComment(prevComment => prevComment + emoji);
+	};
 	const handleInputChange = e => {
 		const value = e.target.value;
 		setComment(value);
@@ -98,7 +101,7 @@ export const CommentInput = ({ resourceType, resourceId, refresh }) => {
 								bottom: '8px',
 							}}
 						>
-							<EmojiPicker />
+							<EmojiPicker onSelect={handleEmojiSelect} />
 							<IconButton
 								size='lg'
 								color='primary'

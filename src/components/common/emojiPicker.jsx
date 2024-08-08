@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { Popover, ArrowContainer } from 'react-tiny-popover';
-import { IconButton } from '@mui/joy';
+import { IconButton, Box } from '@mui/joy';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-function EmojiPicker() {
+function EmojiPicker({ onSelect }) {
 	const [isOpen, setIsOpen] = useState(false);
-
+	const exceptEmojis = ['rainbow-flag', 'rainbow'];
 	return (
 		<Popover
 			isOpen={isOpen}
@@ -18,12 +18,25 @@ function EmojiPicker() {
 					position={position}
 					childRect={childRect}
 					popoverRect={popoverRect}
-					arrowColor={'#ffffff'}
+					arrowColor={'#f1f1f1'}
 					arrowSize={10}
 					className='popover-arrow-container'
 					arrowClassName='popover-arrow'
 				>
-					<Picker data={data} locale={'ru'} onEmojiSelect={console.log} />;
+					<Picker
+						data={data}
+						locale={'ru'}
+						noCountryFlags={true}
+						onEmojiSelect={emoji => {
+							onSelect(emoji.native);
+							setIsOpen(false);
+						}}
+						searchPosition={'none'}
+						previewPosition={'none'}
+						perLine={7}
+						exceptEmojis={exceptEmojis}
+						navPosition={'none'}
+					/>
 				</ArrowContainer>
 			)}
 			onClickOutside={() => setIsOpen(false)}

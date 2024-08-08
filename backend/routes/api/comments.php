@@ -12,7 +12,7 @@ Route::group([
     'prefix' => 'comments'
 ], function () {
     Route::post('/{commentId}/like', [CommentController::class, 'like']);
-    Route::delete('{commentId}/dislike', [CommentController::class, 'dislike']);
+    // Route::delete('{commentId}/like', [CommentController::class, 'dislike']);
     
     Route::get('/index', [CommentController::class, 'index']);
     Route::post('/{resource_type}/{resource_id}', [CommentController::class, 'store']);

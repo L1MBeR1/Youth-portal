@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
-import { useNavigate } from 'react-router-dom';
-import { CommentReplyInput } from './commentReplyInput';
-
+import { useNavigate, Link } from 'react-router-dom';
+import { CommentInput } from './commentInput';
+import DOMPurify from 'dompurify';
 import Avatar from '@mui/joy/Avatar';
 import Button from '@mui/joy/Button';
 import IconButton from '@mui/joy/IconButton';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
+import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
 
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -24,6 +25,13 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 	const handelOpenInput = () => {
 		setOpenInput(!openInput);
 	};
+	function cleanAllTags(dirtyHTML) {
+		console.log('sanitize');
+		return DOMPurify.sanitize(dirtyHTML, {
+			ALLOWED_TAGS: [],
+			KEEP_CONTENT: true,
+		});
+	}
 	const handleLikeTheComment = async () => {
 		const { token, needsRedirect } = await getToken();
 		if (needsRedirect) {
@@ -40,6 +48,9 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 			setIsLiked(!isLiked);
 			setLikesCounter(comment.likes);
 		}
+	};
+	const handleToProfile = id => {
+		navigate(`/profile/${id}`);
 	};
 	return (
 		<Sheet
@@ -58,11 +69,18 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 					alt={comment.nickname}
 					variant='outlined'
 					size='md'
+					sx={{
+						cursor: 'pointer',
+					}}
+					onClick={() => {
+						handleToProfile(comment.user_id);
+					}}
 				/>
 				<Stack
 					direction={'column'}
 					spacing={0.5}
 					sx={{
+						maxWidth: 'calc(100% - 40px - 16px)',
 						flexGrow: 1,
 					}}
 				>
@@ -72,20 +90,35 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 						alignItems='center'
 						spacing={1}
 					>
-						<Typography level='title-md'>
+						<Typography
+							fontSize={'clamp(0.85rem,3vw, 1rem)'}
+							level='title-md'
+							sx={{
+								cursor: 'pointer',
+							}}
+							onClick={() => {
+								handleToProfile(comment.user_id);
+							}}
+						>
 							{comment.first_name} {comment.last_name} ({comment.nickname})
 						</Typography>
-						<Typography level='body-xs'>
+						<Typography level='body-xs' fontSize={'clamp(0.69rem,2vw, 0.8rem)'}>
 							{timeAgo(comment.created_at)}
 						</Typography>
 					</Stack>
-					{comment.parentName ? (
-						<Typography level='body-md'>
-							{comment.parentName + ', ' + comment.content}
-						</Typography>
-					) : (
-						<Typography level='body-md'>{comment.content}</Typography>
-					)}
+					<Box
+						sx={{ wordWrap: 'break-word', maxWidth: '100%', hyphens: 'auto' }}
+					>
+						{comment.parent ? (
+							<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+								{comment.parent.name + ', ' + cleanAllTags(comment.content)}
+							</Typography>
+						) : (
+							<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+								{cleanAllTags(comment.content)}
+							</Typography>
+						)}
+					</Box>
 					<Stack
 						direction='row'
 						justifyContent='flex-start'
@@ -101,6 +134,7 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 							size='sm'
 							sx={{
 								borderRadius: '40px',
+								fontSize: 'clamp(0.8rem,3vw, 1rem)',
 							}}
 							onClick={handelOpenInput}
 						>
@@ -127,11 +161,11 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 						</Button>
 					</Stack>
 					{openInput && (
-						<CommentReplyInput
+						<CommentInput
 							replyTo={comment.id}
 							resourceId={resourceId}
 							resourceType={resourceType}
-							refetch={refetch}
+							refresh={refetch}
 						/>
 					)}
 				</Stack>

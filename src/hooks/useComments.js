@@ -14,9 +14,9 @@ const useComments= (type,id) => {
     
     refetchOnWindowFocus: false,
 		refetchInterval: 10000,
-    staleTime: 0,               
-    cacheTime: 0,
-		gcTime:0,    
+    staleTime: 60000,               
+    cacheTime: 60000,
+		gcTime:60000,    
     retry:1
   });
 };

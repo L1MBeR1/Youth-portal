@@ -42,8 +42,9 @@ function EmojiPicker({ onSelect }) {
 			onClickOutside={() => setIsOpen(false)}
 		>
 			<IconButton
-				size='lg'
 				sx={{
+					paddingX: { xs: '7px', md: '8px' },
+					'--IconButton-size': { xs: '30px', md: '45px' },
 					borderRadius: '50px',
 				}}
 				onClick={() => setIsOpen(!isOpen)}

@@ -64,7 +64,7 @@ export const CommentWrapper = ({
 						<Button
 							variant='plain'
 							size='sm'
-							sx={{ borderRadius: '40px' }}
+							sx={{ borderRadius: '40px', fontSize: 'clamp(0.8rem,3vw, 1rem)' }}
 							onClick={handleOpenReplies}
 						>
 							{openReplies ? 'Скрыть' : 'Показать'}{' '}
@@ -113,7 +113,11 @@ export const CommentWrapper = ({
 										color='netral'
 										variant='plain'
 										size='sm'
-										sx={{ borderRadius: '40px' }}
+										sx={{
+											marginTop: '10px',
+											borderRadius: '40px',
+											fontSize: 'clamp(0.8rem,3vw, 1rem)',
+										}}
 										onClick={loadMoreComments}
 									>
 										Показать ещё{' '}

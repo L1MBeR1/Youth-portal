@@ -11,6 +11,7 @@ export const CommentWrapper = ({
 	resourceType,
 	resourceId,
 	refetch,
+	profileData,
 }) => {
 	const [openReplies, setOpenReplies] = useState(false);
 	const [visibleComments, setVisibleComments] = useState(
@@ -59,6 +60,7 @@ export const CommentWrapper = ({
 						resourceId={resourceId}
 						resourceType={resourceType}
 						refetch={refetch}
+						profileData={profileData}
 					/>
 					<Box sx={{ paddingLeft: '45px' }}>
 						<Button
@@ -104,6 +106,7 @@ export const CommentWrapper = ({
 										resourceId={resourceId}
 										resourceType={resourceType}
 										refetch={refetch}
+										profileData={profileData}
 									/>
 								))}
 							</Stack>
@@ -139,6 +142,7 @@ export const CommentWrapper = ({
 					resourceId={resourceId}
 					resourceType={resourceType}
 					refetch={refetch}
+					profileData={profileData}
 				/>
 			)}
 		</>

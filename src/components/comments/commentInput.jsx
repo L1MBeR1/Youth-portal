@@ -11,7 +11,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { postComment, postReplyComment } from '../../api/commentsApi';
-import useProfile from '../../hooks/useProfile';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 
 import EmojiPicker from '../common/emojiPicker';
@@ -21,8 +20,8 @@ export const CommentInput = ({
 	resourceId,
 	refresh,
 	replyTo,
+	profileData,
 }) => {
-	const { data: profileData } = useProfile();
 	const [comment, setComment] = useState('');
 	const [moveButtonDown, setMoveButtonDown] = useState(false);
 	const navigate = useNavigate();
@@ -88,7 +87,7 @@ export const CommentInput = ({
 							borderRadius: '20px',
 							display: 'flex',
 							flexDirection: 'column',
-							padding: { xs: '3px 20px', md: '10px 20px' },
+							padding: { xs: '4px 20px', md: '12px 20px' },
 						}}
 					>
 						<textarea

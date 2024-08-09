@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import useComments from '../../hooks/useComments.js';
 import { CommentInput } from './commentInput.jsx';
 import { CommentWrapper } from './commentWrapper.jsx';
-
+import useProfile from '../../hooks/useProfile';
 import SortIcon from '@mui/icons-material/Sort';
 
 const buildCommentsStructure = comments => {
@@ -75,7 +75,7 @@ const sortComments = (comments, sortType) => {
 	return sortedComments;
 };
 
-export const CommentSection = ({ type, id }) => {
+export const CommentSection = ({ type, id, profileData }) => {
 	const { data, refetch } = useComments(type, id);
 
 	// console.log(data);
@@ -138,11 +138,27 @@ export const CommentSection = ({ type, id }) => {
 								<Option value='popular'>Сначала популярные</Option>
 							</Select>
 						</Stack>
-						<CommentInput
-							resourceType={type}
-							resourceId={id}
-							refresh={refetch}
-						/>
+						{profileData ? (
+							<CommentInput
+								resourceType={type}
+								resourceId={id}
+								refresh={refetch}
+								profileData={profileData}
+							/>
+						) : (
+							<Stack
+								flexGrow={1}
+								justifyContent={'center'}
+								alignItems={'center'}
+								sx={{
+									height: '40px',
+								}}
+							>
+								<Typography level='title-md'>
+									Авторизируйтесь чтобы оставлять комментарии
+								</Typography>
+							</Stack>
+						)}
 					</Stack>
 					<Stack spacing={1.5}>
 						{comments.length === 0 ? (
@@ -161,6 +177,7 @@ export const CommentSection = ({ type, id }) => {
 										resourceType={type}
 										resourceId={id}
 										refetch={refetch}
+										profileData={profileData}
 									/>
 								))
 						)}

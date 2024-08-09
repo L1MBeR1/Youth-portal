@@ -33,9 +33,12 @@ export const changeBlogStatus = async (token, id, status) => {
   }
 };
 
-export const getPublishedBlogs = async (params) => {
+export const getPublishedBlogs = async (token,params) => {
   try {
     const response = await axios.get(`${API_URL}/blogs/published`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       params: params
     });
     // console.log(response)

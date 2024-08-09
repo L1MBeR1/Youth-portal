@@ -16,7 +16,13 @@ import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 
 import { likeTheComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
-export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
+export const Comment = ({
+	comment,
+	resourceType,
+	resourceId,
+	refetch,
+	profileData,
+}) => {
 	const navigate = useNavigate();
 	const [openInput, setOpenInput] = useState(false);
 	const [isLiked, setIsLiked] = useState(comment.is_liked);
@@ -136,6 +142,7 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 								borderRadius: '40px',
 								fontSize: 'clamp(0.8rem,3vw, 1rem)',
 							}}
+							disabled={profileData ? false : true}
 							onClick={handelOpenInput}
 						>
 							{openInput ? 'Отмена' : 'Ответить'}
@@ -145,6 +152,7 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 							variant={isLiked ? 'soft' : 'plain'}
 							color={isLiked ? 'success' : 'neutral'}
 							size='sm'
+							disabled={profileData ? false : true}
 							sx={{
 								borderRadius: '50px',
 								'--Button-gap': '5px',
@@ -166,6 +174,7 @@ export const Comment = ({ comment, resourceType, resourceId, refetch }) => {
 							resourceId={resourceId}
 							resourceType={resourceType}
 							refresh={refetch}
+							profileData={profileData}
 						/>
 					)}
 				</Stack>

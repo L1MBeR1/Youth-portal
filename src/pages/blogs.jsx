@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Grid from '@mui/joy/Grid';
-import usePublishedBlogs from '../hooks/usePublishedBlogs.js';
+import usePublications from '../hooks/usePublications';
 import { getPublishedBlogs } from '../api/blogsApi.js';
 import Box from '@mui/joy/Box';
 import BlogCart from '../components/publicationsComponents/blogCard.jsx';
@@ -13,7 +13,7 @@ function Blogs() {
 		data: blogs,
 		isLoading,
 		refetch,
-	} = usePublishedBlogs(['blogs'], getPublishedBlogs, setLastPage, {
+	} = usePublications(['blogs'], getPublishedBlogs, setLastPage, {
 		page: page,
 		per_page: 6,
 		withAuthors: true,

@@ -12,7 +12,14 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Button } from '@mui/joy';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 import { likeTheBlog } from '../../api/blogsApi';
-export const PublicationStatistic = ({ id, liked, likes, reposts, views }) => {
+export const PublicationStatistic = ({
+	id,
+	liked,
+	likes,
+	reposts,
+	views,
+	profileData,
+}) => {
 	const [isLiked, setIsLiked] = useState(liked);
 	const [likesCounter, setLikesCounter] = useState(likes);
 	const navigate = useNavigate();
@@ -46,6 +53,7 @@ export const PublicationStatistic = ({ id, liked, likes, reposts, views }) => {
 					}}
 					startDecorator={<ThumbUpOffAltIcon />}
 					onClick={handleLikeTheBlog}
+					disabled={profileData ? false : true}
 				>
 					<Typography color={isLiked ? 'success' : 'neutral'}>
 						{likesCounter}

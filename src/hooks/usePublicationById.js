@@ -11,10 +11,10 @@ const usePublicationsById = (type,api,id) => {
       return response.data;
     },
     
-    enabled: !!id,
-    staleTime: 180000,
+    refetchOnWindowFocus: false,
+    staleTime: 180000,               
     cacheTime: 180000,
-    gcTime:60000,
+		gcTime:180000,    
     retry:1
   });
 };

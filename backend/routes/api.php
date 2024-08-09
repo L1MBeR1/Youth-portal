@@ -29,6 +29,7 @@ require __DIR__ . '/api/projects.php';
 require __DIR__ . '/api/roles.php';
 require __DIR__ . '/api/users.php';
 
+require __DIR__ . '/api/proxy.php';
 
 
 

@@ -20,7 +20,6 @@ function Home() {
 		>
 			<Grid
 				container
-				columnSpacing={{ md: '0', mdx: '20px' }}
 				sx={{
 					flexGrow: 1,
 					paddingTop: { xs: '20px', md: '30px', mdx: '50px' },
@@ -44,6 +43,7 @@ function Home() {
 				>
 					<Stack
 						direction={'column'}
+						marginRight={{ md: '0', mdx: '20px' }}
 						gap={{ xs: '30px', md: '50px', mdx: '80px' }}
 						height={'100%'}
 					>

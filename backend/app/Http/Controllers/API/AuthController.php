@@ -320,7 +320,7 @@ class AuthController extends Controller
                 'nickname' => 'nullable|string|max:255',
                 'profile_image_uri' => 'nullable|string',
                 'city' => 'nullable|string|max:255',
-                'gender' => 'nullable|in:м,ж',
+                'gender' => 'nullable|in:m,f',
                 'birthday' => 'nullable|date',
             ]);
             

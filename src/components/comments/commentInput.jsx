@@ -1,24 +1,38 @@
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Avatar from '@mui/joy/Avatar';
 import IconButton from '@mui/joy/IconButton';
-import Input from '@mui/joy/Input';
+// import Textarea from '@mui/joy/Textarea';
 import Stack from '@mui/joy/Stack';
+import Sheet from '@mui/joy/Sheet';
+import Box from '@mui/joy/Box';
 
 import DOMPurify from 'dompurify';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { postComment } from '../../api/commentsApi';
-import useProfile from '../../hooks/useProfile';
+import { postComment, postReplyComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 
-export const CommentInput = ({ resourceType, resourceId, refresh }) => {
-	const { data: profileData } = useProfile();
+import EmojiPicker from '../common/emojiPicker';
+
+export const CommentInput = ({
+	resourceType,
+	resourceId,
+	refresh,
+	replyTo,
+	profileData,
+}) => {
 	const [comment, setComment] = useState('');
+	const [moveButtonDown, setMoveButtonDown] = useState(false);
 	const navigate = useNavigate();
 
+	const handleEmojiSelect = emoji => {
+		setComment(prevComment => prevComment + emoji);
+	};
 	const handleInputChange = e => {
-		setComment(e.target.value);
+		const value = e.target.value;
+		setComment(value);
+		setMoveButtonDown(value.length > 15);
 	};
 
 	const handleSubmit = async () => {
@@ -28,15 +42,27 @@ export const CommentInput = ({ resourceType, resourceId, refresh }) => {
 		if (needsRedirect) {
 			navigate('/login');
 		}
-		const response = await postComment(
-			token,
-			resourceType,
-			resourceId,
-			sanitizedComment
-		);
+		let response;
+		if (replyTo) {
+			response = await postReplyComment(
+				token,
+				resourceType,
+				resourceId,
+				sanitizedComment,
+				replyTo
+			);
+		} else {
+			response = await postComment(
+				token,
+				resourceType,
+				resourceId,
+				sanitizedComment
+			);
+		}
 		if (response) {
 			refresh();
 			setComment('');
+			setMoveButtonDown(false);
 			console.log(response);
 		}
 	};
@@ -50,30 +76,71 @@ export const CommentInput = ({ resourceType, resourceId, refresh }) => {
 						alt={profileData.nickname}
 						variant='outlined'
 						sx={{
-							'--Avatar-size': '60px',
+							'--Avatar-size': { xs: '40px', md: '60px' },
 						}}
 					/>
-					<Input
-						placeholder='Введите комментарий'
-						value={comment}
-						onChange={handleInputChange}
+					<Sheet
 						sx={{
-							flexGrow: 1,
-							'--Input-minHeight': '56px',
-							'--Input-paddingInline': '25px',
-							'--Input-radius': '50px',
+							position: 'relative',
+							width: '100%',
+							outline: '1px solid black',
+							borderRadius: '20px',
+							display: 'flex',
+							flexDirection: 'column',
+							padding: { xs: '4px 20px', md: '12px 20px' },
 						}}
-						endDecorator={
+					>
+						<textarea
+							placeholder='Введите комментарий'
+							value={comment}
+							onChange={handleInputChange}
+							style={{
+								fontFamily: 'inter',
+								fontSize: 'clamp(0.85rem, 3vw, 1rem)',
+								resize: 'none',
+								width: '100%',
+								padding: '0',
+								paddingTop: '7px',
+								paddingBottom: moveButtonDown ? '50px' : '0',
+								boxSizing: 'border-box',
+								minHeight: '20px',
+								border: 'none',
+								outline: 'none',
+								background: 'transparent',
+							}}
+							rows={1}
+						/>
+						<Stack
+							direction={'row'}
+							spacing={1}
+							sx={{
+								position: 'absolute',
+								right: '10px',
+								bottom: { xs: '5px', md: '8px' },
+							}}
+						>
+							<Box
+								sx={{
+									display: { xs: 'none', md: 'flex' },
+								}}
+							>
+								<EmojiPicker onSelect={handleEmojiSelect} />
+							</Box>
 							<IconButton
-								size='lg'
 								color='primary'
 								variant='soft'
 								onClick={handleSubmit}
+								disabled={comment.length < 1 && true}
+								sx={{
+									paddingX: { xs: '6px', md: '8px' },
+									'--IconButton-size': { xs: '30px', md: '45px' },
+									borderRadius: '50px',
+								}}
 							>
 								<ArrowUpwardIcon />
 							</IconButton>
-						}
-					/>
+						</Stack>
+					</Sheet>
 				</Stack>
 			) : (
 				<></>

@@ -6,9 +6,17 @@ import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 
-export const CommentWrapper = ({ comment }) => {
+export const CommentWrapper = ({
+	comment,
+	resourceType,
+	resourceId,
+	refetch,
+	profileData,
+}) => {
 	const [openReplies, setOpenReplies] = useState(false);
-	const [visibleComments, setVisibleComments] = useState(10);
+	const [visibleComments, setVisibleComments] = useState(
+		comment.replies.length <= 15 ? 15 : 10
+	);
 	const [willVisibleComments, setWillVisibleComments] = useState(0);
 
 	useEffect(() => {
@@ -47,12 +55,18 @@ export const CommentWrapper = ({ comment }) => {
 					alignItems='flex-start'
 					spacing={0.5}
 				>
-					<Comment comment={comment} />
+					<Comment
+						comment={comment}
+						resourceId={resourceId}
+						resourceType={resourceType}
+						refetch={refetch}
+						profileData={profileData}
+					/>
 					<Box sx={{ paddingLeft: '45px' }}>
 						<Button
 							variant='plain'
 							size='sm'
-							sx={{ borderRadius: '40px' }}
+							sx={{ borderRadius: '40px', fontSize: 'clamp(0.8rem,3vw, 1rem)' }}
 							onClick={handleOpenReplies}
 						>
 							{openReplies ? 'Скрыть' : 'Показать'}{' '}
@@ -79,14 +93,21 @@ export const CommentWrapper = ({ comment }) => {
 									// margin: '10px 0 0 40px',
 									boxSizing: 'border-box',
 									paddingTop: '10px',
-									paddingLeft: '70px',
+									paddingLeft: { xs: '50px', sm: '70px' },
 									borderLeft: '1px solid',
 									borderColor: 'divider',
 									width: '100%',
 								}}
 							>
 								{comment.replies.slice(0, visibleComments).map(comment => (
-									<Comment key={comment.id} comment={comment} />
+									<Comment
+										key={comment.id}
+										comment={comment}
+										resourceId={resourceId}
+										resourceType={resourceType}
+										refetch={refetch}
+										profileData={profileData}
+									/>
 								))}
 							</Stack>
 							{shouldShowLoadMore && (
@@ -95,7 +116,11 @@ export const CommentWrapper = ({ comment }) => {
 										color='netral'
 										variant='plain'
 										size='sm'
-										sx={{ borderRadius: '40px' }}
+										sx={{
+											marginTop: '10px',
+											borderRadius: '40px',
+											fontSize: 'clamp(0.8rem,3vw, 1rem)',
+										}}
 										onClick={loadMoreComments}
 									>
 										Показать ещё{' '}
@@ -112,7 +137,13 @@ export const CommentWrapper = ({ comment }) => {
 					)}
 				</Stack>
 			) : (
-				<Comment comment={comment} />
+				<Comment
+					comment={comment}
+					resourceId={resourceId}
+					resourceType={resourceType}
+					refetch={refetch}
+					profileData={profileData}
+				/>
 			)}
 		</>
 	);

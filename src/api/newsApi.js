@@ -49,10 +49,13 @@ export const getPublishedNews = async (token, params) => {
     throw error;
   }
 };
-export const getNew = async (id) => {
+export const getNew = async (token,id) => {
   console.log(id)
   try {
     const response = await axios.get(`${API_URL}/news/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     console.log(response)
     return response.data;

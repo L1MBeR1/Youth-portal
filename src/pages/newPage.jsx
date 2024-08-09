@@ -12,11 +12,13 @@ import Typography from '@mui/joy/Typography';
 
 import DOMPurify from 'dompurify';
 import { CommentSection } from '../components/comments/commentsSection.jsx';
-
+import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
+import useProfile from '../hooks/useProfile.js';
 function NewsPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('news', getNew, id);
 	console.log(data);
+	const { data: profileData } = useProfile();
 
 	const createMarkup = html => {
 		return { __html: DOMPurify.sanitize(html) };
@@ -60,7 +62,19 @@ function NewsPage() {
 								<Box dangerouslySetInnerHTML={createMarkup(data.content)} />
 							</Typography>
 						</Box>
-						<CommentSection type={'news'} id={data.id} />
+						<PublicationStatistic
+							id={data.id}
+							liked={data.is_liked}
+							likes={data.likes}
+							reposts={data.reposts}
+							views={data.views}
+							profileData={profileData}
+						/>
+						<CommentSection
+							type={'blog'}
+							id={data.id}
+							profileData={profileData}
+						/>
 					</Stack>
 				</Card>
 			)}

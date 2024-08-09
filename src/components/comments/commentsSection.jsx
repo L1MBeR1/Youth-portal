@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import useComments from '../../hooks/useComments.js';
 import { CommentInput } from './commentInput.jsx';
 import { CommentWrapper } from './commentWrapper.jsx';
-
+import useProfile from '../../hooks/useProfile';
 import SortIcon from '@mui/icons-material/Sort';
 
 const buildCommentsStructure = comments => {
@@ -12,7 +12,7 @@ const buildCommentsStructure = comments => {
 	const rootComments = [];
 
 	comments.forEach(comment => {
-		commentsMap[comment.id] = { ...comment, replies: [], parentName: null };
+		commentsMap[comment.id] = { ...comment, replies: [], parent: null };
 	});
 
 	comments.forEach(comment => {
@@ -20,7 +20,10 @@ const buildCommentsStructure = comments => {
 			const parentComment = commentsMap[comment.reply_to];
 			if (parentComment) {
 				parentComment.replies.push(commentsMap[comment.id]);
-				commentsMap[comment.id].parentName = parentComment.first_name;
+				commentsMap[comment.id].parent = {
+					name: parentComment.first_name,
+					userId: parentComment.user_id,
+				};
 			}
 		} else {
 			rootComments.push(commentsMap[comment.id]);
@@ -46,7 +49,7 @@ const buildCommentsStructure = comments => {
 		);
 	});
 
-	//console.log(rootComments);
+	console.log(rootComments);
 	return rootComments;
 };
 
@@ -72,7 +75,7 @@ const sortComments = (comments, sortType) => {
 	return sortedComments;
 };
 
-export const CommentSection = ({ type, id }) => {
+export const CommentSection = ({ type, id, profileData }) => {
 	const { data, refetch } = useComments(type, id);
 
 	// console.log(data);
@@ -108,8 +111,13 @@ export const CommentSection = ({ type, id }) => {
 							alignItems='center'
 						>
 							<Stack direction={'row'} spacing={1.5} alignItems='flex-end'>
-								<Typography level='h3'>Комментарии</Typography>
-								<Typography fontSize='20px' fontWeight='lg'>
+								<Typography level='h3' fontSize='clamp(1.2rem,4vw, 1.4rem)'>
+									Комментарии
+								</Typography>
+								<Typography
+									fontSize='clamp(0.8rem,4vw, 1.2rem)'
+									fontWeight='lg'
+								>
 									{data.length}
 								</Typography>
 							</Stack>
@@ -121,17 +129,36 @@ export const CommentSection = ({ type, id }) => {
 								indicator={null}
 								color='neutral'
 								onChange={(e, newValue) => setSortType(newValue)}
+								sx={{
+									fontSize: 'clamp(0.4rem,3.5vw, 1rem)',
+								}}
 							>
 								<Option value='newest'>Сначала новые</Option>
 								<Option value='oldest'>Сначала старые</Option>
 								<Option value='popular'>Сначала популярные</Option>
 							</Select>
 						</Stack>
-						<CommentInput
-							resourceType={type}
-							resourceId={id}
-							refresh={refetch}
-						/>
+						{profileData ? (
+							<CommentInput
+								resourceType={type}
+								resourceId={id}
+								refresh={refetch}
+								profileData={profileData}
+							/>
+						) : (
+							<Stack
+								flexGrow={1}
+								justifyContent={'center'}
+								alignItems={'center'}
+								sx={{
+									height: '40px',
+								}}
+							>
+								<Typography level='title-md'>
+									Авторизируйтесь чтобы оставлять комментарии
+								</Typography>
+							</Stack>
+						)}
 					</Stack>
 					<Stack spacing={1.5}>
 						{comments.length === 0 ? (
@@ -144,7 +171,14 @@ export const CommentSection = ({ type, id }) => {
 							comments
 								.slice(0, visibleComments)
 								.map(comment => (
-									<CommentWrapper key={comment.id} comment={comment} />
+									<CommentWrapper
+										key={comment.id}
+										comment={comment}
+										resourceType={type}
+										resourceId={id}
+										refetch={refetch}
+										profileData={profileData}
+									/>
 								))
 						)}
 					</Stack>
@@ -157,7 +191,9 @@ export const CommentSection = ({ type, id }) => {
 								borderRadius: '40px',
 							}}
 						>
-							<Typography level='title-md'>Ещё 10 комментариев</Typography>
+							<Typography level='title-md' fontSize={'clamp(0.9rem,3vw, 1rem)'}>
+								Ещё 10 комментариев
+							</Typography>
 						</Button>
 					)}
 				</Stack>

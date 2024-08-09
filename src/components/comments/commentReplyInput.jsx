@@ -3,22 +3,35 @@ import Avatar from '@mui/joy/Avatar';
 import IconButton from '@mui/joy/IconButton';
 import Input from '@mui/joy/Input';
 import Stack from '@mui/joy/Stack';
-
+import Textarea from '@mui/joy/Textarea';
+import Sheet from '@mui/joy/Sheet';
+import Box from '@mui/joy/Box';
 import DOMPurify from 'dompurify';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { postComment } from '../../api/commentsApi';
+import { postReplyComment } from '../../api/commentsApi';
 import useProfile from '../../hooks/useProfile';
 import { getToken } from '../../utils/authUtils/tokenStorage';
-
-export const CommentReplyInput = ({ resourceType, resourceId, refresh }) => {
+import EmojiPicker from '../common/emojiPicker';
+export const CommentReplyInput = ({
+	resourceType,
+	resourceId,
+	refetch,
+	replyTo,
+}) => {
 	const { data: profileData } = useProfile();
 	const [comment, setComment] = useState('');
+	const [moveButtonDown, setMoveButtonDown] = useState(false);
 	const navigate = useNavigate();
 
+	const handleEmojiSelect = emoji => {
+		setComment(prevComment => prevComment + emoji);
+	};
 	const handleInputChange = e => {
-		setComment(e.target.value);
+		const value = e.target.value;
+		setComment(value);
+		setMoveButtonDown(value.length > 15);
 	};
 
 	const handleSubmit = async () => {
@@ -28,14 +41,15 @@ export const CommentReplyInput = ({ resourceType, resourceId, refresh }) => {
 		if (needsRedirect) {
 			navigate('/login');
 		}
-		const response = await postComment(
+		const response = await postReplyComment(
 			token,
 			resourceType,
 			resourceId,
-			sanitizedComment
+			sanitizedComment,
+			replyTo
 		);
 		if (response) {
-			refresh();
+			refetch();
 			setComment('');
 			console.log(response);
 		}
@@ -58,28 +72,57 @@ export const CommentReplyInput = ({ resourceType, resourceId, refresh }) => {
 						variant='outlined'
 						size='md'
 					/>
-					<Input
-						placeholder='Введите комментарий'
-						value={comment}
-						onChange={handleInputChange}
-						size='sm'
+					<Sheet
 						sx={{
-							flexGrow: 1,
-							'--Input-minHeight': '40px',
-							'--Input-paddingInline': '20px',
-							'--Input-radius': '50px',
+							position: 'relative',
+							width: '100%',
+							outline: '1px solid black',
+							borderRadius: '20px',
+							display: 'flex',
+							flexDirection: 'column',
+							padding: '10px 20px',
+							paddingLeft: '20px',
 						}}
-						endDecorator={
+					>
+						<Textarea
+							minRows={1}
+							placeholder='Введите комментарий'
+							value={comment}
+							onChange={handleInputChange}
+							variant='plain'
+							sx={{
+								'--Textarea-focusedThickness': '0',
+								resize: 'none',
+								width: '100%',
+								padding: '0',
+								paddingTop: '7px',
+								paddingBottom: moveButtonDown ? '50px' : '0',
+								boxSizing: 'border-box',
+							}}
+						/>
+						<Stack
+							direction={'row'}
+							spacing={1}
+							sx={{
+								position: 'absolute',
+								right: '10px',
+								bottom: '8px',
+							}}
+						>
+							<EmojiPicker onSelect={handleEmojiSelect} />
 							<IconButton
-								size='sm'
+								size='lg'
 								color='primary'
 								variant='soft'
 								onClick={handleSubmit}
+								sx={{
+									borderRadius: '50px',
+								}}
 							>
 								<ArrowUpwardIcon />
 							</IconButton>
-						}
-					/>
+						</Stack>
+					</Sheet>
 				</Stack>
 			) : (
 				<></>

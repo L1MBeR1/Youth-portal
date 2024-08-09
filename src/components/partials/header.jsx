@@ -15,6 +15,7 @@ import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
 import Tooltip from '@mui/joy/Tooltip';
 import Typography from '@mui/joy/Typography';
+import Button from '@mui/joy/Button';
 
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
@@ -71,23 +72,30 @@ function Header() {
 					justifyContent: 'space-between',
 					alignItems: 'center',
 					background: 'primary.main',
-					padding: '5px 20px',
+					paddingY: '5px',
+					paddingX: { xs: '15px', sm: '20px' },
 					height: '60px',
-					borderBottom: '1px solid',
-					borderColor: 'divider',
+					// borderBottom: '1px solid',
+					// borderColor: 'divider',
 					position: 'fixed',
 					top: 0,
 					width: '100%',
 					zIndex: 1100,
 				}}
 			>
+				<Link to='/'>
+					<Box paddingTop={'6px'}>
+						<img width='200px' alt='logo' src={logo} />
+						{/* <Typography level='h2'>LOGO</Typography> */}
+					</Box>
+				</Link>
 				<Box
 					sx={{
 						display: { xs: 'inline-flex', md: 'none' },
 					}}
 				>
 					<IconButton
-						variant='outlined'
+						variant='plain'
 						color='neutral'
 						onClick={() => setOpen(true)}
 					>
@@ -119,55 +127,85 @@ function Header() {
 								}}
 							>
 								{' '}
-								Блоги
+								блоги
 							</ListItemButton>
 							<ListItemButton
 								onClick={() => {
 									handleLink('/news');
 								}}
 							>
-								Новости
+								новости
 							</ListItemButton>
 							<ListItemButton
 								onClick={() => {
 									handleLink('/podcasts');
 								}}
 							>
-								Подкасты
+								подкасты
 							</ListItemButton>
 						</List>
 					</Drawer>
 				</Box>
-				<Link to='/'>
-					<Box paddingTop={'6px'}>
-						<img width='200px' alt='logo' src={logo} />
-						{/* <Typography level='h2'>LOGO</Typography> */}
-					</Box>
-				</Link>
 				<Stack
 					direction='row'
 					justifyContent='center'
 					alignItems='center'
-					spacing={4}
+					spacing={2}
 					sx={{
 						display: { xs: 'none', md: 'flex' },
 					}}
 				>
-					<Sheet>
-						<Typography level='title-md'>
-							<Link to='/blogs'>Блоги</Link>
+					<Button
+						color='neutral'
+						variant='plain'
+						sx={{
+							borderRadius: '50px',
+						}}
+						onClick={() => {
+							handleLink('/blogs');
+						}}
+					>
+						<Typography
+							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
+							fontWeight={'700'}
+						>
+							блоги
 						</Typography>
-					</Sheet>
-					<Sheet>
-						<Typography level='title-md'>
-							<Link to='/news'>Новости</Link>
+					</Button>
+					<Button
+						color='neutral'
+						variant='plain'
+						sx={{
+							borderRadius: '50px',
+						}}
+						onClick={() => {
+							handleLink('/news');
+						}}
+					>
+						<Typography
+							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
+							fontWeight={'700'}
+						>
+							новости
 						</Typography>
-					</Sheet>
-					<Sheet>
-						<Typography level='title-md'>
-							<Link to='/podcasts'>Подкасты</Link>
+					</Button>
+					<Button
+						color='neutral'
+						variant='plain'
+						sx={{
+							borderRadius: '50px',
+						}}
+						onClick={() => {
+							handleLink('/podcasts');
+						}}
+					>
+						<Typography
+							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
+							fontWeight={'700'}
+						>
+							подкасты
 						</Typography>
-					</Sheet>
+					</Button>
 				</Stack>
 				<Stack
 					direction='row'
@@ -175,6 +213,9 @@ function Header() {
 					alignItems='center'
 					spacing={1}
 					height='100%'
+					sx={{
+						display: { xs: 'none', md: 'flex' },
+					}}
 				>
 					{/* <ColorSchemeToggle /> */}
 					<HeaderProfile />

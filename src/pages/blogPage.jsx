@@ -16,10 +16,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import DOMPurify from 'dompurify';
 import { CommentSection } from '../components/comments/commentsSection.jsx';
-import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic .jsx';
+import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
+import useProfile from '../hooks/useProfile.js';
 function BlogPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('blog', getBlog, id);
+	const { data: profileData } = useProfile();
 	console.log(data);
 
 	const createMarkup = html => {
@@ -82,11 +84,18 @@ function BlogPage() {
 							</Typography>
 						</Box>
 						<PublicationStatistic
+							id={data.id}
+							liked={data.is_liked}
 							likes={data.likes}
 							reposts={data.reposts}
 							views={data.views}
+							profileData={profileData}
 						/>
-						<CommentSection type={'blog'} id={data.id} />
+						<CommentSection
+							type={'blog'}
+							id={data.id}
+							profileData={profileData}
+						/>
 					</Stack>
 				</Card>
 			)}

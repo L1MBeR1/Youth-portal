@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import CallMadeIcon from '@mui/icons-material/CallMade';
+import { isAscii } from 'validator';
 const HomeCard = ({ title, category, img, isSmall }) => {
 	return (
 		<Card
@@ -36,7 +37,7 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 						>
 							<Typography
 								textColor='white'
-								fontSize={'15px'}
+								fontSize={'clamp(0.75rem,1vw, 1.3rem)'}
 								fontWeight={'700'}
 							>
 								{category}
@@ -48,9 +49,25 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 						width={'100%'}
 						justifyContent={'space-between'}
 					>
-						<Typography textColor='white' fontSize={'50px'} fontWeight={'700'}>
-							{title}
-						</Typography>
+						{isSmall ? (
+							<Typography
+								textColor='white'
+								fontSize={'clamp(1.5rem,2vw, 2rem)'}
+								fontWeight={'700'}
+								lineHeight={'1.2'}
+							>
+								{title}
+							</Typography>
+						) : (
+							<Typography
+								textColor='white'
+								fontSize={'clamp(1.5rem,4vw, 3rem)'}
+								fontWeight={'700'}
+								lineHeight={'1.2'}
+							>
+								{title}
+							</Typography>
+						)}
 						<Stack justifyContent={'flex-end'} paddingBottom={'17px'}>
 							<Stack
 								sx={{
@@ -62,7 +79,10 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 								{isSmall ? (
 									<CallMadeIcon />
 								) : (
-									<Typography fontSize={'15px'} fontWeight={'700'}>
+									<Typography
+										fontSize={'clamp(0.75rem,1vw, 1.3rem)'}
+										fontWeight={'700'}
+									>
 										Подробнее
 									</Typography>
 								)}

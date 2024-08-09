@@ -38,10 +38,12 @@ import PrivateRoute from './routes/privateRoute';
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 import './css/App.css';
+//Тема
+import theme from './themes/theme';
 
 function App() {
 	return (
-		<CssVarsProvider>
+		<CssVarsProvider theme={theme}>
 			<CssBaseline />
 			<Router>
 				<Routes>

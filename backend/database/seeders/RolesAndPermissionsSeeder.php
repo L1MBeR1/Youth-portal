@@ -48,7 +48,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'create blogs',                // создание постов
                 'edit own blogs',              // редактирование собственных постов
                 'delete own blogs',            // удаление собственных постов
-                'comment blogs',               // комментирование постов
+                'comment blogs',  
+                'view own podcasts',              // просмотр своих постов
+                'create podcasts',                // создание постов
+                'edit own podcasts',              // редактирование собственных постов
+                'delete own podcasts',            // удаление собственных постов
+                'comment podcasts',              // комментирование постов
                 'edit own profile',            // редактирование собственного профиля
                 'view analytics for own blogs',// просмотр аналитики собственных постов
                 'upload media',                // загрузка медиафайлов
@@ -75,7 +80,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'comment posts',               // комментирование постов
                 'edit own news',               // редактирование собственных новостей
                 'create news',                 // создание новостей
-                'delete own news',             // удаление собственных новостей
+                'delete own news', 
+                'view own podcasts',              // просмотр своих постов
+                'create podcasts',                // создание постов
+                'edit own podcasts',              // редактирование собственных постов
+                'delete own podcasts',            // удаление собственных постов
+                'comment podcasts',           // удаление собственных новостей
                 'view news analytics',         // просмотр аналитики новостей
             ],
             'user' => [

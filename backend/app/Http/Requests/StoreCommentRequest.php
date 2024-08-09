@@ -23,6 +23,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'content' => 'required|string',
+            'reply_to' => 'nullable|integer',
         ];
     }
 

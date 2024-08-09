@@ -1,24 +1,29 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import {
+	Navigate,
+	Route,
+	BrowserRouter as Router,
+	Routes,
+} from 'react-router-dom';
 
 //Лейауты
 import MainLayout from './components/layouts/mainLayout';
-import WorkLayout from './components/layouts/workLayout';
 
 //Страницы
 import Home from './pages/home';
 import Login from './pages/login';
-import Registration from './pages/registration';
-import Recovery from './pages/recovery';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
+import Recovery from './pages/recovery';
+import Registration from './pages/registration';
 
-import Blogs from './pages/blogs';
 import BlogPage from './pages/blogPage';
+import Blogs from './pages/blogs';
 
-import News from './pages/news';
 import NewsPage from './pages/newPage';
+import News from './pages/news';
 
+import PodcastPage from './pages/podcastPage';
 import Podcasts from './pages/podcasts';
 
 import Admin from './pages/admin';
@@ -27,63 +32,69 @@ import Su from './pages/su';
 
 //Роуты
 import GuestRoute from './routes/guestRoute';
-import PrivateRoute from './routes/privateRoute';
 import NotGuestRoute from './routes/notGuestRoute';
+import PrivateRoute from './routes/privateRoute';
 
-// Для тестов
-import BackendTestBlogList from './pages/BackendTestBlogList';
-import BlogDetail from './components/backend_test/BlogDetail';
-
-
-import './css/App.css'
 import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
+import './css/App.css';
+//Тема
+import theme from './themes/theme';
 
 function App() {
-  return (
-    <CssVarsProvider>
-      <CssBaseline />
-      <Router>
-        <Routes>
+	return (
+		<CssVarsProvider theme={theme}>
+			<CssBaseline />
+			<Router>
+				<Routes>
+					<Route path='/' element={<MainLayout />}>
+						<Route index element={<Home />} />
+						<Route path='404' element={<NotFound />} />
+						<Route path='*' element={<Navigate to='/404' />} />
 
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" />} />
+						<Route path='blogs' element={<Blogs />} />
+						<Route path='/blog/:id' element={<BlogPage />} />
 
-            <Route path="blogs" element={<Blogs />} />
-            <Route path="/blog/:id" element={<BlogPage />} />
+						<Route path='news' element={<News />} />
+						<Route path='/news/:id' element={<NewsPage />} />
 
-            <Route path="news" element={<News />} />
-            <Route path="/news/:id" element={<NewsPage />} />
+						<Route path='podcasts' element={<Podcasts />} />
+						<Route path='podcasts/:id' element={<PodcastPage />} />
 
-            <Route path="podcasts" element={<Podcasts />} />
+						{/* Пути только для гостя */}
+						<Route path='login' element={<GuestRoute element={<Login />} />} />
+						<Route
+							path='registration'
+							element={<GuestRoute element={<Registration />} />}
+						/>
+						<Route
+							path='recovery'
+							element={<GuestRoute element={<Recovery />} />}
+						/>
 
-            {/* Пути только для гостя */}
-            <Route path="login" element={<GuestRoute element={<Login />}/>} />
-            <Route path="registration" element={<GuestRoute element={<Registration />}/>} />
-            <Route path="recovery" element={<GuestRoute element={<Recovery />}/>} />
+						{/* Пути не для гостя */}
+						<Route path='/profile/:id' element={<Profile />} />
+					</Route>
 
-            {/* Пути не для гостя */}
-            <Route path="profile" element={<NotGuestRoute element={<Profile />}/>} />
-
-            {/* Для тестов */}
-            {/* <Route path="bt" element={<BackendTestBlogList />}>
-              <Route path=":id" element={<BlogDetail />} /> 
-            </Route> */}
-            <Route path="bt_bloglist" element={<BackendTestBlogList />} />
-            <Route path="bt_blogpage" element={<BlogDetail />} />
-
-          </Route>
-
-            {/* Служебные пути */}
-          <Route path="/admin" element={<PrivateRoute element={<Admin />} roles={['admin']} />} />
-          <Route path="/moderator" element={<PrivateRoute element={<Moderator />} roles={['moderator']} />} />
-          <Route path="/su" element={<PrivateRoute element={<Su />} roles={['su']} />} />
-        </Routes>
-      </Router>
-    </CssVarsProvider>
-  );
+					{/* Служебные пути */}
+					<Route
+						path='/admin'
+						element={<PrivateRoute element={<Admin />} roles={['admin']} />}
+					/>
+					<Route
+						path='/moderator'
+						element={
+							<PrivateRoute element={<Moderator />} roles={['moderator']} />
+						}
+					/>
+					<Route
+						path='/su'
+						element={<PrivateRoute element={<Su />} roles={['su']} />}
+					/>
+				</Routes>
+			</Router>
+		</CssVarsProvider>
+	);
 }
 
 export default App;

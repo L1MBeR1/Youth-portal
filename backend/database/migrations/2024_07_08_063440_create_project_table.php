@@ -17,7 +17,8 @@ return new class extends Migration
             $table->jsonb('description');
             $table->text('location');
             $table->integer('author_id')->unsigned();
-            $table->timestamps();
+            // $table->timestamps();
+            $table->timestampsTz();
 
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });

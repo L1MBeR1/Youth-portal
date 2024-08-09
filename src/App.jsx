@@ -23,6 +23,7 @@ import Blogs from './pages/blogs';
 import NewsPage from './pages/newPage';
 import News from './pages/news';
 
+import PodcastPage from './pages/podcastPage';
 import Podcasts from './pages/podcasts';
 
 import Admin from './pages/admin';
@@ -58,6 +59,7 @@ function App() {
 						<Route path='/news/:id' element={<NewsPage />} />
 
 						<Route path='podcasts' element={<Podcasts />} />
+						<Route path='podcasts/:id' element={<PodcastPage />} />
 
 						{/* Пути только для гостя */}
 						<Route path='login' element={<GuestRoute element={<Login />} />} />

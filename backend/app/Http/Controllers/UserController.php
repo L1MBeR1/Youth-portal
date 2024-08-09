@@ -5,11 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function getUserById($userId){
+        $user = User::where('id', $userId)->first();
+        $user_metadata = UserMetadata::where('user_id', $userId)->first();
+        $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+        $roles = $user->getRoleNames();
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+
+        $res = array_merge($user->toArray(), $user_metadata->toArray(), ['permissions' => $permissions, 'roles' => $roles]);
+        return $this->successResponse($res);
+    }
+
+
     /**
      * Получить список всех пользователей с фильтрацией по роли и дополнительными параметрами
      * 
@@ -52,8 +68,8 @@ class UserController extends Controller
 
         $searchFields = $request->query('searchFields', []);
         $searchValues = $request->query('searchValues', []);
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
+        // $searchColumnName = $request->query('searchColumnName');
+        // $searchValue = $request->query('searchValue');
 
         $bdFrom = $request->query('bdFrom');
         $bdTo = $request->query('bdTo');
@@ -196,17 +212,11 @@ class UserController extends Controller
      * 
      * @return \Illuminate\Http\JsonResponse
      */
-    //TODO Изменить принцип валидации на валидацию через request
-    public function updateUserRoles(Request $request)
+    public function updateUserRoles(StoreUserRequest $request)
     {
-        $this->validateRequest($request, [
-            'email' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:15',
-            'user_id' => 'nullable|int|max:15',
-            'roles' => 'required|array',
-            'deleteMode' => 'boolean',
-        ]);
-
+        Log::info($request);
+        $request->validated();
+        
         $user = null;
 
         if ($request->input('user_id')) {

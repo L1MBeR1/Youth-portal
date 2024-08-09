@@ -46,3 +46,15 @@ export const getPodcastsByPage = async (token, params) => {
       throw error;
     }
   };
+  export const getUserPublishedPodcasts = async (userId) => {
+    try {
+      const response = await axios.get(`${API_URL}/podcasts/published/`, {
+        userId
+      });
+      // console.log(response)
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching podcasts:', error);
+      throw error;
+    }
+  };

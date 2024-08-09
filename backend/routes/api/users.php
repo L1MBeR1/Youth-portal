@@ -6,6 +6,15 @@ use App\Http\Controllers\API\SUController;
 
 // Работа с пользователями
 Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'users'
+], function () {
+    Route::get('{userId}', [UserController::class, 'getUserById'])->withoutMiddleware('auth');
+});
+
+
+
+Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'users'
 ], function () {

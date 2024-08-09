@@ -47,6 +47,11 @@ class CommentPolicy
 
     }
 
+    public function createReply(User $user, Comment $comment): bool
+    {
+        return !$user->hasRole('guest');
+    }
+
 
     /**
      * Determine whether the user can update the model.

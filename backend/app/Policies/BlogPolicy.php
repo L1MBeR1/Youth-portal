@@ -47,7 +47,7 @@ class BlogPolicy
             return false;
         }
 
-        if ($user->hasRole('admin|moderator|su') /*|| $user->hasRole('moderator') || $user->hasRole('su')*/){
+        if ($user->hasRole('admin|moderator|su')){
             return true;
         }        
 

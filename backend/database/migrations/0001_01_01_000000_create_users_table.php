@@ -16,16 +16,20 @@ return new class extends Migration {
             $table->text('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->text('phone')->nullable()->unique();
-            $table->timestamp('phone_verified_at')->nullable();
+            $table->timestampTz('phone_verified_at')->nullable();
+            // $table->timestamp('phone_verified_at')->nullable();
             $table->rememberToken();
-            $table->timestamps();
-            $table->timestamp('blocked_at')->nullable();
+            // $table->timestamps();
+            $table->timestampsTz();
+            // $table->timestamp('blocked_at')->nullable();
+            $table->timestampTz('blocked_at')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->unsignedInteger('user_id')->primary();
             $table->text('token');
-            $table->timestamp('created_at')->nullable();
+            // $table->timestamp('created_at')->nullable();
+            $table->timestampTz('created_at')->nullable();
 
             $table->foreign('user_id')
                 ->references('id')

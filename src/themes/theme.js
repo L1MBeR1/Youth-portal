@@ -5,11 +5,13 @@ const theme = extendTheme({
     values: {
       xs: 0,
       sm: 600,
+      smx:750,
       md: 900,
-      mdx: 1000, 
+      mdx: 1050, 
       lg: 1200,
+      lgx:1350,
       xl: 1536,
-			xxl:1920
+			xxl:2000
     },
   },
 });

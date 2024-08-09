@@ -5,6 +5,7 @@ import { getPublishedBlogs } from '../api/blogsApi.js';
 import Box from '@mui/joy/Box';
 import BlogCart from '../components/publicationsComponents/blogCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
+import { Typography, Stack } from '@mui/joy';
 function Blogs() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
@@ -22,30 +23,35 @@ function Blogs() {
 		refetch();
 	}, [page, refetch]);
 	return (
-		<Box
+		<Stack
+			direction={'column'}
 			sx={{
-				position: 'relative',
-				display: 'flex',
-				flexDirection: 'column',
-				flexGrow: 1,
-				marginX: { xs: '10px', md: '10%', lg: '15%' },
+				padding: { xs: '15px', sm: '20px' },
 			}}
 		>
-			<h2>Блоги</h2>
-			{isLoading || !blogs ? (
-				<></>
-			) : (
-				<Grid container spacing={6} sx={{ flexGrow: 1 }}>
+			<Box marginTop={{ xs: '15px', md: '25px' }}>
+				<Typography level='h1' fontSize={'clamp(3rem,4vw, 5.5rem)'}>
+					Блоги
+				</Typography>
+			</Box>
+			{/* <Stack
+				sx={{
+					marginTop: '30px',
+				}}
+			>
+				1
+			</Stack> */}
+			{!isLoading && blogs && (
+				<Grid
+					container
+					// columnGap={'50px'}
+					// rowGap={'50px'}
+					spacing={'50px'}
+					sx={{ marginTop: '30px' }}
+				>
 					{blogs.map(blog => (
-						<Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
-							<BlogCart
-								id={blog.id}
-								title={blog.title}
-								description={blog.description.desc}
-								img={blog.cover_uri}
-								creator={blog.nickname}
-								createDate={blog.created_at}
-							/>
+						<Grid item xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={blog.id}>
+							<BlogCart data={blog} />
 						</Grid>
 					))}
 				</Grid>
@@ -57,7 +63,7 @@ function Blogs() {
 			>
 				<Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
 			</Box>
-		</Box>
+		</Stack>
 	);
 }
 

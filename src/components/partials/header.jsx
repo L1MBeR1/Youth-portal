@@ -85,7 +85,7 @@ function Header() {
 			>
 				<Link to='/'>
 					<Box paddingTop={'6px'}>
-						<img width='200px' alt='logo' src={logo} />
+						<img width='180px' alt='logo' src={logo} />
 						{/* <Typography level='h2'>LOGO</Typography> */}
 					</Box>
 				</Link>

@@ -25,8 +25,10 @@ function PodcastPage() {
             {/* Секция плеера */}
 
             <AudioPlayer
-                src={url}
+                // filename={"gena.mp3"}
+                filename={"hotel_pools_melt.mp3"}
                 title={"Название подкаста"}
+                pictureURL={"https://images.unsplash.com/photo-1722808333348-1b61caa91203?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
             />
 
 

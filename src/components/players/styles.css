@@ -5,3 +5,15 @@
     --color-button-primary-hover: #0056b3;
     --color-button-secondary: #ffffff;
 }
+
+.wavesurfer ::part(cursor):before {
+    content: '🏄‍♂️';
+}
+
+.wavesurfer ::part(region) {
+    font-family: fantasy;
+}
+
+.wavesurfer{
+    width: 20vw;
+}

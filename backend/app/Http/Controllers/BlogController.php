@@ -151,18 +151,18 @@ class BlogController extends Controller
      * @urlParam perPage int Количество элементов на странице.
      */
     public function getOwnBlogs(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user->can('viewOwnBlogs', Blog::class)) {
-            return $this->errorResponse('You do not have permission to view your own blogs.', [], 403);
-        }
-
-        $query = Blog::where('author_id', $user->id);
-        $blogs = $query->get();
-        $paginationData = $this->makePaginationData($blogs);
-        return $this->successResponse($blogs->items(), $paginationData, 200);
+    if (!$user->can('viewOwnBlogs', Blog::class)) {
+        return $this->errorResponse('You do not have permission to view your own blogs.', [], 403);
     }
+
+    $blogs = Blog::where('author_id', $user->id)->paginate($request->get('per_page', 10));
+    $paginationData = $this->makePaginationData($blogs);
+    return $this->successResponse($blogs->items(), $paginationData, 200);
+}
+
 
 
 

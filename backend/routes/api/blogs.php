@@ -4,13 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 
 
-Route::group([
-    'middleware' => ['api'],
-    'prefix' => 'blogs'
-], function () {
-    Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); // Все
-    Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); // Для админов, модераторов, су. Если статус published, то для всех
-});
+
 
 
 Route::group([
@@ -31,4 +25,12 @@ Route::group([
 
     Route::put('{id}', [BlogController::class, 'update']); // для всех авторизованных владельцев
     Route::put('{id}/status', [BlogController::class, 'setStatus']); // для всех авторизованных владельцев. для админов, модераторов, су
+});
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'blogs'
+], function () {
+    Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); // Все
+    Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); // Для админов, модераторов, су. Если статус published, то для всех
 });

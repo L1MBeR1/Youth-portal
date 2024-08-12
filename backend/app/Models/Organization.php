@@ -10,9 +10,6 @@ class Organization extends Model
     use HasFactory;
     protected $table = 'organizations';
     protected $fillable = ['name','status'];
-    protected $attributes = [
-        'status' => 'moderating',
-    ];
     const STATUSES = ['moderating', 'approved', 'rejected'];
 
     public function users()

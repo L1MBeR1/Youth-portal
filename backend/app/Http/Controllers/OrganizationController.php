@@ -42,6 +42,28 @@ class OrganizationController extends Controller
         return $this->successResponse($organization, 'Организация создана и отправлена на модерацию', 201);
     }
 
+    public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        $newStatus = $request->input('status');
+        $organization = Organization::find($id);
+
+        if (!$organization) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('updateStatus', $organization)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        if (!in_array($newStatus, Organization::STATUSES)) {
+            return $this->errorResponse('Invalid status entered', [], 404);
+        }
+
+        $organization->update(['status' => $newStatus]);
+
+        return $this->successResponse(['organizations' => $organization], 'Podcast status updated successfully', 200);
+    }
+
 
 
 /**

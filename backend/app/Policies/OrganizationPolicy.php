@@ -4,6 +4,8 @@ namespace App\Policies;
 
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 
 class OrganizationPolicy
 {
@@ -41,5 +43,17 @@ class OrganizationPolicy
     public function delete(User $user): bool
     {
         return $user->hasRole('admin') || $user->hasRole('su');
+    }
+
+    public function updateStatus(User $user, Organization $organization): bool
+    {
+        Log::info('Checking update organization status permission for user ' . $user->id);
+
+        if ($user->hasRole('admin|moderator|su')) {
+            Log::info('User ' . $user->id . ' is an admin or moderator and can update organization status ' . $organization->id);
+            return true;
+        }
+        Log::info('User ' . $user->id . ' is not allowed to update organization status ' . $organization->id);
+        return false;
     }
 }

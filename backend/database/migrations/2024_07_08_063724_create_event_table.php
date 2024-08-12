@@ -15,9 +15,9 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('description');
-            $table->text('address');
-            $table->float('longitude');
-            $table->float('latitude');
+            $table->text('address')->default(0);
+            $table->float('longitude')->default(0);
+            $table->float('latitude')->default(0);
             $table->integer('views')->unsigned()->default(0);;
             $table->timestampTz('start_time');
             $table->timestampTz('end_time');

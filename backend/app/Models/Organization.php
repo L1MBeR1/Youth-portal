@@ -8,14 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Organization extends Model
 {
     use HasFactory;
-    protected $fillable = ['name'];
+    protected $table = 'organizations';
+    protected $fillable = ['name','status'];
+    protected $attributes = [
+        'status' => 'moderating',
+    ];
+    const STATUSES = ['moderating', 'approved', 'rejected'];
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'organizations_has_users', 'organization_id', 'user_id');
+    }
+    
     public function owner() // TODO: ???
     {
     }
 
     public function employees() // TODO: ?
     {
-        return $this->belongsToMany(Comment::class, 'organization_has_users', 'organization_id', 'user_id');
+        return $this->belongsToMany(Organization::class, 'organization_has_users', 'organization_id', 'user_id');
     }
 }

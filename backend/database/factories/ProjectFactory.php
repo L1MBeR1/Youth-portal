@@ -24,7 +24,7 @@ class ProjectFactory extends Factory
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
                 ]
             ],
-            'location' => 'задать(PROJECT_FACTORY.PHP)',
+            //'location' => 'задать(PROJECT_FACTORY.PHP)',
             'author_id' => $this->faker->randomElement($userIds),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),

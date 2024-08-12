@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->timestampsTz();
             $table->text('name');
+            $table->text('address');
         });
 
         Schema::create('organizations_has_users', function (Blueprint $table) {

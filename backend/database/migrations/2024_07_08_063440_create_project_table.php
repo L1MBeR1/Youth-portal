@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->jsonb('description');
-            $table->text('location');
+            $table->text('address');
             $table->integer('author_id')->unsigned();
             // $table->timestamps();
             $table->timestampsTz();

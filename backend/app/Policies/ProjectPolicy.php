@@ -14,7 +14,7 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->hasRole('admin|moderator|su');
     }
 
     /**

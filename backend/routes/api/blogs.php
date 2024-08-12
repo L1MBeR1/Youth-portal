@@ -11,7 +11,6 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'blogs'
 ], function () {
-    Route::get('old', [BlogController::class, 'listBlogs']); // TODO: удалить
     Route::get('my', [BlogController::class, 'getOwnBlogs']); // для всех авторизованных  
     // Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth:api'); // Все
     Route::get('', [BlogController::class, 'getBlogs']); // TODO: переименовать в поиск. Роли: админ, модератор, су.

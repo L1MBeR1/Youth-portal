@@ -19,10 +19,14 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class EventController extends Controller
 {
+    //TODO: Сделать метод для получения списка событий 
+    // с пагинацией с минимальным набором параметров
+
+    
     /**
-     * Список (новый)
+     * Поиск
      * 
-     * Получение списка событий (новый. использовать этот метод)
+     * Получение списка событий (функция для администрации)
      * 
      * @group События
      * @authenticated
@@ -50,7 +54,7 @@ class EventController extends Controller
      */
     public function getEvents(Request $request)
     {//TODO: Переделать
-        if (!Auth::user()->can('view', Event::class)) {
+        if (!Auth::user()->can('viewAny', Event::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 

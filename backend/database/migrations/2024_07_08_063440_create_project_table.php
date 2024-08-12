@@ -16,11 +16,11 @@ return new class extends Migration
             $table->text('name');
             $table->jsonb('description');
             //$table->text('address'); 
-            $table->integer('author_id')->unsigned();
+            $table->integer('organization_id')->unsigned();
             // $table->timestamps();
             $table->timestampsTz();
 
-            $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
+            $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
         });
     }
 

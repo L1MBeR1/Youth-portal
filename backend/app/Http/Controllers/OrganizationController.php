@@ -67,9 +67,9 @@ class OrganizationController extends Controller
 
 
 /**
-     * Список
+     * Поиск
      * 
-     * Получение списка организаций
+     * Получение списка организаций (функция для администрации)
      * 
      * @group Организации
      * 
@@ -81,7 +81,6 @@ class OrganizationController extends Controller
      * @urlParam searchValue string Поисковый запрос.
      * @urlParam searchFields string[] Массив столбцов для поиска.
      * @urlParam searchValues string[] Массив значений для поиска.
-     * @urlParam ---tagFilter string Фильтр по тегу в meta описания.
      * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam crtDate string Дата создания (формат: Y-m-d).

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestampsTz();
             $table->text('name');
             $table->enum('status', ['moderating', 'approved', 'rejected']);
-            $table->text('address')->default(0);      
+            $table->text('address')->nullable();      
         });
 
         Schema::create('organizations_has_users', function (Blueprint $table) {

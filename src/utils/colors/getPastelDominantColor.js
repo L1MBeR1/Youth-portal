@@ -2,6 +2,7 @@ import chroma from 'chroma-js';
 import {FastAverageColor} from 'fast-average-color';
 
 export async function getPastelDominantColor(imageSrc,) {
+  console.log(imageSrc)
   const fac = new FastAverageColor();
 
   try {

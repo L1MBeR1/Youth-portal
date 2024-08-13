@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+import React, { useState, Suspense } from 'react';
 import { Popover, ArrowContainer } from 'react-tiny-popover';
-import { IconButton, Box } from '@mui/joy';
+import { IconButton, CircularProgress, Box, Stack } from '@mui/joy';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+
+const Picker = React.lazy(() => import('@emoji-mart/react'));
+
 function EmojiPicker({ onSelect }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const [data, setData] = useState(null);
+
+	useState(() => {
+		import('@emoji-mart/data').then(module => {
+			setData(module.default);
+		});
+	}, []);
+
 	const exceptEmojis = ['rainbow-flag', 'rainbow'];
+
 	return (
 		<Popover
 			isOpen={isOpen}
@@ -23,20 +33,37 @@ function EmojiPicker({ onSelect }) {
 					className='popover-arrow-container'
 					arrowClassName='popover-arrow'
 				>
-					<Picker
-						data={data}
-						locale={'ru'}
-						noCountryFlags={true}
-						onEmojiSelect={emoji => {
-							onSelect(emoji.native);
-							setIsOpen(false);
-						}}
-						searchPosition={'none'}
-						previewPosition={'none'}
-						perLine={7}
-						exceptEmojis={exceptEmojis}
-						navPosition={'none'}
-					/>
+					<Suspense
+						fallback={
+							<Stack
+								sx={{
+									width: '100px',
+									height: '200px',
+									justifyContent: 'center',
+									alignItems: 'center',
+								}}
+							>
+								<CircularProgress color='neutral' />
+							</Stack>
+						}
+					>
+						{data && (
+							<Picker
+								data={data}
+								locale={'ru'}
+								noCountryFlags={true}
+								onEmojiSelect={emoji => {
+									onSelect(emoji.native);
+									setIsOpen(false);
+								}}
+								searchPosition={'none'}
+								previewPosition={'none'}
+								perLine={7}
+								exceptEmojis={exceptEmojis}
+								navPosition={'none'}
+							/>
+						)}
+					</Suspense>
 				</ArrowContainer>
 			)}
 			onClickOutside={() => setIsOpen(false)}

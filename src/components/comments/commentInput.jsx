@@ -23,7 +23,9 @@ export const CommentInput = ({
 	profileData,
 }) => {
 	const [comment, setComment] = useState('');
+
 	const [moveButtonDown, setMoveButtonDown] = useState(false);
+	const textareaRef = useRef(null);
 	const navigate = useNavigate();
 
 	const handleEmojiSelect = emoji => {
@@ -32,8 +34,17 @@ export const CommentInput = ({
 	const handleInputChange = e => {
 		const value = e.target.value;
 		setComment(value);
-		setMoveButtonDown(value.length > 15);
+		setMoveButtonDown(value.length > 15 || value.includes('\n'));
 	};
+
+	useEffect(() => {
+		if (moveButtonDown) {
+			textareaRef.current.style.height = 'auto';
+			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+		} else {
+			textareaRef.current.style.height = 'auto';
+		}
+	}, [comment, moveButtonDown]);
 
 	const handleSubmit = async () => {
 		const sanitizedComment = DOMPurify.sanitize(comment);
@@ -70,7 +81,12 @@ export const CommentInput = ({
 	return (
 		<>
 			{profileData ? (
-				<Stack direction='row' spacing={2} width='100%'>
+				<Stack
+					direction='row'
+					spacing={2}
+					width='100%'
+					sx={{ paddingBottom: '10px' }}
+				>
 					<Avatar
 						src={profileData.profile_image_uri}
 						alt={profileData.nickname}
@@ -94,6 +110,7 @@ export const CommentInput = ({
 							placeholder='Введите комментарий'
 							value={comment}
 							onChange={handleInputChange}
+							ref={textareaRef}
 							style={{
 								fontFamily: 'inter',
 								fontSize: 'clamp(0.85rem, 3vw, 1rem)',
@@ -103,10 +120,11 @@ export const CommentInput = ({
 								paddingTop: '7px',
 								paddingBottom: moveButtonDown ? '50px' : '0',
 								boxSizing: 'border-box',
-								minHeight: '20px',
+								minHeight: '40px',
 								border: 'none',
 								outline: 'none',
 								background: 'transparent',
+								overflow: 'hidden',
 							}}
 							rows={1}
 						/>

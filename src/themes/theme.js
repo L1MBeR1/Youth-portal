@@ -1,4 +1,6 @@
 import { extendTheme } from '@mui/joy/styles';
+import { lightPalette } from './light';
+import { darkPalette } from './dark';
 
 const theme = extendTheme({
   breakpoints: {
@@ -15,46 +17,22 @@ const theme = extendTheme({
     },
   },
   colorSchemes: {
-    light: {
-      palette: {
-        neutral: {
-          main: "#F3FFEF",
-          second:"#0C0D10",
-        },
-        primary:{
-        solidBg: '#0C0D10',
-        solidBorder: '#0C0D10',
-        solidHoverBg: '#6F6F77',
-        solidHoverBorder: '#6F6F77',
-        solidActiveBg: '#0C0D10',
-        solidActiveBorder: '#0C0D10',
-        solidDisabledBg: '#b8b8c1',
-        solidDisabledBorder: '#b8b8c1',
-        }
-      }
-    },
-    dark: {
-      palette: {
-        neutral: {
-        main: "#101115",
-        second:"#F3FFEF",
-        primary:{
-          solidBg: '#F3FFEF',
-          solidBorder: '#0d6efd',
-          solidHoverBg: '#2A2A30',
-          solidHoverBorder: '#0a58ca',
-          solidActiveBg: '#0a58ca',
-          solidActiveBorder: '#0a53be',
-          solidDisabledBg: '#0d6efd',
-          solidDisabledBorder: '#0d6efd',
-          }
-      }}
-    }
+    light: lightPalette,
+    dark: darkPalette,
   },
   staticColors: {
-    mainWhite: '#F3FFEF',
-    mainBlack: '#0C0D10',
+    mainDark: "#0C0D10",
+    mainLight: "#F3FFEF",
   },
+  components:{
+    JoyButton:{
+      styleOverrides: {
+        root: {
+          borderRadius:"50px"
+        },
+        },
+    }
+  }
 });
 
 export default theme;

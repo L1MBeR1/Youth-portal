@@ -39,7 +39,7 @@ function HeaderProfile() {
 			<Dropdown>
 				<MenuButton
 					slots={{ root: Avatar }}
-					slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+					slotProps={{ root: { variant: 'plain', color: 'neutral' } }}
 					sx={{
 						cursor: 'pointer',
 					}}
@@ -106,7 +106,7 @@ function HeaderProfile() {
 				<Link to='/login'>
 					<Box sx={{ display: { xs: 'none', md: 'block' } }}>
 						<Button
-							color={'primary'}
+							color={'neutral'}
 							sx={{
 								borderRadius: '50px',
 							}}

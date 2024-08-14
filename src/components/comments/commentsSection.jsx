@@ -122,7 +122,7 @@ export const CommentSection = ({ type, id, profileData }) => {
 								</Typography>
 							</Stack>
 							<Select
-								placeholder='Сначала старые'
+								placeholder='Сначала новые'
 								variant='plain'
 								defaultValue='newest'
 								endDecorator={<SortIcon />}

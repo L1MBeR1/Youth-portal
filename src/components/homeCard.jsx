@@ -77,11 +77,14 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 								}}
 							>
 								{isSmall ? (
-									<CallMadeIcon />
+									<CallMadeIcon
+										sx={{ color: 'var(--joy-staticColors-mainDark)' }}
+									/>
 								) : (
 									<Typography
 										fontSize={'clamp(0.75rem,1vw, 1.3rem)'}
 										fontWeight={'700'}
+										textColor={'var(--joy-staticColors-mainDark)'}
 									>
 										Подробнее
 									</Typography>

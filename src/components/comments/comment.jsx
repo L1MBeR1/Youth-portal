@@ -150,7 +150,7 @@ export const Comment = ({
 
 						<Button
 							variant={isLiked ? 'soft' : 'plain'}
-							color={isLiked ? 'success' : 'neutral'}
+							color={isLiked ? 'primary' : 'neutral'}
 							size='sm'
 							disabled={profileData ? false : true}
 							sx={{
@@ -162,7 +162,7 @@ export const Comment = ({
 						>
 							<Typography
 								fontSize='12px'
-								color={isLiked ? 'success' : 'neutral'}
+								color={isLiked ? 'primary' : 'neutral'}
 							>
 								{likesCounter}
 							</Typography>

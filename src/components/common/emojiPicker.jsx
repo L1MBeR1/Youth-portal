@@ -50,6 +50,14 @@ function EmojiPicker({ onSelect }) {
 						{data && (
 							<Picker
 								data={data}
+								categories={[
+									'people',
+									'nature',
+									'foods',
+									'activity',
+									'places',
+									'objects',
+								]}
 								locale={'ru'}
 								noCountryFlags={true}
 								onEmojiSelect={emoji => {

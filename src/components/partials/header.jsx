@@ -34,39 +34,41 @@ function ColorSchemeToggle() {
 		return <IconButton size='sm' variant='outlined' color='primary' />;
 	}
 	return (
-		<Tooltip title='Поменять тему' variant='plain'>
-			<IconButton
-				id='toggle-mode'
-				size='sm'
-				variant='plain'
-				sx={{
-					alignSelf: 'center',
-					display: { xs: 'none', md: 'inline-flex' },
-				}}
-				onClick={() => {
-					if (mode === 'light') {
-						setMode('dark');
-					} else {
-						setMode('light');
-					}
-				}}
-			>
-				{mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
-			</IconButton>
-		</Tooltip>
+		<IconButton
+			id='toggle-mode'
+			size='sm'
+			variant='plain'
+			sx={{
+				alignSelf: 'center',
+				display: { xs: 'none', md: 'inline-flex' },
+			}}
+			onClick={() => {
+				if (mode === 'light') {
+					setMode('dark');
+				} else {
+					setMode('light');
+				}
+			}}
+		>
+			{mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
+		</IconButton>
 	);
 }
 
 function Header() {
-	const { mode } = useColorScheme();
+	const { mode, systemMode } = useColorScheme();
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
-
 	const handleLink = link => {
 		navigate(link);
 		setOpen(false);
 	};
-
+	const getLogo = () => {
+		if (systemMode) {
+			return systemMode === 'light' ? logoDark : logoLight;
+		}
+		return mode === 'light' ? logoDark : logoLight;
+	};
 	return (
 		<header>
 			<Sheet
@@ -75,7 +77,7 @@ function Header() {
 					flexGrow: 1,
 					justifyContent: 'space-between',
 					alignItems: 'center',
-					background: `${theme.vars.palette.primary['main']}`,
+					background: `${theme.vars.palette.neutral['main']}`,
 					paddingY: '5px',
 					paddingX: { xs: '15px', sm: '20px' },
 					height: '60px',
@@ -97,9 +99,10 @@ function Header() {
 						color='neutral'
 						onClick={() => setOpen(true)}
 						size='lg'
-						sx={{
+						sx={theme => ({
 							borderRadius: '10px',
-						}}
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
 					>
 						<MenuRoundedIcon />
 					</IconButton>
@@ -110,11 +113,7 @@ function Header() {
 					>
 						<ModalClose />
 						<DialogTitle>
-							<img
-								width='180px'
-								alt='logo'
-								src={mode === 'light' ? logoDark : logoLight}
-							/>
+							<img width='180px' alt='logo' src={getLogo()} />
 						</DialogTitle>
 						<Stack></Stack>
 						<List
@@ -162,11 +161,7 @@ function Header() {
 				</Box>
 				<Link to='/'>
 					<Box paddingTop={'6px'}>
-						<img
-							width='180px'
-							alt='logo'
-							src={mode === 'light' ? logoDark : logoLight}
-						/>
+						<img width='180px' alt='logo' src={getLogo()} />
 					</Box>
 				</Link>
 				<Stack

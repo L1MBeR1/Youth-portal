@@ -104,7 +104,6 @@ const BlogCart = ({ data }) => {
 					>
 						<Typography
 							level='body-md'
-							color={'black'}
 							fontSize={'clamp(0.8rem,2.9vw, 1.1rem)'}
 						>
 							{data.description && data.description.desc}

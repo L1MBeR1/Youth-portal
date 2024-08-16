@@ -24,7 +24,7 @@ function AudioPlayer({ title, filename, pictureURL }) {
         let isMounted = true;
 
         const loadAudio = async () => {
-            const audioUrl = await getFile({ contentType: 'podcasts', contentId: '1', fileName: 'file.mp3' });
+            const audioUrl = await getFile({ contentType: 'podcasts', contentId: '1', fileName: '864f4bc35ae74079cfc6cbc19a7b376c.mp3' });
 
             if (isMounted) {
                 if (waveSurferRef.current) {

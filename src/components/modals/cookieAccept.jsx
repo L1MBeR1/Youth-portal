@@ -17,7 +17,7 @@ const CookieAccept = () => {
 	}, []);
 
 	const handleAccept = () => {
-		setCookie('cookieConsent', 'true', 0.01);
+		setCookie('cookieConsent', 'true', 8760);
 		setIsOpen(false);
 	};
 

@@ -13,6 +13,9 @@ import SortIcon from '@mui/icons-material/Sort';
 function Blogs() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
+	const [orderDir, setOrderDir] = useState('desc');
+
+	const [sortChanged, setSortChanged] = useState(false);
 
 	const {
 		data: blogs,
@@ -22,10 +25,25 @@ function Blogs() {
 		page: page,
 		per_page: 8,
 		withAuthors: true,
+		orderBy: 'created_at',
+		orderDir,
 	});
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
+
+	useEffect(() => {
+		if (sortChanged) {
+			refetch();
+			setSortChanged(false);
+		}
+	}, [sortChanged, refetch]);
+
+	const handleSortChange = newValue => {
+		setOrderDir(newValue);
+		setSortChanged(true);
+	};
+
 	return (
 		<Stack
 			direction={'column'}
@@ -41,14 +59,15 @@ function Blogs() {
 			<Stack direction={'row'} justifyContent={'flex-end'}>
 				<Select
 					variant='plain'
-					defaultValue='asc'
+					defaultValue='desc'
 					placeholder='Сначала новые'
 					endDecorator={<SortIcon />}
 					indicator={null}
 					color='neutral'
+					onChange={(e, newValue) => handleSortChange(newValue)}
 				>
-					<Option value={'asc'}>Сначала новые</Option>
-					<Option value={'desc'}>Сначала старые</Option>
+					<Option value={'desc'}>Сначала новые</Option>
+					<Option value={'asc'}>Сначала старые</Option>
 				</Select>
 			</Stack>
 			{!isLoading && blogs && (

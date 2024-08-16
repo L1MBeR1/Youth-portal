@@ -11,7 +11,7 @@ const PodcastsCard = ({ id, title, description, img }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
-		navigate(`/blog/${id}`);
+		navigate(`/podcast/${id}`);
 	};
 	return (
 		<Card

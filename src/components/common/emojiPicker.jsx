@@ -1,22 +1,13 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState } from 'react';
+import Picker from '@emoji-mart/react';
 import { Popover, ArrowContainer } from 'react-tiny-popover';
-import { IconButton, CircularProgress, Box, Stack } from '@mui/joy';
+import { IconButton } from '@mui/joy';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-
-const Picker = React.lazy(() => import('@emoji-mart/react'));
-
+import useEmojiData from '../../hooks/useEmoji';
 function EmojiPicker({ onSelect }) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [data, setData] = useState(null);
-
-	useState(() => {
-		import('@emoji-mart/data').then(module => {
-			setData(module.default);
-		});
-	}, []);
-
+	const { data, isLoading } = useEmojiData();
 	const exceptEmojis = ['rainbow-flag', 'rainbow'];
-
 	return (
 		<Popover
 			isOpen={isOpen}
@@ -33,45 +24,28 @@ function EmojiPicker({ onSelect }) {
 					className='popover-arrow-container'
 					arrowClassName='popover-arrow'
 				>
-					<Suspense
-						fallback={
-							<Stack
-								sx={{
-									width: '100px',
-									height: '200px',
-									justifyContent: 'center',
-									alignItems: 'center',
-								}}
-							>
-								<CircularProgress color='neutral' />
-							</Stack>
-						}
-					>
-						{data && (
-							<Picker
-								data={data}
-								categories={[
-									'people',
-									'nature',
-									'foods',
-									'activity',
-									'places',
-									'objects',
-								]}
-								locale={'ru'}
-								noCountryFlags={true}
-								onEmojiSelect={emoji => {
-									onSelect(emoji.native);
-									setIsOpen(false);
-								}}
-								searchPosition={'none'}
-								previewPosition={'none'}
-								perLine={7}
-								exceptEmojis={exceptEmojis}
-								navPosition={'none'}
-							/>
-						)}
-					</Suspense>
+					<Picker
+						data={data}
+						locale={'ru'}
+						noCountryFlags={true}
+						categories={[
+							'people',
+							'nature',
+							'foods',
+							'activity',
+							'places',
+							'objects',
+						]}
+						onEmojiSelect={emoji => {
+							onSelect(emoji.native);
+							setIsOpen(false);
+						}}
+						searchPosition={'none'}
+						previewPosition={'none'}
+						perLine={7}
+						exceptEmojis={exceptEmojis}
+						navPosition={'none'}
+					/>
 				</ArrowContainer>
 			)}
 			onClickOutside={() => setIsOpen(false)}

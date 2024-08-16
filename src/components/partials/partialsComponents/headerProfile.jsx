@@ -39,7 +39,7 @@ function HeaderProfile() {
 			<Dropdown>
 				<MenuButton
 					slots={{ root: Avatar }}
-					slotProps={{ root: { variant: 'plain', color: 'neutral' } }}
+					slotProps={{ root: { color: 'neutral' } }}
 					sx={{
 						cursor: 'pointer',
 					}}
@@ -97,7 +97,6 @@ function HeaderProfile() {
 				<CircularProgress
 					color='neutral'
 					size='sm'
-					variant='solid'
 					sx={{ '--CircularProgress-size': '30px' }}
 				/>
 			) : profileData ? (

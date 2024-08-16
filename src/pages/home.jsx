@@ -5,9 +5,9 @@ import Stack from '@mui/joy/Stack';
 import EventsCartsContainer from '../components/eventContainer/eventsCartsContainer';
 import MapContainer from '../components/map/mapContainer';
 import { Typography, Box, Grid } from '@mui/joy';
-import first from '../img/1.png';
-import second from '../img/2.jpg';
-import third from '../img/3.jpg';
+import first from '../img/1.webp';
+import second from '../img/2.webp';
+import third from '../img/3.webp';
 import HomeCard from '../components/homeCard';
 function Home() {
 	return (

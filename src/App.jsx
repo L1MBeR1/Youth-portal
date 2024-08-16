@@ -59,7 +59,7 @@ function App() {
 						<Route path='/news/:id' element={<NewsPage />} />
 
 						<Route path='podcasts' element={<Podcasts />} />
-						<Route path='podcasts/:id' element={<PodcastPage />} />
+						<Route path='podcast/:id' element={<PodcastPage />} />
 
 						<Route path='/profile/:id' element={<Profile />} />
 

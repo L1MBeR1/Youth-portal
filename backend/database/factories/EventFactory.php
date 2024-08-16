@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EventFactory extends Factory
@@ -16,8 +17,10 @@ class EventFactory extends Factory
     public function definition(): array
     {
         $userIds = User::pluck('id');
-        $userId = $this->faker->randomElement($userIds->toArray());
-        $projects = Project::where('author_id', '=', $userId)->pluck('id')->toArray();
+        $orgIds = Organization::pluck('id');
+        // $userId = $this->faker->randomElement($userIds->toArray());
+        $orgId = $this->faker->randomElement($orgIds->toArray());
+        $projects = Project::where('organization_id', '=', $orgId)->pluck('id')->toArray();
 
         return [
             'name' => $this->faker->company(),

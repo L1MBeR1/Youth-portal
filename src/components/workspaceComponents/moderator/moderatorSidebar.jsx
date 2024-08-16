@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Box from '@mui/joy/Box';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import ListItemButton from '@mui/joy/ListItemButton';
 import ListItemContent from '@mui/joy/ListItemContent';
+import Sheet from '@mui/joy/Sheet';
+import Typography from '@mui/joy/Typography';
 
-import PodcastsIcon from '@mui/icons-material/Podcasts';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import PodcastsIcon from '@mui/icons-material/Podcasts';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 function ModeratorSidebar({ selectedSection, setSection, setOpen, open }) {
@@ -40,6 +40,7 @@ function ModeratorSidebar({ selectedSection, setSection, setOpen, open }) {
 					sx={{
 						maxWidth: 'fit-content',
 						flexGrow: 1,
+						background: 'var(--joy-palette-main-background)',
 						p: 2,
 						flexShrink: 0,
 						display: 'flex',

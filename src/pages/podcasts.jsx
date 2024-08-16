@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Grid from '@mui/joy/Grid';
-import usePublications from '../hooks/usePublications.js';
+import usePublications from '../hooks/usePublications';
 import { getPublishedPodcasts } from '../api/podcastsApi.js';
 import Box from '@mui/joy/Box';
-
 import PodcastsCard from '../components/publicationsComponents/podcastsCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
-function Blogs() {
+import { Typography, Stack } from '@mui/joy';
+function Podcasts() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
 
 	const {
-		data: blogs,
+		data: news,
 		isLoading,
 		refetch,
 	} = usePublications(['podcasts'], getPublishedPodcasts, setLastPage, {
@@ -22,31 +22,24 @@ function Blogs() {
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
+
 	return (
-		<Box
+		<Stack
+			direction={'column'}
 			sx={{
-				position: 'relative',
-				display: 'flex',
-				flexDirection: 'column',
-				flexGrow: 1,
-				marginX: { xs: '10px', md: '10%', lg: '15%' },
+				padding: { xs: '15px', sm: '20px' },
 			}}
 		>
-			<h2>Подкасты</h2>
-			{isLoading || !blogs ? (
-				<></>
-			) : (
-				<Grid container spacing={4} sx={{ flexGrow: 1 }}>
-					{blogs.map(blog => (
-						<Grid key={blog.id} xs={6} sm={4} md={3} lg={3} xl={2}>
-							<PodcastsCard
-								id={blog.id}
-								title={blog.title}
-								description={blog.description.desc}
-								img={blog.cover_uri}
-								creator={blog.nickname}
-								createDate={blog.created_at}
-							/>
+			<Box marginTop={{ xs: '15px', md: '25px' }}>
+				<Typography level='h1' fontSize={'clamp(3rem,4vw, 5.5rem)'}>
+					Подкасты
+				</Typography>
+			</Box>
+			{!isLoading && news && (
+				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
+					{news.map(news => (
+						<Grid item xs={6} smx={4} mdx={3} lgx={2} xxl={2} key={news.id}>
+							<PodcastsCard data={news} />
 						</Grid>
 					))}
 				</Grid>
@@ -58,8 +51,8 @@ function Blogs() {
 			>
 				<Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
 			</Box>
-		</Box>
+		</Stack>
 	);
 }
 
-export default Blogs;
+export default Podcasts;

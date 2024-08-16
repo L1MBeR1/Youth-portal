@@ -21,8 +21,8 @@ const theme = extendTheme({
     dark: darkPalette,
   },
   staticColors: {
-    mainDark: "#0C0D10",
-    mainLight: "#F3FFEF",
+    mainDark: "#00030F",
+    mainLight: "#f5f7fa",
   },
   components:{
     JoyButton:{
@@ -31,6 +31,11 @@ const theme = extendTheme({
           borderRadius:"50px"
         },
         },
+    }
+  },
+  typography:{
+    button:{
+      color:'var(--joy-palette-mainLight)'
     }
   }
 });

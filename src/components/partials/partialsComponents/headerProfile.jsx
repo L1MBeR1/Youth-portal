@@ -105,17 +105,15 @@ function HeaderProfile() {
 				<Link to='/login'>
 					<Box sx={{ display: { xs: 'none', md: 'block' } }}>
 						<Button
-							color={'neutral'}
+							color={'primary'}
 							sx={{
 								borderRadius: '50px',
 							}}
 						>
 							<Typography
-								fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
+								fontSize={'clamp(0.75rem,0.9vw, 1.4rem)'}
 								fontWeight={'700'}
-								sx={theme => ({
-									color: `${theme.vars.palette.neutral['main']}`,
-								})}
+								level={'button'}
 							>
 								Войти в аккаунт
 							</Typography>

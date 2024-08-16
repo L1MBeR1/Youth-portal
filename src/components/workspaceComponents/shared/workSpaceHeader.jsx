@@ -64,7 +64,7 @@ function Header({ setOpen, open }) {
 					flexGrow: 1,
 					justifyContent: 'space-between',
 					alignItems: 'center',
-					background: 'primary.main',
+					background: 'var(--joy-palette-main-background)',
 					padding: '5px 20px',
 					borderBottom: '1px solid',
 					borderColor: 'divider',

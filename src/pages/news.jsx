@@ -9,7 +9,7 @@ import NewsCard from '../components/publicationsComponents/newsCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
 import { Typography, Stack } from '@mui/joy';
 import SortIcon from '@mui/icons-material/Sort';
-function Blogs() {
+function News() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
 	const [orderDir, setOrderDir] = useState('desc');
@@ -89,4 +89,4 @@ function Blogs() {
 	);
 }
 
-export default Blogs;
+export default News;

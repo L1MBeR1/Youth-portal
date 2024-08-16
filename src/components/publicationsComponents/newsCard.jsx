@@ -8,7 +8,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPastelDominantColor } from '../../utils/colors/getPastelDominantColor';
 import Box from '@mui/joy/Box';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ProfileBlank from '../../img/profileBlank.png';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
@@ -46,7 +45,6 @@ const NewsCard = ({ data }) => {
 					transform: 'scale(1.075)',
 				},
 				gap: '0',
-				outline: '1px solid black',
 			}}
 			onClick={() => handleRedirect(data.id)}
 		>

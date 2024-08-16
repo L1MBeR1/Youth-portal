@@ -24,6 +24,7 @@ const CookieAccept = () => {
 	return (
 		<Snackbar
 			anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+			variant='plain'
 			open={isOpen}
 			size='lg'
 			sx={{
@@ -51,14 +52,8 @@ const CookieAccept = () => {
 					</Typography>
 				</Stack>
 				<Stack direction='column' justifyContent={'center'}>
-					<Button color='neutral' variant='solid' onClick={handleAccept}>
-						<Typography
-							sx={theme => ({
-								color: `${theme.vars.palette.neutral['main']}`,
-							})}
-						>
-							Принять
-						</Typography>
+					<Button color='primary' variant='solid' onClick={handleAccept}>
+						Принять
 					</Button>
 				</Stack>
 			</Stack>

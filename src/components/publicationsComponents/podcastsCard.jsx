@@ -1,13 +1,14 @@
 import AspectRatio from '@mui/joy/AspectRatio';
 import Card from '@mui/joy/Card';
 import Stack from '@mui/joy/Stack';
+import CardOverflow from '@mui/joy/CardOverflow';
 import Typography from '@mui/joy/Typography';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 
-const PodcastsCard = ({ id, title, description, img }) => {
+const PodcastsCard = ({ data }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
@@ -23,16 +24,28 @@ const PodcastsCard = ({ id, title, description, img }) => {
 				cursor: 'pointer',
 				'--Card-radius': '20px',
 				transition: 'transform 0.3s',
-				'&:hover': {
-					transform: 'scale(1.025)',
+				'&:hover .cover': {
+					transform: 'scale(1.075)',
 				},
 			}}
-			onClick={() => handleRedirect(id)}
+			onClick={() => handleRedirect(data.id)}
 		>
-			<Stack direction='column' spacing={1.5} flexGrow={1}>
-				<AspectRatio ratio='1'>
-					<img src={img} alt={title} loading='lazy' />
+			<CardOverflow>
+				<AspectRatio
+					ratio='1'
+					sx={{
+						overflow: 'hidden',
+						position: 'relative',
+						'& img': {
+							transition: 'transform 0.4s',
+						},
+						borderRadius: '30px',
+					}}
+				>
+					<img src={data.cover_uri} className={'cover'} alt={data.title} />
 				</AspectRatio>
+			</CardOverflow>
+			<Stack direction='column' spacing={1.5} padding={'15px'} flexGrow={1}>
 				<Stack
 					spacing={1}
 					direction='column'
@@ -40,7 +53,7 @@ const PodcastsCard = ({ id, title, description, img }) => {
 					justifyContent='space-between'
 				>
 					<Stack spacing={1}>
-						<Typography level='title-lg'>{title}</Typography>
+						<Typography level='title-lg'>{data.title}</Typography>
 						<Box
 							sx={{
 								overflow: 'hidden',
@@ -52,7 +65,7 @@ const PodcastsCard = ({ id, title, description, img }) => {
 							}}
 						>
 							<Typography level='body-md'>
-								{description ? description : <></>}
+								{data.description ? data.description.desc : <></>}
 							</Typography>
 						</Box>
 					</Stack>

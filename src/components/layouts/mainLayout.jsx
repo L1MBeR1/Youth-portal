@@ -12,7 +12,6 @@ function MainLayout() {
 	return (
 		<Stack
 			sx={{
-				background: 'var(--joy-palette-neutral-main)',
 				minHeight: '100vh',
 				paddingTop: '60px',
 			}}

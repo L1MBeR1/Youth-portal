@@ -40,7 +40,7 @@ function BlogPage() {
 				flexDirection: 'column',
 				flexGrow: 1,
 				marginX: {
-					xs: '20px',
+					xs: '0',
 					sm: '5%',
 					md: '10%',
 					mdx: '15%',
@@ -55,10 +55,9 @@ function BlogPage() {
 				<Card
 					variant='plain'
 					sx={{
-						background: { xs: 'var(--joy-palette-neutral-main)', sm: 'auto' },
 						marginTop: '20px',
 						'--Card-radius': '20px',
-						p: 0,
+						p: '20px',
 					}}
 				>
 					<Box sx={{ padding: { xs: '0px', sm: '20px' } }}>

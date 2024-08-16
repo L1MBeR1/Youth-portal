@@ -72,22 +72,23 @@ function Header() {
 	return (
 		<header>
 			<Sheet
-				sx={theme => ({
+				color='neutral'
+				sx={{
 					display: 'flex',
 					flexGrow: 1,
 					justifyContent: 'space-between',
 					alignItems: 'center',
-					background: `${theme.vars.palette.neutral['main']}`,
 					paddingY: '5px',
 					paddingX: { xs: '15px', sm: '20px' },
 					height: '60px',
+					background: 'var(--joy-palette-main-background)',
 					// borderBottom: '1px solid',
 					// borderColor: 'divider',
 					position: 'fixed',
 					top: 0,
 					width: '100%',
 					zIndex: 1100,
-				})}
+				}}
 			>
 				<Box
 					sx={{

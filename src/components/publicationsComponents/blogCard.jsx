@@ -46,7 +46,6 @@ const BlogCart = ({ data }) => {
 					transform: 'scale(1.075)',
 				},
 				gap: '0',
-				outline: '1px solid black',
 			}}
 			onClick={() => handleRedirect(data.id)}
 		>

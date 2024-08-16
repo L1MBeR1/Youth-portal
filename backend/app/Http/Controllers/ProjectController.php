@@ -42,7 +42,7 @@ class ProjectController extends Controller
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
      * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -52,119 +52,133 @@ class ProjectController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-        $perPage = $request->get('per_page', 5);
-        $userId = $request->query('userId');
-        $currentUser = $request->query('currentUser');
-        $projectId = $request->query('projectId');
-        $withAuthors = $request->query('withAuthors', false);
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
-        $searchFields = $request->query('searchFields', []);
-        $searchValues = $request->query('searchValues', []);
-        $tagFilter = $request->query('tagFilter');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
-
-        $updDate = $request->query('updDate');
-        $crtDate = $request->query('crtDate');
-
-        $operator = $request->query('operator', 'and');
-
-        $query = Project::query();
-
-        if ($withAuthors) {
-            $query->join('user_metadata', 'projects.author_id', '=', 'user_metadata.user_id')
-                ->select('projects.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
-        }
-
-        if ($userId) {
-            $user = User::find($userId);
-            if (!$user) {
-                return $this->errorResponse('User not found', [], 404);
-            }
-            $query->where('author_id', $userId);
-        } elseif ($currentUser) {
-            $currentUser = Auth::user();
-            if ($currentUser) {
-                $query->where('author_id', $currentUser->id);
-            } else {
-                return $this->errorResponse('Current user not found', [], 404);
-            }
-        } elseif ($projectId) {
-            $query->where('id', $projectId);
-        }
-
-        if (!empty($searchFields) && !empty($searchValues)) {
-            if ($operator === 'or') {
-                $query->where(function ($query) use ($searchFields, $searchValues) {
-                    foreach ($searchFields as $index => $field) {
-                        $value = $searchValues[$index] ?? null;
-                        if ($value) {
-                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
-                        }
-                    }
-                });
-            } else {
-                foreach ($searchFields as $index => $field) {
-                    $value = $searchValues[$index] ?? null;
-                    if ($value) {
-                        $query->where($field, 'LIKE', '%' . $value . '%');
-                    }
-                }
-            }
-        }
-
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
-
-        if ($tagFilter) {
-            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
-        }
-
-        $crtFrom = $this->parseDate($crtFrom);
-        $crtTo = $this->parseDate($crtTo);
-        $updFrom = $this->parseDate($updFrom);
-        $updTo = $this->parseDate($updTo);
-
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('created_at', '<=', $crtTo);
-        }
-
-        if ($updFrom && $updTo) {
-            $query->whereBetween('updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('updated_at', '<=', $updTo);
-        }
-
-        if ($crtDate) {
-            $query->whereDate('created_at', '=', $crtDate);
-        }
-    
-        if ($updDate) {
-            $query->whereDate('updated_at', '=', $updDate);
-        }
-
-        $projects = $query->paginate($perPage);
-
-        $paginationData = [
-            'current_page' => $projects->currentPage(),
-            'from' => $projects->firstItem(),
-            'last_page' => $projects->lastPage(),
-            'per_page' => $projects->perPage(),
-            'to' => $projects->lastItem(),
-            'total' => $projects->total(),
+        $requiredFields = [
+            'projects' => [
+                'id', 'name', 'description', 'organization_id'
+            ],
         ];
 
-        return $this->successResponse($projects->items(), $paginationData, 200);
+        $query = Project::query();
+        $this->selectFields($query, $requiredFields);
+        $this->applyFilters($query, $request, false);
+        $this->applySearch($query, $request);
+        $events = $query->paginate($request->get('per_page', 10));
+        $paginationData = $this->makePaginationData($events);
+        return $this->successResponse($events->items(), $paginationData, 200);
+
+        // $perPage = $request->get('per_page', 5);
+        // $userId = $request->query('userId');
+        // $currentUser = $request->query('currentUser');
+        // $projectId = $request->query('projectId');
+        // $withAuthors = $request->query('withAuthors', false);
+        // $searchColumnName = $request->query('searchColumnName');
+        // $searchValue = $request->query('searchValue');
+        // $searchFields = $request->query('searchFields', []);
+        // $searchValues = $request->query('searchValues', []);
+        // $tagFilter = $request->query('tagFilter');
+        // $crtFrom = $request->query('crtFrom');
+        // $crtTo = $request->query('crtTo');
+        // $updFrom = $request->query('updFrom');
+        // $updTo = $request->query('updTo');
+
+        // $updDate = $request->query('updDate');
+        // $crtDate = $request->query('crtDate');
+
+        // $operator = $request->query('operator', 'and');
+
+        // $query = Project::query();
+
+        // if ($withAuthors) {
+        //     $query->join('user_metadata', 'projects.author_id', '=', 'user_metadata.user_id')
+        //         ->select('projects.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+        // }
+
+        // if ($userId) {
+        //     $user = User::find($userId);
+        //     if (!$user) {
+        //         return $this->errorResponse('User not found', [], 404);
+        //     }
+        //     $query->where('author_id', $userId);
+        // } elseif ($currentUser) {
+        //     $currentUser = Auth::user();
+        //     if ($currentUser) {
+        //         $query->where('author_id', $currentUser->id);
+        //     } else {
+        //         return $this->errorResponse('Current user not found', [], 404);
+        //     }
+        // } elseif ($projectId) {
+        //     $query->where('id', $projectId);
+        // }
+
+        // if (!empty($searchFields) && !empty($searchValues)) {
+        //     if ($operator === 'or') {
+        //         $query->where(function ($query) use ($searchFields, $searchValues) {
+        //             foreach ($searchFields as $index => $field) {
+        //                 $value = $searchValues[$index] ?? null;
+        //                 if ($value) {
+        //                     $query->orWhere($field, 'LIKE', '%' . $value . '%');
+        //                 }
+        //             }
+        //         });
+        //     } else {
+        //         foreach ($searchFields as $index => $field) {
+        //             $value = $searchValues[$index] ?? null;
+        //             if ($value) {
+        //                 $query->where($field, 'LIKE', '%' . $value . '%');
+        //             }
+        //         }
+        //     }
+        // }
+
+        // if ($searchColumnName) {
+        //     $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        // }
+
+        // if ($tagFilter) {
+        //     $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        // }
+
+        // $crtFrom = $this->parseDate($crtFrom);
+        // $crtTo = $this->parseDate($crtTo);
+        // $updFrom = $this->parseDate($updFrom);
+        // $updTo = $this->parseDate($updTo);
+
+        // if ($crtFrom && $crtTo) {
+        //     $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        // } elseif ($crtFrom) {
+        //     $query->where('created_at', '>=', $crtFrom);
+        // } elseif ($crtTo) {
+        //     $query->where('created_at', '<=', $crtTo);
+        // }
+
+        // if ($updFrom && $updTo) {
+        //     $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        // } elseif ($updFrom) {
+        //     $query->where('updated_at', '>=', $updFrom);
+        // } elseif ($updTo) {
+        //     $query->where('updated_at', '<=', $updTo);
+        // }
+
+        // if ($crtDate) {
+        //     $query->whereDate('created_at', '=', $crtDate);
+        // }
+    
+        // if ($updDate) {
+        //     $query->whereDate('updated_at', '=', $updDate);
+        // }
+
+        // $projects = $query->paginate($perPage);
+
+        // $paginationData = [
+        //     'current_page' => $projects->currentPage(),
+        //     'from' => $projects->firstItem(),
+        //     'last_page' => $projects->lastPage(),
+        //     'per_page' => $projects->perPage(),
+        //     'to' => $projects->lastItem(),
+        //     'total' => $projects->total(),
+        // ];
+
+        // return $this->successResponse($projects->items(), $paginationData, 200);
     }
 
     /**
@@ -174,18 +188,18 @@ class ProjectController extends Controller
      * @param string|null $date
      * @return string|null
      */
-    private function parseDate($date)
-    {
-        if (!$date) {
-            return null;
-        }
+    // private function parseDate($date)
+    // {
+    //     if (!$date) {
+    //         return null;
+    //     }
 
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            return $date . ' 00:00:00';
-        }
+    //     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+    //         return $date . ' 00:00:00';
+    //     }
 
-        return $date;
-    }
+    //     return $date;
+    // }
 
 
     /**

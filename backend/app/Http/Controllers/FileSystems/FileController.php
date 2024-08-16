@@ -104,6 +104,7 @@ class FileController extends Controller
             'image/png',
             'image/gif',
             'text/plain',
+            'audio/mpeg',
         ];
         if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
             return response()->json(['error' => 'Unsupported file type'], 415);

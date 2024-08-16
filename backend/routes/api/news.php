@@ -3,15 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 
-
-Route::group([
-    'middleware' => ['api'],
-    'prefix' => 'news'
-], function () {
-    Route::get('published', [NewsController::class, 'getPublishedNews'])->withoutMiddleware('auth');
-    Route::get('{id}', [NewsController::class, 'getNewsById'])->withoutMiddleware('auth');
-});
-
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'news'
@@ -26,3 +17,11 @@ Route::group([
     Route::put('{id}/status', [NewsController::class, 'updateStatus']);
     Route::post('like/{id}', [NewsController::class, 'likeNews']);
 });
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'news'
+], function () {
+    Route::get('published', [NewsController::class, 'getPublishedNews'])->withoutMiddleware('auth');
+    Route::get('{id}', [NewsController::class, 'getNewsById'])->withoutMiddleware('auth');
+});
+

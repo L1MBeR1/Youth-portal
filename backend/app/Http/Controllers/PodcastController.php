@@ -157,8 +157,7 @@ class PodcastController extends Controller
             return $this->errorResponse('You do not have permission to view your own podcasts.', [], 403);
         }
 
-        $query = Podcast::where('author_id', $user->id);
-        $podcasts = $query->get();
+        $podcasts = Podcast::where('author_id', $user->id)->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($podcasts);
         return $this->successResponse($podcasts->items(), $paginationData, 200);
     }

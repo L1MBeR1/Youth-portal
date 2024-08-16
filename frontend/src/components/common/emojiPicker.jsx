@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { Popover, ArrowContainer } from 'react-tiny-popover';
-import { IconButton, Box } from '@mui/joy';
+import { IconButton } from '@mui/joy';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import useEmojiData from '../../hooks/useEmoji';
 function EmojiPicker({ onSelect }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const { data, isLoading } = useEmojiData();
 	const exceptEmojis = ['rainbow-flag', 'rainbow'];
 	return (
 		<Popover
@@ -27,6 +28,14 @@ function EmojiPicker({ onSelect }) {
 						data={data}
 						locale={'ru'}
 						noCountryFlags={true}
+						categories={[
+							'people',
+							'nature',
+							'foods',
+							'activity',
+							'places',
+							'objects',
+						]}
 						onEmojiSelect={emoji => {
 							onSelect(emoji.native);
 							setIsOpen(false);

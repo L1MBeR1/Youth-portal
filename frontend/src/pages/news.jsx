@@ -3,50 +3,77 @@ import Grid from '@mui/joy/Grid';
 import usePublications from '../hooks/usePublications';
 import { getPublishedNews } from '../api/newsApi.js';
 import Box from '@mui/joy/Box';
-
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
 import NewsCard from '../components/publicationsComponents/newsCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
-function Blogs() {
+import { Typography, Stack } from '@mui/joy';
+import SortIcon from '@mui/icons-material/Sort';
+function News() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
+	const [orderDir, setOrderDir] = useState('desc');
+
+	const [sortChanged, setSortChanged] = useState(false);
 
 	const {
-		data: blogs,
+		data: news,
 		isLoading,
 		refetch,
 	} = usePublications(['news'], getPublishedNews, setLastPage, {
 		page: page,
-		per_page: 6,
+		per_page: 8,
 		withAuthors: true,
+		orderBy: 'created_at',
+		orderDir,
 	});
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
+
+	useEffect(() => {
+		if (sortChanged) {
+			refetch();
+			setSortChanged(false);
+		}
+	}, [sortChanged, refetch]);
+
+	const handleSortChange = newValue => {
+		setOrderDir(newValue);
+		setSortChanged(true);
+	};
+
 	return (
-		<Box
+		<Stack
+			direction={'column'}
 			sx={{
-				position: 'relative',
-				display: 'flex',
-				flexDirection: 'column',
-				flexGrow: 1,
-				marginX: { xs: '10px', md: '10%', lg: '15%' },
+				padding: { xs: '15px', sm: '20px' },
 			}}
 		>
-			<h2>Новости</h2>
-			{isLoading || !blogs ? (
-				<></>
-			) : (
-				<Grid container spacing={6} sx={{ flexGrow: 1 }}>
-					{blogs.map(blog => (
-						<Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
-							<NewsCard
-								id={blog.id}
-								title={blog.title}
-								description={blog.description.desc}
-								img={blog.cover_uri}
-								creator={blog.nickname}
-								createDate={blog.created_at}
-							/>
+			<Box marginTop={{ xs: '15px', md: '25px' }}>
+				<Typography level='h1' fontSize={'clamp(3rem,4vw, 5.5rem)'}>
+					Новости
+				</Typography>
+			</Box>
+			<Stack direction={'row'} justifyContent={'flex-end'}>
+				<Select
+					variant='plain'
+					defaultValue='desc'
+					placeholder='Сначала новые'
+					endDecorator={<SortIcon />}
+					indicator={null}
+					color='neutral'
+					onChange={(e, newValue) => handleSortChange(newValue)}
+				>
+					<Option value={'desc'}>Сначала новые</Option>
+					<Option value={'asc'}>Сначала старые</Option>
+				</Select>
+			</Stack>
+			{!isLoading && news && (
+				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
+					{news.map(news => (
+						<Grid item xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={news.id}>
+							<NewsCard data={news} />
 						</Grid>
 					))}
 				</Grid>
@@ -58,8 +85,8 @@ function Blogs() {
 			>
 				<Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
 			</Box>
-		</Box>
+		</Stack>
 	);
 }
 
-export default Blogs;
+export default News;

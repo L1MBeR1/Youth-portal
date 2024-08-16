@@ -14,7 +14,7 @@ class EventPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->hasRole('admin|moderator|su');
     }
 
     /**
@@ -41,19 +41,19 @@ class EventPolicy
      */
     public function update(User $user, Event $event): bool
     {
-        Log::info('Checking update permission for user ' . $user->id);
+        // Log::info('Checking update permission for user ' . $user->id);
 
         if ($user->id === $event->author_id) {
-            Log::info('User ' . $user->id . ' is allowed to update their own events');
+            // Log::info('User ' . $user->id . ' is allowed to update their own events');
             return true;
         }
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
-            Log::info('User ' . $user->id . ' is an admin or moderator and can update events ' . $event->id);
+        if ($user->hasRole('admin|moderator')) {
+            // Log::info('User ' . $user->id . ' is an admin or moderator and can update events ' . $event->id);
             return true;
         }
 
-        Log::info('User ' . $user->id . ' is not allowed to update events ' . $event->id);
+        // Log::info('User ' . $user->id . ' is not allowed to update events ' . $event->id);
         return false;
     }
 
@@ -62,19 +62,19 @@ class EventPolicy
      */
     public function delete(User $user, Event $event): bool
     {
-        Log::info('Entering delete event policy');
+        // Log::info('Entering delete event policy');
 
-        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
-            Log::info('User ' . $user->id . ' is an admin or moderator and can delete event ' . $event->id);
+        if ($user->hasRole('admin|moderator')) {
+            // Log::info('User ' . $user->id . ' is an admin or moderator and can delete event ' . $event->id);
             return true;
         }
 
         if ($user->hasRole('organization') && $user->id === $event->author_id) {
-            Log::info('User ' . $user->id . ' is the author and can delete event ' . $event->id);
+            // Log::info('User ' . $user->id . ' is the author and can delete event ' . $event->id);
             return true;
         }
 
-        Log::info('User ' . $user->id . ' does not have permission to delete event ' . $event->id);
+        // Log::info('User ' . $user->id . ' does not have permission to delete event ' . $event->id);
         return false;
     }
 

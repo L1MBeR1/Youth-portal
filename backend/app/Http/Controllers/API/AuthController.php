@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+// use Illuminate\Http\Response;
 use App\Mail\EmailVerification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\Mail;
 // use Illuminate\Http\RedirectResponse;
 // use Illuminate\Support\Facades\Validator;
 
-use Illuminate\Validation\ValidationException;
+// use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+// use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+// use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -159,7 +159,6 @@ class AuthController extends Controller
             return $this->errorResponse('Token is missing', [], 400);
         }
 
-        // Попробуйте декодировать токен
         $user = JWTAuth::setToken($token)->toUser();
 
         if (!$user) {
@@ -268,13 +267,13 @@ class AuthController extends Controller
             ])->cookie(cookie()->forget('refresh_token'));
         }
 
-        if ($user->blocked_at) {
-            return response()->json([
-                'message' => 'User is blocked',
-                'data' => [],
-                'status_code' => 403
-            ])->cookie(cookie()->forget('refresh_token'));
-        }
+        // if ($user->blocked_at) {
+        //     return response()->json([
+        //         'message' => 'User is blocked',
+        //         'data' => [],
+        //         'status_code' => 403
+        //     ])->cookie(cookie()->forget('refresh_token'));
+        // }
 
         Auth::login($user);
 
@@ -391,24 +390,24 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        Log::info('LOGOUT STARTING...');
+        // Log::info('LOGOUT STARTING...');
         $user = Auth::user();
-        Log::info('DEFINED USER: ' . $user->email);
-        Log::info('SETTING REMEMBER TOKEN TO NULL...');
+        // Log::info('DEFINED USER: ' . $user->email);
+        // Log::info('SETTING REMEMBER TOKEN TO NULL...');
         $user->remember_token = null;
-        Log::info('REMEMBER TOKEN SET TO NULL');
+        // Log::info('REMEMBER TOKEN SET TO NULL');
         $user->save();
-        Log::info('SAVED USER');
+        // Log::info('SAVED USER');
 
-        Log::info('LOGGING OUT...');
+        // Log::info('LOGGING OUT...');
         Auth::logout();
-        Log::info('LOGGED OUT');
+        // Log::info('LOGGED OUT');
 
-        Log::info('RESPONDING...');
+        // Log::info('RESPONDING...');
         $response = response()->json(['message' => 'Successfully logged out.']);
         $response->withCookie(cookie()->forget('refresh_token'));
 
-        Log::info('LOGOUT DONE');
+        // Log::info('LOGOUT DONE');
         return $response;
     }
     // public function logout()

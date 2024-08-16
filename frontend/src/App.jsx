@@ -43,7 +43,7 @@ import theme from './themes/theme';
 
 function App() {
 	return (
-		<CssVarsProvider theme={theme}>
+		<CssVarsProvider theme={theme} defaultMode='system'>
 			<CssBaseline />
 			<Router>
 				<Routes>
@@ -59,9 +59,10 @@ function App() {
 						<Route path='/news/:id' element={<NewsPage />} />
 
 						<Route path='podcasts' element={<Podcasts />} />
-						<Route path='podcasts/:id' element={<PodcastPage />} />
+						<Route path='podcast/:id' element={<PodcastPage />} />
 
-						{/* Пути только для гостя */}
+						<Route path='/profile/:id' element={<Profile />} />
+
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
 						<Route
 							path='registration'
@@ -71,12 +72,8 @@ function App() {
 							path='recovery'
 							element={<GuestRoute element={<Recovery />} />}
 						/>
-
-						{/* Пути не для гостя */}
-						<Route path='/profile/:id' element={<Profile />} />
 					</Route>
 
-					{/* Служебные пути */}
 					<Route
 						path='/admin'
 						element={<PrivateRoute element={<Admin />} roles={['admin']} />}

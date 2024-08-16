@@ -81,6 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'edit own news',               // редактирование собственных новостей
                 'create news',                 // создание новостей
                 'delete own news', 
+                'view own news',              // просмотр своих постов
                 'view own podcasts',              // просмотр своих постов
                 'create podcasts',                // создание постов
                 'edit own podcasts',              // редактирование собственных постов

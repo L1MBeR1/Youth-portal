@@ -14,8 +14,12 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+use App\Traits\QueryBuilderTrait;
+use App\Traits\PaginationTrait;
+
 class OrganizationController extends Controller
 {
+    use PaginationTrait, QueryBuilderTrait;
     /**
      * Создать
      * 
@@ -32,16 +36,44 @@ class OrganizationController extends Controller
             return $this->errorResponse('Нет прав', [], 403);
         }
 
-        $organization = Organization::create($request->validated());  
+        $organization = Organization::create($request->validated() + [
+            'status' => 'moderating',
+        ]);
 
-        return $this->successResponse($organization, 'Организация создана', 201);
+        // Добавляем запись в смежную таблицу
+        $organization->users()->attach(Auth::user()->id);
+
+        return $this->successResponse($organization, 'Организация создана и отправлена на модерацию', 201);
+    }
+
+    public function updateStatus(int $id, Request $request): \Illuminate\Http\JsonResponse
+    {
+        $newStatus = $request->input('status');
+        $organization = Organization::find($id);
+
+        if (!$organization) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!Auth::user()->can('updateStatus', $organization)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], 403);
+        }
+
+        if (!in_array($newStatus, Organization::STATUSES)) {
+            return $this->errorResponse('Invalid status entered', [], 404);
+        }
+
+        $organization->update(['status' => $newStatus]);
+
+        return $this->successResponse(['organizations' => $organization], 'Podcast status updated successfully', 200);
     }
 
 
+
 /**
-     * Список
+     * Поиск
      * 
-     * Получение списка организаций
+     * Получение списка организаций (функция для администрации)
      * 
      * @group Организации
      * 
@@ -53,7 +85,6 @@ class OrganizationController extends Controller
      * @urlParam searchValue string Поисковый запрос.
      * @urlParam searchFields string[] Массив столбцов для поиска.
      * @urlParam searchValues string[] Массив значений для поиска.
-     * @urlParam ---tagFilter string Фильтр по тегу в meta описания.
      * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam crtDate string Дата создания (формат: Y-m-d).
@@ -71,29 +102,43 @@ class OrganizationController extends Controller
             return $this->errorResponse('Нет прав на просмотр.', [], 403);
         }
 
-        $perPage = $request->get('per_page', 5);
-        // $userId = $request->query('userId');
-        $currentUser = $request->query('currentUser');
-        $organizationId = $request->query('organizationId');
-        // $withAuthors = $request->query('withAuthors', false);
-
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
-        $searchFields = $request->query('searchFields', []);
-        $searchValues = $request->query('searchValues', []);
-        // $tagFilter = $request->query('tagFilter');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-
-        $updDate = $request->query('updDate');
-        $crtDate = $request->query('crtDate');
-        
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
-
-        $operator = $request->query('operator', 'and');
+        $requiredFields = [
+            'organizations' => [
+                'id', 'name', 'status', 'address'
+            ],
+        ];
 
         $query = Organization::query();
+        $this->selectFields($query, $requiredFields);
+        $this->applyFilters($query, $request, false);
+        $this->applySearch($query, $request);
+        $events = $query->paginate($request->get('per_page', 10));
+        $paginationData = $this->makePaginationData($events);
+        return $this->successResponse($events->items(), $paginationData, 200);
+
+        // $perPage = $request->get('per_page', 5);
+        // // $userId = $request->query('userId');
+        // $currentUser = $request->query('currentUser');
+        // $organizationId = $request->query('organizationId');
+        // // $withAuthors = $request->query('withAuthors', false);
+
+        // $searchColumnName = $request->query('searchColumnName');
+        // $searchValue = $request->query('searchValue');
+        // $searchFields = $request->query('searchFields', []);
+        // $searchValues = $request->query('searchValues', []);
+        // // $tagFilter = $request->query('tagFilter');
+        // $crtFrom = $request->query('crtFrom');
+        // $crtTo = $request->query('crtTo');
+
+        // $updDate = $request->query('updDate');
+        // $crtDate = $request->query('crtDate');
+        
+        // $updFrom = $request->query('updFrom');
+        // $updTo = $request->query('updTo');
+
+        // $operator = $request->query('operator', 'and');
+
+        // $query = Organization::query();
 
         // if ($withAuthors) {
         //     $query->join('user_metadata', 'blogs.author_id', '=', 'user_metadata.user_id')
@@ -117,80 +162,80 @@ class OrganizationController extends Controller
         //     $query->where('id', $blogId);
         // }
 
-        if ($organizationId) {
-            $query->where('id', $organizationId);
-        }
+        // if ($organizationId) {
+        //     $query->where('id', $organizationId);
+        // }
 
 
-        if (!empty($searchFields) && !empty($searchValues)) {
-            if ($operator === 'or') {
-                $query->where(function ($query) use ($searchFields, $searchValues) {
-                    foreach ($searchFields as $index => $field) {
-                        $value = $searchValues[$index] ?? null;
-                        if ($value) {
-                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
-                        }
-                    }
-                });
-            } else {
-                foreach ($searchFields as $index => $field) {
-                    $value = $searchValues[$index] ?? null;
-                    if ($value) {
-                        $query->where($field, 'LIKE', '%' . $value . '%');
-                    }
-                }
-            }
-        }
+        // if (!empty($searchFields) && !empty($searchValues)) {
+        //     if ($operator === 'or') {
+        //         $query->where(function ($query) use ($searchFields, $searchValues) {
+        //             foreach ($searchFields as $index => $field) {
+        //                 $value = $searchValues[$index] ?? null;
+        //                 if ($value) {
+        //                     $query->orWhere($field, 'LIKE', '%' . $value . '%');
+        //                 }
+        //             }
+        //         });
+        //     } else {
+        //         foreach ($searchFields as $index => $field) {
+        //             $value = $searchValues[$index] ?? null;
+        //             if ($value) {
+        //                 $query->where($field, 'LIKE', '%' . $value . '%');
+        //             }
+        //         }
+        //     }
+        // }
 
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
+        // if ($searchColumnName) {
+        //     $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        // }
 
         // if ($tagFilter) {
         //     $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
         // }
 
-        $crtFrom = $this->parseDate($crtFrom);
-        $crtTo = $this->parseDate($crtTo);
-        $updFrom = $this->parseDate($updFrom);
-        $updTo = $this->parseDate($updTo);
+        // $crtFrom = $this->parseDate($crtFrom);
+        // $crtTo = $this->parseDate($crtTo);
+        // $updFrom = $this->parseDate($updFrom);
+        // $updTo = $this->parseDate($updTo);
 
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('created_at', '<=', $crtTo);
-        }
+        // if ($crtFrom && $crtTo) {
+        //     $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        // } elseif ($crtFrom) {
+        //     $query->where('created_at', '>=', $crtFrom);
+        // } elseif ($crtTo) {
+        //     $query->where('created_at', '<=', $crtTo);
+        // }
 
-        if ($updFrom && $updTo) {
-            $query->whereBetween('updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('updated_at', '<=', $updTo);
-        }
+        // if ($updFrom && $updTo) {
+        //     $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        // } elseif ($updFrom) {
+        //     $query->where('updated_at', '>=', $updFrom);
+        // } elseif ($updTo) {
+        //     $query->where('updated_at', '<=', $updTo);
+        // }
 
-        if ($crtDate) {
-            $query->whereDate('created_at', '=', $crtDate);
-        }
+        // if ($crtDate) {
+        //     $query->whereDate('created_at', '=', $crtDate);
+        // }
     
-        if ($updDate) {
-            $query->whereDate('updated_at', '=', $updDate);
-        }
+        // if ($updDate) {
+        //     $query->whereDate('updated_at', '=', $updDate);
+        // }
 
-        $organizations = $query->paginate($perPage);
+        // $organizations = $query->paginate($perPage);
 
-        $paginationData = [
-            'current_page' => $organizations->currentPage(),
-            'from' => $organizations->firstItem(),
-            'last_page' => $organizations->lastPage(),
-            'per_page' => $organizations->perPage(),
-            'to' => $organizations->lastItem(),
-            'total' => $organizations->total(),
-        ];
+        // $paginationData = [
+        //     'current_page' => $organizations->currentPage(),
+        //     'from' => $organizations->firstItem(),
+        //     'last_page' => $organizations->lastPage(),
+        //     'per_page' => $organizations->perPage(),
+        //     'to' => $organizations->lastItem(),
+        //     'total' => $organizations->total(),
+        // ];
 
-        return $this->successResponse($organizations->items(), $paginationData, 200);
+        // return $this->successResponse($organizations->items(), $paginationData, 200);
     }
 
 

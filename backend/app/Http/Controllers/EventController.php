@@ -17,12 +17,21 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+use App\Traits\QueryBuilderTrait;
+use App\Traits\PaginationTrait;
+
+
 class EventController extends Controller
 {
+    use QueryBuilderTrait, PaginationTrait;
+    //TODO: Сделать метод для получения списка событий 
+    // с пагинацией с минимальным набором параметров
+
+    
     /**
-     * Список (новый)
+     * Поиск
      * 
-     * Получение списка событий (новый. использовать этот метод)
+     * Получение списка событий (функция для администрации)
      * 
      * @group События
      * @authenticated
@@ -49,128 +58,157 @@ class EventController extends Controller
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function getEvents(Request $request)
-    {//TODO: Переделать
-        if (!Auth::user()->can('view', Event::class)) {
+    {
+        
+        // TODO: Что-то сделать с трейтом
+
+
+        if (!Auth::user()->can('viewAny', Event::class)) {
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-        $perPage = $request->get('per_page', 5);
-        $userId = $request->query('userId');
-        $currentUser = $request->query('currentUser');
-        $eventId = $request->query('eventId');
-        $withAuthors = $request->query('withAuthors', false);
-        $searchColumnName = $request->query('searchColumnName');
-        $searchValue = $request->query('searchValue');
-        $searchFields = $request->query('searchFields', []);
-        $searchValues = $request->query('searchValues', []);
-        $tagFilter = $request->query('tagFilter');
-        $crtFrom = $request->query('crtFrom');
-        $crtTo = $request->query('crtTo');
-        $updFrom = $request->query('updFrom');
-        $updTo = $request->query('updTo');
-
-        $updDate = $request->query('updDate');
-        $crtDate = $request->query('crtDate');
-
-        $operator = $request->query('operator', 'and');
-
-        $query = Event::query();
-
-        if ($withAuthors) {
-            $query->join('user_metadata', 'events.author_id', '=', 'user_metadata.user_id')
-                ->select('events.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
-        }
-
-        if ($userId) {
-            $user = User::find($userId);
-            if (!$user) {
-                return $this->errorResponse('User not found', [], 404);
-            }
-            $query->where('author_id', $userId);
-        } elseif ($currentUser) {
-            $currentUser = Auth::user();
-            if ($currentUser) {
-                $query->where('author_id', $currentUser->id);
-            } else {
-                return $this->errorResponse('Current user not found', [], 404);
-            }
-        } elseif ($eventId) {
-            $query->where('id', $eventId);
-            $event = $query->first(); 
-            if ($event) {
-                $event->increment('views'); 
-            }
-        }
-
-        if (!empty($searchFields) && !empty($searchValues)) {
-            if ($operator === 'or') {
-                $query->where(function ($query) use ($searchFields, $searchValues) {
-                    foreach ($searchFields as $index => $field) {
-                        $value = $searchValues[$index] ?? null;
-                        if ($value) {
-                            $query->orWhere($field, 'LIKE', '%' . $value . '%');
-                        }
-                    }
-                });
-            } else {
-                foreach ($searchFields as $index => $field) {
-                    $value = $searchValues[$index] ?? null;
-                    if ($value) {
-                        $query->where($field, 'LIKE', '%' . $value . '%');
-                    }
-                }
-            }
-        }
-
-        if ($searchColumnName) {
-            $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        }
-
-        if ($tagFilter) {
-            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
-        }
-
-        $crtFrom = $this->parseDate($crtFrom);
-        $crtTo = $this->parseDate($crtTo);
-        $updFrom = $this->parseDate($updFrom);
-        $updTo = $this->parseDate($updTo);
-
-        if ($crtFrom && $crtTo) {
-            $query->whereBetween('created_at', [$crtFrom, $crtTo]);
-        } elseif ($crtFrom) {
-            $query->where('created_at', '>=', $crtFrom);
-        } elseif ($crtTo) {
-            $query->where('created_at', '<=', $crtTo);
-        }
-
-        if ($updFrom && $updTo) {
-            $query->whereBetween('updated_at', [$updFrom, $updTo]);
-        } elseif ($updFrom) {
-            $query->where('updated_at', '>=', $updFrom);
-        } elseif ($updTo) {
-            $query->where('updated_at', '<=', $updTo);
-        }
-
-        if ($crtDate) {
-            $query->whereDate('created_at', '=', $crtDate);
-        }
-    
-        if ($updDate) {
-            $query->whereDate('updated_at', '=', $updDate);
-        }
-
-        $events = $query->paginate($perPage);
-
-        $paginationData = [
-            'current_page' => $events->currentPage(),
-            'from' => $events->firstItem(),
-            'last_page' => $events->lastPage(),
-            'per_page' => $events->perPage(),
-            'to' => $events->lastItem(),
-            'total' => $events->total(),
+        $requiredFields = [
+            'events' => [
+                'id', 'name', 'description', 'address', 'longitude', 'latitude', 'start_time', 'end_time', 'views', 'author_id', 'project_id'
+            ],
+            'user_metadata' => [
+                //TODO: Определиться с полями
+                'nickname', 'profile_image_uri'
+            ],
         ];
 
+        $query = Event::query();
+        $this->selectFields($query, $requiredFields);
+        $this->applyFilters($query, $request, false);
+        $this->applySearch($query, $request);
+        $events = $query->paginate($request->get('per_page', 10));
+        $paginationData = $this->makePaginationData($events);
         return $this->successResponse($events->items(), $paginationData, 200);
+
+        // $perPage = $request->get('per_page', 5);
+        // $userId = $request->query('userId');
+        // $currentUser = $request->query('currentUser');
+        // $eventId = $request->query('eventId');
+        // $withAuthors = $request->query('withAuthors', false);
+        // $searchColumnName = $request->query('searchColumnName');
+        // $searchValue = $request->query('searchValue');
+        // $searchFields = $request->query('searchFields', []);
+        // $searchValues = $request->query('searchValues', []);
+        // $tagFilter = $request->query('tagFilter');
+        // $crtFrom = $request->query('crtFrom');
+        // $crtTo = $request->query('crtTo');
+        // $updFrom = $request->query('updFrom');
+        // $updTo = $request->query('updTo');
+
+        // $updDate = $request->query('updDate');
+        // $crtDate = $request->query('crtDate');
+
+        // $operator = $request->query('operator', 'and');
+
+        // $query = Event::query();
+
+        // if ($withAuthors) {
+        //     $query->join('user_metadata', 'events.author_id', '=', 'user_metadata.user_id')
+        //         ->select('events.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
+        // }
+
+        // if ($userId) {
+        //     $user = User::find($userId);
+        //     if (!$user) {
+        //         return $this->errorResponse('User not found', [], 404);
+        //     }
+        //     $query->where('author_id', $userId);
+        // } elseif ($currentUser) {
+        //     $currentUser = Auth::user();
+        //     if ($currentUser) {
+        //         $query->where('author_id', $currentUser->id);
+        //     } else {
+        //         return $this->errorResponse('Current user not found', [], 404);
+        //     }
+        // } elseif ($eventId) {
+        //     $query->where('id', $eventId);
+        //     $event = $query->first(); 
+        //     if ($event) {
+        //         $event->increment('views'); 
+        //     }
+        // }
+
+        // if (!empty($searchFields) && !empty($searchValues)) {
+        //     if ($operator === 'or') {
+        //         $query->where(function ($query) use ($searchFields, $searchValues) {
+        //             foreach ($searchFields as $index => $field) {
+        //                 $value = $searchValues[$index] ?? null;
+        //                 if ($value) {
+        //                     $query->orWhere($field, 'LIKE', '%' . $value . '%');
+        //                 }
+        //             }
+        //         });
+        //     } else {
+        //         foreach ($searchFields as $index => $field) {
+        //             $value = $searchValues[$index] ?? null;
+        //             if ($value) {
+        //                 $query->where($field, 'LIKE', '%' . $value . '%');
+        //             }
+        //         }
+        //     }
+        // }
+
+        // if ($searchColumnName) {
+        //     $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        // }
+
+        // if ($tagFilter) {
+        //     $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+        // }
+
+        // $crtFrom = $this->parseDate($crtFrom);
+        // $crtTo = $this->parseDate($crtTo);
+        // $updFrom = $this->parseDate($updFrom);
+        // $updTo = $this->parseDate($updTo);
+
+        // if ($crtFrom && $crtTo) {
+        //     $query->whereBetween('created_at', [$crtFrom, $crtTo]);
+        // } elseif ($crtFrom) {
+        //     $query->where('created_at', '>=', $crtFrom);
+        // } elseif ($crtTo) {
+        //     $query->where('created_at', '<=', $crtTo);
+        // }
+
+        // if ($updFrom && $updTo) {
+        //     $query->whereBetween('updated_at', [$updFrom, $updTo]);
+        // } elseif ($updFrom) {
+        //     $query->where('updated_at', '>=', $updFrom);
+        // } elseif ($updTo) {
+        //     $query->where('updated_at', '<=', $updTo);
+        // }
+
+        // if ($crtDate) {
+        //     $query->whereDate('created_at', '=', $crtDate);
+        // }
+    
+        // if ($updDate) {
+        //     $query->whereDate('updated_at', '=', $updDate);
+        // }
+
+        // $events = $query->paginate($perPage);
+
+        // $paginationData = [
+        //     'current_page' => $events->currentPage(),
+        //     'from' => $events->firstItem(),
+        //     'last_page' => $events->lastPage(),
+        //     'per_page' => $events->perPage(),
+        //     'to' => $events->lastItem(),
+        //     'total' => $events->total(),
+        // ];
+
+        // return $this->successResponse($events->items(), $paginationData, 200);
+
+
+
+
+
+
+
     }
 
     /**
@@ -180,26 +218,26 @@ class EventController extends Controller
      * @param string|null $date
      * @return string|null
      */
-    private function parseDate($date)
-    {
-        if (!$date) {
-            return null;
-        }
+    // private function parseDate($date)
+    // {
+    //     if (!$date) {
+    //         return null;
+    //     }
 
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            return $date . ' 00:00:00';
-        }
+    //     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+    //         return $date . ' 00:00:00';
+    //     }
 
-        return $date;
-    }
+    //     return $date;
+    // }
 
     /**
-     * Создать 
-     * 
+     * Создать
+     *
      * Создание нового события
-     * 
+     *
      * @group События
-     * 
+     *
      * @authenticated
      */
     //Добавление мероприятия с привязкой к определенному проекту (если projectId указан в теле запроса) и без привязки к проекту (если projectId не указан)
@@ -225,21 +263,7 @@ class EventController extends Controller
         return $this->successResponse(['events' => $event], 'Мероприятие успешно создано', 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Event $event)
-    {
-        //
-    }
+  
 
     /**
      * Update the specified resource in storage.
@@ -257,27 +281,22 @@ class EventController extends Controller
         }
 
         if (!Auth::user()->can('update', $event)) {
-            return $this->errorResponse('Нет прав на обновление мероприятия', [], 403);
+            return $this->errorResponse('Нет прав на обновление мероприятия', [], Response::HTTP_FORBIDDEN);
         }
 
         $event->update($request->validated());
 
-        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', 200); 
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', Response::HTTP_OK); 
     }
 
-/**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
 
     /**
      * Удалить
-     * 
+     *
      * Удаление существующего события
-     * 
+     *
      * @group События
-     * 
+     *
      * @authenticated
      */
     public function destroy(int $id): \Illuminate\Http\JsonResponse
@@ -289,11 +308,11 @@ class EventController extends Controller
         }
 
         if (!Auth::user()->can('delete', $event)) {
-            return $this->errorResponse('Нет прав на удаление мероприятия', [], 403);
+            return $this->errorResponse('Нет прав на удаление мероприятия', [], Response::HTTP_FORBIDDEN);
         }
 
         $event->delete();
 
-        return $this->successResponse(['events' => $event], 'Мероприятие успешно удалено', 200);
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно удалено', Response::HTTP_OK);
     }
 }

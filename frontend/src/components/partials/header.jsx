@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HeaderProfile from './partialsComponents/headerProfile.jsx';
 
-import { useColorScheme } from '@mui/joy/styles';
+import { useColorScheme, useTheme } from '@mui/joy/styles';
 
 import Box from '@mui/joy/Box';
 import DialogTitle from '@mui/joy/DialogTitle';
@@ -21,7 +21,8 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
-import logo from '../../img/logo.png';
+import logoLight from '../../img/logoLight.svg';
+import logoDark from '../../img/logoDark.svg';
 function ColorSchemeToggle() {
 	const { mode, setMode } = useColorScheme();
 	const [mounted, setMounted] = useState(false);
@@ -33,48 +34,54 @@ function ColorSchemeToggle() {
 		return <IconButton size='sm' variant='outlined' color='primary' />;
 	}
 	return (
-		<Tooltip title='Change theme' variant='outlined'>
-			<IconButton
-				id='toggle-mode'
-				size='sm'
-				variant='plain'
-				color='neutral'
-				sx={{ alignSelf: 'center', display: { xs: 'none', md: 'inline-flex' } }}
-				onClick={() => {
-					if (mode === 'light') {
-						setMode('dark');
-					} else {
-						setMode('light');
-					}
-				}}
-			>
-				{mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
-			</IconButton>
-		</Tooltip>
+		<IconButton
+			id='toggle-mode'
+			size='sm'
+			variant='plain'
+			sx={{
+				alignSelf: 'center',
+				display: { xs: 'none', md: 'inline-flex' },
+			}}
+			onClick={() => {
+				if (mode === 'light') {
+					setMode('dark');
+				} else {
+					setMode('light');
+				}
+			}}
+		>
+			{mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
+		</IconButton>
 	);
 }
 
 function Header() {
+	const { mode, systemMode } = useColorScheme();
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
-
 	const handleLink = link => {
 		navigate(link);
 		setOpen(false);
 	};
-
+	const getLogo = () => {
+		if (systemMode) {
+			return systemMode === 'light' ? logoDark : logoLight;
+		}
+		return mode === 'light' ? logoDark : logoLight;
+	};
 	return (
 		<header>
 			<Sheet
+				color='neutral'
 				sx={{
 					display: 'flex',
 					flexGrow: 1,
 					justifyContent: 'space-between',
 					alignItems: 'center',
-					background: 'primary.main',
 					paddingY: '5px',
 					paddingX: { xs: '15px', sm: '20px' },
 					height: '60px',
+					background: 'var(--joy-palette-main-background)',
 					// borderBottom: '1px solid',
 					// borderColor: 'divider',
 					position: 'fixed',
@@ -83,12 +90,6 @@ function Header() {
 					zIndex: 1100,
 				}}
 			>
-				<Link to='/'>
-					<Box paddingTop={'6px'}>
-						<img width='180px' alt='logo' src={logo} />
-						{/* <Typography level='h2'>LOGO</Typography> */}
-					</Box>
-				</Link>
 				<Box
 					sx={{
 						display: { xs: 'inline-flex', md: 'none' },
@@ -98,6 +99,11 @@ function Header() {
 						variant='plain'
 						color='neutral'
 						onClick={() => setOpen(true)}
+						size='lg'
+						sx={theme => ({
+							borderRadius: '10px',
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
 					>
 						<MenuRoundedIcon />
 					</IconButton>
@@ -108,10 +114,9 @@ function Header() {
 					>
 						<ModalClose />
 						<DialogTitle>
-							<Typography fontSize='40px' level='title-lg'>
-								LOGO
-							</Typography>
+							<img width='180px' alt='logo' src={getLogo()} />
 						</DialogTitle>
+						<Stack></Stack>
 						<List
 							size='lg'
 							component='nav'
@@ -125,6 +130,9 @@ function Header() {
 								onClick={() => {
 									handleLink('/blogs');
 								}}
+								sx={theme => ({
+									color: `${theme.vars.palette.neutral['second']}`,
+								})}
 							>
 								{' '}
 								блоги
@@ -133,6 +141,9 @@ function Header() {
 								onClick={() => {
 									handleLink('/news');
 								}}
+								sx={theme => ({
+									color: `${theme.vars.palette.neutral['second']}`,
+								})}
 							>
 								новости
 							</ListItemButton>
@@ -140,12 +151,20 @@ function Header() {
 								onClick={() => {
 									handleLink('/podcasts');
 								}}
+								sx={theme => ({
+									color: `${theme.vars.palette.neutral['second']}`,
+								})}
 							>
 								подкасты
 							</ListItemButton>
 						</List>
 					</Drawer>
 				</Box>
+				<Link to='/'>
+					<Box paddingTop={'6px'}>
+						<img width='180px' alt='logo' src={getLogo()} />
+					</Box>
+				</Link>
 				<Stack
 					direction='row'
 					justifyContent='center'
@@ -156,7 +175,6 @@ function Header() {
 					}}
 				>
 					<Button
-						color='neutral'
 						variant='plain'
 						sx={{
 							borderRadius: '50px',
@@ -168,12 +186,14 @@ function Header() {
 						<Typography
 							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
 							fontWeight={'700'}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
 						>
 							блоги
 						</Typography>
 					</Button>
 					<Button
-						color='neutral'
 						variant='plain'
 						sx={{
 							borderRadius: '50px',
@@ -184,13 +204,15 @@ function Header() {
 					>
 						<Typography
 							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
-							fontWeight={'700'}
+							fontWeight={'900'}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
 						>
 							новости
 						</Typography>
 					</Button>
 					<Button
-						color='neutral'
 						variant='plain'
 						sx={{
 							borderRadius: '50px',
@@ -202,6 +224,9 @@ function Header() {
 						<Typography
 							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
 							fontWeight={'700'}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
 						>
 							подкасты
 						</Typography>
@@ -211,13 +236,15 @@ function Header() {
 					direction='row'
 					justifyContent='center'
 					alignItems='center'
-					spacing={1}
+					spacing={1.5}
 					height='100%'
-					sx={{
-						display: { xs: 'none', md: 'flex' },
-					}}
+					sx={
+						{
+							// display: { xs: 'none', md: 'flex' },
+						}
+					}
 				>
-					{/* <ColorSchemeToggle /> */}
+					<ColorSchemeToggle />
 					<HeaderProfile />
 				</Stack>
 			</Sheet>

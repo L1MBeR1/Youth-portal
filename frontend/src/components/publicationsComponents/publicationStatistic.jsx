@@ -46,7 +46,7 @@ export const PublicationStatistic = ({
 			<Stack direction={'row'} spacing={2}>
 				<Button
 					variant={isLiked ? 'soft' : 'plain'}
-					color={isLiked ? 'success' : 'neutral'}
+					color={isLiked ? 'primary' : 'neutral'}
 					sx={{
 						borderRadius: '50px',
 						'--Button-gap': '5px',
@@ -55,7 +55,7 @@ export const PublicationStatistic = ({
 					onClick={handleLikeTheBlog}
 					disabled={profileData ? false : true}
 				>
-					<Typography color={isLiked ? 'success' : 'neutral'}>
+					<Typography color={isLiked ? 'primary' : 'neutral'}>
 						{likesCounter}
 					</Typography>
 				</Button>

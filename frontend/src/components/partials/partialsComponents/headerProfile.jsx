@@ -16,7 +16,7 @@ import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 
 import LogoutIcon from '@mui/icons-material/Logout';
-import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -39,7 +39,7 @@ function HeaderProfile() {
 			<Dropdown>
 				<MenuButton
 					slots={{ root: Avatar }}
-					slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+					slotProps={{ root: { color: 'neutral' } }}
 					sx={{
 						cursor: 'pointer',
 					}}
@@ -97,28 +97,38 @@ function HeaderProfile() {
 				<CircularProgress
 					color='neutral'
 					size='sm'
-					variant='solid'
 					sx={{ '--CircularProgress-size': '30px' }}
 				/>
 			) : profileData ? (
 				<>{profileMenu()}</>
 			) : (
 				<Link to='/login'>
-					<Button
-						color='neutral'
-						sx={{
-							borderRadius: '50px',
-							backgroundColor: 'black',
-						}}
-					>
-						<Typography
-							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
-							fontWeight={'700'}
-							textColor={'white'}
+					<Box sx={{ display: { xs: 'none', md: 'block' } }}>
+						<Button
+							color={'primary'}
+							sx={{
+								borderRadius: '50px',
+							}}
 						>
-							Войти в аккаунт
-						</Typography>
-					</Button>
+							<Typography
+								fontSize={'clamp(0.75rem,0.9vw, 1.4rem)'}
+								fontWeight={'700'}
+								level={'button'}
+							>
+								Войти в аккаунт
+							</Typography>
+						</Button>
+					</Box>
+					<Box sx={{ display: { xs: 'block', md: 'none' } }}>
+						<IconButton
+							size='lg'
+							sx={{
+								borderRadius: '10px',
+							}}
+						>
+							<AccountCircleIcon />
+						</IconButton>
+					</Box>
 				</Link>
 			)}
 		</Box>

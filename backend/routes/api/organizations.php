@@ -12,4 +12,5 @@ Route::group([
     Route::post('', [OrganizationController::class, 'store']);
     Route::put('{id}', [OrganizationController::class, 'update']);
     Route::delete('{id}', [OrganizationController::class, 'destroy']);
+    Route::put('{id}/status', [OrganizationController::class, 'updateStatus']);
 });

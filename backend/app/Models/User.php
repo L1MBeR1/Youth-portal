@@ -92,5 +92,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             'permissions' => $permissions,
         ];
     }
+    public function organizations()
+{
+    return $this->belongsToMany(Organization::class, 'organizations_has_users', 'user_id', 'organization_id');
+}
 
 }

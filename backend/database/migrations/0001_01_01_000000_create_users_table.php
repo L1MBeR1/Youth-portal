@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->increments('id');
             $table->text('password');
             $table->text('email')->nullable()->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->timestampTz('email_verified_at')->nullable();
             $table->text('phone')->nullable()->unique();
             $table->timestampTz('phone_verified_at')->nullable();
             // $table->timestamp('phone_verified_at')->nullable();

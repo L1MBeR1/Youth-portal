@@ -46,7 +46,6 @@ const BlogCart = ({ data }) => {
 					transform: 'scale(1.075)',
 				},
 				gap: '0',
-				outline: '1px solid black',
 			}}
 			onClick={() => handleRedirect(data.id)}
 		>
@@ -104,7 +103,6 @@ const BlogCart = ({ data }) => {
 					>
 						<Typography
 							level='body-md'
-							color={'black'}
 							fontSize={'clamp(0.8rem,2.9vw, 1.1rem)'}
 						>
 							{data.description && data.description.desc}

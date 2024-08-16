@@ -1,31 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Typography, Button, Slider, AspectRatio, Skeleton } from '@mui/joy';
+import { Box, Typography, Button, Slider, AspectRatio, Skeleton, LinearProgress } from '@mui/joy';
 import WaveSurfer from 'wavesurfer.js';
 import '../styles.css';
 
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+
+import { getFile } from '../../../api/files.js';
 
 // npm install wavesurfer.js
-const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
-
-async function fetchAndStoreFile(filename) {
-    try {
-        const response = await fetch(`${API_URL}/proxy/audio?filename=${filename}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const blob = await response.blob();
-        return URL.createObjectURL(blob);
-    } catch (error) {
-        console.error('Error fetching the file:', error);
-        throw error;
-    }
-}
 
 function AudioPlayer({ title, filename, pictureURL }) {
     const [playing, setPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [volume, setVolume] = useState(0.5);
+    const [imageUrl, setImageUrl] = useState(null);
     const waveSurferRef = useRef(null);
     const waveFormRef = useRef(null);
     const [loadingImage, setLoadingImage] = useState(true);
@@ -34,7 +24,7 @@ function AudioPlayer({ title, filename, pictureURL }) {
         let isMounted = true;
 
         const loadAudio = async () => {
-            const audioUrl = await fetchAndStoreFile(filename);
+            const audioUrl = await getFile({ contentType: 'podcasts', contentId: '1', fileName: 'file.mp3' });
 
             if (isMounted) {
                 if (waveSurferRef.current) {
@@ -43,9 +33,9 @@ function AudioPlayer({ title, filename, pictureURL }) {
 
                 waveSurferRef.current = WaveSurfer.create({
                     container: waveFormRef.current,
-                    waveColor: '#0390C8',
-                    progressColor: 'orange',
-                    height: 50,
+                    waveColor: '#16697A',
+                    progressColor: '#DB6400',
+                    height: 40,
                     responsive: true,
                     normalize: true,
                     backend: 'MediaElement'
@@ -67,7 +57,19 @@ function AudioPlayer({ title, filename, pictureURL }) {
             }
         };
 
+        const loadImage = async () => {
+            try {
+                const imageUrl = await getFile({ contentType: 'podcasts', contentId: '1', fileName: '1.png' });
+                if (isMounted) {
+                    setImageUrl(imageUrl);
+                }
+            } catch (error) {
+                console.error('Error loading the image:', error);
+            }
+        };
+
         loadAudio();
+        loadImage();
 
         return () => {
             isMounted = false;
@@ -93,22 +95,28 @@ function AudioPlayer({ title, filename, pictureURL }) {
 
     const handleImageLoad = () => setLoadingImage(false);
 
+    // const progress = (currentTime / duration) * 100 || 0; // Рассчитываем процент прогресса
+
     return (
         <Box
             sx={{
-                // width: '100vw',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
             }}
         >
 
-
-            {/* Верхняя строка с текущим временем */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                <Typography>{Math.floor(currentTime)}s</Typography>
-                <Typography>{Math.floor(duration)}s</Typography>
-            </Box>
+            {/* Верхняя строка с текущим временем и прогрессом */}
+            {/* <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                <Typography sx={{ minWidth: '40px' }}>{Math.floor(currentTime)}s</Typography>
+                <Box sx={{ flexGrow: 1, mx: 2 }}>
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress} // Передаем динамически рассчитанный прогресс
+                    />
+                </Box>
+                <Typography sx={{ minWidth: '40px' }}>{Math.floor(duration)}s</Typography>
+            </Box> */}
 
             {/* Основная часть */}
             <Box
@@ -120,42 +128,49 @@ function AudioPlayer({ title, filename, pictureURL }) {
                     padding: 2,
                     borderRadius: 2,
                     boxShadow: '0 0.5rem 0.5rem rgba(0, 0, 0, 0.2)',
+                    // width: '100%',
                 }}
             >
-
                 <Button
                     onClick={togglePlayPause}
                     sx={{
                         color: 'var(--color-button-secondary)',
+                        backgroundColor: playing ? '#DB6400' : '#16697A',
                         fontSize: '1.5rem',
                         marginRight: 2,
                         flexShrink: 0,
+                        height: 60,
+                        width: 60, 
+                        borderRadius: '12px', 
+                        '&:hover': {
+                            backgroundColor: playing ? '#c55300' : '#145f6b',
+                        }
                     }}
                     variant="solid"
                 >
-                    {!playing ? '▶' : '⏸'}
+                    {/* {playing ? '⏸' : '▶'} */}
+                    {playing ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
                 </Button>
+
                 <AspectRatio ratio="1" sx={{ minWidth: 60 }}>
                     <Skeleton loading={loadingImage} variant="rectangular" sx={{ width: '100%', height: '100%' }}>
                         <img
-                            src={pictureURL || ''}
+                            src={imageUrl || ''}
                             alt={title}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            style={{ width: '100%', height: '100%', marginRight: '20px', objectFit: 'cover' }}
                             onLoad={handleImageLoad}
                         />
                     </Skeleton>
                 </AspectRatio>
 
-
-                <Box sx={{
-                        maxWidth: "100px"
-                    }}>
+                <Box sx={{ maxWidth: "100px" }}>
                     <Typography
-                        level="h2"
+                        level="h3"
                         sx={{
                             fontWeight: 700,
                             color: 'var(--color-text)',
-                            marginRight: 'auto',
+                            marginLeft: 1,
+                            marginRight: 5,
                             flexShrink: 0,
                             maxWidth: 300,
                         }}
@@ -166,8 +181,10 @@ function AudioPlayer({ title, filename, pictureURL }) {
 
 
 
-                <Box sx={{ flexGrow: 1, marginX: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', flexGrow: 1, marginLeft: 0 }}>
+                    {/* <Typography sx={{ marginLeft: 4, display: 'flex', alignItems: 'center' }}>{Math.floor(currentTime)}s</Typography> */}
                     <div className="wavesurfer" ref={waveFormRef} />
+                    {/* <Typography sx={{ display: 'flex', alignItems: 'center' }}>{Math.floor(duration)}s</Typography> */}
                 </Box>
 
 
@@ -180,18 +197,29 @@ function AudioPlayer({ title, filename, pictureURL }) {
                         flexShrink: 0,
                     }}
                 >
-                    <Typography sx={{ marginRight: 2, color: 'var(--color-text)' }}>Volume</Typography>
+                    <Typography sx={{ color: '#000', marginRight: 1 }}>Громкость</Typography>
                     <Slider
                         value={volume}
                         onChange={handleVolumeChange}
                         min={0}
                         max={1}
                         step={0.01}
-                        sx={{ width: 150 }}
+                        sx={{
+                            width: 150,
+                            '& .MuiSlider-thumb': {
+                                backgroundColor: '#DB6400',
+                            },
+                            '& .MuiSlider-track': {
+                                backgroundColor: '#16697A',
+                            },
+                            '& .MuiSlider-rail': {
+                                backgroundColor: '#ccc',
+                            }
+                        }}
                     />
                 </Box>
             </Box>
-        </Box>
+        </Box >
     );
 }
 

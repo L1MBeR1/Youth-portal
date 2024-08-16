@@ -1,5 +1,10 @@
 <?php
 
+// TODO: сделать универсальным для всех контроллеров
+// Исправить выбор лайков для авторизаованных пользователей
+// Исправить цепочки параметров
+
+
 namespace App\Traits;
 
 use Carbon\Carbon;
@@ -10,6 +15,30 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait QueryBuilderTrait
 {
+    /**
+     * Применение прочих фильтров
+     */
+    private function applyOtherFilters($query, Request $request, $onlyPublished): void
+    {
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        if ($onlyPublished) {
+            $query->where('status', 'published');
+        }
+    }
+
+
+
+
     /**
      * Создание запроса для публикаций
      */
@@ -39,7 +68,7 @@ trait QueryBuilderTrait
     private function selectFields($query, $requiredFields, $userId = null): void
     {
         $selectFields = [];
-        $keys = array_keys($requiredFields); 
+        $keys = array_keys($requiredFields);
 
         foreach ($requiredFields as $tableName => $fields) {
             foreach ($fields as $field) {
@@ -80,30 +109,30 @@ trait QueryBuilderTrait
     {
         $selectFields = [];
         $keys = array_keys($requiredFields);
-        
+
         foreach ($requiredFields as $tableName => $fields) {
             foreach ($fields as $field) {
                 $selectFields[] = "{$tableName}.{$field}";
             }
         }
-        
+
         $query = $modelClass::where("{$keys[0]}.id", $publicationId);
-        
+
         // Проверка наличия нескольких таблиц для join
         if (count($keys) > 1) {
             $query->join($keys[1], "{$keys[0]}.author_id", '=', "{$keys[1]}.user_id");
         }
-        
+
         $query->select($selectFields);
 
         if ($userId) {
-        
+
             $type = substr($keys[0], 0, -1);
             $type = ucfirst($type);
             $type = "App\Models\\$type";
 
             Log::info($type);
-        
+
             // Добавляем поле is_liked в выборку
             $query->addSelect(DB::raw(
                 "(EXISTS (
@@ -114,25 +143,25 @@ trait QueryBuilderTrait
                       AND likes.user_id = {$userId}
                 )) AS is_liked"
             ));
-        
-        
+
+
             // Добавляем поля для группировки
             $arr = [];
             foreach ($requiredFields[$keys[1]] as $value) {
                 $arr[] = $value;
             }
-        
+
             $query->groupBy("{$keys[0]}.id");
             foreach ($arr as $field) {
                 $query->groupBy($field);
             }
         }
-        
-        
-        
 
 
-        return $query->first(); 
+
+
+
+        return $query->first();
     }
 
 
@@ -179,26 +208,7 @@ trait QueryBuilderTrait
     }
 
 
-    /**
-     * Применение прочих фильтров
-     */
-    private function applyOtherFilters($query, Request $request, $onlyPublished): void
-    {
-        $orderBy = $request->query('orderBy');
-        $orderDirection = $request->query('orderDir');
-        if ($status = $request->query('status')) {
-            $query->where('status', $status);
-        }
-        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
-            $query->orderBy($orderBy, $orderDirection ?? 'desc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
 
-        if ($onlyPublished) {
-            $query->where('status', 'published');
-        }
-    }
 
 
 

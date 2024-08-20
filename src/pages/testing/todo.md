@@ -1,0 +1,1 @@
+- [ ] Сделать https://dribbble.com/shots/20728028-Resume-Builder

@@ -30,6 +30,15 @@ import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
 
+
+// <====== TEST =======>
+import BlogWrapper from './pages/testing/BlogWrapper';
+import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
+import BlogCreatorV3 from './pages/testing/v3/BlogCreator';
+// <===================>
+
+
+
 //Роуты
 import GuestRoute from './routes/guestRoute';
 import NotGuestRoute from './routes/notGuestRoute';
@@ -72,6 +81,15 @@ function App() {
 							path='recovery'
 							element={<GuestRoute element={<Recovery />} />}
 						/>
+
+						{/* TODO: ! 
+							Сделать маршрут для роли blogger
+							/editor
+						*/}
+						<Route path='/test_blog_creator' element={<BlogWrapper />}/>
+						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />}/>
+						<Route path='/test_blog_creator_v3' element={<BlogCreatorV3 />}/>
+
 					</Route>
 
 					<Route

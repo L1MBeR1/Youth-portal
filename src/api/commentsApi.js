@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = `http://${process.env.REACT_APP_SERVER_IP}/api`;
+const API_URL = `${process.env.REACT_APP_HTTP_PROTOCOL}://${process.env.REACT_APP_SERVER_IP}/api`;
 
 
 export const getCommentsForResource = async (token,resource_type, resource_id,params) => {

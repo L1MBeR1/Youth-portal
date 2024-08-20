@@ -1,3 +1,7 @@
+a {
+	color: var(--joy-palette-main-primary) !important;
+}
+
 .layout {
 	display: flex;
 	min-height: 100vh;
@@ -25,4 +29,34 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+.leaflet-control-attribution {
+	margin-right: 15px !important;
+}
+.leaflet-control-zoom {
+	margin-left: 20px !important;
+	margin-top: 20px !important;
+}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	color: var(--joy-palette-main-primary) !important;
+}
+/* .verticalCarousel{
+} */
+.slick-vertical {
+	width: 100% !important;
+	flex-grow: 1 !important;
+}
+.swiper {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.swiper-slide {
+	display: flex !important;
+	height: auto !important;
+	justify-content: center;
+	align-items: center;
 }

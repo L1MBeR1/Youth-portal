@@ -1,11 +1,15 @@
 export const lightPalette={
 		palette: {
 			main:{
-				text:"#00030F",
-				background:"#f5f7fa",
-				primary:"#3C59DD",
+				text:"#121212",
+				text2:"#878787",
+				text3:"#4e4e4e",
 
-				surface1:'#F0F2F9'
+				background:"#fffcf5",
+				primary:"#1E46E6",
+
+				surface0:'#121212',
+				surface1:'#F2EEE3'
 			},
 			neutral: {
 
@@ -22,16 +26,18 @@ export const lightPalette={
 
 				solidBg: 'var(--joy-palette-main-primary)',
    			solidBorder: 'var(--joy-palette-main-primary)',
-    		solidHoverBg: '#404d85',//TODO: Свет при наведении добавить нормальный
-    		solidHoverBorder: '#404d85',
+    		solidHoverBg: '#1e389f',//TODO: Свет при наведении добавить нормальный
+    		solidHoverBorder: '#1e389f',
     		solidActiveBg: 'var(--joy-palette-main-primary)',
     		solidActiveBorder: 'var(--joy-palette-main-primary)',
+								500:"#1E46E6"
 			},
 			text:{
 				primary:'var(--joy-palette-main-text)',
-				secondary:'var(--joy-palette-main-text)',
+				secondary:'var(--joy-palette-main-text3)',
 				tertiary:'var(--joy-palette-main-text)',
-				icon:'var(--joy-palette-main-text)'
+				icon:'var(--joy-palette-main-text)',
+				inverted:'var(--joy-palette-main-background)',
 			},
 			background:{
 				body:'var(--joy-palette-main-background)',

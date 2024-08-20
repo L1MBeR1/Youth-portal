@@ -111,9 +111,8 @@ function HeaderProfile() {
 							}}
 						>
 							<Typography
-								fontSize={'clamp(0.75rem,0.9vw, 1.4rem)'}
-								fontWeight={'700'}
-								level={'button'}
+								level={'headerButton'}
+								textColor={'var(--joy-palette-staticColors-mainLight)'}
 							>
 								Войти в аккаунт
 							</Typography>

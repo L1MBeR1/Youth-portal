@@ -2,20 +2,21 @@ import React from 'react';
 
 import Stack from '@mui/joy/Stack';
 
-import EventsCartsContainer from '../components/eventContainer/eventsCartsContainer';
-import MapContainer from '../components/map/mapContainer';
-import { Typography, Box, Grid } from '@mui/joy';
+import { Box, Grid, Typography } from '@mui/joy';
+import HomeCard from '../components/homeCard';
 import first from '../img/1.webp';
 import second from '../img/2.webp';
 import third from '../img/3.webp';
-import HomeCard from '../components/homeCard';
+
+import EventContainer from '../components/homeComponents/eventContainer/eventContainer';
 function Home() {
 	return (
 		<Stack
 			direction={'column'}
-			spacing={4}
 			sx={{
-				paddingX: { xs: '15px', sm: '20px' },
+				gap: '100px',
+				paddingX: { xs: '15px', sm: '40px' },
+				paddingBottom: '100px',
 			}}
 		>
 			<Grid
@@ -34,14 +35,7 @@ function Home() {
 						height={'100%'}
 					>
 						<Box maxWidth={'600px'}>
-							<Typography
-								fontSize={'clamp(2.5rem,4vw, 5.5rem)'}
-								fontWeight={'700'}
-								lineHeight={'1.2'}
-								textColor={'text.primary'}
-							>
-								Будь в центре событий
-							</Typography>
+							<Typography level='h1'>Будь в центре событий</Typography>
 						</Box>
 						<HomeCard
 							category={'Новость'}
@@ -72,8 +66,9 @@ function Home() {
 					</Stack>
 				</Grid>
 			</Grid>
-			<MapContainer />
-			<EventsCartsContainer />
+			<EventContainer />
+			{/* <MapContainer />
+			<EventsCartsContainer /> */}
 		</Stack>
 	);
 }

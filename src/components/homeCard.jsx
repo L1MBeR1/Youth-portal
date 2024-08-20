@@ -15,7 +15,7 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 	return (
 		<Card
 			variant='plain'
-			sx={{ width: '100%', flexGrow: 1, borderRadius: '60px', padding: '40px' }}
+			sx={{ width: '100%', flexGrow: 1, borderRadius: '30px', padding: '40px' }}
 		>
 			<CardCover>
 				<img src={img} loading='lazy' alt='' />
@@ -32,7 +32,7 @@ const HomeCard = ({ title, category, img, isSmall }) => {
 								padding: '12px 20px',
 								outline: '1px solid white',
 								maxWidth: 'fit-content',
-								borderRadius: '50px',
+								borderRadius: '30px',
 							}}
 						>
 							<Typography

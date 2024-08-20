@@ -48,6 +48,7 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
+        Log::info('z nen');
         $validator = Validator::make($request->all(), [
             'email' => 'nullable|email|unique:user_login_data,email',
             'phone' => 'nullable|string|unique:user_login_data,phone',

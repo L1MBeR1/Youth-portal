@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use App\Models\Project;
+use App\Traits\EventTrait;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,7 @@ use App\Traits\PaginationTrait;
 
 class EventController extends Controller
 {
-    use QueryBuilderTrait, PaginationTrait;
+    use QueryBuilderTrait, PaginationTrait, EventTrait;
     //TODO: Сделать метод для получения списка событий 
     // с пагинацией с минимальным набором параметров
 
@@ -315,4 +316,22 @@ class EventController extends Controller
 
         return $this->successResponse(['events' => $event], 'Мероприятие успешно удалено', Response::HTTP_OK);
     }
+
+    /**
+     * Получить мероприятия
+     *
+     * @group Мероприятия (для пользователей)
+     *
+     * @urlParam start_date string Дата с которой начинается поиск (формат: Y-m-d).
+     * @urlParam end_date string Дата до которой ведется поиск (формат: Y-m-d).
+     * @urlParam page int Номер страницы.
+     * @urlParam perPage int Количество элементов на странице.
+     */
+    public function getUserEvents(Request $request)
+        //TODO убрать определенные поля из response в EventTrait?
+    {
+        return $this->getEventsForUsers($request);
+    }
+
+
 }

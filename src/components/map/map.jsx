@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import marker from '../../img/marker.svg';
-
+import EventMarkerCard from '../homeComponents/eventContainer/eventMarkerCard';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
 	iconRetinaUrl: marker,
@@ -33,13 +33,9 @@ const Map = props => {
 			/>
 			<CustomAttribution />
 			{props.markers.map((marker, index) => (
-				<Marker
-					key={index}
-					position={[marker.coordinates.latitude, marker.coordinates.longitude]}
-				>
+				<Marker key={index} position={[marker.latitude, marker.longitude]}>
 					<Popup>
-						<h4>{marker.title}</h4>
-						<p>{marker.description}</p>
+						<EventMarkerCard data={marker} />
 					</Popup>
 				</Marker>
 			))}

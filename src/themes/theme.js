@@ -64,6 +64,11 @@ const theme = extendTheme({
       fontSize:"clamp(0.8rem,2vw, 1rem)",
       color:'var(--joy-palette-text-inverted)'
     },
+    "buttonInv-sm":{
+      fontWeight:"600",
+      fontSize:"clamp(0.7rem,2vw, 0.9rem)",
+      color:'var(--joy-palette-text-inverted)'
+    },
 
     "title-xl":{
       fontWeight:"600",
@@ -74,6 +79,11 @@ const theme = extendTheme({
     "title-lg":{
       fontWeight:"600",
       fontSize:"clamp(1rem,2.5vw, 1.2rem)",
+        lineHeight:'1.1'
+    },
+    "title-md":{
+      fontWeight:"600",
+      fontSize:"clamp(0.8rem,2.5vw, 1.05rem)",
         lineHeight:'1.1'
     },
     "body-md":{

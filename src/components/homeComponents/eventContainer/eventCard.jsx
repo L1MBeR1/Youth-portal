@@ -13,7 +13,8 @@ import EventIcon from '@mui/icons-material/Event';
 
 import { formatDate } from '../../../utils/timeAndDate/formatDate';
 import BlankImage from '../../../img/blank.png';
-function EventVerticalCart({ data }) {
+function EventCard({ data }) {
+	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;
 	return (
 		<>
 			<Card
@@ -65,7 +66,7 @@ function EventVerticalCart({ data }) {
 									whiteSpace: 'normal',
 								}}
 							>
-								<Typography level='title-lg'>{data.title}</Typography>
+								<Typography level='title-lg'>{data.name}</Typography>
 							</Box>
 						</Stack>
 						<Stack direction={'row'}>
@@ -85,18 +86,20 @@ function EventVerticalCart({ data }) {
 						<Stack direction={'column'}>
 							<Stack direction={'row'} spacing={0.5}>
 								<EventIcon />
-								<Typography level='body-sm'>{data.date}</Typography>
+								<Typography level='body-sm'>
+									{formatDate(data.start_time)}
+								</Typography>
 							</Stack>
 							<Stack direction={'row'} spacing={0.5}>
 								<RoomIcon />
-								<Typography level='body-sm'>{data.address}</Typography>
+								<Typography level='body-sm'>{fullAddress}</Typography>
 							</Stack>
 						</Stack>
-						<Button>Подробнее</Button>
+						<Button variant='soft'>Подробнее</Button>
 					</Stack>
 				</CardContent>
 			</Card>
 		</>
 	);
 }
-export default EventVerticalCart;
+export default EventCard;

@@ -32,7 +32,7 @@ import Su from './pages/su';
 
 
 // <====== TEST =======>
-import BlogWrapper from './pages/testing/BlogWrapper';
+import BlogWrapper from './pages/testing/v1/BlogWrapper';
 import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
 import BlogCreatorV3 from './pages/testing/v3/BlogCreator';
 // <===================>

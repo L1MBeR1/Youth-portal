@@ -4,6 +4,7 @@ namespace App\Traits;
 use Illuminate\Http\Request;
 use App\Models\Event;
 
+//!!! ПОМЕТКА: если не указан оператор то по дефолту выбирается - AND
 trait EventTrait
 {
     //TODO Добавить категории мероприятий в отдельном поле в БД

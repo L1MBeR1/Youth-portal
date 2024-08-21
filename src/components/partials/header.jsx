@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HeaderProfile from './partialsComponents/headerProfile.jsx';
+import Logo from './logo.jsx'; // Импортируем новый компонент
 
-import { useColorScheme, useTheme } from '@mui/joy/styles';
+import { useColorScheme } from '@mui/joy/styles';
 
 import Box from '@mui/joy/Box';
 import DialogTitle from '@mui/joy/DialogTitle';
@@ -13,7 +14,6 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import ModalClose from '@mui/joy/ModalClose';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
-import Tooltip from '@mui/joy/Tooltip';
 import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
 
@@ -21,18 +21,18 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
-import logoLight from '../../img/logoLight.svg';
-import logoDark from '../../img/logoDark.svg';
 function ColorSchemeToggle() {
 	const { mode, setMode } = useColorScheme();
 	const [mounted, setMounted] = useState(false);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		setMounted(true);
 	}, []);
+
 	if (!mounted) {
 		return <IconButton size='sm' variant='outlined' color='primary' />;
 	}
+
 	return (
 		<IconButton
 			id='toggle-mode'
@@ -56,34 +56,27 @@ function ColorSchemeToggle() {
 }
 
 function Header() {
-	const { mode, systemMode } = useColorScheme();
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
+
 	const handleLink = link => {
 		navigate(link);
 		setOpen(false);
 	};
-	const getLogo = () => {
-		if (systemMode) {
-			return systemMode === 'light' ? logoDark : logoLight;
-		}
-		return mode === 'light' ? logoDark : logoLight;
-	};
+
 	return (
 		<header>
 			<Sheet
 				color='neutral'
 				sx={{
-					display: 'flex',
-					flexGrow: 1,
-					justifyContent: 'space-between',
+					boxShadow: 'xs',
+					display: 'grid',
+					gridTemplateColumns: '1fr auto 1fr',
 					alignItems: 'center',
 					paddingY: '5px',
-					paddingX: { xs: '15px', sm: '20px' },
+					paddingX: { xs: '15px', sm: '40px' },
 					height: '60px',
 					background: 'var(--joy-palette-main-background)',
-					// borderBottom: '1px solid',
-					// borderColor: 'divider',
 					position: 'fixed',
 					top: 0,
 					width: '100%',
@@ -114,7 +107,7 @@ function Header() {
 					>
 						<ModalClose />
 						<DialogTitle>
-							<img width='180px' alt='logo' src={getLogo()} />
+							<Logo />
 						</DialogTitle>
 						<Stack></Stack>
 						<List
@@ -134,7 +127,6 @@ function Header() {
 									color: `${theme.vars.palette.neutral['second']}`,
 								})}
 							>
-								{' '}
 								блоги
 							</ListItemButton>
 							<ListItemButton
@@ -160,95 +152,63 @@ function Header() {
 						</List>
 					</Drawer>
 				</Box>
-				<Link to='/'>
-					<Box paddingTop={'6px'}>
-						<img width='180px' alt='logo' src={getLogo()} />
-					</Box>
-				</Link>
-				<Stack
-					direction='row'
-					justifyContent='center'
-					alignItems='center'
-					spacing={2}
-					sx={{
-						display: { xs: 'none', md: 'flex' },
-					}}
+				<Box sx={{ justifySelf: 'start' }}>
+					<Link to='/'>
+						<Box paddingTop={'6px'}>
+							<Logo />
+						</Box>
+					</Link>
+				</Box>
+				<Box
+					sx={{ justifySelf: 'center', display: { xs: 'none', md: 'flex' } }}
 				>
-					<Button
-						variant='plain'
-						sx={{
-							borderRadius: '50px',
-						}}
-						onClick={() => {
-							handleLink('/blogs');
-						}}
+					<Stack
+						direction='row'
+						justifyContent='center'
+						alignItems='center'
+						spacing={2}
 					>
-						<Typography
-							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
-							fontWeight={'700'}
-							sx={theme => ({
-								color: `${theme.vars.palette.neutral['second']}`,
-							})}
+						<Button
+							variant='plain'
+							onClick={() => {
+								handleLink('/blogs');
+							}}
 						>
-							блоги
-						</Typography>
-					</Button>
-					<Button
-						variant='plain'
-						sx={{
-							borderRadius: '50px',
-						}}
-						onClick={() => {
-							handleLink('/news');
-						}}
+							<Typography level={'headerButton'}>Блоги</Typography>
+						</Button>
+						<Button
+							variant='plain'
+							onClick={() => {
+								handleLink('/news');
+							}}
+						>
+							<Typography level={'headerButton'}>Новости</Typography>
+						</Button>
+						<Button
+							variant='plain'
+							onClick={() => {
+								handleLink('/podcasts');
+							}}
+						>
+							<Typography level={'headerButton'}>Подкасты</Typography>
+						</Button>
+					</Stack>
+				</Box>
+				<Box sx={{ justifySelf: 'end' }}>
+					<Stack
+						direction='row'
+						justifyContent='center'
+						alignItems='center'
+						spacing={1.5}
+						height='100%'
 					>
-						<Typography
-							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
-							fontWeight={'900'}
-							sx={theme => ({
-								color: `${theme.vars.palette.neutral['second']}`,
-							})}
-						>
-							новости
-						</Typography>
-					</Button>
-					<Button
-						variant='plain'
-						sx={{
-							borderRadius: '50px',
-						}}
-						onClick={() => {
-							handleLink('/podcasts');
-						}}
-					>
-						<Typography
-							fontSize={'clamp(0.75rem,1vw, 1.5rem)'}
-							fontWeight={'700'}
-							sx={theme => ({
-								color: `${theme.vars.palette.neutral['second']}`,
-							})}
-						>
-							подкасты
-						</Typography>
-					</Button>
-				</Stack>
-				<Stack
-					direction='row'
-					justifyContent='center'
-					alignItems='center'
-					spacing={1.5}
-					height='100%'
-					sx={
-						{
-							// display: { xs: 'none', md: 'flex' },
-						}
-					}
-				>
-					<ColorSchemeToggle />
-					<HeaderProfile />
-				</Stack>
+						<ColorSchemeToggle />
+						<HeaderProfile />
+					</Stack>
+				</Box>
 			</Sheet>
 		</header>
 	);
 }
+
 export default Header;

@@ -47,7 +47,7 @@ function News() {
 		<Stack
 			direction={'column'}
 			sx={{
-				padding: { xs: '15px', sm: '20px' },
+				padding: { xs: '15px', sm: '40px' },
 			}}
 		>
 			<Box marginTop={{ xs: '15px', md: '25px' }}>

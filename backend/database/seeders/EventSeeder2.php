@@ -8,9 +8,29 @@ use Carbon\Carbon;
 
 class EventSeeder2 extends Seeder
 {
+    private function generateImageURL(int $width = 320, int $height = 240): string
+    {
+        // Для избежания кеширования изображений при многократном обращении к сайту
+        $number = random_int(1, 100000);
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
+        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
+    }
+
+
     public function run(): void
     {
-        
+        $i = 0;
+        $increment = function() use(&$i) {
+            return $i++;
+        };
+
+        $randoms = [];
+        for ($i=0; $i < 11; $i++) { 
+            $randoms[] = random_int(1, 100000);
+        }
+
+
         // Определяем данные для 10 событий
         $events = [
             [
@@ -25,6 +45,7 @@ class EventSeeder2 extends Seeder
                 'longitude' => 37.6173,
                 'latitude' => 55.7558,
                 'views' => 150,
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'start_time' => Carbon::parse('2024-09-30 09:00:00', 'Europe/Moscow'),
                 'end_time' => Carbon::parse('2024-10-01 18:00:00', 'Europe/Moscow'),
                 'author_id' => 1,
@@ -39,6 +60,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Абая',
                     'house' => 'д. 25'
                 ]),
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'longitude' => 71.4287,
                 'latitude' => 51.1694,
                 'views' => 200,
@@ -48,6 +70,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 2,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Турнир по шахматам',
                 'description' => 'Международный турнир по шахматам среди молодежи.',
                 'address' => json_encode([
@@ -65,6 +88,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 3,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Культурный фестиваль',
                 'description' => 'Фестиваль, посвященный традициям и культуре народов СНГ.',
                 'address' => json_encode([
@@ -82,6 +106,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 4,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Форум молодых ученых',
                 'description' => 'Международный форум молодых ученых по обмену опытом и знаниями.',
                 'address' => json_encode([
@@ -99,6 +124,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 5,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Международная выставка искусства',
                 'description' => 'Выставка произведений искусства художников из стран СНГ.',
                 'address' => json_encode([
@@ -116,6 +142,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 6,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Технологический симпозиум',
                 'description' => 'Обсуждение последних достижений в области технологий и IT.',
                 'address' => json_encode([
@@ -133,6 +160,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 7,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Спортивные игры СНГ',
                 'description' => 'Международные спортивные соревнования среди молодежи.',
                 'address' => json_encode([
@@ -150,6 +178,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 8,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Выставка научных достижений',
                 'description' => 'Выставка, посвященная новейшим достижениям науки и техники.',
                 'address' => json_encode([
@@ -167,6 +196,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 9,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Бизнес-форум СНГ',
                 'description' => 'Форум по обсуждению новых бизнес-возможностей в странах СНГ.',
                 'address' => json_encode([
@@ -184,6 +214,7 @@ class EventSeeder2 extends Seeder
                 'project_id' => 10,
             ],
             [
+                'cover_uri' => "https://loremflickr.com/400/300/event?lock={$increment()}",
                 'name' => 'Концерт Виктора Цоя',
                 'description' => 'Концерт в честь легендарной песни "Скоро кончится лето".',
                 'address' => json_encode([

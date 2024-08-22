@@ -344,29 +344,6 @@ class EventController extends Controller
 
         $event->increment('views');
 
-        $requiredFields = [
-            "events" => [
-                "id",
-                "title",
-                "description",
-                "status",
-                "content",
-                "created_at",
-                "updated_at",
-                "likes",
-                "reposts",
-                "views",
-                "cover_uri",
-                "address", // Добавляем поле address
-            ],
-            "user_metadata" => [
-                "first_name",
-                "last_name",
-                "patronymic",
-                "nickname",
-                "profile_image_uri",
-            ]
-        ];
 
         $user = Auth::user();
         $userId = $user ? $user->id : null;
@@ -380,10 +357,14 @@ class EventController extends Controller
             // 'content' => $event->content,
             'created_at' => $event->created_at,
             'updated_at' => $event->updated_at,
+            'start_time' => $event->start_time,
+            'end_time' => $event->end_time,
             // 'likes' => $event->likes,
             // 'reposts' => $event->reposts,
+            'longitude' => $event->longitude,
+            'latitude' => $event->latitude,
             'views' => $event->views,
-            'cover_uri' => $event->cover_uri ?? 'НЕТ ПОЛЯ В БД',
+            'cover_uri' => $event->cover_uri,
             'address' => $event->address, // Добавляем поле address
             'project' => $event->project ? $event->project : null,
             'author' => $event->author ? [

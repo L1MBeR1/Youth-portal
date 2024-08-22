@@ -13,8 +13,13 @@ import EventIcon from '@mui/icons-material/Event';
 
 import { formatDate } from '../../../utils/timeAndDate/formatDate';
 import BlankImage from '../../../img/blank.png';
+import { useNavigate } from 'react-router-dom';
 function EventMarkerCard({ data }) {
+	const navigate = useNavigate();
 	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;
+	const handleRedirect = id => {
+		navigate(`/event/${id}`);
+	};
 	return (
 		<>
 			<Card
@@ -22,6 +27,7 @@ function EventMarkerCard({ data }) {
 					boxSizing: 'border-box',
 					flexGrow: '1',
 					height: '100%',
+					p: '0',
 				}}
 			>
 				<AspectRatio
@@ -76,7 +82,14 @@ function EventMarkerCard({ data }) {
 							<Typography level='body-sm'>{fullAddress}</Typography>
 						</Stack>
 					</Stack>
-					<Button variant='soft'>Подробнее</Button>
+					<Button
+						variant='soft'
+						onClick={() => {
+							handleRedirect(data.id);
+						}}
+					>
+						Подробнее
+					</Button>
 				</Stack>
 			</Card>
 		</>

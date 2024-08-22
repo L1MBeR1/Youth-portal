@@ -49,6 +49,7 @@ const EventsCarousel = ({ data }) => {
 			spacing={2}
 		>
 			<Button
+				color='primary'
 				variant='soft'
 				sx={{ maxWidth: '20px' }}
 				onClick={handlePrevSlide}
@@ -94,6 +95,7 @@ const EventsCarousel = ({ data }) => {
 				))}
 			</Swiper>
 			<Button
+				color='primary'
 				variant='soft'
 				sx={{ maxWidth: '20px' }}
 				onClick={handleNextSlide}

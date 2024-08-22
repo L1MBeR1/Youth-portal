@@ -5,7 +5,7 @@ import { getToken } from '../utils/authUtils/tokenStorage';
 const useHomeEvents = () => {
   const startDate = new Date().toISOString().split('T')[0]; 
   const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + 1); 
+  endDate.setMonth(endDate.getMonth() + 2); 
   const endDateString = endDate.toISOString().split('T')[0]; 
   console.log(12121)
   const perPage = 10; 

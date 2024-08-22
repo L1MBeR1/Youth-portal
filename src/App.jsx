@@ -27,6 +27,7 @@ import PodcastPage from './pages/podcastPage';
 import Podcasts from './pages/podcasts';
 
 import Events from './pages/events';
+import EventPage from './pages/eventPage';
 
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
@@ -70,6 +71,7 @@ function App() {
 						<Route path='podcast/:id' element={<PodcastPage />} />
 
 						<Route path='events' element={<Events />} />
+						<Route path='event/:id' element={<EventPage />} />
 
 						<Route path='/profile/:id' element={<Profile />} />
 

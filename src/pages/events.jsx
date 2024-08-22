@@ -23,52 +23,57 @@ function Events() {
 					Мероприятия
 				</Typography>
 			</Box>
-			<Stack
-				direction={'row'}
-				height={'75vh'}
-				sx={{
-					borderRadius: '30px',
-					overflow: 'hidden',
-				}}
-			>
-				{!isLoading && (
-					<>
-						<Stack
-							direction={'column'}
-							flexGrow={1}
-							sx={{
-								maxWidth: '50%',
-							}}
-						>
+			<Stack direction={'column'}>
+				{/* <Stack direction={'row'}>
+					<Select></Select>
+				</Stack> */}
+				<Stack
+					direction={'row'}
+					height={'75vh'}
+					sx={{
+						borderRadius: '30px',
+						overflow: 'hidden',
+					}}
+				>
+					{!isLoading && (
+						<>
 							<Stack
+								direction={'column'}
 								flexGrow={1}
 								sx={{
-									paddingRight: '20px',
-									overflowY: 'scroll',
+									maxWidth: '50%',
 								}}
 							>
-								<Grid container spacing={2}>
-									{events.map((event, index) => (
-										<Grid
-											item
-											xs={12}
-											smx={6}
-											mdx={6}
-											lgx={4}
-											xxl={6}
-											key={event.id}
-										>
-											<EventCard key={index} data={event} />
-										</Grid>
-									))}
-								</Grid>
+								<Stack
+									flexGrow={1}
+									sx={{
+										paddingRight: '20px',
+										overflowY: 'scroll',
+									}}
+								>
+									<Grid container spacing={2}>
+										{events.map((event, index) => (
+											<Grid
+												item
+												xs={12}
+												smx={6}
+												mdx={6}
+												lgx={4}
+												xxl={6}
+												key={event.id}
+											>
+												<EventCard key={index} data={event} />
+											</Grid>
+										))}
+									</Grid>
+								</Stack>
 							</Stack>
-						</Stack>
-						<Stack direction={'column'} flexGrow={1}>
-							<Map markers={events} />
-						</Stack>
-					</>
-				)}
+							<Stack direction={'column'} flexGrow={1}>
+								<Map markers={events} />
+							</Stack>
+						</>
+					)}
+				</Stack>
 			</Stack>
 		</Stack>
 	);

@@ -25,8 +25,6 @@ function BlogPage() {
 	const { data, isFetching } = usePublicationById('blog', getBlog, id);
 	const { data: profileData } = useProfile();
 
-	const topRef = useRef(null);
-	const bottomRef = useRef(null);
 	console.log(data);
 
 	const createMarkup = html => {
@@ -61,14 +59,12 @@ function BlogPage() {
 					}}
 				>
 					<Box sx={{ padding: { xs: '0px', sm: '20px' } }}>
-						<ScrollButton targetRef={topRef} type='top' />
-						<ScrollButton targetRef={bottomRef} type='bottom' />
-						<Stack ref={topRef} spacing={3} marginTop={2}>
+						<ScrollButton type='top' />
+						<ScrollButton type='bottom' />
+						<Stack spacing={3} marginTop={2}>
 							<Stack direction={'row'} justifyContent={'space-between'}>
 								<Stack direction={'column'} spacing={2}>
-									<Typography level='h1' fontSize={'45px'} id={'top'}>
-										{data.title}
-									</Typography>
+									<Typography level='publications-h1'>{data.title}</Typography>
 									<Stack direction={'row'} spacing={2}>
 										<Typography level='body-md'>
 											{formatDate(data.created_at)}
@@ -102,7 +98,7 @@ function BlogPage() {
 									<Box dangerouslySetInnerHTML={createMarkup(data.content)} />
 								</Typography>
 							</Box>
-							<Box ref={bottomRef}>
+							<Box>
 								<PublicationStatistic
 									id={data.id}
 									liked={data.is_liked}

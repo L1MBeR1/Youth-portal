@@ -31,8 +31,16 @@ const theme = extendTheme({
           borderRadius:"50px"
         },
         },
+    },
+    JoySelect:{
+      styleOverrides: {
+        root: {
+          borderRadius:"50px"
+        },
+        },
     }
   },
+  
   focus:{
     default:{
       outline:"var(--joy-palette-main-primary)"
@@ -52,6 +60,18 @@ const theme = extendTheme({
     h3:{
       fontWeight:"600",
       fontSize:"clamp(2.5rem,3vw, 5.5rem)",//TODO:Настроить
+      lineHeight:'1.2'
+    },
+    "publications-h1":{
+      fontWeight:"600",
+      fontSize:"clamp(2.5rem,3.4vw, 4.5rem)",
+      color:'var(--joy-palette-main-text)',
+      lineHeight:'1.2'
+    },
+    "publications-h2":{
+      fontWeight:"600",
+      fontSize:"clamp(1.8rem,2.5vw, 3.2rem)",
+      color:'var(--joy-palette-main-text)',
       lineHeight:'1.2'
     },
     headerButton:{

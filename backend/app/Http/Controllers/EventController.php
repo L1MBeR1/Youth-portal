@@ -371,18 +371,19 @@ class EventController extends Controller
         $user = Auth::user();
         $userId = $user ? $user->id : null;
 
+        // TODO: разобраться с миграциями и остальным. 
         $eventData = [
             'id' => $event->id,
-            'title' => $event->title,
+            'title' => $event->name,
             'description' => $event->description,
-            'status' => $event->status,
-            'content' => $event->content,
+            // 'status' => $event->status,
+            // 'content' => $event->content,
             'created_at' => $event->created_at,
             'updated_at' => $event->updated_at,
-            'likes' => $event->likes,
-            'reposts' => $event->reposts,
+            // 'likes' => $event->likes,
+            // 'reposts' => $event->reposts,
             'views' => $event->views,
-            'cover_uri' => $event->cover_uri,
+            'cover_uri' => $event->cover_uri ?? 'НЕТ ПОЛЯ В БД',
             'address' => $event->address, // Добавляем поле address
             'project' => $event->project ? $event->project : null,
             'author' => $event->author ? [

@@ -333,5 +333,71 @@ class EventController extends Controller
         return $this->getEventsForUsers($request);
     }
 
+    public function getEventById($id): \Illuminate\Http\JsonResponse
+    {
+        $event = Event::with(['project', 'author.metadata'])->find($id);
+        $user = null;
+
+        if (!$event) {
+            return $this->errorResponse(message: 'Мероприятие не найдено', status: Response::HTTP_NOT_FOUND);
+        }
+
+        $event->increment('views');
+
+        $requiredFields = [
+            "events" => [
+                "id",
+                "title",
+                "description",
+                "status",
+                "content",
+                "created_at",
+                "updated_at",
+                "likes",
+                "reposts",
+                "views",
+                "cover_uri",
+                "address", // Добавляем поле address
+            ],
+            "user_metadata" => [
+                "first_name",
+                "last_name",
+                "patronymic",
+                "nickname",
+                "profile_image_uri",
+            ]
+        ];
+
+        $user = Auth::user();
+        $userId = $user ? $user->id : null;
+
+        $eventData = [
+            'id' => $event->id,
+            'title' => $event->title,
+            'description' => $event->description,
+            'status' => $event->status,
+            'content' => $event->content,
+            'created_at' => $event->created_at,
+            'updated_at' => $event->updated_at,
+            'likes' => $event->likes,
+            'reposts' => $event->reposts,
+            'views' => $event->views,
+            'cover_uri' => $event->cover_uri,
+            'address' => $event->address, // Добавляем поле address
+            'project' => $event->project ? $event->project : null,
+            'author' => $event->author ? [
+                'first_name' => $event->author->metadata->first_name,
+                'last_name' => $event->author->metadata->last_name,
+                'patronymic' => $event->author->metadata->patronymic,
+                'nickname' => $event->author->metadata->nickname,
+                'profile_image_uri' => $event->author->metadata->profile_image_uri,
+            ] : null
+        ];
+
+        return $this->successResponse(data: $eventData);
+    }
+
+
+
 
 }

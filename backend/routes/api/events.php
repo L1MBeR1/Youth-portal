@@ -13,5 +13,13 @@ Route::group([
     Route::post('', [EventController::class, 'store']);
     Route::delete('{id}', [EventController::class, 'destroy']);
     Route::put('{id}', [EventController::class, 'update']);
-    Route::get('userEvents', [EventController::class, 'getUserEvents']);
+    //Route::get('userEvents', [EventController::class, 'getUserEvents']);
+});
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'events'
+], function () {
+    Route::get('userEvents', [EventController::class, 'getUserEvents'])->withoutMiddleware('auth');
+    Route::get('{id}', [EventController::class, 'getEventById'])->withoutMiddleware('auth');
 });

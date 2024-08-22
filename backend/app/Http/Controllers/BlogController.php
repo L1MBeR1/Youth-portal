@@ -6,6 +6,7 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Traits\PaginationTrait;
 use App\Traits\QueryBuilderTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
@@ -360,5 +361,15 @@ class BlogController extends Controller
         }
 
         return $this->successResponse(['blogs' => $blog], 'Блог успешно лайкнут', 200);
+    }
+
+
+
+    public function getTags()
+    {
+        $tags = Blog::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
+                        ->pluck('tags');
+
+        return response()->json($tags);
     }
 }

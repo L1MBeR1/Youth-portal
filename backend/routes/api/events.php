@@ -22,4 +22,19 @@ Route::group([
 ], function () {
     Route::get('userEvents', [EventController::class, 'getUserEvents'])->withoutMiddleware('auth');
     Route::get('{id}', [EventController::class, 'getEventById'])->withoutMiddleware('auth');
+    
+});
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'cities'
+], function () {
+    Route::get('', [EventController::class, 'getCities'])->withoutMiddleware('auth');
+});
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'countries'
+], function () {
+    Route::get('', [EventController::class, 'getCountries'])->withoutMiddleware('auth');
 });

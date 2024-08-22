@@ -31,5 +31,6 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); // Все
+    Route::get('tags/', [BlogController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); // Для админов, модераторов, су. Если статус published, то для всех
 });

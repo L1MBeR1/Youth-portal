@@ -4,22 +4,23 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Models\Event;
 use App\Models\Project;
 use App\Traits\EventTrait;
-use App\Models\Event;
 use Illuminate\Http\Request;
+use App\Traits\PaginationTrait;
+use App\Traits\QueryBuilderTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-
-use App\Traits\QueryBuilderTrait;
-use App\Traits\PaginationTrait;
 
 
 class EventController extends Controller
@@ -31,12 +32,12 @@ class EventController extends Controller
     
     /**
      * Поиск
-     * 
+     *
      * Получение списка событий (функция для администрации)
-     * 
+     *
      * @group События
      * @authenticated
-     * 
+     *
      * @bodyParam userId int ID пользователя.
      * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
      * @bodyParam eventId int ID события.
@@ -54,7 +55,7 @@ class EventController extends Controller
      * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
      * @urlParam updDate string Дата обновления (формат: Y-m-d).
      * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -85,152 +86,9 @@ class EventController extends Controller
         $events = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($events);
         return $this->successResponse($events->items(), $paginationData, 200);
-
-        // $perPage = $request->get('per_page', 5);
-        // $userId = $request->query('userId');
-        // $currentUser = $request->query('currentUser');
-        // $eventId = $request->query('eventId');
-        // $withAuthors = $request->query('withAuthors', false);
-        // $searchColumnName = $request->query('searchColumnName');
-        // $searchValue = $request->query('searchValue');
-        // $searchFields = $request->query('searchFields', []);
-        // $searchValues = $request->query('searchValues', []);
-        // $tagFilter = $request->query('tagFilter');
-        // $crtFrom = $request->query('crtFrom');
-        // $crtTo = $request->query('crtTo');
-        // $updFrom = $request->query('updFrom');
-        // $updTo = $request->query('updTo');
-
-        // $updDate = $request->query('updDate');
-        // $crtDate = $request->query('crtDate');
-
-        // $operator = $request->query('operator', 'and');
-
-        // $query = Event::query();
-
-        // if ($withAuthors) {
-        //     $query->join('user_metadata', 'events.author_id', '=', 'user_metadata.user_id')
-        //         ->select('events.*', 'user_metadata.first_name', 'user_metadata.last_name', 'user_metadata.patronymic', 'user_metadata.nickname');
-        // }
-
-        // if ($userId) {
-        //     $user = User::find($userId);
-        //     if (!$user) {
-        //         return $this->errorResponse('User not found', [], 404);
-        //     }
-        //     $query->where('author_id', $userId);
-        // } elseif ($currentUser) {
-        //     $currentUser = Auth::user();
-        //     if ($currentUser) {
-        //         $query->where('author_id', $currentUser->id);
-        //     } else {
-        //         return $this->errorResponse('Current user not found', [], 404);
-        //     }
-        // } elseif ($eventId) {
-        //     $query->where('id', $eventId);
-        //     $event = $query->first(); 
-        //     if ($event) {
-        //         $event->increment('views'); 
-        //     }
-        // }
-
-        // if (!empty($searchFields) && !empty($searchValues)) {
-        //     if ($operator === 'or') {
-        //         $query->where(function ($query) use ($searchFields, $searchValues) {
-        //             foreach ($searchFields as $index => $field) {
-        //                 $value = $searchValues[$index] ?? null;
-        //                 if ($value) {
-        //                     $query->orWhere($field, 'LIKE', '%' . $value . '%');
-        //                 }
-        //             }
-        //         });
-        //     } else {
-        //         foreach ($searchFields as $index => $field) {
-        //             $value = $searchValues[$index] ?? null;
-        //             if ($value) {
-        //                 $query->where($field, 'LIKE', '%' . $value . '%');
-        //             }
-        //         }
-        //     }
-        // }
-
-        // if ($searchColumnName) {
-        //     $query->where($searchColumnName, 'LIKE', '%' . $searchValue . '%');
-        // }
-
-        // if ($tagFilter) {
-        //     $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
-        // }
-
-        // $crtFrom = $this->parseDate($crtFrom);
-        // $crtTo = $this->parseDate($crtTo);
-        // $updFrom = $this->parseDate($updFrom);
-        // $updTo = $this->parseDate($updTo);
-
-        // if ($crtFrom && $crtTo) {
-        //     $query->whereBetween('created_at', [$crtFrom, $crtTo]);
-        // } elseif ($crtFrom) {
-        //     $query->where('created_at', '>=', $crtFrom);
-        // } elseif ($crtTo) {
-        //     $query->where('created_at', '<=', $crtTo);
-        // }
-
-        // if ($updFrom && $updTo) {
-        //     $query->whereBetween('updated_at', [$updFrom, $updTo]);
-        // } elseif ($updFrom) {
-        //     $query->where('updated_at', '>=', $updFrom);
-        // } elseif ($updTo) {
-        //     $query->where('updated_at', '<=', $updTo);
-        // }
-
-        // if ($crtDate) {
-        //     $query->whereDate('created_at', '=', $crtDate);
-        // }
-    
-        // if ($updDate) {
-        //     $query->whereDate('updated_at', '=', $updDate);
-        // }
-
-        // $events = $query->paginate($perPage);
-
-        // $paginationData = [
-        //     'current_page' => $events->currentPage(),
-        //     'from' => $events->firstItem(),
-        //     'last_page' => $events->lastPage(),
-        //     'per_page' => $events->perPage(),
-        //     'to' => $events->lastItem(),
-        //     'total' => $events->total(),
-        // ];
-
-        // return $this->successResponse($events->items(), $paginationData, 200);
-
-
-
-
-
-
-
     }
 
-    /**
-     * Parses the date from the given input.
-     * Supports both Y-m-d H:i:s and Y-m-d formats.
-     * 
-     * @param string|null $date
-     * @return string|null
-     */
-    // private function parseDate($date)
-    // {
-    //     if (!$date) {
-    //         return null;
-    //     }
 
-    //     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-    //         return $date . ' 00:00:00';
-    //     }
-
-    //     return $date;
-    // }
 
     /**
      * Создать
@@ -378,8 +236,42 @@ class EventController extends Controller
 
         return $this->successResponse(data: $eventData);
     }
+    
+    public function getTags(){
+        // Добавить теги в миграцию, сидер (и фабрику), дописать
+    }
 
 
 
 
+
+    // TODO: Убрать в отдельные контроллеры?
+    /**
+     * Получить города
+     */
+    public function getCities(Request $request) {
+        // TODO: Добавить возможность применения параметров:
+        // ?events_available=<bool>
+        // если будут какие-то ограничения по доступности мероприятий
+
+        $cities = Event::select(DB::raw("DISTINCT(address->>'city') as city"))
+                            ->pluck('city');
+
+        return response()->json($cities);
+    }
+
+
+    /**
+     * Получить страны
+     */
+    public function getCountries(Request $request) {
+        // TODO: Добавить возможность применения параметров:
+        // ?events_available=<bool>
+        // если будут какие-то ограничения по доступности мероприятий
+
+        $countries = Event::select(DB::raw("DISTINCT(address->>'country') as country"))
+                            ->pluck('country');
+
+        return response()->json($countries);
+    }
 }

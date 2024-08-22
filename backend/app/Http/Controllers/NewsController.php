@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Traits\PaginationTrait;
 use App\Traits\QueryBuilderTrait;
 // use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreNewsRequest;
 use App\Http\Requests\UpdateNewsRequest;
@@ -162,7 +163,13 @@ class NewsController extends Controller
     }
 
 
+    public function getTags()
+    {
+        $tags = News::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
+                        ->pluck('tags');
 
+        return response()->json($tags);
+    }
 
 
 

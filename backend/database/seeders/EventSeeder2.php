@@ -10,6 +10,7 @@ class EventSeeder2 extends Seeder
 {
     public function run(): void
     {
+        
         // Определяем данные для 10 событий
         $events = [
             [

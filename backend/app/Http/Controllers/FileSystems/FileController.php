@@ -98,9 +98,10 @@ class FileController extends Controller
             return response()->json(['error' => 'SFTP connection error'], 503);
         }
 
-        // Проверка типа файла (например, изображение)
+        // Проверка типа файла
         $allowedMimeTypes = [
             'image/jpeg',
+            'image/webp',
             'image/png',
             'image/gif',
             'text/plain',
@@ -130,7 +131,8 @@ class FileController extends Controller
             return response()->json(['error' => 'File upload error'], 500);
         }
 
-        return response()->json(['path' => $filePath]);
+        // return response()->json(['path' => $filePath]);
+        return response()->json(['filename' => $md5Hash . '.' . $extension]);
     }
 
     private function generateUniqueShortId($folderPath, $extension)

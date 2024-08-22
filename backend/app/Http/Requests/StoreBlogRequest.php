@@ -23,9 +23,11 @@ class StoreBlogRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description.desc' => 'required|string',
+            'description.meta' => 'required|array',
+            'description.meta.*' => 'string',
             'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
+            'cover_uri' => 'required|string',
             'status' => 'nullable|string|max:255',
             'views' => 'nullable|integer',
             'likes' => 'nullable|integer',

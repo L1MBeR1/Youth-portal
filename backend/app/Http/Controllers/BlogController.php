@@ -6,7 +6,7 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Traits\PaginationTrait;
 use App\Traits\QueryBuilderTrait;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
@@ -225,6 +225,8 @@ class BlogController extends Controller
         if (!Auth::user()->can('create', Blog::class)) {
             return $this->errorResponse('Нет прав на создание блога', [], 403);
         }
+
+        Log::info($request->input("description"));
 
         $blog = Blog::create($request->validated() + [
             'status' => 'moderating',

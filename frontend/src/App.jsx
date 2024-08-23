@@ -26,9 +26,18 @@ import News from './pages/news';
 import PodcastPage from './pages/podcastPage';
 import Podcasts from './pages/podcasts';
 
+import Events from './pages/events';
+import EventPage from './pages/eventPage';
+
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
+
+// <====== TEST =======>
+import BlogWrapper from './pages/testing/v1/BlogWrapper';
+import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
+import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
+// <===================>
 
 //Роуты
 import GuestRoute from './routes/guestRoute';
@@ -61,6 +70,9 @@ function App() {
 						<Route path='podcasts' element={<Podcasts />} />
 						<Route path='podcast/:id' element={<PodcastPage />} />
 
+						<Route path='events' element={<Events />} />
+						<Route path='event/:id' element={<EventPage />} />
+
 						<Route path='/profile/:id' element={<Profile />} />
 
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
@@ -72,6 +84,15 @@ function App() {
 							path='recovery'
 							element={<GuestRoute element={<Recovery />} />}
 						/>
+
+						{/* TODO: ! 
+							Сделать маршрут для роли blogger
+							/editor
+						*/}
+						<Route path='/test_blog_creator_v1' element={<BlogWrapper />}/>
+						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />}/>
+						<Route path='/blog_creator' element={<BlogCreator />}/>
+
 					</Route>
 
 					<Route

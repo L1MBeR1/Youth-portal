@@ -6,12 +6,16 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use App\Traits\PaginationTrait;
 use App\Traits\QueryBuilderTrait;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use App\Http\Requests\SetContentStatusRequest;
 use Symfony\Component\HttpFoundation\Response;
+
+use App\Services\FileService;
+
 
 class BlogController extends Controller
 {
@@ -226,8 +230,10 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на создание блога', [], 403);
         }
 
+        Log::info($request->input("description"));
+
         $blog = Blog::create($request->validated() + [
-            'status' => 'moderating',
+            'status' => 'unsaved',
             'author_id' => Auth::id(),
         ]);
 
@@ -300,6 +306,67 @@ class BlogController extends Controller
     }
 
 
+    public function createDraft($blogId)
+    {
+        if (Blog::where('draft_for', $blogId)->exists()) {
+            return $this->errorResponse('Черновик уже существует', [], Response::HTTP_CONFLICT);
+        }
+
+        $blog = Blog::find($blogId);
+        $blogData = $blog->toArray();
+
+        unset($blogData['id'], $blogData['draft_for']);
+        $blogData['draft_for'] = $blog->id;
+
+        // Поле описания должно быть массивом
+        if (is_string($blogData['description'])) {
+            $blogData['description'] = json_decode($blogData['description'], true);
+        }
+
+        $draft = Blog::create($blogData);
+
+        // Копировать файлы для черновика
+        $fileService = new FileService();
+        $fileService->copyFolder('media/blogs/' . $blog->id, 'media/blogs/' . $draft->id);
+
+        return $this->successResponse($draft, 'Черновик создан', Response::HTTP_OK);
+    }
+    
+    
+
+
+
+    public function applyDraft($draftId)
+    {
+        $fileService = new FileService();
+
+        // Получаем черновик по ID
+        $draft = Blog::find($draftId);
+        if (!$draft) {
+            return $this->errorResponse('Черновик не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Получаем блог, который нужно заменить, по ID черновика
+        $blogToReplace = Blog::find($draft->draft_for);
+        if (!$blogToReplace) {
+            return $this->errorResponse('Блог для замены не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Удаляем папку, связанную с черновиком
+        $folder = 'media/blogs/' . $draft->id;
+        $fileService->deleteFolder($folder);
+
+        // Преобразуем черновик в массив и удаляем ненужные поля
+        $draftData = $draft->toArray();
+        unset($draftData['id'], $draftData['draft_for'], $draftData['created_at'], $draftData['updated_at']);
+
+        // Обновляем блог полями черновика
+        $blogToReplace->update($draftData);
+
+        $draft->delete();
+
+        return $this->successResponse(['blog' => $blogToReplace], 'Блог успешно обновлен черновиком', Response::HTTP_OK);
+    }
 
 
     /**
@@ -321,9 +388,11 @@ class BlogController extends Controller
             return $this->errorResponse('Блог не найден', [], 404);
         }
 
-        $blog->delete();
-
-        return $this->successResponse([], 'Блог успешно удален');
+        $res = $blog->delete();
+        if ($res) {
+            return $this->successResponse([], 'Блог успешно удален');
+        }
+        return $this->errorResponse('Не удалось удалить блог', [], 500);
     }
 
     /**
@@ -358,5 +427,15 @@ class BlogController extends Controller
         }
 
         return $this->successResponse(['blogs' => $blog], 'Блог успешно лайкнут', 200);
+    }
+
+
+
+    public function getTags()
+    {
+        $tags = Blog::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
+            ->pluck('tags');
+
+        return response()->json($tags);
     }
 }

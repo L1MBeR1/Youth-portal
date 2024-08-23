@@ -22,6 +22,7 @@ Route::group([
     'prefix' => 'news'
 ], function () {
     Route::get('published', [NewsController::class, 'getPublishedNews'])->withoutMiddleware('auth');
+    Route::get('tags/', [NewsController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [NewsController::class, 'getNewsById'])->withoutMiddleware('auth');
 });
 

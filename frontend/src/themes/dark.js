@@ -5,6 +5,7 @@ export const darkPalette={
 				background:"#00030F",
 				primary:"#2240C3",
 
+				surface0:'#111316',
 				surface1:'#0C0F14'
 			},
 			neutral: {
@@ -26,6 +27,7 @@ export const darkPalette={
     		solidHoverBorder: '#404d85',
     		solidActiveBg: 'var(--joy-palette-main-primary)',
     		solidActiveBorder: 'var(--joy-palette-main-primary)',
+												"500":"var(--joy-palette-main-primary)"
 			},
 			text:{
 				primary:'var(--joy-palette-main-text)',

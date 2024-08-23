@@ -34,6 +34,11 @@ function HeaderProfile() {
 		queryClient.removeQueries(['profile']);
 		navigate('/login');
 	};
+
+	const handleLink = link => {
+		navigate(link);
+	};
+
 	const profileMenu = () => {
 		return (
 			<Dropdown>
@@ -50,22 +55,38 @@ function HeaderProfile() {
 					/>
 				</MenuButton>
 				<Menu size='sm' placement='bottom-end'>
-					<MenuItem component={Link} to={`/profile/${profileData.user_id}`}>
+					<MenuItem
+						onClick={() => {
+							handleLink(`/profile/${profileData.user_id}`);
+						}}
+					>
 						<PersonIcon />
 						Профиль
 					</MenuItem>
 					{profileData.roles.includes('admin') && (
-						<MenuItem component={Link} to='/admin'>
+						<MenuItem
+							onClick={() => {
+								handleLink('/admin');
+							}}
+						>
 							Панель админа
 						</MenuItem>
 					)}
 					{profileData.roles.includes('superuser') && (
-						<MenuItem component={Link} to='/superuser'>
+						<MenuItem
+							onClick={() => {
+								handleLink('/superuser');
+							}}
+						>
 							Панель суперюзера
 						</MenuItem>
 					)}
 					{profileData.roles.includes('moderator') && (
-						<MenuItem component={Link} to='/moderator'>
+						<MenuItem
+							onClick={() => {
+								handleLink('/moderator');
+							}}
+						>
 							Панель модератора
 						</MenuItem>
 					)}
@@ -111,9 +132,8 @@ function HeaderProfile() {
 							}}
 						>
 							<Typography
-								fontSize={'clamp(0.75rem,0.9vw, 1.4rem)'}
-								fontWeight={'700'}
-								level={'button'}
+								level={'headerButton'}
+								textColor={'var(--joy-palette-staticColors-mainLight)'}
 							>
 								Войти в аккаунт
 							</Typography>

@@ -33,7 +33,7 @@ export const changeBlogStatus = async (token, id, status) => {
   }
 };
 
-export const getPublishedBlogs = async (token,params) => {
+export const getPublishedBlogs = async (token, params) => {
   try {
     const response = await axios.get(`${API_URL}/blogs/published`, {
       headers: {
@@ -48,7 +48,7 @@ export const getPublishedBlogs = async (token,params) => {
     throw error;
   }
 };
-export const getBlog = async (token,id) => {
+export const getBlog = async (token, id) => {
   console.log(id)
   try {
     const response = await axios.get(`${API_URL}/blogs/${id}`, {
@@ -77,10 +77,10 @@ export const getUserPublishedBlogs = async (userId) => {
   }
 };
 
-export const likeTheBlog = async (token,id) => {
+export const likeTheBlog = async (token, id) => {
   try {
     // console(token,id)
-    const response = await axios.post(`${API_URL}/blogs/${id}/like`,   {},
+    const response = await axios.post(`${API_URL}/blogs/${id}/like`, {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -93,6 +93,24 @@ export const likeTheBlog = async (token,id) => {
     console.error('Error liking blog:', error);
     throw error;
   }
+};
+
+export const addBlog = async (token, data) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/blogs/`,
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return response.data;
+    } catch (error) {
+        console.error('Error adding blog:', error);
+        throw error;
+    }
 };
 
 

@@ -19,8 +19,6 @@ function NewsPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('news', getNew, id);
 	console.log(data);
-	const topRef = useRef(null);
-	const bottomRef = useRef(null);
 
 	const { data: profileData } = useProfile();
 
@@ -57,9 +55,9 @@ function NewsPage() {
 					}}
 				>
 					<Box sx={{ padding: { xs: '0px', sm: '20px' } }}>
-						<ScrollButton targetRef={topRef} type='top' />
-						<ScrollButton targetRef={bottomRef} type='bottom' />
-						<Stack ref={topRef} spacing={3}>
+						<ScrollButton type='top' />
+						<ScrollButton type='bottom' />
+						<Stack spacing={3}>
 							<AspectRatio maxHeight={'350px'}>
 								<img src={data.cover_uri} alt={data.title} />
 							</AspectRatio>
@@ -69,14 +67,14 @@ function NewsPage() {
 								alignItems='center'
 								spacing={2}
 							>
-								<Typography level='h1'>{data.title}</Typography>
+								<Typography level='publications-h1'>{data.title}</Typography>
 							</Stack>
 							<Box>
 								<Typography level='body-lg'>
 									<Box dangerouslySetInnerHTML={createMarkup(data.content)} />
 								</Typography>
 							</Box>
-							<Box ref={bottomRef}>
+							<Box>
 								<PublicationStatistic
 									id={data.id}
 									liked={data.is_liked}

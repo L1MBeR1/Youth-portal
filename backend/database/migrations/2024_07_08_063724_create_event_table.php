@@ -15,7 +15,8 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('description');
-            $table->text('address')->nullable();
+            $table->jsonb('address')->nullable();
+            $table->text('cover_uri')->nullable();
             $table->float('longitude')->nullable();
             $table->float('latitude')->nullable();
             $table->integer('views')->unsigned()->default(0);

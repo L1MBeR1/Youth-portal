@@ -47,7 +47,7 @@ function News() {
 		<Stack
 			direction={'column'}
 			sx={{
-				padding: { xs: '15px', sm: '20px' },
+				padding: { xs: '15px', sm: '40px' },
 			}}
 		>
 			<Box marginTop={{ xs: '15px', md: '25px' }}>
@@ -72,7 +72,7 @@ function News() {
 			{!isLoading && news && (
 				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
 					{news.map(news => (
-						<Grid item xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={news.id}>
+						<Grid xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={news.id}>
 							<NewsCard data={news} />
 						</Grid>
 					))}

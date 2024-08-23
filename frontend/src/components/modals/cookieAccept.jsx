@@ -29,7 +29,7 @@ const CookieAccept = () => {
 			size='lg'
 			sx={{
 				minWidth: { xs: '90%', lg: '70%', xl: 'auto' },
-				padding: '20px 30px',
+				padding: '25px',
 				borderRadius: '30px',
 				transition: 'transform 0.5s ease-in-out',
 				transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
@@ -39,21 +39,21 @@ const CookieAccept = () => {
 				direction={'row'}
 				justifyContent={'space-between'}
 				flexGrow={'1'}
-				spacing={8}
+				spacing={{ xs: 2, mdx: 8 }}
 				// sx={{
 				// 	gap: '20px',
 				// }}
 			>
-				<Stack>
+				<Stack spacing={0.3}>
 					<Typography level='title-lg'>Мы используем cookie</Typography>
-					<Typography>
+					<Typography level='body-md'>
 						Продолжая использовать наш сайт, вы соглашаетесь на использование
 						файлов cookie.
 					</Typography>
 				</Stack>
 				<Stack direction='column' justifyContent={'center'}>
 					<Button color='primary' variant='solid' onClick={handleAccept}>
-						Принять
+						<Typography level='buttonInv'>Принять</Typography>
 					</Button>
 				</Stack>
 			</Stack>

@@ -11,11 +11,17 @@ class Event extends Model
     protected $table = 'events';
     protected $guarded = [];
 
+    protected $casts = [
+        'address' => 'array',
+    ];
+
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
     }
-    protected $casts = [
-        'description' => 'array',
-    ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

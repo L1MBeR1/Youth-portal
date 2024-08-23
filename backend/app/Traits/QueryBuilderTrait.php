@@ -45,7 +45,7 @@ trait QueryBuilderTrait
     private function buildPublicationQuery(Request $request, string $modelClass, array $requiredFields, $onlyPublished = false, $userId = null): Builder
     {
         $query = $modelClass::query();
-        $this->selectFields($query, $requiredFields, $userId);
+        $this->selectFields($query, $requiredFields, $userId, $request->query('timezone'));
         $this->applyFilters($query, $request, $onlyPublished);
         $this->applySearch($query, $request);
         return $query;
@@ -65,14 +65,22 @@ trait QueryBuilderTrait
     /**
      * Выборка необходимых полей для запроса
      */
-    private function selectFields($query, $requiredFields, $userId = null): void
+    // use Illuminate\Support\Facades\DB;
+
+    private function selectFields($query, $requiredFields, $userId = null, $timezone = null): void
     {
         $selectFields = [];
         $keys = array_keys($requiredFields);
 
         foreach ($requiredFields as $tableName => $fields) {
             foreach ($fields as $field) {
-                $selectFields[] = count($keys) === 1 ? "{$field}" : "{$tableName}.{$field}";
+                if ($timezone && in_array($field, ['created_at', 'updated_at'])) {
+                    // Преобразуем время из исходной зоны (UTC+8) в UTC, а затем в нужную временную зону
+                    $selectFields[] = DB::raw("({$tableName}.{$field} AT TIME ZONE '{$timezone}') as {$field}");
+                } else {
+                    // Для всех остальных полей
+                    $selectFields[] = count($keys) === 1 ? "{$field}" : "{$tableName}.{$field}";
+                }
             }
         }
 
@@ -83,8 +91,7 @@ trait QueryBuilderTrait
         $query->select($selectFields);
 
         if ($userId) {
-            $type = substr($keys[0], 0, -1);
-            $type = ucfirst($type);
+            $type = ucfirst(substr($keys[0], 0, -1));
             $type = "App\Models\\$type";
 
             $query->leftJoin('likes', function ($join) use ($userId, $type, $keys) {
@@ -92,6 +99,7 @@ trait QueryBuilderTrait
                     ->where('likes.likeable_type', '=', $type)
                     ->where('likes.user_id', '=', $userId);
             });
+
             $query->addSelect(DB::raw('COUNT(likes.id) > 0 as is_liked'));
 
             $arr = [];
@@ -101,6 +109,13 @@ trait QueryBuilderTrait
             $query->groupBy("{$keys[0]}.id", $arr);
         }
     }
+
+
+
+
+
+
+
 
     /**
      * Подключение полей по ID публикации
@@ -182,28 +197,30 @@ trait QueryBuilderTrait
      */
     private function applyDateFilters($query, Request $request)
     {
+        $timezone = $request->query('timezone', 'UTC');
+
         if ($crtFrom = $request->query('crtFrom')) {
-            $query->whereDate('created_at', '>=', Carbon::parse($crtFrom));
+            $query->whereDate('created_at', '>=', Carbon::parse($crtFrom, $timezone)->setTimezone('UTC'));
         }
 
         if ($crtTo = $request->query('crtTo')) {
-            $query->whereDate('created_at', '<=', Carbon::parse($crtTo));
+            $query->whereDate('created_at', '<=', Carbon::parse($crtTo, $timezone)->setTimezone('UTC'));
         }
 
         if ($updFrom = $request->query('updFrom')) {
-            $query->whereDate('updated_at', '>=', Carbon::parse($updFrom));
+            $query->whereDate('updated_at', '>=', Carbon::parse($updFrom, $timezone)->setTimezone('UTC'));
         }
 
         if ($updTo = $request->query('updTo')) {
-            $query->whereDate('updated_at', '<=', Carbon::parse($updTo));
+            $query->whereDate('updated_at', '<=', Carbon::parse($updTo, $timezone)->setTimezone('UTC'));
         }
 
         if ($crtDate = $request->query('crtDate')) {
-            $query->whereDate('created_at', Carbon::parse($crtDate));
+            $query->whereDate('created_at', Carbon::parse($crtDate, $timezone)->setTimezone('UTC'));
         }
 
         if ($updDate = $request->query('updDate')) {
-            $query->whereDate('updated_at', Carbon::parse($updDate));
+            $query->whereDate('updated_at', Carbon::parse($updDate, $timezone)->setTimezone('UTC'));
         }
     }
 

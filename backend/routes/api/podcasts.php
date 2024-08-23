@@ -22,5 +22,6 @@ Route::group([
     'prefix' => 'podcasts'
 ], function () {
     Route::get('published', [PodcastController::class, 'getPublishedPodcasts'])->withoutMiddleware('auth');
+    Route::get('tags/', [PodcastController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [PodcastController::class, 'getPodcastById'])->withoutMiddleware('auth');
 });

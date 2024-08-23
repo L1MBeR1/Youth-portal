@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Traits\PaginationTrait;
 use App\Traits\QueryBuilderTrait; 
 // use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StorePodcastRequest;
 use App\Http\Requests\UpdatePodcastRequest;
@@ -160,6 +161,14 @@ class PodcastController extends Controller
         $podcasts = Podcast::where('author_id', $user->id)->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($podcasts);
         return $this->successResponse($podcasts->items(), $paginationData, 200);
+    }
+
+    public function getTags()
+    {
+        $tags = Podcast::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
+                        ->pluck('tags');
+
+        return response()->json($tags);
     }
 
 

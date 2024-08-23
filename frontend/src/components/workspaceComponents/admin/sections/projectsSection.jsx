@@ -67,7 +67,7 @@ function ProjectsSection() {
       case 'published':
         return <Chip color="success" size="sm" variant="soft">Опубликован</Chip>;
       case 'archived':
-        return <Chip color="neutral" size="sm" variant="soft">Заархивирован</Chip>;
+        return <Chip color="neutral" size="sm" variant="soft">Архивирован</Chip>;
       case 'pending':
         return <Chip color="danger" size="sm" variant="soft">На доработке</Chip>;
       default:

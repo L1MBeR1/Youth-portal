@@ -18,6 +18,8 @@ Route::group([
     Route::get('/index', [BlogController::class, 'index']); // TODO: включен в другие методы.
 
     Route::post('', [BlogController::class, 'store']); // для всех авторизованных
+    Route::post('drafts/{id}', [BlogController::class, 'createDraft']); // для всех авторизованных
+    Route::put('drafts/{id}', [BlogController::class, 'applyDraft']); // для всех авторизованных
     Route::post('{id}/like', [BlogController::class, 'likeBlog']); // для всех авторизованных
 
     Route::delete('{id}', [BlogController::class, 'destroy']);  // для всех авторизованных владельцев. для 
@@ -31,5 +33,6 @@ Route::group([
     'prefix' => 'blogs'
 ], function () {
     Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); // Все
+    Route::get('tags/', [BlogController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); // Для админов, модераторов, су. Если статус published, то для всех
 });

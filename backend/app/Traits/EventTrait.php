@@ -80,7 +80,7 @@ trait EventTrait
 
     private function applyEventCategoryFilter($query, $request)
     {
-        if ($request->has('category')) {
+        if ($request->has('category') && trim($request->input('category')) !== '') {
             $query->where('category', $request->input('category'));
         }
     }

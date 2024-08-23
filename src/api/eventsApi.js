@@ -17,6 +17,7 @@ export const getEventsByPage = async (token,params) => {
   }
 };
 export const getHomeEvents = async (token,params) => {
+  console.log(params)
   try {
     const response = await axios.get(`${API_URL}/events/userEvents`, {
       headers: {

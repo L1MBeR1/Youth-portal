@@ -38,6 +38,13 @@ const theme = extendTheme({
           borderRadius:"50px"
         },
         },
+    },
+    JoyAutocomplete:{
+      styleOverrides: {
+        root: {
+          borderRadius:"50px"
+        },
+        },
     }
   },
   

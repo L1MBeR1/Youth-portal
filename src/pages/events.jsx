@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Grid from '@mui/joy/Grid';
 import Box from '@mui/joy/Box';
 import Autocomplete from '@mui/joy/Autocomplete';
 import FormControl from '@mui/joy/FormControl';
+import IconButton from '@mui/joy/IconButton';
 import FormLabel from '@mui/joy/FormLabel';
-import FormHelperText from '@mui/joy/FormHelperText';
 import { Typography, Stack, Button } from '@mui/joy';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 import Map from '../components/maps/map';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
@@ -20,8 +21,18 @@ function Events() {
 
 	const [country, setCountry] = useState('');
 	const [city, setCity] = useState('');
+	const [filtersCleared, setFiltersCleared] = useState(false);
 
-	const [events, cities, countries] = useEventsWithSortData({
+	const {
+		events,
+		cities,
+		countries,
+		refetchEvents,
+		refetchCities,
+		refetchCountries,
+		isLoading,
+		isError,
+	} = useEventsWithSortData({
 		start_date,
 		end_date: endDateString,
 		per_page,
@@ -29,6 +40,20 @@ function Events() {
 		city,
 	});
 
+	useEffect(() => {
+		if (filtersCleared) {
+			refetchEvents();
+			setFiltersCleared(false);
+		}
+	}, [filtersCleared, refetchEvents]);
+	const handleRefetch = () => {
+		refetchEvents();
+	};
+	const clearFilters = () => {
+		setCountry('');
+		setCity('');
+		setFiltersCleared(true);
+	};
 	return (
 		<Stack
 			direction={'column'}
@@ -40,7 +65,7 @@ function Events() {
 			<Box marginTop={{ xs: '15px', md: '25px' }}>
 				<Typography level='h1'>Мероприятия</Typography>
 			</Box>
-			<Stack direction={'column'}>
+			<Stack direction={'column'} spacing={2}>
 				<Box
 					sx={{
 						borderRadius: 'sm',
@@ -53,17 +78,38 @@ function Events() {
 					<FormControl>
 						<FormLabel>Страна</FormLabel>
 						<Autocomplete
-							placeholder='Выберете страну'
-							options={countries.data}
+							disableClearable={true}
+							placeholder='Выберите страну'
+							options={countries || []}
+							onChange={(e, value) => {
+								setCountry(value);
+							}}
+							value={country}
 						/>
-						{/* <FormHelperText>A description for the combo box.</FormHelperText> */}
 					</FormControl>
 					<FormControl>
 						<FormLabel>Город</FormLabel>
-						<Autocomplete placeholder='Выберете город' options={cities.data} />
-						{/* <FormHelperText>A description for the combo box.</FormHelperText> */}
+						<Autocomplete
+							disableClearable={true}
+							placeholder='Выберите город'
+							options={cities || []}
+							onChange={(e, value) => setCity(value)}
+							value={city}
+						/>
 					</FormControl>
-					<Button color='primary'>Найти</Button>
+					<IconButton
+						variant='outlined'
+						onClick={clearFilters}
+						color='danger'
+						sx={{
+							'--IconButton-size': '35px',
+						}}
+					>
+						<SearchOffIcon />
+					</IconButton>
+					<Button color='primary' onClick={handleRefetch}>
+						Найти
+					</Button>
 				</Box>
 				<Stack
 					direction={'row'}
@@ -73,7 +119,7 @@ function Events() {
 						overflow: 'hidden',
 					}}
 				>
-					{events.data && (
+					{events && (
 						<>
 							<Stack
 								direction={'column'}
@@ -90,7 +136,7 @@ function Events() {
 									}}
 								>
 									<Grid container spacing={2}>
-										{events.data.map((event, index) => (
+										{events.map((event, index) => (
 											<Grid
 												xs={12}
 												smx={6}
@@ -106,7 +152,7 @@ function Events() {
 								</Stack>
 							</Stack>
 							<Stack direction={'column'} flexGrow={1}>
-								<Map markers={events.data} />
+								<Map markers={events} />
 							</Stack>
 						</>
 					)}

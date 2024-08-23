@@ -27,6 +27,7 @@ function EventMarkerCard({ data }) {
 					boxSizing: 'border-box',
 					flexGrow: '1',
 					height: '100%',
+					cursor: 'pointer',
 					p: '0',
 				}}
 				onClick={() => {

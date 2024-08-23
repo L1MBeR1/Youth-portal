@@ -374,6 +374,8 @@ class FileController extends Controller
         return response()->json(['message' => 'File deleted successfully'], 200);
     }
 
+    
+
     /**
      * Получение размера директории
      */

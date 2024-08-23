@@ -3,6 +3,7 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
+use Illuminate\Support\Facades\Log;
 
 //!!! ПОМЕТКА: если не указан оператор то по дефолту выбирается - AND
 trait EventTrait
@@ -10,6 +11,7 @@ trait EventTrait
     //TODO Добавить категории мероприятий в отдельном поле в БД
     public function getEventsForUsers(Request $request)
     {
+        Log::info($request);
         $query = Event::with(['project', 'author.metadata']);
 
         $this->applyEventDateFilters($query, $request);
@@ -32,6 +34,7 @@ trait EventTrait
                 'name' => $event->name,
                 'description' => $event->description,
                 'address' => $event->address,
+                'cover_uri' => $event->cover_uri,
                 'longitude' => $event->longitude,
                 'latitude' => $event->latitude,
                 'views' => $event->views,
@@ -65,14 +68,15 @@ trait EventTrait
 
     private function applyEventLocationFilters($query, $request)
     {
-        if ($request->has('country')) {
+        if ($request->has('country') && $request->input('country') !== "''") {
             $query->whereRaw("address->>'country' = ?", [$request->input('country')]);
         }
 
-        if ($request->has('city')) {
+        if ($request->has('city') && $request->input('city') !== "''") {
             $query->whereRaw("address->>'city' = ?", [$request->input('city')]);
         }
     }
+
 
     private function applyEventCategoryFilter($query, $request)
     {

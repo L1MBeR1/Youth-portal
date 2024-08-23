@@ -81,7 +81,7 @@ function ChangeStatusModal({func,message,id,isOpen,setIsOpen}) {
             <Select required size="sm" value={status} onChange={(e,newValue) => handleChange(newValue)} placeholder="Выберите статус">
             <Option value="moderating">На проверке</Option>
             <Option value="published">Опубликован</Option>
-            <Option value="archived">Заархивирован</Option>
+            <Option value="archived">Архивирован</Option>
             <Option value="pending">На доработке</Option>
             </Select>
             <FormHelperText>{error}</FormHelperText>

@@ -34,9 +34,9 @@ import Moderator from './pages/moderator';
 import Su from './pages/su';
 
 // <====== TEST =======>
-import BlogWrapper from './pages/testing/BlogWrapper';
+import BlogWrapper from './pages/testing/v1/BlogWrapper';
 import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
-import BlogCreatorV3 from './pages/testing/v3/BlogCreator';
+import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
 // <===================>
 
 //Роуты
@@ -89,9 +89,10 @@ function App() {
 							Сделать маршрут для роли blogger
 							/editor
 						*/}
-						<Route path='/test_blog_creator' element={<BlogWrapper />} />
-						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
-						<Route path='/test_blog_creator_v3' element={<BlogCreatorV3 />} />
+						<Route path='/test_blog_creator_v1' element={<BlogWrapper />}/>
+						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />}/>
+						<Route path='/blog_creator' element={<BlogCreator />}/>
+
 					</Route>
 
 					<Route

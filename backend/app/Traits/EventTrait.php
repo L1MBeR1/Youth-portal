@@ -68,11 +68,11 @@ trait EventTrait
 
     private function applyEventLocationFilters($query, $request)
     {
-        if ($request->has('country') && $request->input('country') !== "''") {
+        if ($request->has('country') && $request->input('country') !== '""') {
             $query->whereRaw("address->>'country' = ?", [$request->input('country')]);
         }
 
-        if ($request->has('city') && $request->input('city') !== "''") {
+        if ($request->has('city') && $request->input('city') !== '""') {
             $query->whereRaw("address->>'city' = ?", [$request->input('city')]);
         }
     }

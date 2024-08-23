@@ -45,3 +45,33 @@ export const getEvent = async (token,id) => {
     throw error;
   }
 };
+
+export const getCountries = async (token) => {
+  try {
+    const response = await axios.get(`${API_URL}/countries/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response)
+    return response;
+  } catch (error) {
+    console.error('Error fetching countries:', error);
+    throw error;
+  }
+};
+
+export const getCities = async (token) => {
+  try {
+    const response = await axios.get(`${API_URL}/cities/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response)
+    return response;
+  } catch (error) {
+    console.error('Error fetching cities:', error);
+    throw error;
+  }
+};

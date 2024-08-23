@@ -59,7 +59,6 @@ const BlogCart = ({ data }) => {
 						'& img': {
 							transition: 'transform 0.4s',
 						},
-						borderRadius: '30px',
 					}}
 				>
 					<img

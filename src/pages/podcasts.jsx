@@ -38,7 +38,7 @@ function Podcasts() {
 			{!isLoading && news && (
 				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
 					{news.map(news => (
-						<Grid item xs={6} smx={4} mdx={3} lgx={2} xxl={2} key={news.id}>
+						<Grid xs={6} smx={4} mdx={3} lgx={2} xxl={2} key={news.id}>
 							<PodcastsCard data={news} />
 						</Grid>
 					))}

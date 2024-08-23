@@ -73,7 +73,7 @@ function Blogs() {
 			{!isLoading && blogs && (
 				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
 					{blogs.map(blog => (
-						<Grid item xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={blog.id}>
+						<Grid xs={12} smx={6} mdx={4} lgx={3} xxl={2} key={blog.id}>
 							<BlogCart data={blog} />
 						</Grid>
 					))}

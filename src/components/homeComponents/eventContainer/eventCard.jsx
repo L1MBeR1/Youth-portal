@@ -31,6 +31,13 @@ function EventCard({ data }) {
 					borderRadius: '30px',
 					flexGrow: '1',
 					height: '100%',
+					cursor: 'pointer',
+					'&:hover .cover': {
+						transform: 'scale(1.075)',
+					},
+				}}
+				onClick={() => {
+					handleRedirect(data.id);
 				}}
 			>
 				<CardOverflow>
@@ -43,12 +50,11 @@ function EventCard({ data }) {
 							'& img': {
 								transition: 'transform 0.4s',
 							},
-							borderRadius: '30px',
 						}}
 					>
 						<img
 							className={'cover'}
-							src={BlankImage}
+							src={data.cover_uri ? data.cover_uri : BlankImage}
 							alt={data.title}
 							loading='lazy'
 						/>
@@ -101,14 +107,6 @@ function EventCard({ data }) {
 								<Typography level='body-sm'>{fullAddress}</Typography>
 							</Stack>
 						</Stack>
-						<Button
-							variant='soft'
-							onClick={() => {
-								handleRedirect(data.id);
-							}}
-						>
-							Подробнее
-						</Button>
 					</Stack>
 				</CardContent>
 			</Card>

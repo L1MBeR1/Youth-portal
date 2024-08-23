@@ -7,7 +7,6 @@ const useHomeEvents = () => {
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + 2); 
   const endDateString = endDate.toISOString().split('T')[0]; 
-  console.log(12121)
   const perPage = 10; 
 
   return useQuery({

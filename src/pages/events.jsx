@@ -1,15 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Grid from '@mui/joy/Grid';
 import Box from '@mui/joy/Box';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import { Typography, Stack } from '@mui/joy';
+import Autocomplete from '@mui/joy/Autocomplete';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import FormHelperText from '@mui/joy/FormHelperText';
+import { Typography, Stack, Button } from '@mui/joy';
 
-import Map from '../components/map/map';
+import Map from '../components/maps/map';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
-import useHomeEvents from '../hooks/useHomeEvents';
+import useEventsWithSortData from '../hooks/useEventsWithSortData';
+
 function Events() {
-	const { data: events, isLoading } = useHomeEvents();
+	const start_date = new Date().toISOString().split('T')[0];
+	const end_date = new Date();
+	end_date.setMonth(end_date.getMonth() + 2);
+	const endDateString = end_date.toISOString().split('T')[0];
+	const per_page = 10;
+
+	const [country, setCountry] = useState('');
+	const [city, setCity] = useState('');
+
+	const [events, cities, countries] = useEventsWithSortData({
+		start_date,
+		end_date: endDateString,
+		per_page,
+		country,
+		city,
+	});
+
 	return (
 		<Stack
 			direction={'column'}
@@ -19,14 +38,33 @@ function Events() {
 			}}
 		>
 			<Box marginTop={{ xs: '15px', md: '25px' }}>
-				<Typography level='h1' fontSize={'clamp(3rem,4vw, 5.5rem)'}>
-					Мероприятия
-				</Typography>
+				<Typography level='h1'>Мероприятия</Typography>
 			</Box>
 			<Stack direction={'column'}>
-				{/* <Stack direction={'row'}>
-					<Select></Select>
-				</Stack> */}
+				<Box
+					sx={{
+						borderRadius: 'sm',
+						display: { xs: 'none', sm: 'flex' },
+						flexWrap: 'wrap',
+						alignItems: 'flex-end',
+						gap: 1.5,
+					}}
+				>
+					<FormControl>
+						<FormLabel>Страна</FormLabel>
+						<Autocomplete
+							placeholder='Выберете страну'
+							options={countries.data}
+						/>
+						{/* <FormHelperText>A description for the combo box.</FormHelperText> */}
+					</FormControl>
+					<FormControl>
+						<FormLabel>Город</FormLabel>
+						<Autocomplete placeholder='Выберете город' options={cities.data} />
+						{/* <FormHelperText>A description for the combo box.</FormHelperText> */}
+					</FormControl>
+					<Button color='primary'>Найти</Button>
+				</Box>
 				<Stack
 					direction={'row'}
 					height={'75vh'}
@@ -35,7 +73,7 @@ function Events() {
 						overflow: 'hidden',
 					}}
 				>
-					{!isLoading && (
+					{events.data && (
 						<>
 							<Stack
 								direction={'column'}
@@ -52,9 +90,8 @@ function Events() {
 									}}
 								>
 									<Grid container spacing={2}>
-										{events.map((event, index) => (
+										{events.data.map((event, index) => (
 											<Grid
-												item
 												xs={12}
 												smx={6}
 												mdx={6}
@@ -69,7 +106,7 @@ function Events() {
 								</Stack>
 							</Stack>
 							<Stack direction={'column'} flexGrow={1}>
-								<Map markers={events} />
+								<Map markers={events.data} />
 							</Stack>
 						</>
 					)}

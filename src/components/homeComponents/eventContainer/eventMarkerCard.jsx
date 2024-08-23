@@ -29,6 +29,9 @@ function EventMarkerCard({ data }) {
 					height: '100%',
 					p: '0',
 				}}
+				onClick={() => {
+					handleRedirect(data.id);
+				}}
 			>
 				<AspectRatio
 					minHeight='200px'
@@ -43,7 +46,7 @@ function EventMarkerCard({ data }) {
 				>
 					<img
 						className={'cover'}
-						src={BlankImage}
+						src={data.cover_uri ? data.cover_uri : BlankImage}
 						alt={data.title}
 						loading='lazy'
 					/>
@@ -82,14 +85,6 @@ function EventMarkerCard({ data }) {
 							<Typography level='body-sm'>{fullAddress}</Typography>
 						</Stack>
 					</Stack>
-					<Button
-						variant='soft'
-						onClick={() => {
-							handleRedirect(data.id);
-						}}
-					>
-						Подробнее
-					</Button>
 				</Stack>
 			</Card>
 		</>

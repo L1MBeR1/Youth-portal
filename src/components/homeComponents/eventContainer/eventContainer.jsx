@@ -3,55 +3,35 @@ import React, { useState } from 'react';
 import Box from '@mui/joy/Box';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
+import Button from '@mui/joy/Button';
+import { Link, useNavigate } from 'react-router-dom';
 
-import EventVerticalCarousel from './eventVerticalCarousel';
-import EventsHorizontalCarousel from './eventsHorizontalCarousel';
-import eventsData from '../../../test/events.json';
-import Map from '../../map/map';
+import EventsCarousel from './eventsCarousel';
+// import eventsData from '../../../test/events.json';
 
-import useEvents from '../../../hooks/useEvents';
+import useHomeEvents from '../../../hooks/useHomeEvents';
 
 const EventContainer = () => {
-	const [events, setEvents] = useState(eventsData);
+	const navigate = useNavigate();
+	const { data: events, isLoading } = useHomeEvents();
 	return (
 		<Stack direction={'column'} flexGrow={1} gap={'30px'}>
-			<Typography level='h2'>Мероприятия</Typography>
 			<Stack
-				gap={'20px'}
-				sx={{
-					flexDirection: { xs: 'column', mdx: 'row' },
-					// height: { xs: '40vh', mdx: '60vh' },
-				}}
+				direction={'row'}
+				justifyContent={'space-between'}
+				alignItems={'flex-end'}
 			>
-				<Stack
-					sx={{
-						width: { xs: '100%', mdx: '35%' },
-						maxWidth: { xs: '100%', mdx: '35%' },
-						borderRadius: '30px',
-						overflow: 'hidden',
-						display: { xs: 'none', mdx: 'block' },
+				<Typography level='h2'>Мероприятия</Typography>
+				<Button
+					size='sm'
+					onClick={() => {
+						navigate('events');
 					}}
 				>
-					<Map markers={events} />
-				</Stack>
-				<Box
-					sx={{
-						width: '65%',
-						maxWidth: '65%',
-						display: { xs: 'none', mdx: 'block' },
-					}}
-				>
-					<EventsHorizontalCarousel data={events} />
-				</Box>
-				<Box
-					sx={{
-						width: '100%',
-						display: { xs: 'block', mdx: 'none' },
-					}}
-				>
-					<EventsHorizontalCarousel data={events} />
-				</Box>
+					<Typography level='buttonInv-sm'>Посмотреть ещё</Typography>
+				</Button>
 			</Stack>
+			{!isLoading && <EventsCarousel data={events} />}
 		</Stack>
 	);
 };

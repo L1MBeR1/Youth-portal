@@ -127,7 +127,7 @@ function Header() {
 									color: `${theme.vars.palette.neutral['second']}`,
 								})}
 							>
-								блоги
+								Блоги
 							</ListItemButton>
 							<ListItemButton
 								onClick={() => {
@@ -137,7 +137,7 @@ function Header() {
 									color: `${theme.vars.palette.neutral['second']}`,
 								})}
 							>
-								новости
+								Новости
 							</ListItemButton>
 							<ListItemButton
 								onClick={() => {
@@ -147,7 +147,17 @@ function Header() {
 									color: `${theme.vars.palette.neutral['second']}`,
 								})}
 							>
-								подкасты
+								Подкасты
+							</ListItemButton>
+							<ListItemButton
+								onClick={() => {
+									handleLink('/events');
+								}}
+								sx={theme => ({
+									color: `${theme.vars.palette.neutral['second']}`,
+								})}
+							>
+								Мероприятия
 							</ListItemButton>
 						</List>
 					</Drawer>
@@ -166,7 +176,7 @@ function Header() {
 						direction='row'
 						justifyContent='center'
 						alignItems='center'
-						spacing={2}
+						spacing={1}
 					>
 						<Button
 							variant='plain'
@@ -191,6 +201,14 @@ function Header() {
 							}}
 						>
 							<Typography level={'headerButton'}>Подкасты</Typography>
+						</Button>
+						<Button
+							variant='plain'
+							onClick={() => {
+								handleLink('/events');
+							}}
+						>
+							<Typography level={'headerButton'}>Мероприятия</Typography>
 						</Button>
 					</Stack>
 				</Box>

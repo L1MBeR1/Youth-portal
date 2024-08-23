@@ -12,7 +12,36 @@ export const getEventsByPage = async (token,params) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching news:", error);
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+export const getHomeEvents = async (token,params) => {
+  try {
+    const response = await axios.get(`${API_URL}/events/userEvents`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: params
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+export const getEvent = async (token,id) => {
+  console.log(id)
+  try {
+    const response = await axios.get(`${API_URL}/events/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching event:', error);
     throw error;
   }
 };

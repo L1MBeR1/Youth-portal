@@ -8,8 +8,8 @@ export const lightPalette={
 				background:"#fffcf5",
 				primary:"#1E46E6",
 
-				surface0:'#121212',
-				surface1:'#F2EEE3'
+				surface0:'#1E1E24',
+				surface1:'#FEF3E8'
 			},
 			neutral: {
 
@@ -30,6 +30,8 @@ export const lightPalette={
     		solidHoverBorder: '#1e389f',
     		solidActiveBg: 'var(--joy-palette-main-primary)',
     		solidActiveBorder: 'var(--joy-palette-main-primary)',
+				// softDisabledBg: '#6c757d',
+    		softDisabledBorder: 'var(--joy-palette-main-primary)',
 								500:"#1E46E6"
 			},
 			text:{

@@ -11,10 +11,11 @@ import vk from '../../img/social/vk.svg';
 import telegram from '../../img/social/telegram.svg';
 import youtube from '../../img/social/youtube.svg';
 import Logo from './logo';
+import zIndex from '@mui/material/styles/zIndex';
 
 function Footer() {
 	return (
-		<footer>
+		<footer style={{ zIndex: '1000' }}>
 			<Stack
 				justifyContent={'space-between'}
 				sx={{
@@ -53,7 +54,7 @@ function Footer() {
 								</IconButton>
 							}
 							sx={{
-								'--Input-decoratorChildHeight': { sm: '40px', mdx: '50px' },
+								'--Input-decoratorChildHeight': { sm: '40px', mdx: '40px' },
 								'--Input-gap': '10px',
 								'--Input-radius': '50px',
 								'--Input-minHeight': { sm: '40px', mdx: '50px' },
@@ -113,6 +114,12 @@ function Footer() {
 							</Typography>
 							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
 								Подкасты
+							</Typography>
+							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+								Мероприятия
+							</Typography>
+							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+								Проекты
 							</Typography>
 						</Stack>
 					</Stack>

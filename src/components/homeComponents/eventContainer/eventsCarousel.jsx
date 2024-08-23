@@ -6,9 +6,9 @@ import 'swiper/css/pagination';
 import { Button, Stack } from '@mui/joy';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import EventVerticalCart from './eventVerticalCart';
+import EventCart from './eventCard';
 
-const EventsHorizontalCarousel = ({ data }) => {
+const EventsCarousel = ({ data }) => {
 	const swiperRef = useRef(null);
 	const [isBeginning, setIsBeginning] = useState(true);
 	const [isEnd, setIsEnd] = useState(false);
@@ -49,6 +49,7 @@ const EventsHorizontalCarousel = ({ data }) => {
 			spacing={2}
 		>
 			<Button
+				color='primary'
 				variant='soft'
 				sx={{ maxWidth: '20px' }}
 				onClick={handlePrevSlide}
@@ -68,24 +69,33 @@ const EventsHorizontalCarousel = ({ data }) => {
 						slidesPerView: 1,
 						spaceBetween: 20,
 					},
-					668: {
+					700: {
 						slidesPerView: 2,
-						spaceBetween: 40,
+						spaceBetween: 20,
 					},
-					1424: {
+					1000: {
 						slidesPerView: 3,
-						spaceBetween: 50,
+						spaceBetween: 30,
+					},
+					1300: {
+						slidesPerView: 4,
+						spaceBetween: 30,
+					},
+					1600: {
+						slidesPerView: 5,
+						spaceBetween: 40,
 					},
 				}}
 				className='mySwiper'
 			>
 				{data.map((event, index) => (
 					<SwiperSlide key={index}>
-						<EventVerticalCart data={event} />
+						<EventCart data={event} />
 					</SwiperSlide>
 				))}
 			</Swiper>
 			<Button
+				color='primary'
 				variant='soft'
 				sx={{ maxWidth: '20px' }}
 				onClick={handleNextSlide}
@@ -97,4 +107,4 @@ const EventsHorizontalCarousel = ({ data }) => {
 	);
 };
 
-export default EventsHorizontalCarousel;
+export default EventsCarousel;

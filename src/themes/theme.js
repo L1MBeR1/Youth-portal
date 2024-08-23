@@ -31,8 +31,16 @@ const theme = extendTheme({
           borderRadius:"50px"
         },
         },
+    },
+    JoySelect:{
+      styleOverrides: {
+        root: {
+          borderRadius:"50px"
+        },
+        },
     }
   },
+  
   focus:{
     default:{
       outline:"var(--joy-palette-main-primary)"
@@ -54,6 +62,18 @@ const theme = extendTheme({
       fontSize:"clamp(2.5rem,3vw, 5.5rem)",//TODO:Настроить
       lineHeight:'1.2'
     },
+    "publications-h1":{
+      fontWeight:"600",
+      fontSize:"clamp(2.5rem,3.4vw, 4.5rem)",
+      color:'var(--joy-palette-main-text)',
+      lineHeight:'1.2'
+    },
+    "publications-h2":{
+      fontWeight:"600",
+      fontSize:"clamp(1.8rem,2.5vw, 3.2rem)",
+      color:'var(--joy-palette-main-text)',
+      lineHeight:'1.2'
+    },
     headerButton:{
       fontWeight:"600",
       fontSize:"clamp(0.85rem,1.5vw, 1.1rem)",
@@ -62,6 +82,11 @@ const theme = extendTheme({
     "buttonInv":{
       fontWeight:"600",
       fontSize:"clamp(0.8rem,2vw, 1rem)",
+      color:'var(--joy-palette-text-inverted)'
+    },
+    "buttonInv-sm":{
+      fontWeight:"600",
+      fontSize:"clamp(0.7rem,2vw, 0.9rem)",
       color:'var(--joy-palette-text-inverted)'
     },
 
@@ -74,6 +99,11 @@ const theme = extendTheme({
     "title-lg":{
       fontWeight:"600",
       fontSize:"clamp(1rem,2.5vw, 1.2rem)",
+        lineHeight:'1.1'
+    },
+    "title-md":{
+      fontWeight:"600",
+      fontSize:"clamp(0.8rem,2.5vw, 1.05rem)",
         lineHeight:'1.1'
     },
     "body-md":{

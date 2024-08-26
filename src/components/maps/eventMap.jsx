@@ -19,11 +19,14 @@ const CustomAttribution = () => {
 	return null;
 };
 
-const EventMap = ({ data }) => {
+const EventMap = ({ data, zoom }) => {
+	const longitude = data.longitude || 63;
+	const latitude = data.latitude || 90;
+
 	return (
 		<MapContainer
-			center={[63, 90]}
-			zoom={3}
+			center={[latitude, longitude]}
+			zoom={zoom || 3}
 			attributionControl={true}
 			style={{ height: '100%', width: '100%' }}
 		>
@@ -32,7 +35,7 @@ const EventMap = ({ data }) => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 			/>
 			<CustomAttribution />
-			<Marker key={data.id} position={[data.latitude, data.longitude]}></Marker>
+			<Marker key={data.id} position={[latitude, longitude]}></Marker>
 		</MapContainer>
 	);
 };

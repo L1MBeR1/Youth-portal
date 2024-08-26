@@ -12,6 +12,7 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $roles = [
             'su' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов
@@ -27,6 +28,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'restore deleted post',        // восстановление удаленных постов
             ],
             'admin' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов
@@ -41,6 +43,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view reports',                // просмотр отчетов
             ],
             'blogger' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов
@@ -65,6 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view public comments',        // просмотр опубликованных комментариев
             ],
             'organization' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов
@@ -74,6 +78,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'create organization events',  // создание событий организации
             ],
             'news_creator' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов
@@ -98,10 +103,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'edit own profile',            // редактирование собственного профиля
                 'send messages',               // отправка сообщений
                 'like posts',                  // лайк постов
+                'set likes',
                 'follow users',                // подписка на пользователей
                 'report posts',                // жалоба на посты
             ],
             'moderator' => [
+                'set likes',
                 'view published news',         // просмотр постов
                 'view published blogs',        // просмотр постов
                 'view published podcasts',     // просмотр постов

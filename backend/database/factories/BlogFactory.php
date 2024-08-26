@@ -103,7 +103,9 @@ class BlogFactory extends Factory
             'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
-                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                    'tags' => [
+                        $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                    ]
                 ]
             ],
             'content' => $this->generateContent(),

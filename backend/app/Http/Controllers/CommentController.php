@@ -168,6 +168,12 @@ class CommentController extends Controller
     {
         $comment = Comment::find($commentId);
 
+        $user = Auth::user();
+
+        if ($user->can('setLikes', $comment)) {
+            return $this->errorResponse('Нет прав на лайки', [], Response::HTTP_FORBIDDEN);
+        }
+
         $isAlreadyLiked = DB::table('likes')->where('likeable_id', $commentId)->where('likeable_type', 'comment')->where('user_id', Auth::id())->first();
         if ($isAlreadyLiked) {
             $like = DB::table('likes')
@@ -181,7 +187,6 @@ class CommentController extends Controller
         }
 
         $comment->increment('likes');
-        Log::info($comment);
         DB::table('likes')->insert([
             'user_id' => Auth::user()->id,
             'likeable_id' => $commentId,

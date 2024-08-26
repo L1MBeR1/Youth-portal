@@ -8,7 +8,6 @@ Route::group([
     'middleware' => ['api'],
     'prefix' => 'auth'
 ], function () {
-    Log::info('z nen');
     Route::get('verify_email', [AuthController::class, 'verifyEmail'])->withoutMiddleware('auth');
     
     Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');

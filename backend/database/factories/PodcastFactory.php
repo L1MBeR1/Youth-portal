@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PodcastFactory extends Factory
 {
-    private function generateImageURL(int $width = 320, int $height = 240): string 
+    private function generateImageURL(int $width = 320, int $height = 240): string
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000); 
+        $number = random_int(1, 100000);
         $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
         // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
         return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
@@ -29,7 +29,9 @@ class PodcastFactory extends Factory
             'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
-                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                    'tags' => [
+                        $this->faker->randomElement(['наука', 'культура', 'путешествия'])
+                    ]
                 ]
             ],
             'content' => $this->faker->realText(100),

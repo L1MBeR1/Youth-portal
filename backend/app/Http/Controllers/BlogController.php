@@ -108,6 +108,11 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
+        Log::info("aaa");
+        Log::info($request->input("timezone"));
+        Log::info($request->input("crtFrom"));
+        Log::info($request->input("crtTo"));
+
         $requiredFields = [
             "blogs" => [
                 "id",
@@ -331,8 +336,8 @@ class BlogController extends Controller
 
         return $this->successResponse($draft, 'Черновик создан', Response::HTTP_OK);
     }
-    
-    
+
+
 
 
 
@@ -415,27 +420,61 @@ class BlogController extends Controller
 
         $user = Auth::user();
 
+        if (!$user) {
+            return $this->errorResponse('Пользователь не авторизован', [], Response::HTTP_FORBIDDEN);
+        }
+
+        if (!Auth::user()->can('setLikes', $blog)) {
+            return $this->errorResponse('Нет прав на лайки', [], Response::HTTP_FORBIDDEN);
+        }
+
         $like = $blog->likes()->where('user_id', $user->id)->first();
 
         if ($like) {
             $like->delete();
             $blog->decrement('likes');
-            return $this->successResponse(['blogs' => $blog], 'Лайк на блог успешно отменен', 200);
+            return $this->successResponse($blog, 'Лайк на блог успешно отменен');
         } else {
             $blog->likes()->create(['user_id' => $user->id]);
             $blog->increment('likes');
         }
 
-        return $this->successResponse(['blogs' => $blog], 'Блог успешно лайкнут', 200);
+        return $this->successResponse($blog, 'Блог успешно лайкнут');
     }
 
 
 
-    public function getTags()
+    public function getTags(Request $request)
     {
-        $tags = Blog::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
-            ->pluck('tags');
+        //TODO: Переписать когда будет нормальный трейт для фильтров
+        // Получение параметров из запроса
+        $publishedOnly = $request->query('publishedOnly', false);
+        $authorId = $request->query('authorId', null);
 
-        return response()->json($tags);
+        // Создаем запрос к базе данных
+        $query = Blog::query();
+
+        // Фильтрация по статусу публикации, если установлен параметр publishedOnly
+        if ($publishedOnly) {
+            $query->where('status', 'published');
+        }
+
+        // Фильтрация по authorId, если установлен параметр authorId
+        if ($authorId) {
+            $query->where('author_id', $authorId);
+        }
+
+        // Получаем список тегов, используя jsonb_array_elements_text для извлечения отдельных значений массива
+        $tags = $query->select(DB::raw("jsonb_array_elements_text(description->'meta'->'tags') as tag"))
+            ->distinct()
+            ->pluck('tag');
+
+        $message = count($tags) > 0 ? 'Success' : 'No tags found';
+        return $this->successResponse(
+            data: $tags,
+            message: $message
+        );
     }
+
+
 }

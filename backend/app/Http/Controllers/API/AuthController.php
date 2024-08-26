@@ -48,12 +48,25 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
-        Log::info('z nen');
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email|unique:user_login_data,email',
-            'phone' => 'nullable|string|unique:user_login_data,phone',
-            'password' => 'required',
+            'email' => [
+                'nullable',
+                'email',
+                'unique:user_login_data,email',
+                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+            ],
+            'phone' => [
+                'nullable',
+                'string',
+                'unique:user_login_data,phone',
+                'regex:/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/', 
+            ],
+            'password' => [
+                'required',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
+            ],
         ]);
+        
         
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
@@ -177,7 +190,7 @@ class AuthController extends Controller
         $user->assignRole('user');
         $user->save();
 
-        return $this->successResponse('Email verified successfully');
+        return response()->view('emails.thanks');
     }
 
 
@@ -235,22 +248,17 @@ class AuthController extends Controller
 
     public function refresh(Request $request)
     {
-        Log::info('\n\n');
         $refreshToken = $request->cookie('refresh_token');
 
         if (!$refreshToken) {
-            Log::info('Нет токена');
             return $this->errorResponse('Refresh token is missing', [], 401);
         }
 
-        Log::info('Есть токен =');
-        Log::info($refreshToken);
 
         $decodedToken = base64_decode($refreshToken);
         list($uuid, $expiresAt) = explode('.', $decodedToken);
 
         if (now()->timestamp > $expiresAt) {
-            Log::info('Токен истёк');
             return response()->json([
                 'message' => 'Refresh token has expired',
                 'data' => [],
@@ -260,7 +268,6 @@ class AuthController extends Controller
 
         $user = User::where('remember_token', $refreshToken)->first();
         if (!$user) {
-            Log::info('Нет токена у пользователей');
             return response()->json([
                 'message' => 'Invalid refresh token',
                 'data' => [],
@@ -268,20 +275,11 @@ class AuthController extends Controller
             ])->cookie(cookie()->forget('refresh_token'));
         }
 
-        // if ($user->blocked_at) {
-        //     return response()->json([
-        //         'message' => 'User is blocked',
-        //         'data' => [],
-        //         'status_code' => 403
-        //     ])->cookie(cookie()->forget('refresh_token'));
-        // }
-
         Auth::login($user);
 
         $newToken = Auth::refresh();
         $newRefreshToken = $this->generateRefreshToken($user);
 
-        Log::info('Отдаю токен');
         return $this->respondWithToken($newToken, $newRefreshToken);
     }
 

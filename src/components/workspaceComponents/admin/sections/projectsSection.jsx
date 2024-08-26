@@ -55,6 +55,7 @@ function ProjectsSection() {
       crtFrom:crtFrom,
       crtTo:crtTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   useEffect(() => {
     refetch();

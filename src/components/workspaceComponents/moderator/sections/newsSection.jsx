@@ -71,6 +71,7 @@ function NewsSection() {
       updFrom:updFrom,
       updTo:updTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   useEffect(() => {
     refetch();

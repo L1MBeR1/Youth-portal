@@ -66,6 +66,7 @@ function OrganizationsSection() {
       updFrom:updFrom,
       updTo:updTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   
 

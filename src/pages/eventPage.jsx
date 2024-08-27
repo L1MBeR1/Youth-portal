@@ -205,7 +205,7 @@ function EventPage() {
 										height: '50vh',
 									}}
 								>
-									<EventMap data={data} />
+									<EventMap data={data} zoom={13} />
 								</Box>
 								<Typography level='body-lg'>{`${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`}</Typography>
 							</Stack>

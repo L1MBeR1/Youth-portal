@@ -65,6 +65,7 @@ function BlogersSection() {
       // updFrom:updFrom,
       // updTo:updTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   const addNewBlogger = async (email) => {
     const {token,needsRedirect} = await getToken('BloggerSection');

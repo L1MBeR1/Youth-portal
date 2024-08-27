@@ -67,6 +67,7 @@ function PodcastsSection() {
       updFrom:updFrom,
       updTo:updTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   const changeStauts= async (status) => {
     const {token,needsRedirect} = await getToken('BloggerSection');

@@ -61,6 +61,7 @@ function EventsSection() {
       updFrom:updFrom,
       updTo:updTo,
       operator:'or',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
 
   const renderFilters = () => (

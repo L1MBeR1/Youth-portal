@@ -15,7 +15,8 @@
         "league/flysystem-sftp-v3": "^3.28",
         "php-open-source-saver/jwt-auth": "^2.3",
         "socialiteproviders/vkontakte": "^5.0",
-        "spatie/laravel-permission": "^6.9"
+        "spatie/laravel-permission": "^6.9",
+        "spatie/laravel-query-builder": "^6.0"
     },
     "require-dev": {
         "knuckleswtf/scribe": "^4.37",

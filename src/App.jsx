@@ -14,6 +14,7 @@ import Home from './pages/home';
 import Login from './pages/login';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
+import Settings from './pages/settings';
 import Recovery from './pages/recovery';
 import Registration from './pages/registration';
 
@@ -75,6 +76,11 @@ function App() {
 
 						<Route path='/profile/:id' element={<Profile />} />
 
+						<Route
+							path='settings'
+							element={<NotGuestRoute element={<Settings />} />}
+						/>
+
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
 						<Route
 							path='registration'
@@ -89,10 +95,9 @@ function App() {
 							Сделать маршрут для роли blogger
 							/editor
 						*/}
-						<Route path='/test_blog_creator_v1' element={<BlogWrapper />}/>
-						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />}/>
-						<Route path='/blog_creator' element={<BlogCreator />}/>
-
+						<Route path='/test_blog_creator_v1' element={<BlogWrapper />} />
+						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
+						<Route path='/blog_creator' element={<BlogCreator />} />
 					</Route>
 
 					<Route

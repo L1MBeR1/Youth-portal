@@ -45,6 +45,13 @@ const theme = extendTheme({
           borderRadius:"50px"
         },
         },
+    },
+    JoyInput:{
+      styleOverrides: {
+        root: {
+          background:'var(--joy-palette-main-background)'
+        },
+        },
     }
   },
   
@@ -103,9 +110,15 @@ const theme = extendTheme({
       color:'var(--joy-palette-text-inverted)'
     },
 
-    "title-xl":{
+    "title-xxl":{
       fontWeight:"600",
       fontSize:"clamp(1.2rem,2.5vw, 1.9rem)",
+      color:'var(--joy-palette-main-text)',
+        lineHeight:'1.1'
+    },
+    "title-xl":{
+      fontWeight:"600",
+      fontSize:"clamp(1.1rem,2.5vw, 1.6rem)",
       color:'var(--joy-palette-main-text)',
         lineHeight:'1.1'
     },

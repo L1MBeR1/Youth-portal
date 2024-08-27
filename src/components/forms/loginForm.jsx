@@ -67,9 +67,12 @@ function LoginForm() {
 
 	return (
 		<Card
+			variant='plain'
 			sx={{
+				borderRadius: '30px',
 				width: '100%',
 				maxWidth: '450px',
+				padding: '25px',
 			}}
 		>
 			<form onSubmit={handleSubmit}>

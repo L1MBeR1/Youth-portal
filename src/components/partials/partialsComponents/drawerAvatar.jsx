@@ -27,13 +27,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profileBlank.png';
-
-import DrawerAvatar from './drawerAvatar.jsx';
-import MenuAvatar from './menuAvatar.jsx';
-
 import { Button, Typography } from '@mui/joy';
 
-function HeaderProfile() {
+function DrawerAvatar({ img }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const { data: profileData, isLoading } = useProfile();
@@ -53,59 +49,71 @@ function HeaderProfile() {
 	return (
 		<Box
 			sx={{
-				display: 'flex',
-				flexGrow: 1,
-				minWidth: '39px',
-				justifyContent: 'center',
-				alignContent: 'center',
+				display: { xs: 'block', md: 'none' },
 			}}
 		>
-			{/* <CircularProgress color="neutral"size="sm" variant="solid" /> */}
-			{isLoading ? (
-				<CircularProgress
-					color='neutral'
-					size='sm'
-					sx={{ '--CircularProgress-size': '30px' }}
-				/>
-			) : profileData ? (
-				<>
-					<DrawerAvatar img={profileData.profile_image_uri} />
-					<MenuAvatar
-						img={profileData.profile_image_uri}
-						id={profileData.id}
-						roles={profileData.roles}
-					/>
-				</>
-			) : (
-				<Link to='/login'>
-					<Box sx={{ display: { xs: 'none', md: 'block' } }}>
-						<Button
-							color={'primary'}
-							sx={{
-								borderRadius: '50px',
-							}}
-						>
-							<Typography
-								level={'headerButton'}
-								textColor={'var(--joy-palette-staticColors-mainLight)'}
-							>
-								Войти в аккаунт
-							</Typography>
-						</Button>
-					</Box>
-					<Box sx={{ display: { xs: 'block', md: 'none' } }}>
-						<IconButton
-							size='lg'
-							sx={{
-								borderRadius: '10px',
-							}}
-						>
-							<AccountCircleIcon />
-						</IconButton>
-					</Box>
-				</Link>
-			)}
+			<Avatar size='lg' src={img || profileBlank} />
+			<Drawer
+				sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+				open={openDrawer}
+				onClose={() => setOpenDrawer(false)}
+			>
+				<ModalClose />
+				<DialogTitle></DialogTitle>
+				<Stack></Stack>
+				<List
+					size='lg'
+					component='nav'
+					sx={{
+						flex: 'none',
+						fontSize: 'xl',
+						'& > div': { justifyContent: 'center' },
+					}}
+				>
+					<ListItemButton
+						onClick={() => {
+							handleLink('/blogs');
+						}}
+						sx={theme => ({
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
+					>
+						Блоги
+					</ListItemButton>
+					<ListItemButton
+						onClick={() => {
+							handleLink('/news');
+						}}
+						sx={theme => ({
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
+					>
+						Новости
+					</ListItemButton>
+					<ListItemButton
+						onClick={() => {
+							handleLink('/podcasts');
+						}}
+						sx={theme => ({
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
+					>
+						Подкасты
+					</ListItemButton>
+					<ListItemButton
+						onClick={() => {
+							handleLink('/events');
+						}}
+						sx={theme => ({
+							color: `${theme.vars.palette.neutral['second']}`,
+						})}
+					>
+						Мероприятия
+					</ListItemButton>
+				</List>
+			</Drawer>
 		</Box>
 	);
 }
-export default HeaderProfile;
+
+export default DrawerAvatar;

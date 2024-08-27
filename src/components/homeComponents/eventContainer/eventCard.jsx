@@ -17,7 +17,7 @@ import BlankImage from '../../../img/blank.png';
 import { useNavigate } from 'react-router-dom';
 function EventCard({ data }) {
 	const navigate = useNavigate();
-	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;
+	const fullAddress = `${data.address.country}, ${data.address.city}`;
 	const handleRedirect = id => {
 		navigate(`/event/${id}`);
 	};

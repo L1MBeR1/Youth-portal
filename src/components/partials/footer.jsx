@@ -39,7 +39,7 @@ function Footer() {
 				>
 					<Stack direction={'column'} flexGrow={1} spacing={2}>
 						<Typography
-							level='title-xl'
+							level='title-xxl'
 							textColor={'var(--joy-staticColors-mainLight)'}
 						>
 							Подпишись на наши обновления и будь в курсе всех событий!

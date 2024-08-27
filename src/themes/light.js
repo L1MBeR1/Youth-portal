@@ -5,11 +5,11 @@ export const lightPalette={
 				text2:"#878787",
 				text3:"#4e4e4e",
 
-				background:"#fffcf5",
+				background:"#fffefb",
 				primary:"#1E46E6",
 
 				surface0:'#1E1E24',
-				surface1:'#FEF3E8'
+				surface1:'#fef3e5'
 			},
 			neutral: {
 

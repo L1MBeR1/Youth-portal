@@ -19,10 +19,10 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'auth'
 ], function () {
-    Route::get('profile', [AuthController::class, 'getProfile']);
+    
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
     
     Route::post('logout', [AuthController::class, 'logout']);
     
-    Route::put('profile', [AuthController::class, 'updateProfile']);
+    
 });

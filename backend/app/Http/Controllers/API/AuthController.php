@@ -288,93 +288,9 @@ class AuthController extends Controller
 
 
 
-    /**
-     * Обновление профиля
-     * 
-     * Обновление профиля пользователя. 
-     * Поля, которые не переданы в запросе будут оставлены без изменения.
-     * 
-     * @group Авторизация
-     * @bodyParam first_name string optional first_name
-     * @bodyParam last_name string optional last_name
-     * @bodyParam patronymic string optional patronymic
-     * @bodyParam nickname string optional nickname
-     * @bodyParam profile_image_uri string optional profile_image_uri
-     * @bodyParam city string optional city
-     * @bodyParam gender string optional gender
-     * @bodyParam birthday date optional birthday
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    //TODO Изменить принцип валидации на валидацию через request
-    public function updateProfile(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'nullable|string|max:255',
-                'last_name' => 'nullable|string|max:255',
-                'patronymic' => 'nullable|string|max:255',
-                'nickname' => 'nullable|string|max:255',
-                'profile_image_uri' => 'nullable|string',
-                'city' => 'nullable|string|max:255',
-                'gender' => 'nullable|in:m,f',
-                'birthday' => 'nullable|date',
-            ]);
-            
-            if ($validator->fails()) {
-                return $this->errorResponse('Validation Error', $validator->errors(), 422);
-            }
+    
 
-            $user = Auth::user();
-            $metadata = $user->metadata;
-            if (!$metadata) {
-                $metadata = new UserMetadata();
-                $metadata->user_id = $user->id;
-            }
-
-            $metadata->fill($request->only([
-                'first_name',
-                'last_name',
-                'patronymic',
-                'nickname',
-                'profile_image_uri',
-                'city',
-                'gender',
-                'birthday'
-            ]));
-
-            $metadata->save();
-
-            return $this->successResponse($metadata, 'Profile updated successfully.');
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
-
-    /**
-     * Получение профиля
-     * 
-     * Получение информации о пользователе. 
-     * 
-     * @group Авторизация
-     * 
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getProfile()
-    {
-        try {
-            $user = Auth::user();
-            if (!$user)
-                return $this->errorResponse('Неверные данные', [], 400);
-            $metadata = $user->metadata;
-
-            return $this->successResponse($metadata, 'Profile retrieved successfully.');
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
+    
 
 
     /**

@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function getUserById($userId){
+    public function getUserById($userId)
+    {
         $user = User::where('id', $userId)->first();
         $user_metadata = UserMetadata::where('user_id', $userId)->first();
         $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
@@ -51,6 +53,7 @@ class UserController extends Controller
      */
     public function listUsers(Request $request)
     {
+        //TODO: исправить это
         if (!Auth::user()->hasRole('admin|moderator|su')) {
             return $this->errorResponse('Доступ запрещен', [], 403);
         }
@@ -216,7 +219,7 @@ class UserController extends Controller
     {
         Log::info($request);
         $request->validated();
-        
+
         $user = null;
 
         if ($request->input('user_id')) {
@@ -269,5 +272,111 @@ class UserController extends Controller
         $user->removeRole($role);
 
         return $this->successResponse([], 'Роль отнята успешно');
+    }
+
+    public function deleteUser($user_id)
+    {
+        $user = Auth::user();
+
+        if ($user_id == $user->id || $user->can('deleteAny', User::class)) {
+            $user = User::findOrFail($user_id);
+            if (!$user) {
+                return $this->errorResponse('User not found', [], 404);
+            }
+            $res = $user->delete();
+            if ($res) {
+                return $this->successResponse(null, 'User deleted successfully');
+            }
+            return $this->errorResponse('User not deleted', [], 500);
+        } else {
+            return $this->errorResponse('Нет прав на удаление', [], 403);
+        }
+    }
+
+
+
+    /**
+     * Обновление профиля
+     * 
+     * Обновление профиля пользователя. 
+     * Поля, которые не переданы в запросе будут оставлены без изменения.
+     * 
+     * @group Авторизация
+     * @bodyParam first_name string optional first_name
+     * @bodyParam last_name string optional last_name
+     * @bodyParam patronymic string optional patronymic
+     * @bodyParam nickname string optional nickname
+     * @bodyParam profile_image_uri string optional profile_image_uri
+     * @bodyParam city string optional city
+     * @bodyParam gender string optional gender
+     * @bodyParam birthday date optional birthday
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    //TODO Изменить принцип валидации на валидацию через request
+    public function updateProfile(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'patronymic' => 'nullable|string|max:255',
+            'nickname' => 'nullable|string|max:255',
+            'profile_image_uri' => 'nullable|string',
+            'city' => 'nullable|string|max:255',
+            'gender' => 'nullable|in:m,f',
+            'birthday' => 'nullable|date',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+        $metadata = $user->metadata;
+        if (!$metadata) {
+            $metadata = new UserMetadata();
+            $metadata->user_id = $user->id;
+        }
+
+        $metadata->fill($request->only([
+            'first_name',
+            'last_name',
+            'patronymic',
+            'nickname',
+            'profile_image_uri',
+            'city',
+            'gender',
+            'birthday'
+        ]));
+
+        $metadata->save();
+
+        return $this->successResponse($metadata, 'Profile updated successfully.');
+
+    }
+
+
+    /**
+     * Получение профиля
+     * 
+     * Получение информации о пользователе. 
+     * 
+     * @group Авторизация
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProfile()
+    {
+
+        $user = Auth::user();
+        if (!$user)
+            return $this->errorResponse('Неверные данные', [], 400);
+        $metadata = $user->metadata;
+
+        return $this->successResponse($metadata, 'Profile retrieved successfully.');
+
     }
 }

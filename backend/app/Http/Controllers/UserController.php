@@ -274,7 +274,7 @@ class UserController extends Controller
         return $this->successResponse([], 'Роль отнята успешно');
     }
 
-    public function deleteUser($user_id)
+    public function deleteUser($user_id)//TODO: soft delete
     {
         $user = Auth::user();
 
@@ -359,6 +359,6 @@ class UserController extends Controller
 
 
     
-
+    
 
 }

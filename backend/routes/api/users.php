@@ -23,7 +23,8 @@ Route::group([
 ], function () {
     Route::get('', [UserController::class, 'listUsers']);
     Route::put('{user_id}', [UserController::class, 'updateProfile']);
-   
+    // Route::put('{user_id}/password', [AuthController::class, 'requestChangePassword']);
+    Route::put('{user_id}/email', [AuthController::class, 'changeEmail']);
     Route::post('roles', [UserController::class, 'updateUserRoles']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
     Route::delete('{user_id}', [UserController::class, 'deleteUser']);

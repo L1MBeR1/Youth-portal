@@ -20,6 +20,8 @@ import { CommentSection } from '../components/comments/commentsSection.jsx';
 import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import ScrollButton from '../components/common/scrollButton.jsx';
 import useProfile from '../hooks/useProfile.js';
+import { mainMargin } from '../themes/mainMargin.js';
+
 function BlogPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('blog', getBlog, id);
@@ -37,14 +39,7 @@ function BlogPage() {
 				display: 'flex',
 				flexDirection: 'column',
 				flexGrow: 1,
-				marginX: {
-					xs: '0',
-					sm: '5%',
-					md: '10%',
-					mdx: '15%',
-					lg: '20%',
-					xl: '28%',
-				},
+				marginX: mainMargin,
 			}}
 		>
 			{isFetching || !data ? (

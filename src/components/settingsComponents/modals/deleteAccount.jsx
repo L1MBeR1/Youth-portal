@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import Button from '@mui/joy/Button';
 import Divider from '@mui/joy/Divider';
 import DialogTitle from '@mui/joy/DialogTitle';
@@ -7,26 +9,37 @@ import DialogActions from '@mui/joy/DialogActions';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import DeleteIcon from '@mui/icons-material/Delete';
 import FormControl from '@mui/joy/FormControl';
 import Input from '@mui/joy/Input';
 import Typography from '@mui/joy/Typography';
 
-function DeleteAccountModal({ nickname, onConfirm, open, setOpen }) {
+import SuccessModal from '../../modals/successModal';
+
+import { logoutFunc } from '../../../utils/authUtils/logout';
+import { getToken } from '../../../utils/authUtils/tokenStorage';
+import { deleteUser } from '../../../api/usersApi';
+function DeleteAccountModal({ id, unique, open, setOpen }) {
+	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
 	const [isConfirmEnabled, setIsConfirmEnabled] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [isSuccess, setIsSuccess] = useState(false);
 
 	useEffect(() => {
-		if (inputValue === `Удалить аккаунт ${nickname}`) {
+		if (inputValue === `Удалить аккаунт ${unique}`) {
 			setIsConfirmEnabled(true);
 		} else {
 			setIsConfirmEnabled(false);
 		}
-	}, [inputValue, nickname]);
+	}, [inputValue, unique]);
 
 	const handleConfirm = () => {
 		if (isConfirmEnabled) {
-			onConfirm(true);
-			setOpen(false);
+			setIsLoading(true);
+			deleteAccount();
 		}
 	};
 
@@ -35,50 +48,79 @@ function DeleteAccountModal({ nickname, onConfirm, open, setOpen }) {
 		setInputValue('');
 	};
 
+	const deleteAccount = async () => {
+		const { token, needsRedirect } = await getToken('BloggerSection');
+		if (needsRedirect) {
+			await logoutFunc();
+			navigate('/login');
+			queryClient.removeQueries(['profile']);
+			return null;
+		}
+		await logoutFunc();
+		const response = await deleteUser(id, token);
+		if (response) {
+			navigate('/login');
+			queryClient.removeQueries(['profile']);
+			setIsLoading(false);
+			setOpen(false);
+			console.log(response);
+			setIsSuccess(true);
+			queryClient.removeQueries(['profile']);
+		}
+	};
 	return (
-		<Modal open={open} onClose={handleClose}>
-			<ModalDialog variant='outlined' role='alertdialog'>
-				<DialogTitle>
-					<WarningRoundedIcon color='danger' />
-					<Typography level='title-lg' color='danger'>
-						Внимание
-					</Typography>
-				</DialogTitle>
-				<Divider />
-				<DialogContent>
-					<Typography>
-						Удаление аккаунта приведет к безвозвратной потере всех данных.
-					</Typography>
-					<Typography>
-						Для удаления аккаунта введите фразу:{' '}
-						<Typography level='titel-md' color='danger'>
-							Удалить аккаунт {nickname}
+		<>
+			<SuccessModal
+				open={isSuccess}
+				setOpen={setIsSuccess}
+				message={'Аккаунт успешно удалён'}
+				position={{ vertical: 'bottom', horizontal: 'right' }}
+				icon={<DeleteIcon />}
+			/>
+			<Modal open={open} onClose={handleClose}>
+				<ModalDialog variant='outlined' role='alertdialog'>
+					<DialogTitle>
+						<WarningRoundedIcon color='danger' />
+						<Typography level='title-lg' color='danger'>
+							Внимание
 						</Typography>
-					</Typography>
-					<FormControl sx={{ marginTop: 2 }}>
-						<Input
-							placeholder={`Удалить аккаунт ${nickname}`}
-							value={inputValue}
-							onChange={e => setInputValue(e.target.value)}
-							autoFocus
-						/>
-					</FormControl>
-				</DialogContent>
-				<DialogActions>
-					<Button
-						variant='solid'
-						color='danger'
-						onClick={handleConfirm}
-						disabled={!isConfirmEnabled}
-					>
-						Подтвердить
-					</Button>
-					<Button variant='soft' color='neutral' onClick={handleClose}>
-						Назад
-					</Button>
-				</DialogActions>
-			</ModalDialog>
-		</Modal>
+					</DialogTitle>
+					<Divider />
+					<DialogContent>
+						<Typography>
+							Удаление аккаунта приведет к безвозвратной потере всех данных.
+						</Typography>
+						<Typography>
+							Для удаления аккаунта введите фразу:{' '}
+							<Typography level='titel-md' color='danger'>
+								Удалить аккаунт {unique}
+							</Typography>
+						</Typography>
+						<FormControl sx={{ marginTop: 2 }}>
+							<Input
+								placeholder={`Введите фразу`}
+								value={inputValue}
+								onChange={e => setInputValue(e.target.value)}
+								autoFocus
+							/>
+						</FormControl>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							variant='solid'
+							color='danger'
+							onClick={handleConfirm}
+							disabled={!isConfirmEnabled}
+						>
+							Подтвердить
+						</Button>
+						<Button variant='soft' color='neutral' onClick={handleClose}>
+							Назад
+						</Button>
+					</DialogActions>
+				</ModalDialog>
+			</Modal>
+		</>
 	);
 }
 

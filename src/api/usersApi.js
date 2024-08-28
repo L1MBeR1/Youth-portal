@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Data } from 'emoji-mart';
 
 const API_URL = `${process.env.REACT_APP_HTTP_PROTOCOL}://${process.env.REACT_APP_SERVER_IP}/api`;
 
@@ -19,6 +20,35 @@ export const getUsers= async (token,params) => {
   export const getUser= async (id) => {
     try {
       const response = await axios.get(`${API_URL}/users/${id}`, {
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch user');
+    }
+  };
+  export const deleteUser= async (id,token) => {
+    try {
+      const response = await axios.delete(`${API_URL}/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+  
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch user');
+    }
+  };
+
+  export const updateUser= async (id,token,data) => {
+    console.log(id,token,data)
+    try {
+      const response = await axios.put(`${API_URL}/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data
+
       });
       return response.data;
     } catch (error) {

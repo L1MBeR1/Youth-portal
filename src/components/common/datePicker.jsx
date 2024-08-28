@@ -36,8 +36,8 @@ function DatePicker({ label, value, placeholder, size, sx, onChange }) {
 					position={position}
 					childRect={childRect}
 					popoverRect={popoverRect}
-					arrowColor={'#f1f1f1'}
-					arrowSize={10}
+					arrowColor={'#ffffff'}
+					arrowSize={15}
 					className='popover-arrow-container'
 					arrowClassName='popover-arrow'
 				>
@@ -45,6 +45,7 @@ function DatePicker({ label, value, placeholder, size, sx, onChange }) {
 						sx={{
 							padding: '15px',
 							borderRadius: '30px',
+							background: 'var(--joy-palette-main-background)',
 						}}
 					>
 						<DayPicker

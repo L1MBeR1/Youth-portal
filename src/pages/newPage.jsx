@@ -15,6 +15,8 @@ import { CommentSection } from '../components/comments/commentsSection.jsx';
 import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import useProfile from '../hooks/useProfile.js';
 import ScrollButton from '../components/common/scrollButton.jsx';
+import { mainMargin } from '../themes/mainMargin.js';
+
 function NewsPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('news', getNew, id);
@@ -32,14 +34,7 @@ function NewsPage() {
 				display: 'flex',
 				flexDirection: 'column',
 				flexGrow: 1,
-				marginX: {
-					xs: '0',
-					sm: '5%',
-					md: '10%',
-					mdx: '15%',
-					lg: '20%',
-					xl: '28%',
-				},
+				marginX: mainMargin,
 			}}
 		>
 			{' '}

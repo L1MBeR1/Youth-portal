@@ -1,3 +1,6 @@
 export const mainMargin={
-		xs:'20%'
+		xs:'20px',
+		sm:'40px',
+		md:'10%',
+		lg:'20%'
 }

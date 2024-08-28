@@ -16,6 +16,8 @@ import { formatDate } from '../utils/timeAndDate/formatDate.js';
 
 import RoomIcon from '@mui/icons-material/Room';
 import EventIcon from '@mui/icons-material/Event';
+import { mainMargin } from '../themes/mainMargin.js';
+
 function EventPage() {
 	const { id } = useParams();
 	const { data, isFetching } = useEventById(id);
@@ -32,7 +34,7 @@ function EventPage() {
 	}, [data]);
 
 	const createMarkup = html => {
-		return { __html: DOMPurify.sanitize(html) };
+		return { __html: DOMPurify.sanitize(html) }; //TODO: Использовать DOMPurify
 	};
 
 	return (
@@ -42,10 +44,7 @@ function EventPage() {
 				display: 'flex',
 				flexDirection: 'column',
 				flexGrow: 1,
-				paddingX: {
-					xs: '15px',
-					sm: '40px',
-				},
+				marginX: mainMargin,
 			}}
 		>
 			{isFetching || !data ? (
@@ -205,7 +204,7 @@ function EventPage() {
 										height: '50vh',
 									}}
 								>
-									<EventMap data={data} zoom={13} />
+									<EventMap data={data} zoom={10} />
 								</Box>
 								<Typography level='body-lg'>{`${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`}</Typography>
 							</Stack>

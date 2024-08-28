@@ -358,43 +358,7 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Получение профиля
-     * 
-     * Получение информации о пользователе. 
-     * 
-     * @group Авторизация
-     * 
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getProfile($user_id)
-{
-    $user = User::find($user_id);
-    if (!$user) {
-        return $this->errorResponse('Неверные данные', [], 400);
-    }
-
-    $metadata = $user->metadata;
-
-    // Преобразование в массив, если это объект
-    if (is_object($metadata)) {
-        $metadata = (array) $metadata;
-    }
-
-    // Поля для исключения
-    $fieldsToExclude = ['email_verified_at', 'phone_verified_at', 'phone', 'created_at', 'updated_at', 'user_id'];
-
-    // Удаление полей
-    foreach ($fieldsToExclude as $field) {
-        unset($metadata[$field]);
-    }
-
-    // Если вы хотите вернуть объект
-    $metadata = (object) $metadata;
-
-    return $this->successResponse($metadata, 'Profile retrieved successfully.');
-}
+    
 
 
 }

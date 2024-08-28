@@ -59,15 +59,15 @@ class AuthController extends Controller
                 'nullable',
                 'string',
                 'unique:user_login_data,phone',
-                'regex:/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/', 
+                'regex:/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/',
             ],
             'password' => [
                 'required',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
             ],
         ]);
-        
-        
+
+
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
@@ -129,7 +129,7 @@ class AuthController extends Controller
             'phone' => 'nullable|string',
             'password' => 'required|string',
         ]);
-        
+
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
@@ -288,9 +288,9 @@ class AuthController extends Controller
 
 
 
-    
 
-    
+
+
 
 
     /**
@@ -377,6 +377,31 @@ class AuthController extends Controller
         }
 
         return $response;
+    }
+
+
+
+
+    /**
+     * Получение профиля
+     * 
+     * Получение информации о пользователе. 
+     * 
+     * @group Авторизация
+     * 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProfile()
+    {
+        
+            $user = Auth::user();
+            if (!$user)
+                return $this->errorResponse('Неверные данные', [], 400);
+            $metadata = $user->metadata;
+
+            return $this->successResponse($metadata, 'Profile retrieved successfully.');
+        
     }
 
 

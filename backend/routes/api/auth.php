@@ -21,7 +21,7 @@ Route::group([
 ], function () {
     
     Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
-    
+    Route::get('', [AuthController::class, 'getProfile']);
     Route::post('logout', [AuthController::class, 'logout']);
     
     

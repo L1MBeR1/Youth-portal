@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\API\SUController;
+use Laravel\Ui\AuthCommand;
 
 // Работа с пользователями
 Route::group([
@@ -21,7 +23,7 @@ Route::group([
 ], function () {
     Route::get('', [UserController::class, 'listUsers']);
     Route::put('{user_id}', [UserController::class, 'updateProfile']);
-    Route::get('{user_id}', [UserController::class, 'getProfile']);
+   
     Route::post('roles', [UserController::class, 'updateUserRoles']);
     Route::delete('{user_id}/roles/{role_name}', [UserController::class, 'deleteRoleFromUser']);
     Route::delete('{user_id}', [UserController::class, 'deleteUser']);

@@ -108,11 +108,6 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
-        Log::info("aaa");
-        Log::info($request->input("timezone"));
-        Log::info($request->input("crtFrom"));
-        Log::info($request->input("crtTo"));
-
         $requiredFields = [
             "blogs" => [
                 "id",

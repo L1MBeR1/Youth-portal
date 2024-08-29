@@ -34,11 +34,13 @@ class AuthController extends Controller
     {
         $this->jwtSecret = config('app.JWT_SECRET');
     }
+
+
     /**
-     * Регистрация 
-     * 
+     * Регистрация
+     *
      * Регистрация нового пользователя с использованием [email, phone].
-     * 
+     *
      * @group Авторизация
      * @bodyParam email string required email
      * @bodyParam phone string optional phone
@@ -113,14 +115,14 @@ class AuthController extends Controller
 
     /**
      * Аутентификация
-     * 
+     *
      * Аутентификация пользователя с помощью [email, phone]
-     * 
+     *
      * @group Авторизация
      * @bodyParam email string required email
      * @bodyParam phone string optional phone
      * @bodyParam password string required password
-     * 
+     *
      */
     //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
@@ -162,9 +164,9 @@ class AuthController extends Controller
 
     /**
      * Подтверждение почты
-     * 
+     *
      * @group Авторизация
-     * 
+     *
      */
     // public function verifyEmail(Request $request)
     // {
@@ -205,7 +207,7 @@ class AuthController extends Controller
 
         try {
             $payload = JWTAuth::setToken($token)->getPayload();
-            $newEmail = $payload->get('new_email'); 
+            $newEmail = $payload->get('new_email');
             $user = JWTAuth::setToken($token)->toUser();
 
             if (!$user) {
@@ -226,7 +228,7 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-           
+
 
             return response()->view('emails.thanks');
         } catch (Exception $e) {
@@ -246,7 +248,7 @@ class AuthController extends Controller
 
         try {
             $payload = JWTAuth::setToken($token)->getPayload();
-            $password = $payload->get('password'); 
+            $password = $payload->get('password');
             $password = bcrypt($password);
             $user = JWTAuth::setToken($token)->toUser();
 
@@ -268,7 +270,7 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-           
+
 
             return response()->view('emails.thanks');
         } catch (Exception $e) {
@@ -316,14 +318,14 @@ class AuthController extends Controller
 
     /**
      * Обновление токенов
-     * 
+     *
      * Обновление токенов пользователя с использованием refresh_token.
      * Будет возвращена новая пара токенов access_token и refresh_token.
-     * 
+     *
      * @group Авторизация
      * @bodyParam refresh_token string required refresh_token
-     * 
-     * 
+     *
+     *
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -379,13 +381,11 @@ class AuthController extends Controller
 
     /**
      * Выход из аккаунта
-     * 
-     * Выход из аккаунта (удаление токенов).
-     * 
-     * @group Авторизация
-     * 
      *
-     * @return \Illuminate\Http\JsonResponse
+     * Выход из аккаунта (удаление токенов).
+     *
+     * @group Авторизация
+     *
      */
     public function logout()
     {
@@ -468,11 +468,11 @@ class AuthController extends Controller
 
     /**
      * Получение профиля
-     * 
-     * Получение информации о пользователе. 
-     * 
+     *
+     * Получение информации о пользователе.
+     *
      * @group Авторизация
-     * 
+     *
      *
      * @return \Illuminate\Http\JsonResponse
      */

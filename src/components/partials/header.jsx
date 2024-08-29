@@ -116,7 +116,6 @@ function Header() {
 							sx={{
 								flex: 'none',
 								fontSize: 'xl',
-								'& > div': { justifyContent: 'center' },
 							}}
 						>
 							<ListItemButton

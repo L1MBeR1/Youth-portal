@@ -69,10 +69,15 @@ function HeaderProfile() {
 				/>
 			) : profileData ? (
 				<>
-					<DrawerAvatar img={profileData.profile_image_uri} />
+					<DrawerAvatar
+						img={profileData.profile_image_uri}
+						id={profileData.user_id}
+						roles={profileData.roles}
+						nickname={profileData.nickname}
+					/>
 					<MenuAvatar
 						img={profileData.profile_image_uri}
-						id={profileData.id}
+						id={profileData.user_id}
 						roles={profileData.roles}
 					/>
 				</>

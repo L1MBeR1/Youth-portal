@@ -16,8 +16,6 @@ import ListItem from '@mui/joy/ListItem';
 import LinearProgress from '@mui/joy/LinearProgress';
 import Alert from '@mui/joy/Alert';
 
-// import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
-// import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 

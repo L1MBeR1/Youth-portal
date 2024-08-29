@@ -16,6 +16,7 @@ import Box from '@mui/joy/Box';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PublishIcon from '@mui/icons-material/Publish';
 
 import profileBlank from '../../../img/profileBlank.png';
 
@@ -58,6 +59,16 @@ function MenuAvatar({ id, img, roles }) {
 						<PersonIcon />
 						Профиль
 					</MenuItem>
+					{(roles.includes('blogger') || roles.includes('news_creator')) && (
+						<MenuItem
+							onClick={() => {
+								handleLink('/my-content');
+							}}
+						>
+							<PublishIcon />
+							Мой контент
+						</MenuItem>
+					)}
 					<MenuItem
 						onClick={() => {
 							handleLink(`/settings`);

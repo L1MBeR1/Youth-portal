@@ -21,10 +21,11 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import useProfile from '../../../hooks/useProfile';
-import useUser from '../../../hooks/useUser';
+import usePersonalData from '../../../hooks/usePersonalData';
+
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import DeleteAccountModal from '../modals/deleteAccount';
+import ChangeEmail from '../modals/changeEmail';
 
 import DatePicker from '../../common/datePicker';
 import SuccessModal from '../../modals/successModal';
@@ -38,13 +39,10 @@ import { updateUser } from '../../../api/usersApi';
 function AccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
-	const { data: profileData, isLoading: isProfileLoading } = useProfile();
-	const { data: userData, isLoading: isUserLoading } = useUser(
-		profileData?.user_id
-	);
+	const { data: userData, isLoading } = usePersonalData();
 
 	useEffect(() => {
-		if (!isProfileLoading && !profileData) {
+		if (!isLoading && !userData) {
 			const handleLogout = async () => {
 				await logoutFunc();
 				navigate('/login');
@@ -53,7 +51,7 @@ function AccountSection() {
 			};
 			handleLogout();
 		}
-	}, [isProfileLoading, profileData, navigate, queryClient]);
+	}, [isLoading, userData, navigate, queryClient]);
 
 	const [firstName, setName] = useState('');
 	const [lastName, setLastName] = useState('');
@@ -64,7 +62,7 @@ function AccountSection() {
 	const [email, setEmail] = useState('');
 
 	useEffect(() => {
-		if (!isUserLoading && userData) {
+		if (!isLoading && userData) {
 			setName(userData.first_name);
 			setLastName(userData.last_name);
 			setPatronymic(userData.patronymic);
@@ -73,7 +71,7 @@ function AccountSection() {
 			setBirthday(userData.birthday);
 			setEmail(userData.email);
 		}
-	}, [isUserLoading, userData]);
+	}, [isLoading, userData]);
 
 	const isDataChanged =
 		firstName !== userData?.first_name ||
@@ -85,32 +83,51 @@ function AccountSection() {
 		email !== userData?.email;
 
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [changeEmailOpen, setChangeEmailOpen] = useState(false);
 
 	const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
 	const [isSuccess, setIsSuccess] = useState(false);
 
+	function maskEmail(email) {
+		if (email) {
+			const [localPart, domain] = email.split('@');
+			const visibleChars = 3;
+			const maskedLocalPart =
+				localPart.slice(0, visibleChars) +
+				'*'.repeat(localPart.length - visibleChars);
+			return `${maskedLocalPart}@${domain}`;
+		} else {
+			return;
+		}
+	}
 	const handleUpdateData = async () => {
-		const { token, needsRedirect } = await getToken('BloggerSection');
+		const { token, needsRedirect } = await getToken();
 		if (needsRedirect) {
 			await logoutFunc();
 			navigate('/login');
-			queryClient.removeQueries(['profile']);
+			queryClient.removeQueries(['personalData']);
 			return null;
 		}
 		setIsLoadingUpdate(true);
 		const updatedData = {
+			first_name: firstName,
 			last_name: lastName,
+			patronymic: patronymic,
+			city: city,
+			gender: gender,
+			birthday: birthday,
 		};
-		const response = await updateUser(profileData.user_id, token, updatedData);
+		const response = await updateUser(userData.user_id, token, updatedData);
 		if (response) {
 			setIsLoadingUpdate(false);
 			console.log(response);
 			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
+			queryClient.removeQueries(['personalData']);
+			return true;
 		} else {
 			setIsLoadingUpdate(false);
+			return true;
 		}
-		return true;
 	};
 	return (
 		<>
@@ -128,6 +145,12 @@ function AccountSection() {
 					open={deleteModalOpen}
 					setOpen={setDeleteModalOpen}
 				/>
+
+				<ChangeEmail
+					id={userData?.id}
+					open={changeEmailOpen}
+					setOpen={setChangeEmailOpen}
+				/>
 				<Stack direction={'column'} spacing={3}>
 					<Stack direction={'column'} spacing={1.5}>
 						<Typography level='title-xl'>Аккаунт</Typography>
@@ -136,12 +159,13 @@ function AccountSection() {
 							изменений.
 						</Typography>
 					</Stack>
-					{!isUserLoading && profileData && (
+					{!isLoading && userData && (
 						<>
 							<Stack direction={'column'} spacing={1.5}>
 								<FormControl sx={{ maxWidth: '500px' }}>
 									<FormLabel>Имя</FormLabel>
 									<Input
+										type='text'
 										placeholder='Введите имя'
 										value={firstName}
 										onChange={e => setName(e.target.value)}
@@ -248,15 +272,6 @@ function AccountSection() {
 										</Sheet>
 									</RadioGroup>
 								</FormControl>
-								<FormControl sx={{ maxWidth: '500px' }}>
-									<FormLabel>Почта</FormLabel>
-									<Input
-										type='email'
-										placeholder='Введите почту'
-										value={email}
-										onChange={e => setEmail(e.target.value)}
-									/>
-								</FormControl>
 							</Stack>
 							{isDataChanged && (
 								<Stack direction={'row'} spacing={4}>
@@ -288,6 +303,21 @@ function AccountSection() {
 									</Box>
 								</Stack>
 							)}
+							<Divider />
+							<Stack direction={'column'} spacing={1.5}>
+								<Typography level='title-xl'>Почта</Typography>
+								<Stack spacing={2} direction={'row'} alignItems={'center'}>
+									<Typography>{maskEmail(email)}</Typography>
+									<Button
+										size='sm'
+										onClick={() => {
+											setChangeEmailOpen(true);
+										}}
+									>
+										Изменить
+									</Button>
+								</Stack>
+							</Stack>
 							<Divider />
 							<Stack direction={'column'} spacing={1.5}>
 								<Typography level='title-xl' color='danger'>

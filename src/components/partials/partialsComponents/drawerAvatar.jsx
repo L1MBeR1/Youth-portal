@@ -25,11 +25,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PublishIcon from '@mui/icons-material/Publish';
 
 import profileBlank from '../../../img/profileBlank.png';
-import { Button, Typography } from '@mui/joy';
+import { Button, Divider, Typography } from '@mui/joy';
 
-function DrawerAvatar({ img }) {
+function DrawerAvatar({ img, id, nickname, roles }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const { data: profileData, isLoading } = useProfile();
@@ -44,6 +45,7 @@ function DrawerAvatar({ img }) {
 
 	const handleLink = link => {
 		navigate(link);
+		setOpenDrawer(false);
 	};
 
 	return (
@@ -52,63 +54,117 @@ function DrawerAvatar({ img }) {
 				display: { xs: 'block', md: 'none' },
 			}}
 		>
-			<Avatar size='lg' src={img || profileBlank} />
+			<Avatar
+				size='md'
+				src={img || profileBlank}
+				sx={{ cursor: 'pointer' }}
+				onClick={() => {
+					setOpenDrawer(true);
+				}}
+			/>
 			<Drawer
+				anchor='right'
 				sx={{ display: { xs: 'inline-flex', md: 'none' } }}
 				open={openDrawer}
 				onClose={() => setOpenDrawer(false)}
 			>
 				<ModalClose />
-				<DialogTitle></DialogTitle>
+				<DialogTitle>
+					<Stack direction={'row'} spacing={2} alignItems={'center'}>
+						<Avatar size='lg' src={img || profileBlank} />
+						<Typography level='title-lg'>{nickname}</Typography>
+					</Stack>
+				</DialogTitle>
 				<Stack></Stack>
 				<List
 					size='lg'
 					component='nav'
 					sx={{
 						flex: 'none',
-						fontSize: 'xl',
-						'& > div': { justifyContent: 'center' },
+						fontSize: 'lg',
 					}}
 				>
 					<ListItemButton
 						onClick={() => {
-							handleLink('/blogs');
+							handleLink(`/profile/${id}`);
 						}}
 						sx={theme => ({
 							color: `${theme.vars.palette.neutral['second']}`,
 						})}
 					>
-						Блоги
+						<PersonIcon />
+						Профиль
 					</ListItemButton>
+					{(roles.includes('blogger') || roles.includes('news_creator')) && (
+						<ListItemButton
+							onClick={() => {
+								handleLink('/my-content');
+							}}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
+						>
+							<PublishIcon />
+							Мой контент
+						</ListItemButton>
+					)}
 					<ListItemButton
 						onClick={() => {
-							handleLink('/news');
+							handleLink('/settings');
 						}}
 						sx={theme => ({
 							color: `${theme.vars.palette.neutral['second']}`,
 						})}
 					>
-						Новости
+						<SettingsIcon />
+						Настройки
 					</ListItemButton>
+					{roles.includes('admin') && (
+						<ListItemButton
+							onClick={() => {
+								handleLink('/admin');
+							}}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
+						>
+							Панель админа
+						</ListItemButton>
+					)}
+					{roles.includes('superuser') && (
+						<ListItemButton
+							onClick={() => {
+								handleLink('/superuser');
+							}}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
+						>
+							Панель суперюзера
+						</ListItemButton>
+					)}
+					{roles.includes('moderator') && (
+						<ListItemButton
+							onClick={() => {
+								handleLink('/moderator');
+							}}
+							sx={theme => ({
+								color: `${theme.vars.palette.neutral['second']}`,
+							})}
+						>
+							Панель модератора
+						</ListItemButton>
+					)}
+					<Divider></Divider>
 					<ListItemButton
-						onClick={() => {
-							handleLink('/podcasts');
-						}}
+						onClick={handleLogout}
+						color='danger'
 						sx={theme => ({
 							color: `${theme.vars.palette.neutral['second']}`,
 						})}
 					>
-						Подкасты
-					</ListItemButton>
-					<ListItemButton
-						onClick={() => {
-							handleLink('/events');
-						}}
-						sx={theme => ({
-							color: `${theme.vars.palette.neutral['second']}`,
-						})}
-					>
-						Мероприятия
+						<LogoutIcon />
+						Выйти
 					</ListItemButton>
 				</List>
 			</Drawer>

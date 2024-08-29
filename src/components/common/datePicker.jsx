@@ -30,7 +30,7 @@ function DatePicker({ label, value, placeholder, size, sx, onChange }) {
 			isOpen={isOpen}
 			positions={['bottom', 'left', 'right', 'top']}
 			padding={5}
-			align='start'
+			align='center'
 			content={({ position, childRect, popoverRect }) => (
 				<ArrowContainer
 					position={position}

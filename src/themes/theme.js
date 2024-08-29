@@ -42,6 +42,7 @@ const theme = extendTheme({
     JoyAutocomplete:{
       styleOverrides: {
         root: {
+          background:'var(--joy-palette-main-background)',
           borderRadius:"50px"
         },
         },
@@ -129,12 +130,12 @@ const theme = extendTheme({
     },
     "title-md":{
       fontWeight:"600",
-      fontSize:"clamp(0.8rem,2.5vw, 1.05rem)",
+      fontSize:"clamp(0.9rem,2.5vw, 1.05rem)",
         lineHeight:'1.1'
     },
     "body-md":{
       fontWeight:"400",
-      fontSize:"clamp(0.8rem,2vw, 1rem)",
+      fontSize:"clamp(0.9rem,2.5vw, 1.05rem)",
     },
     "info":{
       fontWeight:"400",

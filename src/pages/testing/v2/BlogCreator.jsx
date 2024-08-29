@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
-import { Box, Typography, Input, Textarea, Button, Card } from '@mui/joy';
-import QuillEditor from './QuillEditor';
+import { Box, Button, Card, Input, Textarea, Typography } from '@mui/joy';
 import Quill from 'quill';
+import React, { useRef, useState } from 'react';
+import QuillEditor from './QuillEditor';
 
 function BlogCreatorV2() {
     const Delta = Quill.import('delta');

@@ -6,17 +6,17 @@ import { logoutFunc } from '../../../utils/authUtils/logout.js';
 
 import Avatar from '@mui/joy/Avatar';
 
+import Box from '@mui/joy/Box';
 import Dropdown from '@mui/joy/Dropdown';
 import ListDivider from '@mui/joy/ListDivider';
 import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
-import Box from '@mui/joy/Box';
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
 import PublishIcon from '@mui/icons-material/Publish';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profileBlank.png';
 

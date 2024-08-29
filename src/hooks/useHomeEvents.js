@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {getHomeEvents} from '../api/eventsApi'
+import { getHomeEvents } from '../api/eventsApi';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
 const useHomeEvents = () => {

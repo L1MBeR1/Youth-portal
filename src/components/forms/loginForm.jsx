@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { setCookie } from '../../utils/cookie/cookieUtils.js';
-import { setToken } from '../../utils/authUtils/tokenStorage.js';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../../api/authApi.js';
+import { setToken } from '../../utils/authUtils/tokenStorage.js';
 // import useProfile from '../../hooks/useProfile.js';
 
-import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
-import Stack from '@mui/joy/Stack';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
+import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
+import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
+import Input from '@mui/joy/Input';
+import Stack from '@mui/joy/Stack';
+import Typography from '@mui/joy/Typography';
 
-import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 
 import { jwtDecode } from 'jwt-decode';
 

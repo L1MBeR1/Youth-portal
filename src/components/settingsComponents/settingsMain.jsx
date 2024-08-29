@@ -1,5 +1,5 @@
-import React from 'react';
 import { Sheet } from '@mui/joy';
+import React from 'react';
 
 import AccountSection from './sections/accountSection';
 import PublicAccountSection from './sections/publicAccountSection';

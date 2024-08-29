@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { Button, Stack } from '@mui/joy';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { Button, Stack } from '@mui/joy';
 import EventCart from './eventCard';
 
 const EventsCarousel = ({ data }) => {

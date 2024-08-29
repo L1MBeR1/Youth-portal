@@ -1,7 +1,7 @@
 import { useQueries } from '@tanstack/react-query';
-import { getUserPublishedPodcasts } from '../api/podcastsApi';
 import { getUserPublishedBlogs } from '../api/blogsApi';
 import { getUserPublishedNews } from '../api/newsApi';
+import { getUserPublishedPodcasts } from '../api/podcastsApi';
 
 const usePublications = (user_id) => {
   const queries = useQueries({

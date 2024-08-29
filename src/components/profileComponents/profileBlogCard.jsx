@@ -1,14 +1,10 @@
 import AspectRatio from '@mui/joy/AspectRatio';
-import Avatar from '@mui/joy/Avatar';
 import Card from '@mui/joy/Card';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Box from '@mui/joy/Box';
-
-import ProfileBlank from '../../img/profileBlank.png';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 
 const ProfileBlogCard = ({ id, title, img, createDate }) => {

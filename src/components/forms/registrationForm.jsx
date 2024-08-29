@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../../api/authApi.js';
 import { setToken } from '../../utils/authUtils/tokenStorage.js';
-import { register, getProfile } from '../../api/authApi.js';
 
 import { useQueryClient } from '@tanstack/react-query';
 import zxcvbn from 'zxcvbn';
 
-import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
-import Stack from '@mui/joy/Stack';
-import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
+import LinearProgress from '@mui/joy/LinearProgress';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
-import LinearProgress from '@mui/joy/LinearProgress';
-import Alert from '@mui/joy/Alert';
+import Stack from '@mui/joy/Stack';
+import Typography from '@mui/joy/Typography';
 
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import { jwtDecode } from 'jwt-decode';
-import useProfile from '../../hooks/useProfile.js';
 
-import PasswordField from './formComponents/passwordField.jsx';
 import EmailField from './formComponents/emailField.jsx';
+import PasswordField from './formComponents/passwordField.jsx';
 
 function RegistrationForm() {
 	const queryClient = useQueryClient();

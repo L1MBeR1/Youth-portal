@@ -1,41 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import {
-	Avatar,
 	Box,
-	Stack,
-	Typography,
-	Badge,
 	Button,
-	IconButton,
+	Divider,
 	FormControl,
 	FormLabel,
 	Input,
-	FormHelperText,
-	Divider,
+	Stack,
+	Typography,
 } from '@mui/joy';
 import Radio, { radioClasses } from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Sheet from '@mui/joy/Sheet';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import React, { useEffect, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import usePersonalData from '../../../hooks/usePersonalData';
 
 import { logoutFunc } from '../../../utils/authUtils/logout';
-import DeleteAccountModal from '../modals/deleteAccount';
 import ChangeEmail from '../modals/changeEmail';
+import DeleteAccountModal from '../modals/deleteAccount';
 
 import DatePicker from '../../common/datePicker';
 import SuccessModal from '../../modals/successModal';
 
-import Woman2Icon from '@mui/icons-material/Woman2';
-import Man2Icon from '@mui/icons-material/Man2';
 import EditIcon from '@mui/icons-material/Edit';
+import Man2Icon from '@mui/icons-material/Man2';
+import Woman2Icon from '@mui/icons-material/Woman2';
 
-import { getToken } from '../../../utils/authUtils/tokenStorage';
 import { updateUser } from '../../../api/usersApi';
+import { getToken } from '../../../utils/authUtils/tokenStorage';
 function AccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();

@@ -14,9 +14,9 @@ import Home from './pages/home';
 import Login from './pages/login';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
-import Settings from './pages/settings';
 import Recovery from './pages/recovery';
 import Registration from './pages/registration';
+import Settings from './pages/settings';
 
 import BlogPage from './pages/blogPage';
 import Blogs from './pages/blogs';
@@ -27,17 +27,17 @@ import News from './pages/news';
 import PodcastPage from './pages/podcastPage';
 import Podcasts from './pages/podcasts';
 
-import Events from './pages/events';
 import EventPage from './pages/eventPage';
+import Events from './pages/events';
 
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
 
 // <====== TEST =======>
+import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
 import BlogWrapper from './pages/testing/v1/BlogWrapper';
 import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
-import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
 // <===================>
 
 //Роуты

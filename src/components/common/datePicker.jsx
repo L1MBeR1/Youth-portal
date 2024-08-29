@@ -1,21 +1,11 @@
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { FormControl, FormLabel, Input, Sheet } from '@mui/joy';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import React, { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/style.css';
-import { ru } from 'date-fns/locale';
-import {
-	Box,
-	Stack,
-	Typography,
-	Button,
-	IconButton,
-	FormControl,
-	FormLabel,
-	Input,
-	Sheet,
-} from '@mui/joy';
-import { Popover, ArrowContainer } from 'react-tiny-popover';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { format } from 'date-fns';
+import { ArrowContainer, Popover } from 'react-tiny-popover';
 
 function DatePicker({ label, value, placeholder, size, sx, onChange }) {
 	const [isOpen, setIsOpen] = useState(false);

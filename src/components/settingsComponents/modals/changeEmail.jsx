@@ -1,24 +1,24 @@
-import validator from 'validator';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import Button from '@mui/joy/Button';
-import Divider from '@mui/joy/Divider';
-import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
-import DialogActions from '@mui/joy/DialogActions';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
 import InfoIcon from '@mui/icons-material/Info';
+import Button from '@mui/joy/Button';
+import DialogActions from '@mui/joy/DialogActions';
+import DialogContent from '@mui/joy/DialogContent';
+import DialogTitle from '@mui/joy/DialogTitle';
+import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import Input from '@mui/joy/Input';
+import Modal from '@mui/joy/Modal';
+import ModalDialog from '@mui/joy/ModalDialog';
 import Typography from '@mui/joy/Typography';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import validator from 'validator';
 
 import NeutralModal from '../../modals/neutralModal';
 
+import { updateUserEmail } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import { updateUserEmail } from '../../../api/usersApi';
 
 function ChangeEmail({ id, open, setOpen }) {
 	const queryClient = useQueryClient();

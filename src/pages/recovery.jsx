@@ -1,6 +1,6 @@
+import Box from '@mui/joy/Box';
 import React from 'react';
 import RecoveryForm from '../components/forms/recoveryForm';
-import Box from '@mui/joy/Box';
 function Recovery() {
 	return (
 		<Box

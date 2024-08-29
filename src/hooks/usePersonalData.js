@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import {jwtDecode} from 'jwt-decode';
-import { getToken } from '../utils/authUtils/tokenStorage.js'; 
+import { jwtDecode } from 'jwt-decode';
 import { getProfile } from '../api/authApi.js';
 import { getUser } from '../api/usersApi.js';
+import { getToken } from '../utils/authUtils/tokenStorage.js';
 
 const usePersonalData = () => {
   return useQuery({

@@ -1,6 +1,6 @@
+import Box from '@mui/joy/Box';
 import React from 'react';
 import RegistrationForm from '../components/forms/registrationForm';
-import Box from '@mui/joy/Box';
 
 function Registration() {
 	return (

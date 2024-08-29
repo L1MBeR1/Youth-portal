@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getToken } from '../utils/authUtils/tokenStorage';
 import { getEvent } from '../api/eventsApi';
+import { getToken } from '../utils/authUtils/tokenStorage';
 
 const useEventById = (id) => {
   return useQuery({

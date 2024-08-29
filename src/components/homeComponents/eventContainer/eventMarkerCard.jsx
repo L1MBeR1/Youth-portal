@@ -1,19 +1,15 @@
 import React from 'react';
 
-import { Card, Box, Stack } from '@mui/joy';
-import CardOverflow from '@mui/joy/CardOverflow';
-import CardContent from '@mui/joy/CardContent';
+import { Box, Card, Stack } from '@mui/joy';
 import AspectRatio from '@mui/joy/AspectRatio';
 import Typography from '@mui/joy/Typography';
-import CardActions from '@mui/joy/CardActions';
-import Button from '@mui/joy/Button';
 
-import RoomIcon from '@mui/icons-material/Room';
 import EventIcon from '@mui/icons-material/Event';
+import RoomIcon from '@mui/icons-material/Room';
 
-import { formatDate } from '../../../utils/timeAndDate/formatDate';
-import BlankImage from '../../../img/blank.png';
 import { useNavigate } from 'react-router-dom';
+import BlankImage from '../../../img/blank.png';
+import { formatDate } from '../../../utils/timeAndDate/formatDate';
 function EventMarkerCard({ data }) {
 	const navigate = useNavigate();
 	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;

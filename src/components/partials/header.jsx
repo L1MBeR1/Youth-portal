@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import HeaderProfile from './partialsComponents/headerProfile.jsx';
 import Logo from './logo.jsx'; // Импортируем новый компонент
+import HeaderProfile from './partialsComponents/headerProfile.jsx';
 
 import { useColorScheme } from '@mui/joy/styles';
 
 import Box from '@mui/joy/Box';
+import Button from '@mui/joy/Button';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Drawer from '@mui/joy/Drawer';
 import IconButton from '@mui/joy/IconButton';
@@ -15,7 +16,6 @@ import ModalClose from '@mui/joy/ModalClose';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import Button from '@mui/joy/Button';
 
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';

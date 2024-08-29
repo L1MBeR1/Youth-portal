@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
-import IconButton from '@mui/joy/IconButton';
+import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ReplyIcon from '@mui/icons-material/Reply';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Button } from '@mui/joy';
-import { getToken } from '../../utils/authUtils/tokenStorage';
 import { likeTheBlog } from '../../api/blogsApi';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 export const PublicationStatistic = ({
 	id,
 	liked,

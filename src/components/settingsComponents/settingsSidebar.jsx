@@ -1,19 +1,18 @@
-import React from 'react';
 import {
-	Sheet,
+	Box,
 	List,
 	ListItem,
 	ListItemButton,
 	ListItemContent,
+	Sheet,
 	Typography,
-	Box,
-	Divider,
 } from '@mui/joy';
+import React from 'react';
 
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import ShieldIcon from '@mui/icons-material/Shield';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PortraitIcon from '@mui/icons-material/Portrait';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 function SettingsSidebar({ selectedSection, setSection }) {
 	const handleSetSection = section => {

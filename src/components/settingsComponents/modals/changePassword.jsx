@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import zxcvbn from 'zxcvbn';
-import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import Button from '@mui/joy/Button';
-import Divider from '@mui/joy/Divider';
-import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
-import DialogActions from '@mui/joy/DialogActions';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import InfoIcon from '@mui/icons-material/Info';
-import { Stack } from '@mui/joy';
-import FormControl from '@mui/joy/FormControl';
-import LinearProgress from '@mui/joy/LinearProgress';
-import Input from '@mui/joy/Input';
-import Typography from '@mui/joy/Typography';
-import List from '@mui/joy/List';
-import ListItem from '@mui/joy/ListItem';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import InfoIcon from '@mui/icons-material/Info';
+import { Stack } from '@mui/joy';
+import Button from '@mui/joy/Button';
+import DialogActions from '@mui/joy/DialogActions';
+import DialogContent from '@mui/joy/DialogContent';
+import DialogTitle from '@mui/joy/DialogTitle';
+import Divider from '@mui/joy/Divider';
+import LinearProgress from '@mui/joy/LinearProgress';
+import List from '@mui/joy/List';
+import ListItem from '@mui/joy/ListItem';
+import Modal from '@mui/joy/Modal';
+import ModalDialog from '@mui/joy/ModalDialog';
+import Typography from '@mui/joy/Typography';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import zxcvbn from 'zxcvbn';
 import NeutralModal from '../../modals/neutralModal';
 
+import { updateUserPassword } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import { updateUserPassword } from '../../../api/usersApi';
 import PasswordField from '../../forms/formComponents/passwordField';
 
 function ChangePassword({ id, open, setOpen }) {

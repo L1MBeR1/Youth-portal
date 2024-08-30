@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { getBlog } from '../api/blogsApi.js';
 import { formatDate } from '../utils/timeAndDate/formatDate.js';
@@ -6,10 +6,10 @@ import { formatDate } from '../utils/timeAndDate/formatDate.js';
 import usePublicationById from '../hooks/usePublicationById.js';
 
 import AspectRatio from '@mui/joy/AspectRatio';
+import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
 import Stack from '@mui/joy/Stack';
-import Avatar from '@mui/joy/Avatar';
 import Typography from '@mui/joy/Typography';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -17,8 +17,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import DOMPurify from 'dompurify';
 
 import { CommentSection } from '../components/comments/commentsSection.jsx';
-import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import ScrollButton from '../components/common/scrollButton.jsx';
+import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import useProfile from '../hooks/useProfile.js';
 import { mainMargin } from '../themes/mainMargin.js';
 

@@ -1,19 +1,18 @@
-import React from 'react';
 import {
-	Sheet,
+	Box,
 	List,
 	ListItem,
 	ListItemButton,
 	ListItemContent,
+	Sheet,
 	Typography,
-	Box,
-	Divider,
 } from '@mui/joy';
+import React from 'react';
 
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import ShieldIcon from '@mui/icons-material/Shield';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PortraitIcon from '@mui/icons-material/Portrait';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 function SettingsSidebar({ selectedSection, setSection }) {
 	const handleSetSection = section => {
@@ -88,28 +87,6 @@ function SettingsSidebar({ selectedSection, setSection }) {
 						</ListItemContent>
 					</ListItemButton>
 				</ListItem>
-
-				{/* <Divider />
-				<ListItem>
-					<ListItemButton
-						selected={selectedSection === 'projects'}
-						onClick={() => handleSetSection('projects')}
-					>
-						<ListItemContent>
-							<Typography level='title-md'>Мои Блоги</Typography>
-						</ListItemContent>
-					</ListItemButton>
-				</ListItem>
-				<ListItem>
-					<ListItemButton
-						selected={selectedSection === 'events'}
-						onClick={() => handleSetSection('events')}
-					>
-						<ListItemContent>
-							<Typography level='title-md'>Мероприятия</Typography>
-						</ListItemContent>
-					</ListItemButton>
-				</ListItem> */}
 			</List>
 		</Sheet>
 	);

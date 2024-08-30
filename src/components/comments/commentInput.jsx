@@ -2,12 +2,12 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Avatar from '@mui/joy/Avatar';
 import IconButton from '@mui/joy/IconButton';
 // import Textarea from '@mui/joy/Textarea';
-import Stack from '@mui/joy/Stack';
-import Sheet from '@mui/joy/Sheet';
 import Box from '@mui/joy/Box';
+import Sheet from '@mui/joy/Sheet';
+import Stack from '@mui/joy/Stack';
 
 import DOMPurify from 'dompurify';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { postComment, postReplyComment } from '../../api/commentsApi';

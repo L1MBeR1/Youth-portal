@@ -1,11 +1,10 @@
+import SortIcon from '@mui/icons-material/Sort';
 import { Button, Option, Select, Typography } from '@mui/joy';
 import Stack from '@mui/joy/Stack';
 import React, { useEffect, useState } from 'react';
 import useComments from '../../hooks/useComments.js';
 import { CommentInput } from './commentInput.jsx';
 import { CommentWrapper } from './commentWrapper.jsx';
-import useProfile from '../../hooks/useProfile';
-import SortIcon from '@mui/icons-material/Sort';
 
 const buildCommentsStructure = comments => {
 	const commentsMap = {};

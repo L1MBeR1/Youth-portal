@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import Button from '@mui/joy/Button';
-import Divider from '@mui/joy/Divider';
-import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
-import DialogActions from '@mui/joy/DialogActions';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
+import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import Button from '@mui/joy/Button';
+import DialogActions from '@mui/joy/DialogActions';
+import DialogContent from '@mui/joy/DialogContent';
+import DialogTitle from '@mui/joy/DialogTitle';
+import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
 import Input from '@mui/joy/Input';
+import Modal from '@mui/joy/Modal';
+import ModalDialog from '@mui/joy/ModalDialog';
 import Typography from '@mui/joy/Typography';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import SuccessModal from '../../modals/successModal';
 
+import { deleteUser } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import { deleteUser } from '../../../api/usersApi';
 function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -49,7 +49,7 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 	};
 
 	const deleteAccount = async () => {
-		const { token, needsRedirect } = await getToken('BloggerSection');
+		const { token, needsRedirect } = await getToken();
 		if (needsRedirect) {
 			await logoutFunc();
 			navigate('/login');

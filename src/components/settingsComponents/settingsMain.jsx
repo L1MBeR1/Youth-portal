@@ -1,8 +1,9 @@
-import React from 'react';
 import { Sheet } from '@mui/joy';
+import React from 'react';
 
 import AccountSection from './sections/accountSection';
 import PublicAccountSection from './sections/publicAccountSection';
+import SecuritySection from './sections/securitySecrion';
 
 function SettingsMain({ section }) {
 	const getContent = section => {
@@ -11,6 +12,8 @@ function SettingsMain({ section }) {
 				return <AccountSection />;
 			case 'public profile':
 				return <PublicAccountSection />;
+			case 'security':
+				return <SecuritySection />;
 			default:
 				return '';
 		}

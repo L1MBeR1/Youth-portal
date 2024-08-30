@@ -1,5 +1,5 @@
-import { getToken,removeToken } from "./tokenStorage"
-import { logout } from "../../api/authApi"
+import { logout } from "../../api/authApi";
+import { getToken, removeToken } from "./tokenStorage";
 
 export const logoutFunc = async ()=>{
     const accessToken = await getToken();

@@ -1,16 +1,11 @@
-import AspectRatio from '@mui/joy/AspectRatio';
-import Avatar from '@mui/joy/Avatar';
 import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import CardCover from '@mui/joy/CardCover';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import CardCover from '@mui/joy/CardCover';
-import CardContent from '@mui/joy/CardContent';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import Box from '@mui/joy/Box';
 import CallMadeIcon from '@mui/icons-material/CallMade';
-import { isAscii } from 'validator';
 const HomeCard = ({ title, category, img, isSmall }) => {
 	return (
 		<Card

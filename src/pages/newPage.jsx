@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { getNew } from '../api/newsApi.js';
 import usePublicationById from '../hooks/usePublicationById.js';
@@ -12,9 +12,9 @@ import Typography from '@mui/joy/Typography';
 
 import DOMPurify from 'dompurify';
 import { CommentSection } from '../components/comments/commentsSection.jsx';
+import ScrollButton from '../components/common/scrollButton.jsx';
 import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import useProfile from '../hooks/useProfile.js';
-import ScrollButton from '../components/common/scrollButton.jsx';
 import { mainMargin } from '../themes/mainMargin.js';
 
 function NewsPage() {

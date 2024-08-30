@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
 
 import Stack from '@mui/joy/Stack';
 
-import Header from '../components/workspaceComponents/shared/workSpaceHeader';
-import AdminSidebar from '../components/workspaceComponents/admin/adminSidebar';
 import AdminMain from '../components/workspaceComponents/admin/adminMain';
+import AdminSidebar from '../components/workspaceComponents/admin/adminSidebar';
+import Header from '../components/workspaceComponents/shared/workSpaceHeader';
 function Admin() {
 	const [section, setSection] = useState('moderators');
 	const [open, setOpen] = useState(false);

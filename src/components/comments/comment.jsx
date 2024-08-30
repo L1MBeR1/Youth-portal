@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 
-import { timeAgo } from '../../utils/timeAndDate/timeAgo';
-import { useNavigate, Link } from 'react-router-dom';
-import { CommentInput } from './commentInput';
-import DOMPurify from 'dompurify';
 import Avatar from '@mui/joy/Avatar';
+import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
-import IconButton from '@mui/joy/IconButton';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
-import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
+import DOMPurify from 'dompurify';
+import { useNavigate } from 'react-router-dom';
+import { timeAgo } from '../../utils/timeAndDate/timeAgo';
+import { CommentInput } from './commentInput';
 
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 

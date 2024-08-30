@@ -2,11 +2,11 @@ import React from 'react';
 
 import Stack from '@mui/joy/Stack';
 
-import Header from '../partials/header';
-import Footer from '../partials/footer';
 import { Outlet } from 'react-router-dom';
-import CookieAccept from '../modals/cookieAccept';
 import '../../css/App.css';
+import CookieAccept from '../modals/cookieAccept';
+import Footer from '../partials/footer';
+import Header from '../partials/header';
 
 function MainLayout() {
 	return (

@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
 
-import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
-import Stack from '@mui/joy/Stack';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
-import ListItemButton, { listItemButtonClasses } from '@mui/joy/ListItemButton';
+import ListItemButton from '@mui/joy/ListItemButton';
 import ListItemContent from '@mui/joy/ListItemContent';
+import Sheet from '@mui/joy/Sheet';
+import Typography from '@mui/joy/Typography';
 
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import BusinessIcon from '@mui/icons-material/Business';
-import ShieldIcon from '@mui/icons-material/Shield';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import EventIcon from '@mui/icons-material/Event';
-import DesignServicesIcon from '@mui/icons-material/DesignServices';
-import PublishIcon from '@mui/icons-material/Publish';
-import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ArticleIcon from '@mui/icons-material/Article';
+import BusinessIcon from '@mui/icons-material/Business';
+import DesignServicesIcon from '@mui/icons-material/DesignServices';
+import EventIcon from '@mui/icons-material/Event';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PublishIcon from '@mui/icons-material/Publish';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 function Toggler({ defaultExpanded = false, renderToggle, children }) {
 	const [open, setOpen] = useState(defaultExpanded);

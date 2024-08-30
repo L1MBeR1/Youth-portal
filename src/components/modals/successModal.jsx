@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import Snackbar from '@mui/joy/Snackbar';
-import Stack from '@mui/joy/Stack';
+import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/joy/IconButton';
 import LinearProgress from '@mui/joy/LinearProgress';
-import CloseIcon from '@mui/icons-material/Close';
+import Snackbar from '@mui/joy/Snackbar';
+import Stack from '@mui/joy/Stack';
+import React, { useEffect, useState } from 'react';
 
 function SuccessModal({ open, setOpen, message, position, icon }) {
 	const [progress, setProgress] = useState(0);

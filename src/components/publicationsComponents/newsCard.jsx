@@ -1,14 +1,13 @@
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import AspectRatio from '@mui/joy/AspectRatio';
 import Avatar from '@mui/joy/Avatar';
+import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
 import CardOverflow from '@mui/joy/CardOverflow';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPastelDominantColor } from '../../utils/colors/getPastelDominantColor';
-import Box from '@mui/joy/Box';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import ProfileBlank from '../../img/profileBlank.png';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 

@@ -89,12 +89,7 @@ export const UserPublications = ({ id }) => {
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
 							{blogs.data.map(blog => (
 								<Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
-									<ProfileBlogCard
-										id={blog.id}
-										title={blog.title}
-										img={blog.cover_uri}
-										createDate={blog.created_at}
-									/>
+									<ProfileBlogCard data={blog} />
 								</Grid>
 							))}
 						</Grid>
@@ -104,13 +99,13 @@ export const UserPublications = ({ id }) => {
 				{tab === 1 &&
 					(podcasts.data ? (
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
-							{podcasts.data.map(blog => (
-								<Grid key={blog.id} xs={6} sm={4} md={3} lg={3}>
+							{podcasts.data.map(podcast => (
+								<Grid key={podcast.id} xs={6} sm={4} md={3} lg={3}>
 									<ProfilePodcastsCard
-										id={blog.id}
-										title={blog.title}
-										img={blog.cover_uri}
-										createDate={blog.created_at}
+										id={podcast.id}
+										title={podcast.title}
+										img={podcast.cover_uri}
+										createDate={podcast.created_at}
 									/>
 								</Grid>
 							))}
@@ -121,14 +116,9 @@ export const UserPublications = ({ id }) => {
 				{tab === 2 &&
 					(news.data ? (
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
-							{news.data.map(blog => (
-								<Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
-									<ProfileBlogCard
-										id={blog.id}
-										title={blog.title}
-										img={blog.cover_uri}
-										createDate={blog.created_at}
-									/>
+							{news.data.map(news => (
+								<Grid key={news.id} xs={12} sm={6} md={6} lg={4}>
+									<ProfileBlogCard data={news} />
 								</Grid>
 							))}
 						</Grid>

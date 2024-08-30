@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Card from '@mui/joy/Card';
 import Box from '@mui/joy/Box';
-import Stack from '@mui/joy/Stack';
+import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
+import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import Button from '@mui/joy/Button';
 function RecoveryForm() {
 	return (
 		<Card

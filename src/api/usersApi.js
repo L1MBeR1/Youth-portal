@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Data } from 'emoji-mart';
 
 const API_URL = `${process.env.REACT_APP_HTTP_PROTOCOL}://${process.env.REACT_APP_SERVER_IP}/api`;
 
@@ -59,7 +58,45 @@ export const updateUser = async (id, token, data) => {
       throw new Error('Failed to update user');
   }
 };
+export const updateUserEmail = async (id, token, email) => {
+  console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
+  console.log(id, token, email);
 
+  try {
+      const response = await axios.put(
+          `${API_URL}/users/${id}/email`,
+          email,
+          {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              },
+          }
+      );
+      return response.data;
+  } catch (error) {
+      throw new Error('Failed to update email');
+  }
+};
+
+export const updateUserPassword = async (id, token, password) => {
+  console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
+  console.log(id, token, password);
+
+  try {
+      const response = await axios.put(
+          `${API_URL}/users/${id}/password`,
+          password,
+          {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              },
+          }
+      );
+      return response.data;
+  } catch (error) {
+      throw new Error('Failed to update password');
+  }
+};
 
 export const deleteModerator = async (token, id) => {
   try {

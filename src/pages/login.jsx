@@ -1,6 +1,6 @@
+import Box from '@mui/joy/Box';
 import React from 'react';
 import LoginForm from '../components/forms/loginForm';
-import Box from '@mui/joy/Box';
 
 function Login() {
 	return (

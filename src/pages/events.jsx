@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import Grid from '@mui/joy/Grid';
-import Box from '@mui/joy/Box';
-import Autocomplete from '@mui/joy/Autocomplete';
-import FormControl from '@mui/joy/FormControl';
-import IconButton from '@mui/joy/IconButton';
-import FormLabel from '@mui/joy/FormLabel';
-import { Typography, Stack, Button } from '@mui/joy';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
+import { Button, Stack, Typography } from '@mui/joy';
+import Autocomplete from '@mui/joy/Autocomplete';
+import Box from '@mui/joy/Box';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import Grid from '@mui/joy/Grid';
+import IconButton from '@mui/joy/IconButton';
+import React, { useEffect, useState } from 'react';
 
-import Map from '../components/maps/map';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
+import Map from '../components/maps/map';
 import useEventsWithSortData from '../hooks/useEventsWithSortData';
 
 function Events() {

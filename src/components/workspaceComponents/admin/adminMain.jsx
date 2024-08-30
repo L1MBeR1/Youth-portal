@@ -3,13 +3,13 @@ import React from 'react';
 import Box from '@mui/joy/Box';
 
 import Blogs from '../moderator/sections/blogsSection';
-import Podcasts from '../moderator/sections/podcastsSection';
 import News from '../moderator/sections/newsSection';
-import Events from './sections/eventsSection';
-import Projects from './sections/projectsSection';
-import Moderators from './sections/moderatorsSection';
+import Podcasts from '../moderator/sections/podcastsSection';
 import Bloggers from './sections/bloggersSection';
+import Events from './sections/eventsSection';
+import Moderators from './sections/moderatorsSection';
 import Organizations from './sections/organizationsSection';
+import Projects from './sections/projectsSection';
 
 function AdminMain({ section }) {
 	const getContent = section => {

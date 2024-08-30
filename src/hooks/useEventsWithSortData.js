@@ -1,5 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import { getHomeEvents, getCities, getCountries } from '../api/eventsApi';
+import { getCities, getCountries, getHomeEvents } from '../api/eventsApi';
 import { getToken } from '../utils/authUtils/tokenStorage';
 
 const useEventsWithSortData = (params) => {

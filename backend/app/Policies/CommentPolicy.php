@@ -21,6 +21,10 @@ class CommentPolicy
         //
     }
 
+    public function setLikes(User $user){
+        return $user->hasPermissionTo('set likes');
+    }
+
     /**
      * Determine whether the user can view the model.
      */

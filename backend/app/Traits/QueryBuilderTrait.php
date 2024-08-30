@@ -199,30 +199,59 @@ trait QueryBuilderTrait
     {
         $timezone = $request->query('timezone', 'UTC');
 
+        // Функция для проверки наличия времени в строке даты
+        function hasTime($dateString)
+        {
+            return preg_match('/\d{2}:\d{2}:\d{2}/', $dateString) > 0;
+        }
+
+        // Обработка crtFrom и crtTo
         if ($crtFrom = $request->query('crtFrom')) {
-            $query->whereDate('created_at', '>=', Carbon::parse($crtFrom, $timezone)->setTimezone('UTC'));
+            if (!hasTime($crtFrom)) {
+                $crtFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $crtFrom = Carbon::parse($crtFrom, $timezone)->setTimezone('UTC');
+            $query->where('created_at', '>=', $crtFrom);
         }
 
         if ($crtTo = $request->query('crtTo')) {
-            $query->whereDate('created_at', '<=', Carbon::parse($crtTo, $timezone)->setTimezone('UTC'));
+            if (!hasTime($crtTo)) {
+                $crtTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $crtTo = Carbon::parse($crtTo, $timezone)->setTimezone('UTC');
+            $query->where('created_at', '<=', $crtTo);
         }
 
+        // Обработка updFrom и updTo
         if ($updFrom = $request->query('updFrom')) {
-            $query->whereDate('updated_at', '>=', Carbon::parse($updFrom, $timezone)->setTimezone('UTC'));
+            if (!hasTime($updFrom)) {
+                $updFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $updFrom = Carbon::parse($updFrom, $timezone)->setTimezone('UTC');
+            $query->where('updated_at', '>=', $updFrom);
         }
 
         if ($updTo = $request->query('updTo')) {
-            $query->whereDate('updated_at', '<=', Carbon::parse($updTo, $timezone)->setTimezone('UTC'));
+            if (!hasTime($updTo)) {
+                $updTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $updTo = Carbon::parse($updTo, $timezone)->setTimezone('UTC');
+            $query->where('updated_at', '<=', $updTo);
         }
 
+        // Обработка crtDate и updDate (без времени, только дата)
         if ($crtDate = $request->query('crtDate')) {
-            $query->whereDate('created_at', Carbon::parse($crtDate, $timezone)->setTimezone('UTC'));
+            $crtDate = Carbon::parse($crtDate, $timezone)->setTimezone('UTC')->startOfDay();
+            $query->whereBetween('created_at', [$crtDate, $crtDate->endOfDay()]);
         }
 
         if ($updDate = $request->query('updDate')) {
-            $query->whereDate('updated_at', Carbon::parse($updDate, $timezone)->setTimezone('UTC'));
+            $updDate = Carbon::parse($updDate, $timezone)->setTimezone('UTC')->startOfDay();
+            $query->whereBetween('updated_at', [$updDate, $updDate->endOfDay()]);
         }
     }
+
+
 
 
 

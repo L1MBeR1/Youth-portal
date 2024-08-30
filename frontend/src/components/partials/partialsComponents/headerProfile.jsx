@@ -1,108 +1,21 @@
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useProfile from '../../../hooks/useProfile.js';
 
-import { logoutFunc } from '../../../utils/authUtils/logout.js';
-
-import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import CircularProgress from '@mui/joy/CircularProgress';
-import Dropdown from '@mui/joy/Dropdown';
 import IconButton from '@mui/joy/IconButton';
-import ListDivider from '@mui/joy/ListDivider';
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
 
-import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
 
-import profileBlank from '../../../img/profileBlank.png';
+import DrawerAvatar from './drawerAvatar.jsx';
+import MenuAvatar from './menuAvatar.jsx';
+
 import { Button, Typography } from '@mui/joy';
 
 function HeaderProfile() {
-	const queryClient = useQueryClient();
-	const navigate = useNavigate();
 	const { data: profileData, isLoading } = useProfile();
 
-	const handleLogout = async () => {
-		await logoutFunc();
-
-		queryClient.removeQueries(['profile']);
-		navigate('/login');
-	};
-
-	const handleLink = link => {
-		navigate(link);
-	};
-
-	const profileMenu = () => {
-		return (
-			<Dropdown>
-				<MenuButton
-					slots={{ root: Avatar }}
-					slotProps={{ root: { color: 'neutral' } }}
-					sx={{
-						cursor: 'pointer',
-					}}
-				>
-					<Avatar
-						size='lg'
-						src={profileData.profile_image_uri || profileBlank}
-					/>
-				</MenuButton>
-				<Menu size='sm' placement='bottom-end'>
-					<MenuItem
-						onClick={() => {
-							handleLink(`/profile/${profileData.user_id}`);
-						}}
-					>
-						<PersonIcon />
-						Профиль
-					</MenuItem>
-					{profileData.roles.includes('admin') && (
-						<MenuItem
-							onClick={() => {
-								handleLink('/admin');
-							}}
-						>
-							Панель админа
-						</MenuItem>
-					)}
-					{profileData.roles.includes('superuser') && (
-						<MenuItem
-							onClick={() => {
-								handleLink('/superuser');
-							}}
-						>
-							Панель суперюзера
-						</MenuItem>
-					)}
-					{profileData.roles.includes('moderator') && (
-						<MenuItem
-							onClick={() => {
-								handleLink('/moderator');
-							}}
-						>
-							Панель модератора
-						</MenuItem>
-					)}
-					<MenuItem>
-						<SettingsIcon />
-						Настройки
-					</MenuItem>
-					<ListDivider />
-					<MenuItem onClick={handleLogout} variant='soft' color='danger'>
-						<LogoutIcon />
-						Выйти
-					</MenuItem>
-				</Menu>
-			</Dropdown>
-		);
-	};
 	return (
 		<Box
 			sx={{
@@ -121,7 +34,19 @@ function HeaderProfile() {
 					sx={{ '--CircularProgress-size': '30px' }}
 				/>
 			) : profileData ? (
-				<>{profileMenu()}</>
+				<>
+					<DrawerAvatar
+						img={profileData.profile_image_uri}
+						id={profileData.user_id}
+						roles={profileData.roles}
+						nickname={profileData.nickname}
+					/>
+					<MenuAvatar
+						img={profileData.profile_image_uri}
+						id={profileData.user_id}
+						roles={profileData.roles}
+					/>
+				</>
 			) : (
 				<Link to='/login'>
 					<Box sx={{ display: { xs: 'none', md: 'block' } }}>

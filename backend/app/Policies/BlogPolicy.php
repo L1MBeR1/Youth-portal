@@ -99,4 +99,9 @@ class BlogPolicy
 
         return $isAdminOrModerator || $isAuthorAndBlogger;
     }
+
+
+    public function setLikes(User $user){
+        return $user->hasPermissionTo('set likes');
+    }
 }

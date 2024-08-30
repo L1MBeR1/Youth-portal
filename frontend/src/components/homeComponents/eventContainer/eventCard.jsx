@@ -1,23 +1,21 @@
 import React from 'react';
 
-import { Card, Box, Stack } from '@mui/joy';
-import CardOverflow from '@mui/joy/CardOverflow';
-import CardContent from '@mui/joy/CardContent';
+import { Box, Card, Stack } from '@mui/joy';
 import AspectRatio from '@mui/joy/AspectRatio';
+import CardContent from '@mui/joy/CardContent';
+import CardOverflow from '@mui/joy/CardOverflow';
 import Typography from '@mui/joy/Typography';
-import CardActions from '@mui/joy/CardActions';
-import Button from '@mui/joy/Button';
 
-import RoomIcon from '@mui/icons-material/Room';
 import EventIcon from '@mui/icons-material/Event';
+import RoomIcon from '@mui/icons-material/Room';
 
-import { formatDate } from '../../../utils/timeAndDate/formatDate';
 import BlankImage from '../../../img/blank.png';
+import { formatDate } from '../../../utils/timeAndDate/formatDate';
 
 import { useNavigate } from 'react-router-dom';
 function EventCard({ data }) {
 	const navigate = useNavigate();
-	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;
+	const fullAddress = `${data.address.country}, ${data.address.city}`;
 	const handleRedirect = id => {
 		navigate(`/event/${id}`);
 	};

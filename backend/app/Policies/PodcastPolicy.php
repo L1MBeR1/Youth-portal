@@ -17,6 +17,10 @@ class PodcastPolicy
         return true;
     }
 
+    public function setLikes(User $user){
+        return $user->hasPermissionTo('set likes');
+    }
+
     public function search(User $user): bool
     {
         return $user->hasRole('admin') || $user->hasRole('moderator') || $user->hasRole('su');

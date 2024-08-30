@@ -1,7 +1,7 @@
-import React from 'react';
 import { useColorScheme } from '@mui/joy/styles';
-import logoLight from '../../img/logoLight.svg';
+import React from 'react';
 import logoDark from '../../img/logoDark.svg';
+import logoLight from '../../img/logoLight.svg';
 
 function Logo({ isInvert = false, size = '180px' }) {
 	const { mode, systemMode } = useColorScheme();

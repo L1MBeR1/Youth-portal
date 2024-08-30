@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { IconButton } from '@mui/joy/';
+import React, { useEffect, useState } from 'react';
 
 const ScrollButton = ({ type }) => {
 	const [isVisible, setIsVisible] = useState(false);

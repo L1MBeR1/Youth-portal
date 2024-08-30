@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import Box from '@mui/joy/Box';
+import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
-import Button from '@mui/joy/Button';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import EventsCarousel from './eventsCarousel';
 // import eventsData from '../../../test/events.json';

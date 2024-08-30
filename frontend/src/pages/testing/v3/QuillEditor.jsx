@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from 'react';
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.bubble.css';
+import 'quill/dist/quill.snow.css';
+import React, { useEffect, useRef } from 'react';
 
 function QuillEditor({ value, onChange }) {
 	const editorRef = useRef(null);

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
 import Picker from '@emoji-mart/react';
-import { Popover, ArrowContainer } from 'react-tiny-popover';
-import { IconButton } from '@mui/joy';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import { IconButton } from '@mui/joy';
+import React, { useState } from 'react';
+import { ArrowContainer, Popover } from 'react-tiny-popover';
 import useEmojiData from '../../hooks/useEmoji';
 function EmojiPicker({ onSelect }) {
 	const [isOpen, setIsOpen] = useState(false);

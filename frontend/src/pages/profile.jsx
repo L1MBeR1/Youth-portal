@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { UserPublications } from '../components/profileComponents/userPublications';
 
 import useUser from '../hooks/useUser';

@@ -3,8 +3,8 @@ import React from 'react';
 import Box from '@mui/joy/Box';
 
 import Blogs from './sections/blogsSection';
-import Podcasts from './sections/podcastsSection';
 import News from './sections/newsSection';
+import Podcasts from './sections/podcastsSection';
 
 function ModeratorMain({ section }) {
 	const getContent = section => {

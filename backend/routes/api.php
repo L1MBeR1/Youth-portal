@@ -4,43 +4,31 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\Auth\VKAuthController;
 
+require_once __DIR__ . '/api/admin.php';
+require_once __DIR__ . '/api/auth.php';
+require_once __DIR__ . '/api/blogs.php';
+require_once __DIR__ . '/api/comments.php';
+require_once __DIR__ . '/api/events.php';
+require_once __DIR__ . '/api/news.php';
+require_once __DIR__ . '/api/organizations.php';
+require_once __DIR__ . '/api/permissions.php';
+require_once __DIR__ . '/api/podcasts.php';
+require_once __DIR__ . '/api/projects.php';
+require_once __DIR__ . '/api/roles.php';
+require_once __DIR__ . '/api/users.php';
+require_once __DIR__ . '/api/files.php';
 
-/**
- * 
- * POST   - Сделать новый ресурс                   - /префикс_коллеции/пустая_строка
- * PUT    - Обновить существующий ресурс полностью - /префикс_коллеции/{идентификатор}
- * PATCH  - Обновить существующий ресурс частично  - /префикс_коллеции/{идентификатор}
- * DELETE - Удалить ресурс                         - /префикс_коллеции/{идентификатор}
- * GET    - Получить ресурс                        - /префикс_коллеции/{идентификатор}
- * 
- */
-
- 
-require __DIR__ . '/api/admin.php';
-require __DIR__ . '/api/auth.php';
-require __DIR__ . '/api/blogs.php';
-require __DIR__ . '/api/comments.php';
-require __DIR__ . '/api/events.php';
-require __DIR__ . '/api/news.php';
-require __DIR__ . '/api/organizations.php';
-require __DIR__ . '/api/permissions.php';
-require __DIR__ . '/api/podcasts.php';
-require __DIR__ . '/api/projects.php';
-require __DIR__ . '/api/roles.php';
-require __DIR__ . '/api/users.php';
-
-require __DIR__ . '/api/files.php';
+Route::prefix('v1')->group(function () {
+    require_once __DIR__ . '/api/v1/blogs.php';
+});
 
 
 
-// Супер Администрирование
-// Route::group([
-//     'middleware' => ['auth:api'],
-//     'prefix' => 'admin'
-// ], function () {
-//     Route::get('hello', [SUController::class, 'hello']);
-// });
 
+
+
+
+//TODO: Что делаем с этим?
 
 // Прокси (временно, пока нет SSL)
 Route::group([

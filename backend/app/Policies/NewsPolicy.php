@@ -41,6 +41,10 @@ class NewsPolicy
         return $user->hasPermissionTo('view own news');
     }
 
+    public function setLikes(User $user){
+        return $user->hasPermissionTo('set likes');
+    }
+
     public function requestSpecificNews(User $user, News $news): bool
     {
         if ($news->status === 'published') {

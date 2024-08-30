@@ -8,8 +8,8 @@ Route::group([
     'middleware' => ['api'],
     'prefix' => 'auth'
 ], function () {
-    Log::info('z nen');
     Route::get('verify_email', [AuthController::class, 'verifyEmail'])->withoutMiddleware('auth');
+    Route::get('change_password', [AuthController::class, 'changePassword'])->withoutMiddleware('auth');
     
     Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');
     Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
@@ -20,10 +20,10 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'auth'
 ], function () {
-    Route::get('profile', [AuthController::class, 'getProfile']);
-    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
     
+    Route::get('roles_permissions', [AuthController::class, 'getRolesAndPermissions']);
+    Route::get('', [AuthController::class, 'getProfile']);
     Route::post('logout', [AuthController::class, 'logout']);
     
-    Route::put('profile', [AuthController::class, 'updateProfile']);
+    
 });

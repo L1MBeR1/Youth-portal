@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { Button, Typography } from '@mui/joy';
 import Snackbar from '@mui/joy/Snackbar';
 import Stack from '@mui/joy/Stack';
-import { Button, Typography } from '@mui/joy';
+import React, { useEffect, useState } from 'react';
 import { getCookie, setCookie } from '../../utils/cookie/cookieUtils';
 
 const CookieAccept = () => {

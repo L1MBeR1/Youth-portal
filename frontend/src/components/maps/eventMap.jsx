@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import React, { useEffect } from 'react';
+import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import marker from '../../img/marker.svg';
-import EventMarkerCard from '../homeComponents/eventContainer/eventMarkerCard';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
 	iconRetinaUrl: marker,
@@ -19,11 +18,14 @@ const CustomAttribution = () => {
 	return null;
 };
 
-const EventMap = ({ data }) => {
+const EventMap = ({ data, zoom }) => {
+	const longitude = data.longitude || 63;
+	const latitude = data.latitude || 90;
+
 	return (
 		<MapContainer
-			center={[63, 90]}
-			zoom={3}
+			center={[latitude, longitude]}
+			zoom={zoom || 3}
 			attributionControl={true}
 			style={{ height: '100%', width: '100%' }}
 		>
@@ -32,7 +34,7 @@ const EventMap = ({ data }) => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 			/>
 			<CustomAttribution />
-			<Marker key={data.id} position={[data.latitude, data.longitude]}></Marker>
+			<Marker key={data.id} position={[latitude, longitude]}></Marker>
 		</MapContainer>
 	);
 };

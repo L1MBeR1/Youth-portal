@@ -1,17 +1,13 @@
 import React from 'react';
 
-import { Box, Stack, Input, Button, IconButton } from '@mui/joy';
-import { useColorScheme } from '@mui/joy/styles';
+import { IconButton, Input, Stack } from '@mui/joy';
 import Typography from '@mui/joy/Typography';
 
-import CropSquareIcon from '@mui/icons-material/CropSquare';
 import SendIcon from '@mui/icons-material/Send';
 
-import vk from '../../img/social/vk.svg';
 import telegram from '../../img/social/telegram.svg';
+import vk from '../../img/social/vk.svg';
 import youtube from '../../img/social/youtube.svg';
-import Logo from './logo';
-import zIndex from '@mui/material/styles/zIndex';
 
 function Footer() {
 	return (
@@ -39,7 +35,7 @@ function Footer() {
 				>
 					<Stack direction={'column'} flexGrow={1} spacing={2}>
 						<Typography
-							level='title-xl'
+							level='title-xxl'
 							textColor={'var(--joy-staticColors-mainLight)'}
 						>
 							Подпишись на наши обновления и будь в курсе всех событий!

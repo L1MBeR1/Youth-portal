@@ -37,21 +37,6 @@ export const login = async (email, password) => {
     }
   };
   
-  export const getProfile = async (token) => {
-    try {
-      const response = await axios.get(`${API_URL}/auth/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-  
-      });
-        console.log(response)
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch profile');
-    }
-  };
-
   export const logout = async (token) => {
     try {
       const response = await axios.post(`${API_URL}/auth/logout`, null, {
@@ -64,5 +49,19 @@ export const login = async (email, password) => {
       return response.data;
     } catch (error) {
       throw new Error('logout failed');
+    }
+  };
+  export const getProfile = async (token) => {
+    try {
+      const response = await axios.get(`${API_URL}/auth`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+  
+      });
+        console.log(response)
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch profile');
     }
   };

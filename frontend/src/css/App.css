@@ -77,3 +77,6 @@ a {
 	justify-content: center;
 	align-items: center;
 }
+#react-tiny-popover-container {
+	z-index: 100;
+}

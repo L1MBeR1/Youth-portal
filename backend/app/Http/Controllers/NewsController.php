@@ -163,12 +163,36 @@ class NewsController extends Controller
     }
 
 
-    public function getTags()
+    public function getTags(Request $request)
     {
-        $tags = News::select(DB::raw("DISTINCT(description->'meta'->>'tags') as tags"))
-                        ->pluck('tags');
+        //TODO: Переписать когда будет нормальный трейт для фильтров
+        // Получение параметров из запроса
+        $publishedOnly = $request->query('publishedOnly', false);
+        $authorId = $request->query('authorId', null);
 
-        return response()->json($tags);
+        // Создаем запрос к базе данных
+        $query = News::query();
+
+        // Фильтрация по статусу публикации, если установлен параметр publishedOnly
+        if ($publishedOnly) {
+            $query->where('status', 'published');
+        }
+
+        // Фильтрация по authorId, если установлен параметр authorId
+        if ($authorId) {
+            $query->where('author_id', $authorId);
+        }
+
+        // Получаем список тегов, используя jsonb_array_elements_text для извлечения отдельных значений массива
+        $tags = $query->select(DB::raw("jsonb_array_elements_text(description->'meta'->'tags') as tag"))
+            ->distinct()
+            ->pluck('tag');
+
+        $message = count($tags) > 0 ? 'Success' : 'No tags found';
+        return $this->successResponse(
+            data: $tags,
+            message: $message
+        );
     }
 
 
@@ -255,6 +279,10 @@ class NewsController extends Controller
         }
 
         $user = Auth::user();
+
+        if (!Auth::user()->can('setLikes', $news)) {
+            return $this->errorResponse('Нет прав на лайки', [], Response::HTTP_FORBIDDEN);
+        }
 
         $like = $news->likes()->where('user_id', $user->id)->first();
 

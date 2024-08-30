@@ -9,6 +9,7 @@ use App\Models\UserMetadata;
 use Illuminate\Http\Request;
 // use Illuminate\Http\Response;
 use App\Mail\EmailVerification;
+use App\Mail\PasswordUpdate;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -33,11 +34,13 @@ class AuthController extends Controller
     {
         $this->jwtSecret = config('app.JWT_SECRET');
     }
+
+
     /**
-     * Регистрация 
-     * 
+     * Регистрация
+     *
      * Регистрация нового пользователя с использованием [email, phone].
-     * 
+     *
      * @group Авторизация
      * @bodyParam email string required email
      * @bodyParam phone string optional phone
@@ -48,13 +51,26 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
-        Log::info('z nen');
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email|unique:user_login_data,email',
-            'phone' => 'nullable|string|unique:user_login_data,phone',
-            'password' => 'required',
+            'email' => [
+                'nullable',
+                'email',
+                'unique:user_login_data,email',
+                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+            ],
+            'phone' => [
+                'nullable',
+                'string',
+                'unique:user_login_data,phone',
+                'regex:/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/',
+            ],
+            'password' => [
+                'required',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
+            ],
         ]);
-        
+
+
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
@@ -99,14 +115,14 @@ class AuthController extends Controller
 
     /**
      * Аутентификация
-     * 
+     *
      * Аутентификация пользователя с помощью [email, phone]
-     * 
+     *
      * @group Авторизация
      * @bodyParam email string required email
      * @bodyParam phone string optional phone
      * @bodyParam password string required password
-     * 
+     *
      */
     //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
@@ -116,7 +132,7 @@ class AuthController extends Controller
             'phone' => 'nullable|string',
             'password' => 'required|string',
         ]);
-        
+
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
@@ -148,10 +164,39 @@ class AuthController extends Controller
 
     /**
      * Подтверждение почты
-     * 
+     *
      * @group Авторизация
-     * 
+     *
      */
+    // public function verifyEmail(Request $request)
+    // {
+    //     $token = $request->query('token');
+
+    //     if (!$token) {
+    //         return $this->errorResponse('Token is missing', [], 400);
+    //     }
+
+    //     $user = JWTAuth::setToken($token)->toUser();
+
+    //     if (!$user) {
+    //         return $this->errorResponse('Invalid or expired token', [], 400);
+    //     }
+
+    //     // проверить тут поле new_email из JWT токена
+
+    //     // Проверка, подтвержден ли email
+    //     if ($user->email_verified_at) {
+    //         return $this->errorResponse('Email already verified', [], 422);
+    //     }
+
+    //     // Подтверждение email
+    //     $user->email_verified_at = now();
+    //     $user->removeRole('guest');
+    //     $user->assignRole('user');
+    //     $user->save();
+
+    //     return response()->view('emails.thanks');
+    // }
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
@@ -160,25 +205,79 @@ class AuthController extends Controller
             return $this->errorResponse('Token is missing', [], 400);
         }
 
-        $user = JWTAuth::setToken($token)->toUser();
+        try {
+            $payload = JWTAuth::setToken($token)->getPayload();
+            $newEmail = $payload->get('new_email');
+            $user = JWTAuth::setToken($token)->toUser();
 
-        if (!$user) {
+            if (!$user) {
+                return $this->errorResponse('Invalid or expired token', [], 400);
+            }
+
+            if ($newEmail) {
+                $user->email = $newEmail;
+                // $user->email_verified_at = now();
+                // $user->save();
+            } elseif ($user->email_verified_at) {
+                return $this->errorResponse('Email already verified', [], 422);
+            }
+
+            // Подтверждение email
+            $user->email_verified_at = now();
+            $user->removeRole('guest');
+            $user->assignRole('user');
+            $user->save();
+
+
+
+            return response()->view('emails.thanks');
+        } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
         }
+    }
 
-        // Проверка, подтвержден ли email
-        if ($user->email_verified_at) {
-            return $this->errorResponse('Email already verified', [], 422);
+
+
+    public function changePassword(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            return $this->errorResponse('Token is missing', [], 400);
         }
 
-        // Подтверждение email
-        $user->email_verified_at = now();
-        $user->removeRole('guest');
-        $user->assignRole('user');
-        $user->save();
+        try {
+            $payload = JWTAuth::setToken($token)->getPayload();
+            $password = $payload->get('password');
+            $password = bcrypt($password);
+            $user = JWTAuth::setToken($token)->toUser();
 
-        return $this->successResponse('Email verified successfully');
+            if (!$user) {
+                return $this->errorResponse('Invalid or expired token', [], 400);
+            }
+
+            if ($password) {
+                $user->password = $password;
+                // $user->email_verified_at = now();
+                // $user->save();
+            } elseif ($user->email_verified_at) {
+                return $this->errorResponse('Email already verified', [], 422);
+            }
+
+            // Подтверждение email
+            $user->email_verified_at = now();
+            $user->removeRole('guest');
+            $user->assignRole('user');
+            $user->save();
+
+
+
+            return response()->view('emails.thanks');
+        } catch (Exception $e) {
+            return $this->errorResponse('Invalid or expired token', [], 400);
+        }
     }
+
 
 
 
@@ -219,14 +318,14 @@ class AuthController extends Controller
 
     /**
      * Обновление токенов
-     * 
+     *
      * Обновление токенов пользователя с использованием refresh_token.
      * Будет возвращена новая пара токенов access_token и refresh_token.
-     * 
+     *
      * @group Авторизация
      * @bodyParam refresh_token string required refresh_token
-     * 
-     * 
+     *
+     *
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -235,22 +334,17 @@ class AuthController extends Controller
 
     public function refresh(Request $request)
     {
-        Log::info('\n\n');
         $refreshToken = $request->cookie('refresh_token');
 
         if (!$refreshToken) {
-            Log::info('Нет токена');
             return $this->errorResponse('Refresh token is missing', [], 401);
         }
 
-        Log::info('Есть токен =');
-        Log::info($refreshToken);
 
         $decodedToken = base64_decode($refreshToken);
         list($uuid, $expiresAt) = explode('.', $decodedToken);
 
         if (now()->timestamp > $expiresAt) {
-            Log::info('Токен истёк');
             return response()->json([
                 'message' => 'Refresh token has expired',
                 'data' => [],
@@ -260,7 +354,6 @@ class AuthController extends Controller
 
         $user = User::where('remember_token', $refreshToken)->first();
         if (!$user) {
-            Log::info('Нет токена у пользователей');
             return response()->json([
                 'message' => 'Invalid refresh token',
                 'data' => [],
@@ -268,20 +361,11 @@ class AuthController extends Controller
             ])->cookie(cookie()->forget('refresh_token'));
         }
 
-        // if ($user->blocked_at) {
-        //     return response()->json([
-        //         'message' => 'User is blocked',
-        //         'data' => [],
-        //         'status_code' => 403
-        //     ])->cookie(cookie()->forget('refresh_token'));
-        // }
-
         Auth::login($user);
 
         $newToken = Auth::refresh();
         $newRefreshToken = $this->generateRefreshToken($user);
 
-        Log::info('Отдаю токен');
         return $this->respondWithToken($newToken, $newRefreshToken);
     }
 
@@ -290,104 +374,18 @@ class AuthController extends Controller
 
 
 
-    /**
-     * Обновление профиля
-     * 
-     * Обновление профиля пользователя. 
-     * Поля, которые не переданы в запросе будут оставлены без изменения.
-     * 
-     * @group Авторизация
-     * @bodyParam first_name string optional first_name
-     * @bodyParam last_name string optional last_name
-     * @bodyParam patronymic string optional patronymic
-     * @bodyParam nickname string optional nickname
-     * @bodyParam profile_image_uri string optional profile_image_uri
-     * @bodyParam city string optional city
-     * @bodyParam gender string optional gender
-     * @bodyParam birthday date optional birthday
-     *
-     * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    //TODO Изменить принцип валидации на валидацию через request
-    public function updateProfile(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'nullable|string|max:255',
-                'last_name' => 'nullable|string|max:255',
-                'patronymic' => 'nullable|string|max:255',
-                'nickname' => 'nullable|string|max:255',
-                'profile_image_uri' => 'nullable|string',
-                'city' => 'nullable|string|max:255',
-                'gender' => 'nullable|in:m,f',
-                'birthday' => 'nullable|date',
-            ]);
-            
-            if ($validator->fails()) {
-                return $this->errorResponse('Validation Error', $validator->errors(), 422);
-            }
 
-            $user = Auth::user();
-            $metadata = $user->metadata;
-            if (!$metadata) {
-                $metadata = new UserMetadata();
-                $metadata->user_id = $user->id;
-            }
 
-            $metadata->fill($request->only([
-                'first_name',
-                'last_name',
-                'patronymic',
-                'nickname',
-                'profile_image_uri',
-                'city',
-                'gender',
-                'birthday'
-            ]));
 
-            $metadata->save();
-
-            return $this->successResponse($metadata, 'Profile updated successfully.');
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
-
-    /**
-     * Получение профиля
-     * 
-     * Получение информации о пользователе. 
-     * 
-     * @group Авторизация
-     * 
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getProfile()
-    {
-        try {
-            $user = Auth::user();
-            if (!$user)
-                return $this->errorResponse('Неверные данные', [], 400);
-            $metadata = $user->metadata;
-
-            return $this->successResponse($metadata, 'Profile retrieved successfully.');
-        } catch (Exception $e) {
-            return $this->handleException($e);
-        }
-    }
 
 
     /**
      * Выход из аккаунта
-     * 
-     * Выход из аккаунта (удаление токенов).
-     * 
-     * @group Авторизация
-     * 
      *
-     * @return \Illuminate\Http\JsonResponse
+     * Выход из аккаунта (удаление токенов).
+     *
+     * @group Авторизация
+     *
      */
     public function logout()
     {
@@ -463,6 +461,108 @@ class AuthController extends Controller
         }
 
         return $response;
+    }
+
+
+
+
+    /**
+     * Получение профиля
+     *
+     * Получение информации о пользователе.
+     *
+     * @group Авторизация
+     *
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProfile()
+    {
+
+        $user = Auth::user();
+        if (!$user)
+            return $this->errorResponse('Неверные данные', [], 400);
+        $metadata = $user->metadata;
+
+        return $this->successResponse($metadata, 'Profile retrieved successfully.');
+
+    }
+
+
+    public function changeEmail(Request $request)
+    {
+        // Валидация нового email
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                'email',
+                'unique:user_login_data,email',
+                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+            ]
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+        $newEmail = $request->input('email');
+
+        // Создание кастомного payload для токена
+        $customPayload = [
+            'sub' => $user->id,
+            'new_email' => $newEmail,  // Добавляем новый email
+            'iat' => now()->timestamp,
+            'exp' => now()->addHour()->timestamp,  // Время истечения токена
+        ];
+
+        // Создание массива claims (утверждений) для JWT
+        $payload = JWTAuth::factory()->customClaims($customPayload)->make();
+
+        // Генерация токена на основе кастомного payload
+        $token = JWTAuth::encode($payload)->get();
+
+        // Отправка письма на новый email с токеном для подтверждения
+        Mail::to($newEmail)->send(new EmailVerification($user, $token));
+
+        return $this->successResponse(null, 'Email change request sent successfully.');
+    }
+
+    public function requestChangePassword(Request $request)
+    {
+        // Валидация нового email
+        $validator = Validator::make($request->all(), [
+            'password' => [
+                'required',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
+            ]
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
+
+        $user = Auth::user();
+        $password = $request->input('password');
+
+        // Создание кастомного payload для токена
+        $customPayload = [
+            'sub' => $user->id,
+            'password' => $password,  // Добавляем новый email
+            'iat' => now()->timestamp,
+            'exp' => now()->addHour()->timestamp,  // Время истечения токена
+        ];
+
+        // Создание массива claims (утверждений) для JWT
+        $payload = JWTAuth::factory()->customClaims($customPayload)->make();
+
+        // Генерация токена на основе кастомного payload
+        $token = JWTAuth::encode($payload)->get();
+
+        // Отправка письма на новый email с токеном для подтверждения
+        Mail::to($user->email)->send(new PasswordUpdate($user, $token));
+
+        return $this->successResponse(null, 'Password change request sent successfully.');
     }
 
 

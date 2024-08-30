@@ -12,6 +12,7 @@ import MainLayout from './components/layouts/mainLayout';
 //Страницы
 import Home from './pages/home';
 import Login from './pages/login';
+import MyContent from './pages/myContent';
 import NotFound from './pages/notFound';
 import Profile from './pages/profile';
 import Recovery from './pages/recovery';
@@ -79,6 +80,10 @@ function App() {
 						<Route
 							path='settings'
 							element={<NotGuestRoute element={<Settings />} />}
+						/>
+						<Route
+							path='my-content'
+							element={<NotGuestRoute element={<MyContent />} />}
 						/>
 
 						<Route path='login' element={<GuestRoute element={<Login />} />} />

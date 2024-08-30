@@ -1,13 +1,18 @@
-import AspectRatio from '@mui/joy/AspectRatio';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import CardCover from '@mui/joy/CardCover';
+import CardOverflow from '@mui/joy/CardOverflow';
+import Chip from '@mui/joy/Chip';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { getStatus } from '../../utils/getStatus';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 
-const ProfileBlogCard = ({ id, title, img, createDate }) => {
+const ProfileBlogCard = ({ data, status }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
@@ -18,50 +23,83 @@ const ProfileBlogCard = ({ id, title, img, createDate }) => {
 			variant='plain'
 			sx={{
 				display: 'flex',
-				// minHeight: "340px",
-				p: 0,
+				padding: '15px',
 				cursor: 'pointer',
-				'--Card-radius': '20px',
+				'--Card-radius': '30px',
+				bgcolor: 'var(--joy-palette-main-background)',
+				flexGrow: '1',
 				overflow: 'hidden',
-				'&:hover img': {
+				height: '100%',
+				'&:hover .cover': {
 					transform: 'scale(1.075)',
 				},
+				gap: '0',
 			}}
-			onClick={() => handleRedirect(id)}
+			onClick={() => handleRedirect(data.id)}
 		>
-			<Stack direction='column' spacing={1.5} flexGrow={1}>
-				<AspectRatio
-					minHeight='120px'
-					maxHeight='200px'
+			<CardOverflow
+				sx={{
+					p: 0,
+				}}
+			>
+				<Card
+					variant='plain'
 					sx={{
-						overflow: 'hidden',
+						width: '100%',
+						height: '200px',
 						position: 'relative',
-						'& img': {
-							transition: 'transform 0.4s',
-						},
+						overflow: 'hidden',
+						borderRadius: '0',
+						p: 0,
 					}}
 				>
-					<img src={img} alt={title} loading='lazy' />
-				</AspectRatio>
-				<Stack
-					spacing={1}
-					direction='column'
-					flexGrow={1}
-					justifyContent='space-between'
-					paddingX={1}
-				>
-					<Stack spacing={1}>
-						<Typography level='title-lg'>{title}</Typography>
-					</Stack>
-
-					<Stack
-						direction='row'
-						justifyContent='space-between'
-						alignItems='center'
-						spacing={2}
+					<CardCover>
+						<img
+							src={data.cover_uri}
+							alt={data.title}
+							style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+						/>
+					</CardCover>
+					{status && (
+						<CardContent
+							sx={{
+								p: '25px',
+							}}
+						>
+							<Chip size={'md'} color={getStatus(data.status).color}>
+								{getStatus(data.status).label}
+							</Chip>
+						</CardContent>
+					)}
+				</Card>
+			</CardOverflow>
+			<Stack direction='column' flexGrow={'1'} justifyContent='space-between'>
+				<Stack paddingTop={'20px'} direction='column' flexGrow={1}>
+					<Box
+						sx={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+							whiteSpace: 'normal',
+						}}
 					>
-						<Typography level='body-md'>{timeAgo(createDate)}</Typography>
+						<Typography level='title-lg'>{data.title}</Typography>
+					</Box>
+				</Stack>
+				<Stack
+					paddingTop={'20px'}
+					direction='row'
+					alignItems='center'
+					gap='15px'
+					justifyContent={'space-between'}
+				>
+					<Stack direction='row' alignItems={'center'} gap='4px'>
+						<VisibilityIcon sx={{ fontSize: 17, paddingBottom: '' }} />
+						<Typography level='title-sm'>{data.views}</Typography>
 					</Stack>
+					<Typography level='body-sm'>{timeAgo(data.created_at)}</Typography>
 				</Stack>
 			</Stack>
 		</Card>

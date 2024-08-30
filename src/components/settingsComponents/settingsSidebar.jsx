@@ -87,28 +87,6 @@ function SettingsSidebar({ selectedSection, setSection }) {
 						</ListItemContent>
 					</ListItemButton>
 				</ListItem>
-
-				{/* <Divider />
-				<ListItem>
-					<ListItemButton
-						selected={selectedSection === 'projects'}
-						onClick={() => handleSetSection('projects')}
-					>
-						<ListItemContent>
-							<Typography level='title-md'>Мои Блоги</Typography>
-						</ListItemContent>
-					</ListItemButton>
-				</ListItem>
-				<ListItem>
-					<ListItemButton
-						selected={selectedSection === 'events'}
-						onClick={() => handleSetSection('events')}
-					>
-						<ListItemContent>
-							<Typography level='title-md'>Мероприятия</Typography>
-						</ListItemContent>
-					</ListItemButton>
-				</ListItem> */}
 			</List>
 		</Sheet>
 	);

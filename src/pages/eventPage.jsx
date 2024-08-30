@@ -178,6 +178,7 @@ function EventPage() {
 								spacing={1}
 								flexGrow={1}
 								maxWidth={{ xs: '100%', md: '50%' }}
+								sx={{ paddingTop: '15px' }}
 							>
 								<Typography level='body-lg'>{data.description}</Typography>
 							</Stack>

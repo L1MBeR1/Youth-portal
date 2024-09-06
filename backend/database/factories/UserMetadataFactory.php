@@ -15,7 +15,7 @@ class UserMetadataFactory extends Factory
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
         $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird', 'meme']);
         // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
         return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
     }
@@ -272,6 +272,118 @@ class UserMetadataFactory extends Factory
     }
 
 
+    private function getRandomNickname2(): string
+    {
+        // Список  прилагательных
+        $adjectives = [
+            'happy',
+            'fast',
+            'bright',
+            'cool',
+            'silent',
+            'sweet',
+            'angry',
+            'fancy',
+            'lucky',
+            'candy',
+            'clever',
+            'brave',
+            'kind',
+            'strong',
+            'funny',
+            'curious',
+            'sharp',
+            'calm',
+            'friendly',
+            'wise', 
+            'счастливый',
+            'быстрый',
+            'яркий',
+            'крутой',
+            'тихий',
+            'сладкий',
+            'злой',
+            'элегантный',
+            'удачливый',
+            'сказочный', 
+            'умный',
+            'смелый',
+            'доброжелательный',
+            'сильный',
+            'веселый',
+            'любопытный',
+            'острый',
+            'спокойный',
+            'дружелюбный',
+            'мудрый'
+        ];
+
+        // Список  существительных
+        $nouns = [
+            'cat',
+            'dog',
+            'bird',
+            'bear',
+            'fish',
+            'wolf',
+            'fox',
+            'tiger',
+            'lion',
+            'rabbit',
+            'mouse',
+            'elephant',
+            'giraffe',
+            'monkey',
+            'penguin',
+            'deer',
+            'horse',
+            'cow',
+            'owl',
+            'shark',
+            'кот',
+            'собака',
+            'птица',
+            'медведь',
+            'рыба',
+            'волк',
+            'лиса',
+            'тигр',
+            'лев',
+            'кролик',
+            'мышь',
+            'слон',
+            'жираф',
+            'обезьяна',
+            'пингвин',
+            'олень',
+            'лошадь',
+            'корова',
+            'сова',
+            'акула'
+        ];
+
+
+        do {
+            // Генерируем случайное число
+            $number = random_int(1000, 9999);
+
+            // Выбираем случайное прилагательное и существительное
+            $adjective = $this->faker->randomElement($adjectives);
+            $noun = $this->faker->randomElement($nouns);
+
+            // Собираем никнейм
+            $nickname = "{$adjective}_{$noun}_{$number}";
+
+            // Проверяем, существует ли уже такой никнейм
+            $nicknameExists = UserMetadata::where('nickname', $nickname)->exists();
+
+        } while ($nicknameExists); // Генерируем новый никнейм, если текущий занят
+
+        return $nickname;
+    }
+
+
+
     protected $model = UserMetadata::class;
 
     public function definition()
@@ -281,7 +393,7 @@ class UserMetadataFactory extends Factory
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
             'patronymic' => $this->faker->middleName,
-            'nickname' => $this->getRandomNickname(),
+            'nickname' => $this->getRandomNickname2(),
             'profile_image_uri' => $this->generateImageURL(128, 128),
             'gender' => $this->faker->randomElement(['m', 'f']),
             'city' => $this->faker->city,

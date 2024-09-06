@@ -28,9 +28,6 @@ class BlogController extends Controller
         $blogs = new QueryBuilder(Blog::class, $request);
 
         $result = $blogs->getResult();
-
-
-
         return $this->successResponse($result);
     }
 }

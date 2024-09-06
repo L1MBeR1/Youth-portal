@@ -285,7 +285,15 @@ class UserController extends Controller
             }
             $res = $user->delete();
             if ($res) {
-                return $this->successResponse(null, 'User deleted successfully');
+                if ($user_id == $user->id) {
+                    // $user->remember_token = null;
+                    // $user->save();
+                    Auth::logout();
+                    $response = response()->json(['message' => 'User deleted successfully.']);
+                    $response->withCookie(cookie()->forget('refresh_token'));
+                    return $response;
+                }
+                return $this->successResponse([], 'User deleted successfully.');
             }
             return $this->errorResponse('User not deleted', [], 500);
         } else {
@@ -358,7 +366,7 @@ class UserController extends Controller
     }
 
 
-    
-    
+
+
 
 }

@@ -20,7 +20,7 @@ const buildCommentsStructure = comments => {
 			if (parentComment) {
 				parentComment.replies.push(commentsMap[comment.id]);
 				commentsMap[comment.id].parent = {
-					name: parentComment.first_name,
+					name: parentComment.nickname,
 					userId: parentComment.user_id,
 				};
 			}

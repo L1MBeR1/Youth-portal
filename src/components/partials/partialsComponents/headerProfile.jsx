@@ -49,7 +49,7 @@ function HeaderProfile() {
 				</>
 			) : (
 				<Link to='/login'>
-					<Box sx={{ display: { xs: 'none', md: 'block' } }}>
+					<Box sx={{ display: { xs: 'none', mdx: 'block' } }}>
 						<Button
 							color={'primary'}
 							sx={{
@@ -64,7 +64,7 @@ function HeaderProfile() {
 							</Typography>
 						</Button>
 					</Box>
-					<Box sx={{ display: { xs: 'block', md: 'none' } }}>
+					<Box sx={{ display: { xs: 'block', mdx: 'none' } }}>
 						<IconButton
 							size='lg'
 							sx={{

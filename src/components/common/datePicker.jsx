@@ -26,7 +26,7 @@ function DatePicker({ label, value, placeholder, size, sx, onChange }) {
 					position={position}
 					childRect={childRect}
 					popoverRect={popoverRect}
-					arrowColor={'#ffffff'}
+					arrowColor={'var(--joy-palette-main-background)'}
 					arrowSize={15}
 					className='popover-arrow-container'
 					arrowClassName='popover-arrow'

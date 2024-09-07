@@ -9,12 +9,14 @@ import second from '../img/2.webp';
 import third from '../img/3.webp';
 
 import EventContainer from '../components/homeComponents/eventContainer/eventContainer';
+import NewsContainer from '../components/homeComponents/newsContainer/newsContainer';
+import ProjectsContainer from '../components/homeComponents/projectsContainer/projectsContainer';
 function Home() {
 	return (
 		<Stack
 			direction={'column'}
 			sx={{
-				gap: '100px',
+				gap: '7vh',
 				paddingX: { xs: '15px', sm: '40px' },
 				paddingBottom: '100px',
 			}}
@@ -67,8 +69,8 @@ function Home() {
 				</Grid>
 			</Grid>
 			<EventContainer />
-			{/* <MapContainer />
-			<EventsCartsContainer /> */}
+			<NewsContainer />
+			<ProjectsContainer />
 		</Stack>
 	);
 }

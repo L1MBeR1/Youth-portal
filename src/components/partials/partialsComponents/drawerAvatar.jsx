@@ -14,9 +14,6 @@ import ModalClose from '@mui/joy/ModalClose';
 import Stack from '@mui/joy/Stack';
 
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
-import PublishIcon from '@mui/icons-material/Publish';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import { Divider, Typography } from '@mui/joy';
 import profileBlank from '../../../img/profileBlank.png';
@@ -41,7 +38,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 	return (
 		<Box
 			sx={{
-				display: { xs: 'block', md: 'none' },
+				display: { xs: 'block', mdx: 'none' },
 			}}
 		>
 			<Avatar
@@ -54,7 +51,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 			/>
 			<Drawer
 				anchor='right'
-				sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+				sx={{ display: { xs: 'inline-flex', mdx: 'none' } }}
 				open={openDrawer}
 				onClose={() => setOpenDrawer(false)}
 			>
@@ -82,7 +79,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 							color: `${theme.vars.palette.neutral['second']}`,
 						})}
 					>
-						<PersonIcon />
+						{/* <PersonIcon /> */}
 						Профиль
 					</ListItemButton>
 					{(roles.includes('blogger') || roles.includes('news_creator')) && (
@@ -94,7 +91,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 								color: `${theme.vars.palette.neutral['second']}`,
 							})}
 						>
-							<PublishIcon />
+							{/* <PublishIcon /> */}
 							Мой контент
 						</ListItemButton>
 					)}
@@ -106,7 +103,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 							color: `${theme.vars.palette.neutral['second']}`,
 						})}
 					>
-						<SettingsIcon />
+						{/* <SettingsIcon /> */}
 						Настройки
 					</ListItemButton>
 					{roles.includes('admin') && (

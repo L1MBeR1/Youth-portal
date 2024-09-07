@@ -105,7 +105,7 @@ export const Comment = ({
 								handleToProfile(comment.user_id);
 							}}
 						>
-							{comment.first_name} {comment.last_name} ({comment.nickname})
+							{comment.nickname}
 						</Typography>
 						<Typography level='body-xs' fontSize={'clamp(0.69rem,2vw, 0.8rem)'}>
 							{timeAgo(comment.created_at)}

@@ -5,6 +5,7 @@ import FormControl from '@mui/joy/FormControl';
 import FormHelperText from '@mui/joy/FormHelperText';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
+import emojiStrip from 'emoji-strip';
 import React, { useState } from 'react';
 import validator from 'validator';
 
@@ -13,7 +14,8 @@ function EmailField({ email, setEmail, setEmailStatus, setEmailError }) {
 	const [emailError, localSetEmailError] = useState('');
 
 	const handleEmailChange = e => {
-		setEmail(e.target.value);
+		const filteredValue = emojiStrip(e.target.value);
+		setEmail(filteredValue);
 	};
 
 	const handleEmailBlur = () => {

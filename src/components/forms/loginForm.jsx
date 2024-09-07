@@ -1,23 +1,17 @@
+import Box from '@mui/joy/Box';
+import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import Stack from '@mui/joy/Stack';
+import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../../api/authApi.js';
 import { setToken } from '../../utils/authUtils/tokenStorage.js';
-// import useProfile from '../../hooks/useProfile.js';
-
-import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
-import Card from '@mui/joy/Card';
-import FormControl from '@mui/joy/FormControl';
-import FormHelperText from '@mui/joy/FormHelperText';
-import FormLabel from '@mui/joy/FormLabel';
-import IconButton from '@mui/joy/IconButton';
-import Input from '@mui/joy/Input';
-import Stack from '@mui/joy/Stack';
-import Typography from '@mui/joy/Typography';
-
-import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
-import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
+import PasswordField from './formComponents/passwordField';
 
 import { jwtDecode } from 'jwt-decode';
 
@@ -26,7 +20,6 @@ function LoginForm() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState('');
 	const navigate = useNavigate();
 	// const queryClient = useQueryClient();
@@ -58,10 +51,6 @@ function LoginForm() {
 			console.error('Login failed', error);
 			setIsLoading(false);
 		}
-	};
-
-	const togglePasswordVisibility = () => {
-		setShowPassword(!showPassword);
 	};
 
 	return (
@@ -100,28 +89,16 @@ function LoginForm() {
 							onChange={e => setEmail(e.target.value)}
 						/>
 					</FormControl>
-					<FormControl>
-						<FormLabel>Пароль</FormLabel>
-						<Input
-							type={showPassword ? 'text' : 'password'}
-							placeholder='Введите пароль'
-							required
-							value={password}
-							onChange={e => setPassword(e.target.value)}
-							endDecorator={
-								<IconButton color='neutral' onClick={togglePasswordVisibility}>
-									{showPassword ? (
-										<VisibilityOffRoundedIcon />
-									) : (
-										<VisibilityRoundedIcon />
-									)}
-								</IconButton>
-							}
+					<Stack>
+						<PasswordField
+							lable={'Пароль'}
+							password={password}
+							setPassword={setPassword}
 						/>
-						<FormHelperText>
-							<Link to='/recovery'>Забыли пароль?</Link>
-						</FormHelperText>
-					</FormControl>
+						<Link to='/recovery'>
+							<Typography level='body-sm'>Забыли пароль?</Typography>
+						</Link>
+					</Stack>
 					<Button loading={Boolean(isLoading)} type='submit'>
 						Войти
 					</Button>

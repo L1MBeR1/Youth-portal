@@ -1,3 +1,4 @@
+import emojiStrip from 'emoji-strip';
 import React, { useState } from 'react';
 
 import FormControl from '@mui/joy/FormControl';
@@ -17,7 +18,8 @@ function PasswordField({ error, lable, password, setPassword }) {
 	};
 
 	const handlePasswordChange = e => {
-		setPassword(e.target.value);
+		const filteredValue = emojiStrip(e.target.value);
+		setPassword(filteredValue);
 	};
 
 	return (

@@ -5,6 +5,7 @@ import DialogContent from '@mui/joy/DialogContent';
 import DialogTitle from '@mui/joy/DialogTitle';
 import Divider from '@mui/joy/Divider';
 import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
@@ -16,14 +17,17 @@ import validator from 'validator';
 
 import NeutralModal from '../../modals/neutralModal';
 
+import { Stack } from '@mui/joy';
 import { updateUserEmail } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
+import PasswordField from '../../forms/formComponents/passwordField';
 
 function ChangeEmail({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
+	const [password, setPassword] = useState('');
 	const [isConfirmEnabled, setIsConfirmEnabled] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSuccess, setIsSuccess] = useState(false);
@@ -58,6 +62,7 @@ function ChangeEmail({ id, open, setOpen }) {
 		}
 		const updatedData = {
 			email: inputValue,
+			password,
 		};
 		const response = await updateUserEmail(id, token, updatedData);
 		if (response) {
@@ -90,19 +95,28 @@ function ChangeEmail({ id, open, setOpen }) {
 					</DialogTitle>
 					<Divider />
 					<DialogContent>
-						<Typography level='body-md'>
-							Введите новый адрес электронной почты. После ввода будет
-							отправлено письмо для подтверждения. Перейдите по ссылке,
-							отправленной на ваш новый email.
-						</Typography>
-						<FormControl sx={{ marginTop: 2 }}>
-							<Input
-								placeholder={`Введите новую почту`}
-								value={inputValue}
-								onChange={e => setInputValue(e.target.value)}
-								autoFocus
+						<Stack spacing={2}>
+							<PasswordField
+								lable={'Пароль'}
+								password={password}
+								setPassword={setPassword}
 							/>
-						</FormControl>
+							<Stack spacing={1}>
+								<Typography level='body-md'>
+									Введите новый email. Вам придет письмо для подтверждения —
+									перейдите по ссылке в письме.
+								</Typography>
+								<FormControl sx={{ marginTop: 2 }}>
+									<FormLabel>Новая почта</FormLabel>
+									<Input
+										placeholder={`Введите новую почту`}
+										value={inputValue}
+										onChange={e => setInputValue(e.target.value)}
+										autoFocus
+									/>
+								</FormControl>
+							</Stack>
+						</Stack>
 					</DialogContent>
 					<DialogActions>
 						<Button

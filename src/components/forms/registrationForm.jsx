@@ -32,13 +32,14 @@ function RegistrationForm() {
 	const [emailError, setEmailError] = useState('');
 
 	const [password, setPassword] = useState('');
-
 	const [passwordRepeat, setPasswordRepeat] = useState('');
 	const [passwordRepeatError, setPasswordRepeatError] = useState('');
 
 	const [passwordCriteria, setPasswordCriteria] = useState({
 		length: false,
 		specialChar: false,
+		lowercase: false,
+		uppercase: false,
 	});
 
 	const navigate = useNavigate();
@@ -46,13 +47,14 @@ function RegistrationForm() {
 	const [PasswordStrength, setPasswordStrength] = useState('');
 	function checkPasswordStrength(password) {
 		setPasswordStrength(zxcvbn(password));
-		// console.log(PasswordStrength.score);
-		// console.log(PasswordStrength.feedback.suggestions);
 	}
+
 	useEffect(() => {
 		setPasswordCriteria({
 			length: password.length >= 8,
 			specialChar: /[!@#$%^&*-]/.test(password),
+			lowercase: /[a-zа-я]/.test(password),
+			uppercase: /[A-ZА-Я]/.test(password),
 		});
 		checkPasswordStrength(password);
 	}, [password]);
@@ -61,13 +63,14 @@ function RegistrationForm() {
 		if (score > 0) {
 			return (score / 4) * 100;
 		} else return 3;
-		// return ((score+1) / 5) * 100;
 	};
+
 	const getProgressColor = () => {
 		const color = ['#f44336', '#ff9800', '#ffc107', '#84ad5b', '#3DAD44'];
 
 		return color[Math.min(PasswordStrength.score, color.length)];
 	};
+
 	const getStrengthText = () => {
 		switch (PasswordStrength.score) {
 			case 0:
@@ -100,25 +103,26 @@ function RegistrationForm() {
 	const handleSubmit = async e => {
 		e.preventDefault();
 		setIsLoading(true);
-		if (!passwordCriteria.length || !passwordCriteria.specialChar) {
+		const { length, specialChar, lowercase, uppercase } = passwordCriteria;
+		if (!length || !specialChar || !lowercase || !uppercase) {
 			setError('Пароль не соответствует требованиям');
+			setIsLoading(false);
 			return;
 		}
 
 		if (password !== passwordRepeat) {
 			setError('Пароли не совпадают');
+			setIsLoading(false);
 			return;
 		}
 
 		try {
 			const data = await register(email, password);
-			console.log(data);
 			const token = data.access_token;
 
 			if (token) {
 				setToken(token);
 				const decoded = jwtDecode(token);
-				// await queryClient.prefetchQuery('profile', useProfile.queryFn);
 				if (decoded.roles.includes('admin')) {
 					navigate('/admin');
 				} else if (decoded.roles.includes('moderator')) {
@@ -209,7 +213,17 @@ function RegistrationForm() {
 										<CircleOutlinedIcon />
 									)}
 									<Typography level='body-xs'>
-										специальные символы (например, !, @, #, $, %, ^, &, *, -)
+										специальный символ (например, !, @, #, $, %, ^, &, *, -)
+									</Typography>
+								</ListItem>
+								<ListItem>
+									{passwordCriteria.lowercase && passwordCriteria.uppercase ? (
+										<CheckCircleOutlinedIcon style={{ color: 'green' }} />
+									) : (
+										<CircleOutlinedIcon />
+									)}
+									<Typography level='body-xs'>
+										строчную и заглавную букву
 									</Typography>
 								</ListItem>
 							</List>

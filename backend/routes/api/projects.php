@@ -11,7 +11,7 @@ Route::group([
 ], function () {
     // Log::info('test');
     Route::get('', [ProjectController::class, 'getProjects']);
-    // Route::get('/index', [ProjectController::class, 'index']);
+    Route::get('{id}', [ProjectController::class, 'getProjectById']);
     Route::post('', [ProjectController::class, 'store']);
     
     Route::delete('{id}', [ProjectController::class, 'destroy']);

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Traits\PaginationTrait;
+use App\Traits\QueryBuilderTrait; 
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -17,6 +19,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ProjectController extends Controller
 {
+     use QueryBuilderTrait, PaginationTrait;
+
     /**
      * Поиск
      * 
@@ -46,25 +50,25 @@ class ProjectController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function getProjects(Request $request)
-    {//TODO: Переделать
-        if (!Auth::user()->can('viewAny', Project::class)) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
-        }
+   // public function getProjects(Request $request)
+  //  {//TODO: Переделать
+      //  if (!Auth::user()->can('viewAny', Project::class)) {
+      //      return $this->errorResponse('Нет прав на просмотр', [], 403);
+      //  }
 
-        $requiredFields = [
-            'projects' => [
-                'id', 'name', 'description', 'organization_id'
-            ],
-        ];
+       // $requiredFields = [
+       //     'projects' => [
+       //         'id', 'name', 'description', 'organization_id'
+       //     ],
+       // ];
 
-        $query = Project::query();
-        $this->selectFields($query, $requiredFields);
-        $this->applyFilters($query, $request, false);
-        $this->applySearch($query, $request);
-        $events = $query->paginate($request->get('per_page', 10));
-        $paginationData = $this->makePaginationData($events);
-        return $this->successResponse($events->items(), $paginationData, 200);
+       // $query = Project::query();
+       // $this->selectFields($query, $requiredFields);
+       // $this->applyFilters($query, $request, false);
+       // $this->applySearch($query, $request);
+       // $events = $query->paginate($request->get('per_page', 10));
+       // $paginationData = $this->makePaginationData($events);
+        //return $this->successResponse($events->items(), $paginationData, 200);
 
         // $perPage = $request->get('per_page', 5);
         // $userId = $request->query('userId');
@@ -179,7 +183,7 @@ class ProjectController extends Controller
         // ];
 
         // return $this->successResponse($projects->items(), $paginationData, 200);
-    }
+    //}
 
     /**
      * Parses the date from the given input.
@@ -278,4 +282,65 @@ class ProjectController extends Controller
 
         return $this->successResponse(['projects' => $project], 'Project deleted successfully', 200); 
     }
+
+    public function getProjectById($id): \Illuminate\Http\JsonResponse
+    {
+        $project = Project::with('events')->find($id);
+
+        if (!$project) {
+            return $this->errorResponse(message: 'Проект не найден', status: Response::HTTP_NOT_FOUND);
+        }
+
+        $requiredFields = [
+            "id",
+            "name",
+            "description",
+            "created_at",
+            "updated_at",
+        ];
+
+        $projectData = $project->only($requiredFields);
+        $projectData['events'] = $project->events->map(function ($event) {
+            return $event->only([
+                "id",
+                "name",
+                "description",
+                "address",
+                "cover_uri",
+                "longitude",
+                "latitude",
+                "views",
+                "start_time",
+                "end_time",
+                "created_at",
+                "updated_at",
+            ]);
+        });
+
+        return $this->successResponse(data: $projectData);
+    }
+
+    public function getProjects(Request $request)
+    {
+        if (!Auth::user()->can('viewAny', Project::class)) {
+            return $this->errorResponse('Нет прав на просмотр', [], 403);
+        }
+
+        $requiredFields = [
+            "projects" => [
+                "id",
+                "name",
+                "description",
+                "created_at",
+                "updated_at",
+            ]
+        ];
+
+        $query = $this->buildPublicationQuery($request, Project::class, $requiredFields);
+        $projects = $query->paginate($request->get('per_page', 10));
+        $paginationData = $this->makePaginationData($projects);
+        return $this->successResponse($projects->items(), $paginationData, 200);
+    }
+
+
 }

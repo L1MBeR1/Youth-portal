@@ -9,6 +9,7 @@ Route::group([
     'prefix' => 'organizations'
 ], function () {
     Route::get('', [OrganizationController::class, 'getOrganizations']);
+    Route::get('{id}', [OrganizationController::class, 'getOrganizationById']);
     Route::post('', [OrganizationController::class, 'store']);
     Route::put('{id}', [OrganizationController::class, 'update']);
     Route::delete('{id}', [OrganizationController::class, 'destroy']);

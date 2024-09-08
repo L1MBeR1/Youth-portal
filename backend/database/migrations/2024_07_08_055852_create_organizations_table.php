@@ -15,11 +15,12 @@ return new class extends Migration
             $table->increments('id');
             $table->timestampsTz();
             $table->text('name');
-            $table->enum('status', ['moderating', 'approved', 'rejected']);
-            $table->text('address')->nullable();      
+            $table->text('cover_uri');
+            //$table->enum('status', ['moderating', 'approved', 'rejected']);
+            //$table->text('address')->nullable();      
         });
 
-        Schema::create('organizations_has_users', function (Blueprint $table) {
+        /* Schema::create('organizations_has_users', function (Blueprint $table) {
             $table->integer('organization_id')->unsigned();
             $table->integer('user_id')->unsigned();
 
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('user_login_data')->onDelete('cascade');
 
             $table->primary(['organization_id', 'user_id']);
-        });
+        }); */
     }
 
     /**
@@ -36,6 +37,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('organizations');
-        Schema::dropIfExists('organizations_has_users');
+        //Schema::dropIfExists('organizations_has_users');
     }
 };

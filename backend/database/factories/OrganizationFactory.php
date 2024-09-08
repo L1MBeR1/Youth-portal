@@ -18,7 +18,7 @@ class OrganizationFactory extends Factory
     {
         return [
             'name' => $this->faker->company(),
-            'status' => $this->faker->randomElement(['moderating', 'approved', 'rejected']),
+            //'status' => $this->faker->randomElement(['moderating', 'approved', 'rejected']),
         ];
     }
 }

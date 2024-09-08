@@ -26,7 +26,7 @@ class ProjectFactory extends Factory
                 ]
             ],
             //'location' => 'задать(PROJECT_FACTORY.PHP)',
-            'organization_id' => $this->faker->randomElement($orgIds),
+            //'organization_id' => $this->faker->randomElement($orgIds),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
         ];

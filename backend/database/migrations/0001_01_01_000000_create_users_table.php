@@ -21,8 +21,8 @@ return new class extends Migration {
             $table->rememberToken();
             // $table->timestamps();
             $table->timestampsTz();
-            // $table->timestamp('blocked_at')->nullable();
             $table->timestampTz('blocked_at')->nullable();
+            $table->timestampTz('deleted_at')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -62,7 +62,7 @@ return new class extends Migration {
             $table->text('first_name')->nullable();
             $table->text('last_name')->nullable();
             $table->text('patronymic')->nullable();
-            $table->text('nickname')->nullable();
+            $table->text('nickname')->unique();
             $table->text('profile_image_uri')->nullable();
             $table->text('city')->nullable();
             $table->enum('gender', ['m', 'f'])->nullable();

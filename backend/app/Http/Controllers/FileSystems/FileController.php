@@ -13,7 +13,7 @@ class FileController extends Controller
     // Ограничения
     private const MAX_MEDIA_CAPACITY_MB = 200;
     private const MAX_FILE_SIZE_MB = 50;
-    private const MAX_FILE_COUNT_PER_DIRECTORY = 3;
+    private const MAX_FILE_COUNT_PER_DIRECTORY = 100;
 
     /**
      * Загрузка файла
@@ -52,7 +52,8 @@ class FileController extends Controller
      */
     public function upload(Request $request, $content_type, $content_id)
     {
-        $folder = "{$content_type}/{$content_id}";
+        $folder = "{$content_type}" . "/{$content_id}";
+        
 
 
         // Проверка наличия файла в запросе
@@ -84,6 +85,8 @@ class FileController extends Controller
 
         // Проверка числа файлов в текущей директории
         $filesCount = count(Storage::disk('sftp')->files('media/' . $folder));
+        Log::warning($folder);
+        Log::warning($filesCount);
         if ($filesCount >= self::MAX_FILE_COUNT_PER_DIRECTORY) {
             return response()->json(['error' => 'File limit in the current directory exceeded'], 507);
         }
@@ -102,6 +105,7 @@ class FileController extends Controller
         $allowedMimeTypes = [
             'image/jpeg',
             'image/webp',
+            'image/jpg',
             'image/png',
             'image/gif',
             'text/plain',
@@ -117,10 +121,11 @@ class FileController extends Controller
 
         // Полный путь для сохранения файла с именем на основе MD5-хэша
         $filePath = 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
+        $filename = $folder .'/'. $md5Hash .'.'. $extension;
 
         // Проверка на существование файла с таким хэшем
         if (Storage::disk('sftp')->exists($filePath)) {
-            return response()->json(['path' => $filePath, 'message' => 'File already exists']);
+            return response()->json(['filename' => $filename, 'message' => 'File already exists'], 201);
         }
 
         // Сохранение файла на SFTP
@@ -132,7 +137,7 @@ class FileController extends Controller
         }
 
         // return response()->json(['path' => $filePath]);
-        return response()->json(['filename' => $md5Hash . '.' . $extension]);
+        return response()->json(['filename' => $filename]);
     }
 
     private function generateUniqueShortId($folderPath, $extension)

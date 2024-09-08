@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
+use App\Mail\AccountDelete;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Validator;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -274,22 +278,91 @@ class UserController extends Controller
         return $this->successResponse([], 'Роль отнята успешно');
     }
 
-    public function deleteUser($user_id)//TODO: soft delete
+    public function deleteUser(Request $request, $user_id)
     {
         $user = Auth::user();
 
         if ($user_id == $user->id || $user->can('deleteAny', User::class)) {
-            $user = User::findOrFail($user_id);
-            if (!$user) {
+            $target_user = User::findOrFail($user_id);
+            if (!$target_user) {
                 return $this->errorResponse('User not found', [], 404);
             }
-            $res = $user->delete();
+
+            if ($user_id == $user->id) {
+                $credentials["password"] = $request->input('password');
+                $user = Auth::user();
+                $credentials[$user->email ? 'email' : 'phone'] = $user->{$user->email ? 'email' : 'phone'};
+
+                if (!$token = Auth::attempt($credentials)) {
+                    return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+                }
+                Mail::to($user->email)->send(new AccountDelete($user, $token));
+
+                return $this->successResponse([], 'Запрошено удаление своего аккаунта');
+            }
+
+
+            $res = $target_user->delete();
             if ($res) {
-                return $this->successResponse(null, 'User deleted successfully');
+                // if ($user_id == $target_user->id) {
+                //     // $user->remember_token = null;
+                //     // $user->save();
+                //     Auth::logout();
+                //     $response = response()->json(['message' => 'User deleted successfully.']);
+                //     $response->withCookie(cookie()->forget('refresh_token'));
+                //     return $response;
+                // }
+                return $this->successResponse([], 'User deleted successfully.');
             }
             return $this->errorResponse('User not deleted', [], 500);
-        } else {
+        } /*else if () {
+
+       }*/ else {
             return $this->errorResponse('Нет прав на удаление', [], 403);
+        }
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        try {
+            $token = $request->query('token');
+
+            if (!$token) {
+                return $this->errorResponse('Token is missing', [], 400);
+            }
+
+
+            // $payload = JWTAuth::setToken($token)->getPayload();
+            // $newEmail = $payload->get('new_email');
+            $user = JWTAuth::setToken($token)->toUser();
+
+            if (!$user) {
+                return $this->errorResponse('Invalid or expired token', [], 400);
+            }
+
+            // if ($newEmail) {
+            //     $user->email = $newEmail;
+            //     // $user->email_verified_at = now();
+            //     // $user->save();
+            // } elseif ($user->email_verified_at) {
+            //     return $this->errorResponse('Email already verified', [], 422);
+            // }
+
+            $user->delete();
+
+                $user->remember_token = null;
+                    // $user->save();
+                    Auth::logout();
+                //     $response = response()->json(['message' => 'User deleted successfully.']);
+                //     $response->withCookie(cookie()->forget('refresh_token'));
+                //     return $response;
+
+                $response = response()->view('emails.thanks');
+                $response->withCookie(cookie()->forget('refresh_token'));
+                return $response;
+            // return response()->view('emails.thanks');
+        } catch (Exception $e) {
+            return $this->errorResponse('Invalid or expired token', [], 400);
         }
     }
 
@@ -358,7 +431,7 @@ class UserController extends Controller
     }
 
 
-    
-    
+
+
 
 }

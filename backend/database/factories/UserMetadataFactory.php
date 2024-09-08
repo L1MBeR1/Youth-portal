@@ -6,6 +6,10 @@ use App\Models\User;
 use App\Models\UserMetadata;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Log;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory <\App\Models\Model>
  */
@@ -15,10 +19,50 @@ class UserMetadataFactory extends Factory
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
         $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird', 'meme']);
         // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
         return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
     }
+
+    private function generateImageURL2(): string
+    {
+        // Получаем список файлов в директории storage/sample_images
+        $files = Storage::disk('local')->files('sample_images/profile');
+
+        // Если файлов нет, возвращаем пустую строку или логируем
+        if (empty($files)) {
+            Log::info('empty folder');
+            return '';
+        }
+
+        // Выбираем случайный файл
+        $randomFile = $files[array_rand($files)];
+
+        // Получаем полный путь к файлу
+        $filePath = Storage::disk('local')->path($randomFile);
+
+        // Отправляем файл на API для загрузки
+        $response = Http::attach(
+            'file',
+            file_get_contents($filePath),
+            basename($filePath)
+        )->post('http://127.0.0.1:8000/api/files/profiles/0/');
+
+        Log::info($response);
+
+        // Проверяем успешность запроса и возвращаем имя файла из ответа
+        if ($response->successful()) {
+            $data = $response->json();
+            if (!$data) {
+                Log::info('error');
+            }
+            return env('FILES_LINK', '') . $data['filename'] ?? ''; // возвращаем только имя файла
+        }
+
+        // В случае ошибки можно бросить исключение или вернуть пустую строку
+        return '';
+    }
+
 
     private function getRandomNickname(): string
     {
@@ -272,17 +316,143 @@ class UserMetadataFactory extends Factory
     }
 
 
+    private function getRandomNickname2(): string
+    {
+        // Список  прилагательных
+        $adjectives1 = [
+            'счастливый',
+            'быстрый',
+            'яркий',
+            'крутой',
+            'тихий',
+            'сладкий',
+            'злой',
+            'элегантный',
+            'удачливый',
+            'сказочный',
+            'умный',
+            'смелый',
+            'доброжелательный',
+            'сильный',
+            'веселый',
+            'любопытный',
+            'острый',
+            'спокойный',
+            'дружелюбный',
+            'мудрый'
+        ];
+        $adjectives2 = [
+            'happy',
+            'fast',
+            'bright',
+            'cool',
+            'silent',
+            'sweet',
+            'angry',
+            'fancy',
+            'lucky',
+            'candy',
+            'clever',
+            'brave',
+            'kind',
+            'strong',
+            'funny',
+            'curious',
+            'sharp',
+            'calm',
+            'friendly',
+            'wise',
+        ];
+
+        // Список  существительных
+        $nouns1 = [
+            'кот',
+            'собака',
+            'птица',
+            'медведь',
+            'рыба',
+            'волк',
+            'лиса',
+            'тигр',
+            'лев',
+            'кролик',
+            'мышь',
+            'слон',
+            'жираф',
+            'обезьяна',
+            'пингвин',
+            'олень',
+            'лошадь',
+            'корова',
+            'сова',
+            'акула'
+        ];
+        $nouns2 = [
+            'cat',
+            'dog',
+            'bird',
+            'bear',
+            'fish',
+            'wolf',
+            'fox',
+            'tiger',
+            'lion',
+            'rabbit',
+            'mouse',
+            'elephant',
+            'giraffe',
+            'monkey',
+            'penguin',
+            'deer',
+            'horse',
+            'cow',
+            'owl',
+            'shark',
+        ];
+
+
+        do {
+            // Генерируем случайное число
+            $number = random_int(1000, 9999);
+
+            // Определяем, какой язык использовать (1 или 2)
+            $locale = random_int(1, 2);
+
+            // Выбираем случайные прилагательные и существительные в зависимости от языка
+            $adjectiveList = ${"adjectives{$locale}"};
+            $nounList = ${"nouns{$locale}"};
+
+            $adjective = $this->faker->randomElement($adjectiveList);
+            $noun = $this->faker->randomElement($nounList);
+
+            // Собираем никнейм
+            $nickname = "{$adjective}_{$noun}_{$number}";
+
+            // Проверяем, существует ли уже такой никнейм
+            $nicknameExists = UserMetadata::where('nickname', $nickname)->exists();
+
+        } while ($nicknameExists); // Генерируем новый никнейм, если текущий занят
+
+        return $nickname;
+    }
+
+
+
     protected $model = UserMetadata::class;
 
     public function definition()
     {
+        $image = $this->generateImageURL2();
+        Log::info($image);
+
+
         return [
             'user_id' => User::factory(),
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
             'patronymic' => $this->faker->middleName,
-            'nickname' => $this->getRandomNickname(),
-            'profile_image_uri' => $this->generateImageURL(128, 128),
+            'nickname' => $this->getRandomNickname2(),
+            'profile_image_uri' => $image,
             'gender' => $this->faker->randomElement(['m', 'f']),
             'city' => $this->faker->city,
             'birthday' => $this->faker->date,

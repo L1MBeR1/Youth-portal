@@ -15,6 +15,7 @@ use App\Policies\PodcastPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\EventPolicy;
 use App\Policies\OrganizationPolicy;
+use App\Policies\BlogRoleStatusPolicy;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -28,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         Project::class => ProjectPolicy::class,
         Event::class => EventPolicy::class,
         Organization::class => OrganizationPolicy::class,
+        BlogRoleStatus::class => BlogRoleStatusPolicy::class,
     ];
 
     public function boot()
@@ -35,3 +37,5 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
     }
 }
+
+

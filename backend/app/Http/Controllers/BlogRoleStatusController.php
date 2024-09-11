@@ -74,7 +74,7 @@ class BlogRoleStatusController extends Controller
     if ($blog_role_status->status === 'approved') {
         // Устанавливаем moder_id
         $blog_role_status->moder_id = Auth::id(); // Получаем ID текущего пользователя
-    } elseif ($blog_role_status->status === 'withdrawn') {
+    } elseif ($blog_role_status->status === 'withdrawn' || $blog_role_status->status ==='review') {
         // Удаляем запись из model_has_roles, если статус "review"
         \DB::table('model_has_roles')
             ->where('role_id', 8) 

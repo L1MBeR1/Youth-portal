@@ -74,37 +74,34 @@ class BlogRoleStatusController extends Controller
     if ($blog_role_status->status === 'approved') {
         // Устанавливаем moder_id
         $blog_role_status->moder_id = Auth::id(); // Получаем ID текущего пользователя
-    } elseif ($blog_role_status->status === 'withdrawn' || $blog_role_status->status ==='review') {
-        // Удаляем запись из model_has_roles, если статус "review"
-        \DB::table('model_has_roles')
-            ->where('role_id', 8) 
-            ->where('model_id', $blog_role_status->author_id)
-            ->where('model_type', 'App\\Models\\User')
-            ->delete();
+    } elseif ($blog_role_status->status === 'withdrawn' || $blog_role_status->status === 'review') {
+        // Находим пользователя по author_id
+        $user = \App\Models\User::find($blog_role_status->author_id);
+    
+        if ($user) {
+            // Удаляем роль с role_id = 8 (или нужный вам ID) у пользователя
+            $user->roles()->detach(8); // Здесь 8 - это ID роли, которую нужно удалить
+        }
     }
+    
 
     $blog_role_status->save(); // Сохраняем изменения
 
     // Проверяем, если статус "approved" и добавляем запись в model_has_roles
     if ($blog_role_status->status === 'approved') {
-        // Проверяем, существует ли уже запись
-        $exists = \DB::table('model_has_roles')
-            ->where('role_id', 8) 
-            ->where('model_id', $blog_role_status->author_id)
-            ->where('model_type', 'App\\Models\\User')
-            ->exists();
-
-        if (!$exists) {
-            // Создаем новую запись в таблице model_has_roles
-            \DB::table('model_has_roles')->insert([
-                'role_id' => 8, // Устанавливаем role_id
-                'model_type' => 'App\\Models\\User', // Указываем тип модели
-                'model_id' => $blog_role_status->author_id, // Устанавливаем model_id из author_id
-                //'created_at' => now(), // 
-                //'updated_at' => now(), // 
-            ]);
+        // Находим пользователя по author_id
+        $user = \App\Models\User::find($blog_role_status->author_id);
+    
+        if ($user) {
+            // Проверяем, есть ли уже роль с role_id = 8
+            if (!$user->roles()->where('role_id', 8)->exists()) {
+                // Присваиваем роль пользователю
+                $user->roles()->attach(8); // Здесь 8 - это ID роли, которую нужно добавить
+            }
         }
     }
+      
+    
 
     return $this->successResponse($blog_role_status, 'Запись успешно обновлена', Response::HTTP_OK);
 }

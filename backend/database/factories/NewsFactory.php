@@ -97,12 +97,48 @@ class NewsFactory extends Factory
     }
     protected $model = News::class;
 
+    private function generateTitle()
+    {
+        $adjectives = [
+            'Новые', 'Удивительные', 'Сенсационные', 
+            'Эксклюзивные', 'Скандальные', 'Неожиданные', 
+            'Интригующие', 'Захватывающие', 'Актуальные'
+        ];
+
+        $nouns = [
+            'открытия', 'факты', 'доклады', 
+            'исследования', 'события', 'анализы', 
+            'тренды', 'проблемы', 'решения'
+        ];
+
+        $verbs = [
+            'показывают', 'подтверждают', 'разоблачают', 
+            'объясняют', 'предсказывают', 'поднимают вопросы', 
+            'вызывают интерес', 'открывают новые горизонты'
+        ];
+
+        $phrases = [
+            'в мире', 'в деталях', 'в современном обществе', 
+            'в последние дни', 'в контексте событий', 'в новых исследованиях'
+        ];
+
+        // Генерируем заголовок с учетом случайного выбора слов
+        $adjective = $this->faker->randomElement($adjectives);
+        $noun = $this->faker->randomElement($nouns);
+        $verb = $this->faker->randomElement($verbs);
+        $phrase = $this->faker->randomElement($phrases);
+
+        // Формируем заголовок
+        return "$adjective $noun $verb $phrase.";
+    }
+
+
     public function definition()
     {
         $userIds = User::pluck('id')->toArray();
 
         return [
-            'title' => $this->faker->bank(),
+            'title' => $this->generateTitle(),
             'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [

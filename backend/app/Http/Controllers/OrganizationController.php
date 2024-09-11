@@ -149,7 +149,7 @@ class OrganizationController extends Controller
     public function getOrganizationById($id)
     {
         $organization = Organization::find($id);
-    
+        Log:info('getOrganizationById');
         if (!$organization) {
             return $this->errorResponse('Организация не найдена', [], Response::HTTP_NOT_FOUND);
         }
@@ -158,8 +158,6 @@ class OrganizationController extends Controller
             "organizations" => [
                 "id",
                 "name",
-                "status",
-                "address",
                 "created_at",
                 "updated_at",
             ]
@@ -175,8 +173,6 @@ class OrganizationController extends Controller
             "organizations" => [
                 "id",
                 "name",
-                "status",
-                "address",
                 "created_at",
                 "updated_at",
             ]

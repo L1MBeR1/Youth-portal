@@ -90,4 +90,9 @@ class ProjectPolicy
     {
         //
     }
+
+    public function getProjects(User $user): bool
+    {
+        return true;
+    }
 }

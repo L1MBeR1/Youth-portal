@@ -18,6 +18,6 @@ Route::group([
     'middleware' => ['api'],
     'prefix' => 'organizations'
 ], function () {
-    Route::get('', [OrganizationController::class, 'getOrganizations']);
-    Route::get('{id}', [OrganizationController::class, 'getOrganizationById']);
+    Route::get('', [OrganizationController::class, 'getOrganizations'])->withoutMiddleware('auth');
+    Route::get('{id}', [OrganizationController::class, 'getOrganizationById'])->withoutMiddleware('auth');
 });

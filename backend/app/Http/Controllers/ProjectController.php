@@ -322,10 +322,10 @@ class ProjectController extends Controller
 
     public function getProjects(Request $request)
     {
-        if (!Auth::user()->can('viewAny', Project::class)) {
-            return $this->errorResponse('Нет прав на просмотр', [], 403);
-        }
-
+        //if (!Auth::user()->can('getProjects', Project::class)) {
+        //    return $this->errorResponse('Нет прав на просмотр', [], 403);
+        //}
+        Log::info('getProjects');
         $requiredFields = [
             "projects" => [
                 "id",

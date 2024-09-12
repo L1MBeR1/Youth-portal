@@ -93,8 +93,10 @@ class AuthController extends Controller
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
 
+        $input['nickname'] = $this->getRandomNickname();
         $user = User::create($input);
         $user->assignRole('guest');
+        
 
         UserMetadata::create(['user_id' => $user->id]);
 
@@ -171,6 +173,125 @@ class AuthController extends Controller
      * @group Авторизация
      *
      */
+    private function getRandomNickname(): string
+    {
+        // Список  прилагательных
+        $adjectives1 = [
+            'счастливый',
+            'быстрый',
+            'яркий',
+            'крутой',
+            'тихий',
+            'сладкий',
+            'злой',
+            'элегантный',
+            'удачливый',
+            'сказочный',
+            'умный',
+            'смелый',
+            'доброжелательный',
+            'сильный',
+            'веселый',
+            'любопытный',
+            'острый',
+            'спокойный',
+            'дружелюбный',
+            'мудрый'
+        ];
+        $adjectives2 = [
+            'happy',
+            'fast',
+            'bright',
+            'cool',
+            'silent',
+            'sweet',
+            'angry',
+            'fancy',
+            'lucky',
+            'candy',
+            'clever',
+            'brave',
+            'kind',
+            'strong',
+            'funny',
+            'curious',
+            'sharp',
+            'calm',
+            'friendly',
+            'wise',
+        ];
+
+        // Список  существительных
+        $nouns1 = [
+            'кот',
+            'собака',
+            'птица',
+            'медведь',
+            'рыба',
+            'волк',
+            'лиса',
+            'тигр',
+            'лев',
+            'кролик',
+            'мышь',
+            'слон',
+            'жираф',
+            'обезьяна',
+            'пингвин',
+            'олень',
+            'лошадь',
+            'корова',
+            'сова',
+            'акула'
+        ];
+        $nouns2 = [
+            'cat',
+            'dog',
+            'bird',
+            'bear',
+            'fish',
+            'wolf',
+            'fox',
+            'tiger',
+            'lion',
+            'rabbit',
+            'mouse',
+            'elephant',
+            'giraffe',
+            'monkey',
+            'penguin',
+            'deer',
+            'horse',
+            'cow',
+            'owl',
+            'shark',
+        ];
+
+
+        do {
+            // Генерируем случайное число
+            $number = random_int(1000, 9999);
+
+            // Определяем, какой язык использовать (1 или 2)
+            $locale = random_int(1, 2);
+
+            // Выбираем случайные прилагательные и существительные в зависимости от языка
+            $adjectiveList = ${"adjectives{$locale}"};
+            $nounList = ${"nouns{$locale}"};
+
+            $adjective = $adjectiveList[random_int(0, count($adjectiveList) - 1)];
+            $noun = $nounList[random_int(0, count($nounList) - 1)];
+
+            // Собираем никнейм
+            $nickname = "{$adjective}_{$noun}_{$number}";
+
+            // Проверяем, существует ли уже такой никнейм
+            $nicknameExists = UserMetadata::where('nickname', $nickname)->exists();
+
+        } while ($nicknameExists); // Генерируем новый никнейм, если текущий занят
+
+        return $nickname;
+    }
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');

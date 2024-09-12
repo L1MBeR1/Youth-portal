@@ -53,7 +53,7 @@ class FileController extends Controller
     public function upload(Request $request, $content_type, $content_id)
     {
         $folder = "{$content_type}" . "/{$content_id}";
-        
+
 
 
         // Проверка наличия файла в запросе
@@ -121,7 +121,7 @@ class FileController extends Controller
 
         // Полный путь для сохранения файла с именем на основе MD5-хэша
         $filePath = 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
-        $filename = $folder .'/'. $md5Hash .'.'. $extension;
+        $filename = $folder . '/' . $md5Hash . '.' . $extension;
 
         // Проверка на существование файла с таким хэшем
         if (Storage::disk('sftp')->exists($filePath)) {
@@ -176,36 +176,34 @@ class FileController extends Controller
     public function download(Request $request, $content_type, $content_id, $filename)
     {
         // Проверка доступности SFTP
-        try {
-            if (!Storage::disk('sftp')->exists('/')) {
-                return response()->json(['error' => 'SFTP is not available'], 503);
-            }
-        } catch (Exception $e) {
-            Log::error('SFTP connection error: ' . $e->getMessage());
-            return response()->json(['error' => 'SFTP connection error'], 503);
+        if (!Storage::disk('sftp')->exists('/')) {
+            return response()->json(['error' => 'SFTP is not available'], 503);
         }
 
         // Проверка существования файла на SFTP
-        if (!Storage::disk('sftp')->exists('media/' . $content_type . '/' . $content_id. '/' . $filename)) {
+        $filePath = 'media/' . $content_type . '/' . $content_id . '/' . $filename;
+        if (!Storage::disk('sftp')->exists($filePath)) {
             return response()->json(['error' => 'File not found'], 404);
         }
 
-        // Получение файла с SFTP
-        try {
-            Log::info('media/' . $content_type . '/' . $content_id . '/' . $filename);
-            $file = Storage::disk('sftp')->get('media/' . $content_type . '/' . $content_id . '/' . $filename);
-        
-            // Получаем MIME-тип через Storage
-            $mimeType = Storage::disk('sftp')->mimeType('media/' . $content_type . '/' . $content_id . '/' . $filename);
-        } catch (Exception $e) {
-            Log::error('File download error: ' . $e->getMessage());
+        // Получение файла с SFTP и проверка на ошибки
+        $file = Storage::disk('sftp')->get($filePath);
+        if ($file === false) {
+            Log::error('Error retrieving file: ' . $filePath);
             return response()->json(['error' => 'File download error'], 500);
         }
-        
+
+        // Получаем MIME-тип через Storage
+        $mimeType = Storage::disk('sftp')->mimeType($filePath);
+        if ($mimeType === false) {
+            Log::error('MIME type retrieval error: ' . $filePath);
+            return response()->json(['error' => 'MIME type retrieval error'], 500);
+        }
 
         // Возврат файла в ответе
         return response($file, 200)->header('Content-Type', $mimeType);
     }
+
 
 
 
@@ -379,7 +377,7 @@ class FileController extends Controller
         return response()->json(['message' => 'File deleted successfully'], 200);
     }
 
-    
+
 
     /**
      * Получение размера директории

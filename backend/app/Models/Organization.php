@@ -9,8 +9,7 @@ class Organization extends Model
 {
     use HasFactory;
     protected $table = 'organizations';
-    protected $fillable = ['name','status'];
-    const STATUSES = ['moderating', 'approved', 'rejected'];
+    protected $fillable = ['name','description'];
 
     public function users()
     {

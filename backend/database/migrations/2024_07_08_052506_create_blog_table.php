@@ -27,6 +27,8 @@ return new class extends Migration {
 
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });
+
+        
     }
 
     /**
@@ -36,4 +38,5 @@ return new class extends Migration {
     {
         Schema::dropIfExists('blogs');
     }
+
 };

@@ -15,12 +15,12 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->jsonb('description');
+            $table->text('cover_uri')->nullable();
             //$table->text('address'); 
-            $table->integer('organization_id')->unsigned();
+            //$table->integer('organization_id')->unsigned();
             // $table->timestamps();
             $table->timestampsTz();
-
-            $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
+            //$table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
         });
     }
 

@@ -17,6 +17,7 @@ require_once __DIR__ . '/api/projects.php';
 require_once __DIR__ . '/api/roles.php';
 require_once __DIR__ . '/api/users.php';
 require_once __DIR__ . '/api/files.php';
+require_once __DIR__ . '/api/blogrolestatus.php';
 
 Route::prefix('v1')->group(function () {
     require_once __DIR__ . '/api/v1/blogs.php';

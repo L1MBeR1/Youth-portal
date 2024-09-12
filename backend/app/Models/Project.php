@@ -17,4 +17,9 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'project_id');
+    }
 }

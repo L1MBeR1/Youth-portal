@@ -3,7 +3,7 @@ import React from 'react';
 import Stack from '@mui/joy/Stack';
 
 import { Box, Grid, Typography } from '@mui/joy';
-import HomeCard from '../components/homeCard';
+import HomeCard from '../components/homeComponents/homeCard';
 import first from '../img/1.webp';
 import second from '../img/2.webp';
 import third from '../img/3.webp';

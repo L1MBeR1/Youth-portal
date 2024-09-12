@@ -14,7 +14,10 @@ function NotFound() {
 			spacing={3}
 			flexGrow={1}
 		>
-			<Typography sx={{ fontSize: 'clamp(11rem,2vw,15rem)' }} level='title-md'>
+			<Typography
+				sx={{ fontSize: 'clamp(9rem, 17vw, 15rem)' }}
+				level='title-md'
+			>
 				404
 			</Typography>
 			<Typography level='title-xxl'>

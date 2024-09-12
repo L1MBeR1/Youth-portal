@@ -117,6 +117,9 @@ function Footer() {
 							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
 								Проекты
 							</Typography>
+							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+								Организации
+							</Typography>
 						</Stack>
 					</Stack>
 					<Stack

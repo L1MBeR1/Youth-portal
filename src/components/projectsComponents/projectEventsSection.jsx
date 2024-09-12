@@ -1,34 +1,36 @@
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { IconButton, Stack } from '@mui/joy';
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useProjects from '../../../hooks/useProjects';
-import Carousel from '../carousel';
-import ProjectCard from './projectCard';
+import React, { useEffect, useRef, useState } from 'react';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import EventCard from '../homeComponents/eventContainer/eventCard';
 
-const ProjectsContainer = () => {
-	const navigate = useNavigate();
-	const { data: projects, isLoading } = useProjects(null, {
-		page: 1,
-		per_page: 15,
-		withAuthors: false,
-	});
-
+const ProjectEventsSection = ({ events }) => {
 	const swiperRef = useRef(null);
 	const [isBeginning, setIsBeginning] = useState(true);
 	const [isEnd, setIsEnd] = useState(false);
 
-	const handlePrevSlide = isBeginningState => {
-		setIsBeginning(isBeginningState);
-	};
+	useEffect(() => {
+		if (swiperRef.current && swiperRef.current.swiper) {
+			const swiper = swiperRef.current.swiper;
 
-	const handleNextSlide = isEndState => {
-		setIsEnd(isEndState);
-	};
+			const updateButtonsState = () => {
+				setIsBeginning(swiper.isBeginning);
+				setIsEnd(swiper.isEnd);
+			};
+
+			swiper.on('slideChange', updateButtonsState);
+			updateButtonsState();
+			return () => {
+				swiper.off('slideChange', updateButtonsState);
+			};
+		}
+	}, []);
+
 	return (
 		<Stack direction={'column'} flexGrow={1} gap={'30px'}>
 			<Stack
@@ -36,34 +38,9 @@ const ProjectsContainer = () => {
 				justifyContent={'space-between'}
 				alignItems={'flex-end'}
 			>
-				<Typography
-					onClick={() => {
-						navigate('/projects');
-					}}
-					level='h2'
-					sx={{
-						transition: 'color 0.2s',
-						cursor: 'pointer',
-						'&:hover': {
-							color: 'var(--joy-palette-main-primary)',
-						},
-					}}
-				>
-					<Stack
-						direction={'row'}
-						justifyContent={'center'}
-						sx={{
-							'&:hover svg': {
-								color: 'var(--joy-palette-main-primary)',
-							},
-						}}
-					>
-						Проекты
-						<NavigateNextIcon
-							sx={{
-								transition: 'color 0.2s',
-							}}
-						/>
+				<Typography level='publications-h2'>
+					<Stack direction={'row'} justifyContent={'center'}>
+						Мероприятия проекта
 					</Stack>
 				</Typography>
 				<Box sx={{ display: { xs: 'none', mdx: 'block' } }}>
@@ -127,18 +104,31 @@ const ProjectsContainer = () => {
 			</Stack>
 
 			<Stack direction='row' justifyContent='space-between' alignItems='center'>
-				{!isLoading && (
-					<Carousel
-						data={projects}
-						swiperRef={swiperRef}
-						onPrevSlide={handlePrevSlide}
-						onNextSlide={handleNextSlide}
-						Card={ProjectCard}
-					/>
+				{events && (
+					<Swiper
+						ref={swiperRef}
+						slidesPerView={1}
+						spaceBetween={10}
+						pagination={{ clickable: true }}
+						breakpoints={{
+							100: { slidesPerView: 1, spaceBetween: 20 },
+							800: { slidesPerView: 1, spaceBetween: 20 },
+							1100: { slidesPerView: 2, spaceBetween: 30 },
+							1300: { slidesPerView: 3, spaceBetween: 30 },
+							1600: { slidesPerView: 3, spaceBetween: 40 },
+						}}
+						className='mySwiper'
+					>
+						{events.map((item, index) => (
+							<SwiperSlide key={index}>
+								<EventCard data={item} />
+							</SwiperSlide>
+						))}
+					</Swiper>
 				)}
 			</Stack>
 		</Stack>
 	);
 };
 
-export default ProjectsContainer;
+export default ProjectEventsSection;

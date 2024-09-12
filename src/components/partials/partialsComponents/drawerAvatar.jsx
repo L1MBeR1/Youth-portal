@@ -57,9 +57,33 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 			>
 				<ModalClose />
 				<DialogTitle>
-					<Stack direction={'row'} spacing={2} alignItems={'center'}>
+					<Stack
+						direction={'row'}
+						spacing={2}
+						alignItems={'center'}
+						sx={{ maxWidth: '70%' }}
+					>
 						<Avatar size='lg' src={img || profileBlank} />
-						<Typography level='title-lg'>{nickname}</Typography>
+
+						<Box
+							sx={{
+								display: 'flex',
+								alignItems: 'center',
+								maxWidth: '100%',
+							}}
+						>
+							<Typography
+								level='title-lg'
+								sx={{
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									whiteSpace: 'nowrap',
+									maxWidth: '100%',
+								}}
+							>
+								{nickname}
+							</Typography>
+						</Box>
 					</Stack>
 				</DialogTitle>
 				<Stack></Stack>

@@ -251,14 +251,6 @@ function Header() {
 						>
 							<Typography level={'headerButton'}>Новости</Typography>
 						</Button>
-						{/* <Button
-							variant='plain'
-							onClick={() => {
-								handleLink('/podcasts');
-							}}
-						>
-							<Typography level={'headerButton'}>Подкасты</Typography>
-						</Button> */}
 						<Button
 							variant='plain'
 							onClick={() => {

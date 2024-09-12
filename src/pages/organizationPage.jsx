@@ -8,18 +8,14 @@ import Typography from '@mui/joy/Typography';
 import DOMPurify from 'dompurify';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import EventMap from '../components/maps/eventMap.jsx';
-import useEventById from '../hooks/useEventById.js';
+import useOrganizationById from '../hooks/useOrganizationById.js';
 import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
-import { formatDate } from '../utils/timeAndDate/formatDate.js';
 
-import EventIcon from '@mui/icons-material/Event';
-import RoomIcon from '@mui/icons-material/Room';
 import { mainMargin } from '../themes/mainMargin.js';
 
-function EventPage() {
+function OrganizationPage() {
 	const { id } = useParams();
-	const { data, isFetching } = useEventById(id);
+	const { data, isFetching } = useOrganizationById(id);
 	const [pastelColor, setPastelColor] = useState('#ffffff');
 
 	useEffect(() => {
@@ -109,7 +105,7 @@ function EventPage() {
 									<Box></Box>
 									<Box>
 										<Typography level='publications-h1-white'>
-											{data.title}
+											{data.name}
 										</Typography>
 									</Box>
 
@@ -121,34 +117,11 @@ function EventPage() {
 											flexDirection: { xs: 'column', md: 'row' },
 										}}
 									>
-										<Stack direction={'row'} spacing={1} alignItems={'center'}>
-											<EventIcon
-												sx={{
-													color: 'var(--joy-staticColors-mainLight)',
-													fontSize: '22px',
-												}}
-											/>
-											<Typography
-												level='title-md'
-												sx={{ color: 'var(--joy-staticColors-mainLight)' }}
-											>
-												{formatDate(data.start_time, true)}
-											</Typography>
-										</Stack>
-										<Stack direction={'row'} spacing={1} alignItems={'center'}>
-											<RoomIcon
-												sx={{
-													color: 'var(--joy-staticColors-mainLight)',
-													fontSize: '22px',
-												}}
-											/>
-											<Typography
-												level='title-md'
-												sx={{ color: 'var(--joy-staticColors-mainLight)' }}
-											>
-												{`${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`}
-											</Typography>
-										</Stack>
+										<Stack
+											direction={'row'}
+											spacing={1}
+											alignItems={'center'}
+										></Stack>
 									</Box>
 								</Box>
 							</CardContent>
@@ -171,7 +144,7 @@ function EventPage() {
 								spacing={1}
 								flexGrow={1}
 							>
-								<Typography level='publications-h2'>О мероприятии</Typography>
+								<Typography level='publications-h2'>О организации</Typography>
 							</Stack>
 							<Stack
 								direction={'column'}
@@ -183,48 +156,6 @@ function EventPage() {
 								<Typography level='body-lg'>{data.description}</Typography>
 							</Stack>
 						</Stack>
-						<Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
-							<Stack
-								direction={{ xs: 'row', md: 'column' }}
-								spacing={1}
-								flexGrow={1}
-							>
-								<Typography level='publications-h2'>Адрес</Typography>
-							</Stack>
-							<Stack
-								direction={'column'}
-								spacing={1}
-								flexGrow={1}
-								maxWidth={{ xs: '100%', md: '50%' }}
-							>
-								<Box
-									sx={{
-										borderRadius: '30px',
-										overflow: 'hidden',
-										height: '50vh',
-									}}
-								>
-									<EventMap data={data} zoom={10} />
-								</Box>
-								<Typography level='body-lg'>{`${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`}</Typography>
-							</Stack>
-						</Stack>
-						{/* <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
-							<Stack
-								direction={{ xs: 'row', md: 'column' }}
-								spacing={1}
-								flexGrow={1}
-							>
-								<Typography level='publications-h2'>Проект</Typography>
-							</Stack>
-							<Stack
-								direction={{ xs: 'row', md: 'column' }}
-								spacing={1}
-								flexGrow={1}
-								marginTop={'15px'}
-								maxWidth={{ xs: '100%', md: '50%' }}
-							></Stack>
-						</Stack> */}
 					</Stack>
 				</Card>
 			)}
@@ -232,4 +163,4 @@ function EventPage() {
 	);
 }
 
-export default EventPage;
+export default OrganizationPage;

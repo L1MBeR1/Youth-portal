@@ -60,7 +60,20 @@ function HeaderProfile() {
 								level={'headerButton'}
 								textColor={'var(--joy-palette-staticColors-mainLight)'}
 							>
-								Войти в аккаунт
+								<Box
+									sx={{
+										display: { xs: 'none', xl: 'block' },
+									}}
+								>
+									Войти в аккаунт
+								</Box>
+								<Box
+									sx={{
+										display: { xs: 'block', xl: 'none' },
+									}}
+								>
+									Войти
+								</Box>
 							</Typography>
 						</Button>
 					</Box>

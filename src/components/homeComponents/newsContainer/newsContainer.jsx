@@ -70,18 +70,18 @@ const NewsContainer = () => {
 					}}
 				>
 					{news.length > 0 && (
-						<Grid item xs={12} md={6} mdx={4}>
+						<Grid xs={12} md={6} mdx={4}>
 							<NewsCard data={news[0]} isExpended={true} />
 						</Grid>
 					)}
 
 					{news.length > 1 && (
-						<Grid item xs={12} md={6} mdx={4}>
+						<Grid xs={12} md={6} mdx={4}>
 							<NewsCard data={news[1]} isExpended={true} />
 						</Grid>
 					)}
 
-					<Grid item xs={12} md={12} mdx={4} sx={{ display: 'flex' }}>
+					<Grid xs={12} md={12} mdx={4} sx={{ display: 'flex' }}>
 						<Stack
 							spacing={2}
 							flexGrow={1}

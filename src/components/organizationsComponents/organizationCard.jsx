@@ -6,13 +6,13 @@ import CardContent from '@mui/joy/CardContent';
 import CardOverflow from '@mui/joy/CardOverflow';
 import Typography from '@mui/joy/Typography';
 
-import BlankImage from '../../../img/blank.png';
+import BlankImage from '../../img/blank.png';
 
 import { useNavigate } from 'react-router-dom';
-function ProjectCard({ data }) {
+function OrganizationCard({ data }) {
 	const navigate = useNavigate();
 	const handleRedirect = id => {
-		navigate(`/project/${id}`);
+		navigate(`/organization/${id}`);
 	};
 	return (
 		<>
@@ -36,8 +36,7 @@ function ProjectCard({ data }) {
 			>
 				<CardOverflow>
 					<AspectRatio
-						minHeight='200px'
-						maxHeight='200px'
+						ratio='1'
 						sx={{
 							overflow: 'hidden',
 							position: 'relative',
@@ -76,28 +75,10 @@ function ProjectCard({ data }) {
 								<Typography level='title-lg'>{data.name}</Typography>
 							</Box>
 						</Stack>
-						{data.description && (
-							<Stack direction={'row'}>
-								<Box
-									sx={{
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										display: '-webkit-box',
-										WebkitLineClamp: 2,
-										WebkitBoxOrient: 'vertical',
-										whiteSpace: 'normal',
-									}}
-								>
-									<Typography level='body-md'>
-										{data.description.desc}
-									</Typography>
-								</Box>
-							</Stack>
-						)}
 					</Stack>
 				</CardContent>
 			</Card>
 		</>
 	);
 }
-export default ProjectCard;
+export default OrganizationCard;

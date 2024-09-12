@@ -11,7 +11,7 @@ function Podcasts() {
 	const [lastPage, setLastPage] = useState(1);
 
 	const {
-		data: news,
+		data: podcasts,
 		isLoading,
 		refetch,
 	} = usePublications(['podcasts'], getPublishedPodcasts, setLastPage, {
@@ -35,11 +35,11 @@ function Podcasts() {
 					Подкасты
 				</Typography>
 			</Box>
-			{!isLoading && news && (
+			{!isLoading && podcasts && (
 				<Grid container spacing={'50px'} sx={{ marginTop: '30px' }}>
-					{news.map(news => (
-						<Grid xs={6} smx={4} mdx={3} lgx={2} xxl={2} key={news.id}>
-							<PodcastsCard data={news} />
+					{podcasts.map(podcast => (
+						<Grid xs={6} smx={4} mdx={3} lgx={2} xxl={2} key={podcast.id}>
+							<PodcastsCard data={podcast} />
 						</Grid>
 					))}
 				</Grid>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->timestampsTz();
             $table->text('name');
+            $table->text('description')->nullable();
             $table->text('cover_uri')->nullable();
             //$table->enum('status', ['moderating', 'approved', 'rejected']);
             //$table->text('address')->nullable();      

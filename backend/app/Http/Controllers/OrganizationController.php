@@ -36,12 +36,10 @@ class OrganizationController extends Controller
             return $this->errorResponse('Нет прав', [], 403);
         }
 
-        $organization = Organization::create($request->validated() + [
-            'status' => 'moderating',
-        ]);
+        $organization = Organization::create($request->validated());
 
         // Добавляем запись в смежную таблицу
-        $organization->users()->attach(Auth::user()->id);
+        //$organization->users()->attach(Auth::user()->id);
 
         return $this->successResponse($organization, 'Организация создана и отправлена на модерацию', 201);
     }
@@ -158,6 +156,7 @@ class OrganizationController extends Controller
             "organizations" => [
                 "id",
                 "name",
+                "description",
                 "created_at",
                 "updated_at",
             ]
@@ -173,6 +172,7 @@ class OrganizationController extends Controller
             "organizations" => [
                 "id",
                 "name",
+                "description",
                 "created_at",
                 "updated_at",
             ]

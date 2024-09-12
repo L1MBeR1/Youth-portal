@@ -46,6 +46,15 @@ class ProjectFactory extends Factory
     }
 
 
+    private function generateImageURL(int $width = 320, int $height = 240): string
+    {
+        // Для избежания кеширования изображений при многократном обращении к сайту
+        $number = random_int(1, 100000);
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
+        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
+    }
+
 
     /**
      * Define the model's default state.
@@ -66,8 +75,10 @@ class ProjectFactory extends Factory
             ],
             //'location' => 'задать(PROJECT_FACTORY.PHP)',
             //'organization_id' => $this->faker->randomElement($orgIds),
+            'cover_uri' => $this->generateImageURL(),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            
         ];
     }
 }

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->jsonb('description');
+            $table->text('cover_uri')->nullable();
             //$table->text('address'); 
             //$table->integer('organization_id')->unsigned();
             // $table->timestamps();

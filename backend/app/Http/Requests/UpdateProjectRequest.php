@@ -25,6 +25,7 @@ class UpdateProjectRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
+            'cover_uri' => 'nullable|string',
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)

@@ -157,6 +157,7 @@ class OrganizationController extends Controller
                 "id",
                 "name",
                 "description",
+                "cover_uri",
                 "created_at",
                 "updated_at",
             ]
@@ -173,6 +174,7 @@ class OrganizationController extends Controller
                 "id",
                 "name",
                 "description",
+                "cover_uri",
                 "created_at",
                 "updated_at",
             ]

@@ -62,7 +62,7 @@ return new class extends Migration {
             $table->text('first_name')->nullable();
             $table->text('last_name')->nullable();
             $table->text('patronymic')->nullable();
-            $table->text('nickname')->unique();
+            $table->text('nickname')->unique()->nullable();
             $table->text('profile_image_uri')->nullable();
             $table->text('city')->nullable();
             $table->enum('gender', ['m', 'f'])->nullable();

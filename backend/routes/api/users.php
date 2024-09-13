@@ -22,7 +22,7 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'users'
 ], function () {
-    
+    Route::put('nickname', [UserController::class, 'updateNickname']);
     Route::get('', [UserController::class, 'listUsers']);
     Route::put('{user_id}', [UserController::class, 'updateProfile']);
     Route::put('{user_id}/password', [AuthController::class, 'requestChangePassword']);
@@ -32,4 +32,5 @@ Route::group([
     Route::delete('{user_id}', [UserController::class, 'deleteUser']);
     Route::patch('{user_id}/block', [SUController::class, 'blockUser']);
     Route::patch('{user_id}/unblock', [SUController::class, 'unblockUser']);
+    
 });

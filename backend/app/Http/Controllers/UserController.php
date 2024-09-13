@@ -430,8 +430,32 @@ class UserController extends Controller
 
     }
 
+    public function updateNickname(Request $request)
+    {
+        $user = Auth::user();
 
+        $validator = Validator::make($request->all(), [
+            'nickname' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:user_metadata,nickname,' . $user->id . ',user_id'],
+        ]);
+        
 
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation Error', $validator->errors(), 422);
+        }
 
+        $metadata = $user->metadata;
+        if (!$metadata) {
+            $metadata = new UserMetadata();
+            $metadata->user_id = $user->id;
+        }
 
+        $metadata->nickname = $request->input('nickname');
+        $metadata->save();
+
+        return $this->successResponse($metadata, 'Nickname updated successfully.');
+    }
 }

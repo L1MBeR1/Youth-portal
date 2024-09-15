@@ -4,11 +4,41 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Project;
-use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class EventFactory extends Factory
 {
+
+    private function generateImageURL2($id, $str = "event_cover"): string
+    {
+        $files = Storage::disk('local')->files("sample_images/{$str}");
+
+        if (empty($files)) {
+            Log::info('empty folder');
+            return '';
+        }
+
+        $randomFile = $files[array_rand($files)];
+        $filePath = Storage::disk('local')->path($randomFile);
+
+        $response = Http::attach(
+            'file',
+            file_get_contents($filePath),
+            basename($filePath)
+        )->post("http://127.0.0.1:8000/api/files/events/{$id}/");
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return env('FILES_LINK', '') .$data['filename'] ?? '';
+        }
+
+        return '';
+    }
     /**
      * Define the model's default state.
      *

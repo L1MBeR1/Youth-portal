@@ -4,6 +4,12 @@ namespace Database\Factories;
 
 use App\Models\Organization;
 // use App\Models\User;
+use Carbon\Carbon;
+use App\Models\Project;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProjectFactory extends Factory
@@ -55,7 +61,31 @@ class ProjectFactory extends Factory
         return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
     }
 
+    private function generateImageURL2($id, $str = "project_cover"): string
+    {
+        $files = Storage::disk('local')->files("sample_images/{$str}");
 
+        if (empty($files)) {
+            Log::info('empty folder');
+            return '';
+        }
+
+        $randomFile = $files[array_rand($files)];
+        $filePath = Storage::disk('local')->path($randomFile);
+
+        $response = Http::attach(
+            'file',
+            file_get_contents($filePath),
+            basename($filePath)
+        )->post("http://127.0.0.1:8000/api/files/projects/{$id}/");
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return env('FILES_LINK', '') .$data['filename'] ?? '';
+        }
+
+        return '';
+    }
     /**
      * Define the model's default state.
      *
@@ -80,5 +110,14 @@ class ProjectFactory extends Factory
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             
         ];
+    }
+
+    public function configure(): self
+    {
+        return $this->afterCreating(function (Project $project) {
+            // Генерация cover_uri после создания записи с корректным id
+            $coverUri = $this->generateImageURL2($project->id);
+            $project->update(['cover_uri' => $coverUri]);
+        });
     }
 }

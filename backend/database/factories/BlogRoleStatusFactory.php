@@ -17,27 +17,15 @@ class BlogRoleStatusFactory extends Factory
         return [
             'status' => $this->faker->randomElement(['review', 'approved', 'withdrawn']),
             'moder_id' => $this->getModeratorId(),
-            'author_id' => \App\Models\User::factory(),
+            'author_id' => \App\Models\User::factory(), // Создание нового пользователя
         ];
     }
         
-        private function getModeratorId()
-        {
-            // Получаем всех пользователей с ролью модератора
-            $moderators = \App\Models\User::whereHas('roles', function ($query) {
-                $query->where('role_id', 8); // Проверяем, что роль модератора
-            })->get();
-        
-            // Если есть модераторы, выбираем случайного
-            if ($moderators->isNotEmpty()) {
-                return $this->faker->randomElement($moderators)->id;
-            }
-        
-            return null; // Если модераторов нет, возвращаем null
-        }
-        
+    private function getModeratorId()
+    {
+        // Получаем случайного пользователя с ролью модератора
+        return \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('role_id', 8); // Проверяем, что роль модератора
+        })->inRandomOrder()->first()?->id; // Используем оператор null-safe
+    }
 }
-
-
-
-

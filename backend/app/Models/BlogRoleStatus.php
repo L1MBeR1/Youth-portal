@@ -11,8 +11,25 @@ class BlogRoleStatus extends Model
 
     protected $table = 'blog_role_status';
 
+    protected $casts = [
+        'status' => 'string', 
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $hidden = [
+        'moder_id', 
+    ];
+
+    protected $guarded = [
+        'id', 
+        'created_at', 
+        'updated_at', 
+    ];
+
     protected $fillable = [
         'status',
+        'moder_id',
         'author_id',
     ];
 

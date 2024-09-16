@@ -8,19 +8,40 @@ use Illuminate\Database\Eloquent\Model;
 class News extends Model
 {
     use HasFactory;
-    protected $casts = [
-        'description' => 'array',
-    ];
+
     protected $table = 'news';
-    protected $guarded = [];
+
+    protected $casts = [
+        'description' => 'array', 
+        'status' => 'string', 
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $hidden = [
+
+    ];
+
+    protected $guarded = [
+        'id', 
+        'created_at', 
+        'updated_at',
+    ];
+
+    protected $fillable = [
+        'title',
+        'description',
+        'content',
+        'cover_uri',
+        'status',
+        'views',
+        'likes',
+        'reposts',
+        'author_id',
+    ];
 
     const STATUSES = ['moderating', 'published', 'archived', 'pending'];
 
-    /**
-     * Get the comments associated with the news.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<int, Comment>
-     */
     public function comments(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(

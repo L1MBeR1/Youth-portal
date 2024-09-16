@@ -21,12 +21,6 @@ class BlogRoleStatus extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-   // public function moderator()
-   // {
-    //    return $this->belongsTo(User::class, 'moder_id');
-    //}
-
-    // В модели BlogRoleStatus
     public function moderator()
     {
         return $this->belongsTo(UserMetadata::class, 'moder_id', 'user_id');

@@ -48,7 +48,7 @@ class UserMetadataFactory extends Factory
             basename($filePath)
         )->post('http://127.0.0.1:8000/api/files/profiles/0/');
 
-        Log::info($response);
+        // Log::info($response);
 
         // Проверяем успешность запроса и возвращаем имя файла из ответа
         if ($response->successful()) {
@@ -442,7 +442,8 @@ class UserMetadataFactory extends Factory
 
     public function definition()
     {
-        $image = $this->generateImageURL2();
+        // $image = $this->generateImageURL2();
+        $image = 'a';
         Log::info($image);
 
 

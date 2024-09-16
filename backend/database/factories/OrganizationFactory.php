@@ -51,7 +51,9 @@ class OrganizationFactory extends Factory
 
         if ($response->successful()) {
             $data = $response->json();
-            return env('FILES_LINK', '') .$data['filename'] ?? '';
+            Log::warning('org');
+            Log::warning($data);
+            return env('FILES_LINK', '') . $data['filename'] ?? '';
         }
 
         return '';

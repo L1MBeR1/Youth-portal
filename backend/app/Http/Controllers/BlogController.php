@@ -230,7 +230,7 @@ class BlogController extends Controller
             return $this->errorResponse('Нет прав на создание блога', [], 403);
         }
 
-        Log::info($request->input("description"));
+        // Log::info($request->input("description"));
 
         $blog = Blog::create($request->validated() + [
             'status' => 'unsaved',

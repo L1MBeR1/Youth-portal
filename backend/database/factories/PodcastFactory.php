@@ -37,6 +37,33 @@ class PodcastFactory extends Factory
         return '';
     }
 
+
+    private function generateAudioURL($id, $str = "podcast_audio"): string
+    {
+        $files = Storage::disk('local')->files("sample_audios/{$str}");
+
+        if (empty($files)) {
+            Log::info('empty folder');
+            return '';
+        }
+
+        $randomFile = $files[array_rand($files)];
+        $filePath = Storage::disk('local')->path($randomFile);
+
+        $response = Http::attach(
+            'file',
+            file_get_contents($filePath),
+            basename($filePath)
+        )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return env('FILES_LINK', '') .$data['filename'] ?? '';
+        }
+
+        return '';
+    }
+
     private function generateImageURL(int $width = 320, int $height = 240): string
     {
         // Для избежания кеширования изображений при многократном обращении к сайту
@@ -123,8 +150,8 @@ class PodcastFactory extends Factory
                     ]
                 ]
             ],
-            'content' => $this->faker->realText(100),
-            'cover_uri' => $this->generateImageURL(),
+            'audio_uri' => '',
+            'cover_uri' => '',
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'views' => $this->faker->numberBetween(0, 1000),
             'likes' => $this->faker->numberBetween(0, 1000),
@@ -138,7 +165,8 @@ class PodcastFactory extends Factory
         return $this->afterCreating(function (Podcast $podcast) {
         
             $coverUri = $this->generateImageURL2($podcast->id);
-            $podcast->update(['cover_uri' => $coverUri]);
+            $audioUri = $this->generateAudioURL($podcast->id);
+            $podcast->update(['cover_uri' => $coverUri, 'audio_uri'=> $audioUri]);
         });
     }
 }

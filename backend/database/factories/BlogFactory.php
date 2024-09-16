@@ -18,16 +18,8 @@ class BlogFactory extends Factory
 {
     protected $model = Blog::class;
 
-    // Функция для генерации URL случайного изображения
-    private function generateImageURL(int $width = 320, int $height = 240): string
-    {
-        $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
-        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
-    }
-
     // Функция для загрузки изображения с файла и получения его имени
-    private function generateImageURL2($id, $str = "blog_cover"): string
+    private function generateImageURL($id, $str = "blog_cover"): string
     {
         $files = Storage::disk('local')->files("sample_images/{$str}");
 
@@ -77,7 +69,7 @@ class BlogFactory extends Factory
         }
 
         for ($i = 0; $i < random_int(1, 5); $i++) {
-            $contentInnerPictures[] = $this->generateImageURL2($blogid, 'blog_content');
+            $contentInnerPictures[] = $this->generateImageURL($blogid, 'blog_content');
         }
 
         $htmlTags = ['<b>', '</b>', '<i>', '</i>', '<u>', '</u>', '<strong>', '</strong>', '<em>', '</em>'];
@@ -212,7 +204,7 @@ class BlogFactory extends Factory
         return $this->afterCreating(function (Blog $blog) {
             // Генерация cover_uri после создания записи с корректным id
             $content = $this->generateContent($blog->id);
-            $coverUri = $this->generateImageURL2($blog->id);
+            $coverUri = $this->generateImageURL($blog->id);
             $blog->update(['cover_uri' => $coverUri, 'content' => $content]);
         });
     }

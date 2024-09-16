@@ -25,30 +25,6 @@ class FileController extends Controller
      * @urlParam content_type string required Тип контента. Пример: images.
      * @urlParam content_id int required ID контента. Пример: 123.
      * @bodyParam file file required Файл, который нужно загрузить. Примеры: image/jpeg, image/png, image/gif.
-     * 
-     * @response {
-     *   "path": "media/images/123/9a0364b9e99bb480dd25e1f0284c8555.png"
-     * }
-     * 
-     * @response 400 {
-     *   "error": "No file uploaded"
-     * }
-     * 
-     * @response 415 {
-     *   "error": "Unsupported file type"
-     * }
-     * 
-     * @response 413 {
-     *   "error": "File size exceeds the maximum allowed size of 5MB"
-     * }
-     * 
-     * @response 507 {
-     *   "error": "Media directory capacity exceeded"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File upload error"
-     * }
      */
     public function upload(Request $request, $content_type, $content_id)
     {
@@ -140,10 +116,10 @@ class FileController extends Controller
         return response()->json(['filename' => $filename]);
     }
 
-    private function generateUniqueShortId($folderPath, $extension)
+    private function generateUniqueShortId($folderPath, $extension): string
     {
         do {
-            // Генерация короткого уникального ID (например, 6 символов)
+            // Генерация короткого уникального ID
             $shortId = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 6);
             $filePath = $folderPath . '/' . $shortId . '.' . $extension;
         } while (Storage::disk('sftp')->exists($filePath));
@@ -161,17 +137,6 @@ class FileController extends Controller
      * 
      * @urlParam filename string required Имя файла для загрузки. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
      * 
-     * @response 200 {
-     *   "file_content": "<binary content>"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File download error"
-     * }
      */
     public function download(Request $request, $content_type, $content_id, $filename)
     {
@@ -218,22 +183,6 @@ class FileController extends Controller
      * @urlParam content_id int required ID контента. Пример: 123.
      * @urlParam filename string required Имя файла, который нужно обновить. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
      * @bodyParam file file required Новый файл, который нужно загрузить. Примеры: image/jpeg, image/png, image/gif.
-     * 
-     * @response {
-     *   "path": "media/images/123/new_md5_hash.png"
-     * }
-     * 
-     * @response 400 {
-     *   "error": "No file uploaded"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File update error"
-     * }
      */
     public function update(Request $request, $content_type, $content_id, $filename)
     {
@@ -334,18 +283,6 @@ class FileController extends Controller
      * @urlParam content_type string required Тип контента. Пример: images.
      * @urlParam content_id int required ID контента. Пример: 123.
      * @urlParam filename string required Имя файла, который нужно удалить. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
-     * 
-     * @response 200 {
-     *   "message": "File deleted successfully"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File deletion error"
-     * }
      */
     public function delete($content_type, $content_id, $filename)
     {
@@ -382,7 +319,7 @@ class FileController extends Controller
     /**
      * Получение размера директории
      */
-    private function getDirectorySize($directory)
+    private function getDirectorySize($directory): int
     {
         $size = 0;
         $files = Storage::disk('sftp')->allFiles($directory);

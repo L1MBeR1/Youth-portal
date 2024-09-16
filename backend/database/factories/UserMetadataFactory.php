@@ -442,9 +442,9 @@ class UserMetadataFactory extends Factory
 
     public function definition()
     {
-        // $image = $this->generateImageURL2();
-        $image = 'a';
-        Log::info($image);
+        $image = $this->generateImageURL2();
+        // $image = 'a';
+        // Log::info($image);
 
 
         return [

@@ -6,18 +6,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Blog extends Model
 {
-    protected $guarded = [];
     use HasFactory;
 
     protected $casts = [
         'description' => 'array',
+        'status' => 'string', 
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $guarded = [
+        'id', 
+        'author_id', 
+        'created_at', 
+        'updated_at',
+    ];
+
+    protected $fillable = [
+        'title',
+        'description',
+        'content',
+        'cover_uri',
+        'status',
+        'views',
+        'likes',
+        'reposts',
+        'draft_for',
     ];
 
     protected $hidden = [
         'draft_for'
     ];
-
-    // protected $fillable = ['status'];
 
     public function comments()
     {

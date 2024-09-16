@@ -10,8 +10,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Comment extends Model
 {
     use HasFactory;
-    // protected $guarded = [];
-    protected $fillable = ['content', 'user_id']; // массовое присвоение атрибутов
+
+    protected $casts = [
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $guarded = [
+        'id', 
+        'created_at', 
+        'updated_at', 
+    ];
+
+    protected $fillable = [
+        'user_id',
+        'content',
+        'likes',
+    ];
 
      // Общий метод для связи
      protected function relatedResource($relatedClass, $foreignKey)
@@ -56,13 +71,6 @@ class Comment extends Model
         return $comment;
     }
 
-    public function updateComment($newContent)
-    {
-        $this->content = $newContent;
-        $this->save();
-
-        return $this;
-    }
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');

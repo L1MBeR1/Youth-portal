@@ -254,23 +254,19 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, $id)
     {
-        // Найти комментарий по идентификатору
         $comment = Comment::find($id);
 
         if (!$comment) {
             return $this->errorResponse('Комментарий не найден', [], Response::HTTP_NOT_FOUND);
         }
 
-        // Проверка прав пользователя на обновление комментария
         if (!Auth::user()->can('update', $comment)) {
             return $this->errorResponse('Нет прав на обновление комментария', [], 403);
         }
 
-        // Обновление комментария с использованием проверенных данных
-        $comment->content = $request->validated();
+        $comment->content = $request->validated()['content'];
         $comment->save();
 
-        // Возвращаем успешный ответ JSON
         return $this->successResponse(['comment' => $comment], 'Комментарий обновлен успешно', 200);
     }
 

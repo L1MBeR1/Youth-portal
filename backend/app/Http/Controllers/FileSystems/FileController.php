@@ -347,4 +347,38 @@ class FileController extends Controller
 
         return null;
     }
+
+    public function clearAllSftpFiles()
+    {
+        // Проверка, имеет ли пользователь роль суперпользователя
+        if (!auth()->user() || !auth()->user()->hasRole('su')) {
+            return response()->json(['error' => 'Доступ запрещен. У вас нет прав суперпользователя.'], 403);
+        }
+    
+        try {
+            // Получаем список всех файлов и папок в корневой директории
+            $files = Storage::disk('sftp')->allFiles('/');
+            $directories = Storage::disk('sftp')->allDirectories('/');
+    
+            // Удаляем все файлы
+            foreach ($files as $file) {
+                Storage::disk('sftp')->delete($file);
+                Log::info("Удален файл: {$file}");
+            }
+    
+            // Удаляем все директории
+            foreach ($directories as $directory) {
+                Storage::disk('sftp')->deleteDirectory($directory);
+                Log::info("Удалена директория: {$directory}");
+            }
+    
+            return response()->json(['message' => 'Все файлы и директории успешно удалены.']);
+        } catch (Exception $e) {
+            Log::error('Ошибка при очистке SFTP: ' . $e->getMessage());
+            return response()->json(['error' => 'Ошибка при очистке файлов на SFTP'], 500);
+        }
+    }
+    
+
+
 }

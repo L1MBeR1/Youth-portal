@@ -24,13 +24,19 @@ export const getUser = async id => {
 		throw new Error('Failed to fetch user');
 	}
 };
-export const deleteUser = async (id, token) => {
+export const deleteUser = async (id, token, password) => {
+	console.log(password, token, id);
 	try {
 		const response = await axios.delete(`${API_URL}/users/${id}`, {
+			data: {
+				password,
+			},
+
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
 		});
+		console.log(response.data);
 		return response.data;
 	} catch (error) {
 		throw new Error('Failed to fetch user');

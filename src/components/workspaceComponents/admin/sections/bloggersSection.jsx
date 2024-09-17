@@ -31,8 +31,12 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import WarningModal from '../../shared/modals/warningModal.jsx';
 
-import { addBlogger, deleteBlogger } from '../../../../api/usersApi.js';
-import useUsers from '../../../../hooks/service/useUsers.js';
+import {
+	addBlogger,
+	deleteBlogger,
+	getUsers,
+} from '../../../../api/usersApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 
 function BlogersSection() {
@@ -64,7 +68,7 @@ function BlogersSection() {
 		data: bloggers,
 		isLoading,
 		refetch,
-	} = useUsers(['admin/bloggers'], ['service'], setLastPage, {
+	} = useServiceData(['admin/bloggers'], getUsers, setLastPage, {
 		role_name: 'blogger',
 		page: page,
 		searchFields: searchFields,

@@ -30,6 +30,21 @@ export const getMyPodcasts = async (token, params) => {
 		throw error;
 	}
 };
+export const getPodcast = async (token, id) => {
+	console.log(id);
+	try {
+		const response = await axios.get(`${API_URL}/podcasts/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching podcast:', error);
+		throw error;
+	}
+};
+
 export const changePodcastStatus = async (token, id, status) => {
 	try {
 		const response = await axios.put(

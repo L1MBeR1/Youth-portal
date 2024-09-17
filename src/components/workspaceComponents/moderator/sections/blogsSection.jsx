@@ -20,7 +20,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import useBlogs from '../../../../hooks/service/useBlogs.js';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
@@ -31,6 +30,8 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 import { changeBlogStatus } from '../../../../api/blogsApi.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 
+import { getBlogsByPage } from '../../../../api/blogsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 function BlogsSection() {
 	const navigate = useNavigate();
 	const [openBlog, setOpenBlog] = useState(false);
@@ -63,7 +64,7 @@ function BlogsSection() {
 		data: blogs,
 		isLoading,
 		refetch,
-	} = useBlogs(['moderator/blogs'], ['service'], setLastPage, {
+	} = useServiceData(['moderator/blogs'], getBlogsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,

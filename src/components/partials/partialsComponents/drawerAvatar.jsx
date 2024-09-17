@@ -63,7 +63,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 						alignItems={'center'}
 						sx={{ maxWidth: '70%' }}
 					>
-						<Avatar size='lg' src={img || profileBlank} />
+						<Avatar size='lg' variant='outlined' src={img || profileBlank} />
 
 						<Box
 							sx={{

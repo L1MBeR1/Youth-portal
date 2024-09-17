@@ -1,4 +1,4 @@
-import DeleteIcon from '@mui/icons-material/Delete';
+import InfoIcon from '@mui/icons-material/Info';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import Button from '@mui/joy/Button';
 import DialogActions from '@mui/joy/DialogActions';
@@ -13,17 +13,18 @@ import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import SuccessModal from '../../modals/successModal';
-
 import { deleteUser } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
+import PasswordField from '../../forms/formComponents/passwordField';
+import NeutralModal from '../../modals/neutralModal';
 function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
+	const [password, setPassword] = useState('');
 	const [isConfirmEnabled, setIsConfirmEnabled] = useState(false);
+	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [isSuccess, setIsSuccess] = useState(false);
@@ -56,26 +57,32 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 			queryClient.removeQueries(['profile']);
 			return null;
 		}
-		await logoutFunc();
-		const response = await deleteUser(id, token);
-		if (response) {
-			navigate('/login');
-			queryClient.removeQueries(['profile']);
+		try {
+			const response = await deleteUser(id, token, password);
+			if (response) {
+				setIsLoading(false);
+				setOpen(false);
+				console.log(response);
+				setIsSuccess(true);
+				setPassword('');
+				setInputValue('');
+			}
+		} catch (error) {
+			setError('Ошибка. Пожалуйста, проверьте свои данные.');
+			setPassword('');
 			setIsLoading(false);
-			setOpen(false);
-			console.log(response);
-			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
 		}
 	};
 	return (
 		<>
-			<SuccessModal
+			<NeutralModal
 				open={isSuccess}
 				setOpen={setIsSuccess}
-				message={'Аккаунт успешно удалён'}
+				message={
+					'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
+				}
 				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<DeleteIcon />}
+				icon={<InfoIcon />}
 			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
@@ -87,9 +94,20 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 					</DialogTitle>
 					<Divider />
 					<DialogContent>
+						{error && (
+							<Typography level='body-sm' color='danger'>
+								{error}
+							</Typography>
+						)}
 						<Typography>
-							Удаление аккаунта приведет к безвозвратной потере всех данных.
+							Удаление аккаунта приведет к безвозвратной потере всех данных. Вам
+							придет письмо для подтверждения — перейдите по ссылке в письме.
 						</Typography>
+						<PasswordField
+							lable={'Пароль'}
+							password={password}
+							setPassword={setPassword}
+						/>
 						<Typography>
 							Для удаления аккаунта введите фразу:{' '}
 							<Typography level='titel-md' color='danger'>
@@ -112,7 +130,7 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 							onClick={handleConfirm}
 							disabled={!isConfirmEnabled}
 						>
-							Подтвердить
+							Отправить письмо
 						</Button>
 						<Button variant='soft' color='neutral' onClick={handleClose}>
 							Назад

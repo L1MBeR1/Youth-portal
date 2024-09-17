@@ -17,13 +17,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import useProjects from '../../../../hooks/service/useProjects.js';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 
+import { getProjectsByPage } from '../../../../api/projectsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
-
 function ProjectsSection() {
 	const [openProject, setOpenProject] = useState(false);
 
@@ -47,7 +47,7 @@ function ProjectsSection() {
 		data: projects,
 		isLoading,
 		refetch,
-	} = useProjects(['admin/projects'], ['service'], setLastPage, {
+	} = useServiceData(['admin/projects'], getProjectsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,

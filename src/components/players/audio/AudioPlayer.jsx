@@ -6,18 +6,15 @@ import {
 	Slider,
 	Typography,
 } from '@mui/joy';
-import React, { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
+import React, { useRef, useState } from 'react';
 import '../styles.css';
 
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
-import { getFile } from '../../../api/files.js';
-
 // npm install wavesurfer.js
 
-function AudioPlayer({ title, filename, pictureURL }) {
+function AudioPlayer({ title, filename, pictureURL, audioUrl }) {
 	const [playing, setPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -26,73 +23,6 @@ function AudioPlayer({ title, filename, pictureURL }) {
 	const waveSurferRef = useRef(null);
 	const waveFormRef = useRef(null);
 	const [loadingImage, setLoadingImage] = useState(true);
-
-	useEffect(() => {
-		let isMounted = true;
-
-		const loadAudio = async () => {
-			const audioUrl = await getFile({
-				contentType: 'podcasts',
-				contentId: '1',
-				fileName: '864f4bc35ae74079cfc6cbc19a7b376c.mp3',
-			});
-
-			if (isMounted) {
-				if (waveSurferRef.current) {
-					waveSurferRef.current.destroy();
-				}
-
-				waveSurferRef.current = WaveSurfer.create({
-					container: waveFormRef.current,
-					waveColor: '#16697A',
-					progressColor: '#DB6400',
-					height: 40,
-					responsive: true,
-					normalize: true,
-					backend: 'MediaElement',
-				});
-
-				waveSurferRef.current.load(audioUrl);
-
-				waveSurferRef.current.on('ready', () => {
-					setDuration(waveSurferRef.current.getDuration());
-				});
-
-				waveSurferRef.current.on('audioprocess', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
-
-				waveSurferRef.current.on('seek', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
-			}
-		};
-
-		const loadImage = async () => {
-			try {
-				const imageUrl = await getFile({
-					contentType: 'podcasts',
-					contentId: '1',
-					fileName: '1.png',
-				});
-				if (isMounted) {
-					setImageUrl(imageUrl);
-				}
-			} catch (error) {
-				console.error('Error loading the image:', error);
-			}
-		};
-
-		loadAudio();
-		loadImage();
-
-		return () => {
-			isMounted = false;
-			if (waveSurferRef.current) {
-				waveSurferRef.current.destroy();
-			}
-		};
-	}, [filename]);
 
 	const togglePlayPause = () => {
 		if (waveSurferRef.current) {

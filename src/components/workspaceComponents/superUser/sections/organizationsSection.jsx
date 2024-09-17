@@ -16,9 +16,9 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 
+import { getOrganizationsByPage } from '../../../../api/organizationsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
-
-import useOrganizations from '../../../../hooks/service/useOrganizations.js';
 
 function OrganizationsSection() {
 	const [page, setPage] = useState(1);
@@ -39,17 +39,22 @@ function OrganizationsSection() {
 		data: organizations,
 		isLoading,
 		refetch,
-	} = useOrganizations(['su/organizations'], ['service'], setLastPage, {
-		page: page,
-		searchFields: searchFields,
-		searchValues: searchValues,
-		crtFrom: crtFrom,
-		crtTo: crtTo,
-		updFrom: updFrom,
-		updTo: updTo,
-		operator: 'or',
-		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-	});
+	} = useServiceData(
+		['su/organizations'],
+		getOrganizationsByPage,
+		setLastPage,
+		{
+			page: page,
+			searchFields: searchFields,
+			searchValues: searchValues,
+			crtFrom: crtFrom,
+			crtTo: crtTo,
+			updFrom: updFrom,
+			updTo: updTo,
+			operator: 'or',
+			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+		}
+	);
 	// const addNewModerator = async (email) => {
 	//   const token = getCookie('token');
 	//   const response = await addModerator(token, email)

@@ -45,7 +45,7 @@ function MenuAvatar({ id, img, roles }) {
 						cursor: 'pointer',
 					}}
 				>
-					<Avatar size='lg' src={img || profileBlank} />
+					<Avatar size='lg' variant='outlined' src={img || profileBlank} />
 				</MenuButton>
 				<Menu
 					size='sm'

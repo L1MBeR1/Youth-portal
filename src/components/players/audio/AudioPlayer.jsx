@@ -6,7 +6,8 @@ import {
 	Slider,
 	Typography,
 } from '@mui/joy';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import WaveSurfer from 'wavesurfer.js';
 import '../styles.css';
 
 import PauseIcon from '@mui/icons-material/Pause';
@@ -23,6 +24,63 @@ function AudioPlayer({ title, filename, pictureURL, audioUrl }) {
 	const waveSurferRef = useRef(null);
 	const waveFormRef = useRef(null);
 	const [loadingImage, setLoadingImage] = useState(true);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		const loadAudio = async () => {
+			if (isMounted) {
+				if (waveSurferRef.current) {
+					waveSurferRef.current.destroy();
+				}
+
+				waveSurferRef.current = WaveSurfer.create({
+					container: waveFormRef.current,
+					waveColor: '#16697A',
+					progressColor: '#DB6400',
+					height: 1,
+					responsive: true,
+					normalize: true,
+					backend: 'MediaElement',
+				});
+
+				waveSurferRef.current.load(audioUrl);
+
+				waveSurferRef.current.on('ready', () => {
+					setDuration(waveSurferRef.current.getDuration());
+				});
+
+				waveSurferRef.current.on('audioprocess', () => {
+					setCurrentTime(waveSurferRef.current.getCurrentTime());
+				});
+
+				waveSurferRef.current.on('seek', () => {
+					setCurrentTime(waveSurferRef.current.getCurrentTime());
+				});
+			}
+		};
+
+		const loadImage = async () => {
+			try {
+				const imageUrl = pictureURL;
+				if (isMounted) {
+					setImageUrl(imageUrl);
+				}
+			} catch (error) {
+				console.error('Error loading the image:', error);
+			}
+		};
+
+		loadAudio();
+		loadImage();
+
+		return () => {
+			isMounted = false;
+			if (waveSurferRef.current) {
+				waveSurferRef.current.destroy();
+			}
+		};
+	}, [filename]);
 
 	const togglePlayPause = () => {
 		if (waveSurferRef.current) {

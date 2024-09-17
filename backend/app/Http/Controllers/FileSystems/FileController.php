@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class FileController extends Controller
 {
     // Ограничения
-    private const MAX_MEDIA_CAPACITY_MB = 200;
+    private const MAX_MEDIA_CAPACITY_MB = 500;
     private const MAX_FILE_SIZE_MB = 50;
     private const MAX_FILE_COUNT_PER_DIRECTORY = 100;
 
@@ -25,125 +25,112 @@ class FileController extends Controller
      * @urlParam content_type string required Тип контента. Пример: images.
      * @urlParam content_id int required ID контента. Пример: 123.
      * @bodyParam file file required Файл, который нужно загрузить. Примеры: image/jpeg, image/png, image/gif.
-     * 
-     * @response {
-     *   "path": "media/images/123/9a0364b9e99bb480dd25e1f0284c8555.png"
-     * }
-     * 
-     * @response 400 {
-     *   "error": "No file uploaded"
-     * }
-     * 
-     * @response 415 {
-     *   "error": "Unsupported file type"
-     * }
-     * 
-     * @response 413 {
-     *   "error": "File size exceeds the maximum allowed size of 5MB"
-     * }
-     * 
-     * @response 507 {
-     *   "error": "Media directory capacity exceeded"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File upload error"
-     * }
      */
     public function upload(Request $request, $content_type, $content_id)
     {
         $folder = "{$content_type}" . "/{$content_id}";
 
+        // Определяем, загружен ли один файл или несколько
+        $files = $request->hasFile('files') ? $request->file('files') : [$request->file('file')];
 
-
-        // Проверка наличия файла в запросе
-        // if (!$request->hasFile('file')) {
-        //     return response()->json(['error' => 'No file uploaded'], 400);
-        // }
-
-        // Проверка на корректность загруженного файла
-        $file = $request->file('file');
-        Log::info('Uploaded file MIME type: ' . $file->getMimeType());
-
-        if (!$file->isValid()) {
-            return response()->json(['error' => 'File is not valid'], 400);
+        if (empty($files)) {
+            return response()->json(['error' => 'No files uploaded'], 400);
         }
 
-        // Проверка размера загружаемого файла
-        $fileSizeMB = $file->getSize() / (1024 * 1024);
-        if ($fileSizeMB > self::MAX_FILE_SIZE_MB) {
-            return response()->json(['error' => "File size exceeds the maximum allowed size of " . self::MAX_FILE_SIZE_MB . "MB"], 413);
-        }
+        $uploadedFiles = [];
 
-        // Проверка общего размера папки media до загрузки файла
-        $totalMediaSizeMB = $this->getDirectorySize('media') / (1024 * 1024);
-        $newTotalSizeMB = $totalMediaSizeMB + $fileSizeMB;
+        foreach ($files as $file) {
+            // Логирование MIME-типа загруженного файла
+            Log::info('Uploaded file MIME type: ' . $file->getMimeType());
 
-        if ($newTotalSizeMB > self::MAX_MEDIA_CAPACITY_MB) {
-            return response()->json(['error' => 'Media directory capacity exceeded'], 507);
-        }
-
-        // Проверка числа файлов в текущей директории
-        $filesCount = count(Storage::disk('sftp')->files('media/' . $folder));
-        Log::warning($folder);
-        Log::warning($filesCount);
-        if ($filesCount >= self::MAX_FILE_COUNT_PER_DIRECTORY) {
-            return response()->json(['error' => 'File limit in the current directory exceeded'], 507);
-        }
-
-        // Проверка доступности SFTP
-        try {
-            if (!Storage::disk('sftp')->exists('/')) {
-                return response()->json(['error' => 'SFTP is not available'], 503);
+            // Проверка на корректность файла
+            if (!$file->isValid()) {
+                return response()->json(['error' => 'One of the files is not valid'], 400);
             }
-        } catch (Exception $e) {
-            Log::error('SFTP connection error: ' . $e->getMessage());
-            return response()->json(['error' => 'SFTP connection error'], 503);
+
+            // Проверка размера загружаемого файла
+            $fileSizeMB = $file->getSize() / (1024 * 1024);
+            if ($fileSizeMB > self::MAX_FILE_SIZE_MB) {
+                return response()->json(['error' => "One of the files exceeds the maximum allowed size of " . self::MAX_FILE_SIZE_MB . "MB"], 413);
+            }
+
+            // Проверка общего размера папки media до загрузки файла
+            $totalMediaSizeMB = $this->getDirectorySize('media') / (1024 * 1024);
+            $newTotalSizeMB = $totalMediaSizeMB + $fileSizeMB;
+
+            if ($newTotalSizeMB > self::MAX_MEDIA_CAPACITY_MB) {
+                return response()->json(['error' => 'Media directory capacity exceeded'], 507);
+            }
+
+            // Проверка числа файлов в текущей директории
+            $filesCount = count(Storage::disk('sftp')->files('media/' . $folder));
+            if ($filesCount >= self::MAX_FILE_COUNT_PER_DIRECTORY) {
+                return response()->json(['error' => 'File limit in the current directory exceeded'], 507);
+            }
+
+            // Проверка доступности SFTP
+            try {
+                if (!Storage::disk('sftp')->exists('/')) {
+                    return response()->json(['error' => 'SFTP is not available'], 503);
+                }
+            } catch (Exception $e) {
+                Log::error('SFTP connection error: ' . $e->getMessage());
+                return response()->json(['error' => 'SFTP connection error'], 503);
+            }
+
+            // Проверка типа файла
+            $allowedMimeTypes = [
+                'image/jpeg',
+                'image/webp',
+                'image/jpg',
+                'image/png',
+                'image/gif',
+                'text/plain',
+                'audio/mpeg',
+            ];
+            if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+                return response()->json(['error' => 'Unsupported file type'], 415);
+            }
+
+            // Вычисление MD5-хэша файла
+            $md5Hash = md5_file($file->getRealPath());
+            $extension = $file->getClientOriginalExtension();
+
+            // Полный путь для сохранения файла с именем на основе MD5-хэша
+            $filePath = 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
+            $filename = $folder . '/' . $md5Hash . '.' . $extension;
+
+            // Проверка на существование файла с таким хэшем
+            if (Storage::disk('sftp')->exists($filePath)) {
+                $uploadedFiles[] = ['filename' => $filename, 'message' => 'File already exists'];
+                continue;
+            }
+
+            // Сохранение файла на SFTP
+            try {
+                Storage::disk('sftp')->put($filePath, file_get_contents($file->getRealPath()));
+                $uploadedFiles[] = ['filename' => $filename];
+            } catch (Exception $e) {
+                Log::error('File upload error: ' . $e->getMessage());
+                return response()->json(['error' => 'File upload error'], 500);
+            }
         }
 
-        // Проверка типа файла
-        $allowedMimeTypes = [
-            'image/jpeg',
-            'image/webp',
-            'image/jpg',
-            'image/png',
-            'image/gif',
-            'text/plain',
-            'audio/mpeg',
-        ];
-        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
-            return response()->json(['error' => 'Unsupported file type'], 415);
+        // Возвращаем результат
+        if (count($uploadedFiles) === 1) {
+            // Возвращаем один файл, если был загружен только один файл
+            return response()->json($uploadedFiles[0]);
         }
 
-        // Вычисление MD5-хэша файла
-        $md5Hash = md5_file($file->getRealPath());
-        $extension = $file->getClientOriginalExtension();
-
-        // Полный путь для сохранения файла с именем на основе MD5-хэша
-        $filePath = 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
-        $filename = $folder . '/' . $md5Hash . '.' . $extension;
-
-        // Проверка на существование файла с таким хэшем
-        if (Storage::disk('sftp')->exists($filePath)) {
-            return response()->json(['filename' => $filename, 'message' => 'File already exists'], 201);
-        }
-
-        // Сохранение файла на SFTP
-        try {
-            Storage::disk('sftp')->put($filePath, file_get_contents($file->getRealPath()));
-        } catch (Exception $e) {
-            Log::error('File upload error: ' . $e->getMessage());
-            return response()->json(['error' => 'File upload error'], 500);
-        }
-
-        // return response()->json(['path' => $filePath]);
-        return response()->json(['filename' => $filename]);
+        // Возвращаем массив файлов
+        return response()->json(['filenames' => $uploadedFiles]);
     }
 
-    private function generateUniqueShortId($folderPath, $extension)
+
+    private function generateUniqueShortId($folderPath, $extension): string
     {
         do {
-            // Генерация короткого уникального ID (например, 6 символов)
+            // Генерация короткого уникального ID
             $shortId = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 6);
             $filePath = $folderPath . '/' . $shortId . '.' . $extension;
         } while (Storage::disk('sftp')->exists($filePath));
@@ -161,17 +148,6 @@ class FileController extends Controller
      * 
      * @urlParam filename string required Имя файла для загрузки. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
      * 
-     * @response 200 {
-     *   "file_content": "<binary content>"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File download error"
-     * }
      */
     public function download(Request $request, $content_type, $content_id, $filename)
     {
@@ -218,22 +194,6 @@ class FileController extends Controller
      * @urlParam content_id int required ID контента. Пример: 123.
      * @urlParam filename string required Имя файла, который нужно обновить. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
      * @bodyParam file file required Новый файл, который нужно загрузить. Примеры: image/jpeg, image/png, image/gif.
-     * 
-     * @response {
-     *   "path": "media/images/123/new_md5_hash.png"
-     * }
-     * 
-     * @response 400 {
-     *   "error": "No file uploaded"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File update error"
-     * }
      */
     public function update(Request $request, $content_type, $content_id, $filename)
     {
@@ -334,18 +294,6 @@ class FileController extends Controller
      * @urlParam content_type string required Тип контента. Пример: images.
      * @urlParam content_id int required ID контента. Пример: 123.
      * @urlParam filename string required Имя файла, который нужно удалить. Пример: 9a0364b9e99bb480dd25e1f0284c8555.png.
-     * 
-     * @response 200 {
-     *   "message": "File deleted successfully"
-     * }
-     * 
-     * @response 404 {
-     *   "error": "File not found"
-     * }
-     * 
-     * @response 500 {
-     *   "error": "File deletion error"
-     * }
      */
     public function delete($content_type, $content_id, $filename)
     {
@@ -382,7 +330,7 @@ class FileController extends Controller
     /**
      * Получение размера директории
      */
-    private function getDirectorySize($directory)
+    private function getDirectorySize($directory): int
     {
         $size = 0;
         $files = Storage::disk('sftp')->allFiles($directory);
@@ -417,31 +365,31 @@ class FileController extends Controller
         if (!auth()->user() || !auth()->user()->hasRole('su')) {
             return response()->json(['error' => 'Доступ запрещен. У вас нет прав суперпользователя.'], 403);
         }
-    
+
         try {
             // Получаем список всех файлов и папок в корневой директории
             $files = Storage::disk('sftp')->allFiles('/');
             $directories = Storage::disk('sftp')->allDirectories('/');
-    
+
             // Удаляем все файлы
             foreach ($files as $file) {
                 Storage::disk('sftp')->delete($file);
                 Log::info("Удален файл: {$file}");
             }
-    
+
             // Удаляем все директории
             foreach ($directories as $directory) {
                 Storage::disk('sftp')->deleteDirectory($directory);
                 Log::info("Удалена директория: {$directory}");
             }
-    
+
             return response()->json(['message' => 'Все файлы и директории успешно удалены.']);
         } catch (Exception $e) {
             Log::error('Ошибка при очистке SFTP: ' . $e->getMessage());
             return response()->json(['error' => 'Ошибка при очистке файлов на SFTP'], 500);
         }
     }
-    
+
 
 
 }

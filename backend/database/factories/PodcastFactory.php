@@ -23,15 +23,67 @@ class PodcastFactory extends Factory
         $randomFile = $files[array_rand($files)];
         $filePath = Storage::disk('local')->path($randomFile);
 
+        // $response = Http::attach(
+        //     'file',
+        //     file_get_contents($filePath),
+        //     basename($filePath)
+        // )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
+        $fileSize = filesize($filePath);
+        Log::info("awfawf", ["file_size" => $fileSize]);
+        if ($fileSize > 134217728) { // если файл больше 128MB
+            Log::error('File is too large to upload');
+            return '';
+        }
+
         $response = Http::attach(
             'file',
-            file_get_contents($filePath),
+            fopen($filePath, 'r'),  // потоковое чтение файла
             basename($filePath)
         )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
 
+
         if ($response->successful()) {
             $data = $response->json();
-            return env('FILES_LINK', '') .$data['filename'] ?? '';
+            return env('FILES_LINK', '') . $data['filename'] ?? '';
+        }
+
+        return '';
+    }
+
+
+    private function generateAudioURL($id, $str = "podcast_audio"): string
+    {
+        $files = Storage::disk('local')->files("sample_audios/{$str}");
+
+        if (empty($files)) {
+            Log::info('empty folder');
+            return '';
+        }
+
+        $randomFile = $files[array_rand($files)];
+        $filePath = Storage::disk('local')->path($randomFile);
+
+        // $response = Http::attach(
+        //     'file',
+        //     file_get_contents($filePath),
+        //     basename($filePath)
+        // )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
+        $fileSize = filesize($filePath);
+        if ($fileSize > 134217728) { // если файл больше 128MB
+            Log::error('File is too large to upload');
+            return '';
+        }
+
+        $response = Http::attach(
+            'file',
+            fopen($filePath, 'r'),  // потоковое чтение файла
+            basename($filePath)
+        )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
+
+
+        if ($response->successful()) {
+            $data = $response->json();
+            return env('FILES_LINK', '') . $data['filename'] ?? '';
         }
 
         return '';
@@ -123,8 +175,8 @@ class PodcastFactory extends Factory
                     ]
                 ]
             ],
-            'content' => $this->faker->realText(100),
-            'cover_uri' => $this->generateImageURL(),
+            'audio_uri' => '',
+            'cover_uri' => '',
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'views' => $this->faker->numberBetween(0, 1000),
             'likes' => $this->faker->numberBetween(0, 1000),
@@ -136,9 +188,10 @@ class PodcastFactory extends Factory
     public function configure(): self
     {
         return $this->afterCreating(function (Podcast $podcast) {
-        
+
             $coverUri = $this->generateImageURL2($podcast->id);
-            $podcast->update(['cover_uri' => $coverUri]);
+            $audioUri = $this->generateAudioURL($podcast->id);
+            $podcast->update(['cover_uri' => $coverUri, 'audio_uri' => $audioUri]);
         });
     }
 }

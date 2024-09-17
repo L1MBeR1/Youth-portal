@@ -166,7 +166,7 @@ class ProjectController extends Controller
         //if (!Auth::user()->can('getProjects', Project::class)) {
         //    return $this->errorResponse('Нет прав на просмотр', [], 403);
         //}
-        Log::info('getProjects');
+        // Log::info('getProjects');
         $requiredFields = [
             "projects" => [
                 "id",

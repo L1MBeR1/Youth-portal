@@ -18,7 +18,7 @@ class DeepCommentsSeeder extends Seeder
 
     public function run()
     {
-        $resources = ['blog' => 40, 'news' => 40, 'podcast' => 10];
+        $resources = ['blog' => 40, 'news' => 30, 'podcast' => 10];
 
         foreach ($resources as $key => $value) {
             for ($i = 1; $i <= $value; $i++) {

@@ -204,20 +204,7 @@ function AudioPlayerMini({ title, filename, pictureURL }) {
 				}}
 			>
 				<div className='wavesurfer' ref={waveFormRef} />
-				{/* <Box
-                    sx={{
-                        position: 'absolute',
-                        bottom: -8,
-                        left: 0,
-                        right: 0,
-                        height: 8,
-                        backgroundColor: '#DB6400',
-                        borderRadius: '0 0 8px 8px',
-                        transform: `scaleX(${currentTime / duration || 0})`,
-                        transformOrigin: 'left',
-                        transition: 'transform 0.1s linear',
-                    }}
-                /> */}
+				
 			</Box>
 
 			<Box

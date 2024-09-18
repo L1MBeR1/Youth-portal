@@ -38,10 +38,16 @@ function AudioPlayer({ title, filename, pictureURL, audioUrl }) {
 					container: waveFormRef.current,
 					waveColor: '#16697A',
 					progressColor: '#DB6400',
-					height: 1,
-					responsive: true,
-					normalize: true,
-					backend: 'MediaElement',
+					// height: 1,
+					// responsive: true,
+					// normalize: true,
+					// backend: 'MediaElement',
+					// Set a bar width
+					barWidth: 2,
+					// Optionally, specify the spacing between bars
+					barGap: 1,
+					// And the bar radius
+					barRadius: 2,
 				});
 
 				waveSurferRef.current.load(audioUrl);

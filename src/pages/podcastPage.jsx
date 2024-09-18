@@ -7,6 +7,7 @@ import Player from '../components/players/audio/player.jsx';
 import Player2 from '../components/players/audio/player2.jsx';
 import usePodcastById from '../hooks/usePodcastById';
 import { mainMargin } from '../themes/mainMargin.js';
+import AudioPlayerNoWS from '../components/players/audio/AudioPlayerNoWS.jsx';
 
 function PodcastPage() {
 	const { id } = useParams();
@@ -33,9 +34,10 @@ function PodcastPage() {
 						overflow: 'hidden',
 					}}
 				>
-					<Player file={data.audio_uri} />
-					<AudioPlayer pictureURL={data.cover_uri} audioUrl={data.audio_uri} />
-					<Player2 file={data.audio_uri} />
+					{/* <Player file={data.audio_uri} /> */}
+					{/* <AudioPlayer pictureURL={data.cover_uri} audioUrl={data.audio_uri} /> */}
+					<AudioPlayerNoWS pictureURL={data.cover_uri} audioUrl={data.audio_uri}  />
+					{/* <Player2 file={data.audio_uri} /> */}
 				</Card>
 			)}
 		</Box>

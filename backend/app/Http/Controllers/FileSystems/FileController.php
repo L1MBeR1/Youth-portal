@@ -162,23 +162,44 @@ class FileController extends Controller
             return response()->json(['error' => 'File not found'], 404);
         }
 
-        // Получение файла с SFTP и проверка на ошибки
-        $file = Storage::disk('sftp')->get($filePath);
-        if ($file === false) {
-            Log::error('Error retrieving file: ' . $filePath);
-            return response()->json(['error' => 'File download error'], 500);
-        }
-
-        // Получаем MIME-тип через Storage
+        // Получение файла с SFTP
+        $fileSize = Storage::disk('sftp')->size($filePath);
+        $fileStream = Storage::disk('sftp')->readStream($filePath);
         $mimeType = Storage::disk('sftp')->mimeType($filePath);
-        if ($mimeType === false) {
-            Log::error('MIME type retrieval error: ' . $filePath);
-            return response()->json(['error' => 'MIME type retrieval error'], 500);
+
+        // Проверяем, запрашивает ли клиент частичный контент
+        $headers = [
+            'Content-Type' => $mimeType,
+            'Content-Length' => $fileSize,
+            'Accept-Ranges' => 'bytes',
+        ];
+
+        // Обработка заголовка Range для частичной загрузки
+        if ($request->hasHeader('Range')) {
+            $range = $request->header('Range');
+            list(, $range) = explode('=', $range, 2);
+            $range = explode('-', $range);
+            $start = intval($range[0]);
+            $end = isset($range[1]) && is_numeric($range[1]) ? intval($range[1]) : $fileSize - 1;
+
+            $length = $end - $start + 1;
+
+            $headers['Content-Range'] = "bytes $start-$end/$fileSize";
+            $headers['Content-Length'] = $length;
+
+            // Чтение и возврат части файла
+            fseek($fileStream, $start);
+            $partialContent = fread($fileStream, $length);
+
+            return response($partialContent, 206, $headers);
         }
 
-        // Возврат файла в ответе
-        return response($file, 200)->header('Content-Type', $mimeType);
+        // Возвращаем полный файл, если не запрашивались байты
+        return response()->stream(function () use ($fileStream) {
+            fpassthru($fileStream);
+        }, 200, $headers);
     }
+
 
 
 

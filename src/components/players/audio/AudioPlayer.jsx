@@ -1,251 +1,208 @@
-import {
-	AspectRatio,
-	Box,
-	Button,
-	Skeleton,
-	Slider,
-	Typography,
-} from '@mui/joy';
+import { Box, IconButton, Slider, Stack, Typography } from '@mui/joy';
 import React, { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
 import '../styles.css';
 
+import LoopIcon from '@mui/icons-material/Loop';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import { PlayerTime } from '../../../utils/timeAndDate/playerTime';
 
-// npm install wavesurfer.js
-
-function AudioPlayer({ title, filename, pictureURL, audioUrl }) {
+function AudioPlayer({ audioUrl }) {
 	const [playing, setPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
-	const [volume, setVolume] = useState(0.5);
-	const [imageUrl, setImageUrl] = useState(null);
-	const waveSurferRef = useRef(null);
-	const waveFormRef = useRef(null);
-	const [loadingImage, setLoadingImage] = useState(true);
+	const [volume, setVolume] = useState(0.3);
+	const [previousVolume, setPreviousVolume] = useState(0.3);
+	const [isMuted, setIsMuted] = useState(false);
+	const [isSeeking, setIsSeeking] = useState(false);
+	const [isLooping, setIsLooping] = useState(false);
+
+	const audioRef = useRef(null);
 
 	useEffect(() => {
-		let isMounted = true;
+		const audio = audioRef.current;
 
-		const loadAudio = async () => {
-			if (isMounted) {
-				if (waveSurferRef.current) {
-					waveSurferRef.current.destroy();
-				}
+		const handleLoadedMetadata = () => {
+			setDuration(audio.duration);
+		};
 
-				waveSurferRef.current = WaveSurfer.create({
-					container: waveFormRef.current,
-					waveColor: '#16697A',
-					progressColor: '#DB6400',
-					// height: 1,
-					// responsive: true,
-					// normalize: true,
-					// backend: 'MediaElement',
-					// Set a bar width
-					barWidth: 2,
-					// Optionally, specify the spacing between bars
-					barGap: 1,
-					// And the bar radius
-					barRadius: 2,
-				});
-
-				waveSurferRef.current.load(audioUrl);
-
-				waveSurferRef.current.on('ready', () => {
-					setDuration(waveSurferRef.current.getDuration());
-				});
-
-				waveSurferRef.current.on('audioprocess', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
-
-				waveSurferRef.current.on('seek', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
+		const handleTimeUpdate = () => {
+			if (!isSeeking) {
+				setCurrentTime(audio.currentTime);
 			}
 		};
 
-		const loadImage = async () => {
-			try {
-				const imageUrl = pictureURL;
-				if (isMounted) {
-					setImageUrl(imageUrl);
-				}
-			} catch (error) {
-				console.error('Error loading the image:', error);
-			}
+		const handleEnded = () => {
+			setPlaying(false);
 		};
 
-		loadAudio();
-		loadImage();
+		if (audio) {
+			audio.volume = volume;
+			audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+			audio.addEventListener('timeupdate', handleTimeUpdate);
+			audio.addEventListener('ended', handleEnded);
+		}
 
 		return () => {
-			isMounted = false;
-			if (waveSurferRef.current) {
-				waveSurferRef.current.destroy();
+			if (audio) {
+				audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+				audio.removeEventListener('timeupdate', handleTimeUpdate);
+				audio.removeEventListener('ended', handleEnded);
 			}
 		};
-	}, [filename]);
+	}, [isSeeking, volume]);
 
 	const togglePlayPause = () => {
-		if (waveSurferRef.current) {
-			waveSurferRef.current.playPause();
+		const audio = audioRef.current;
+
+		if (audio) {
+			if (playing) {
+				audio.pause();
+			} else {
+				audio.play();
+			}
 			setPlaying(!playing);
 		}
 	};
 
-	const handleVolumeChange = (event, newValue) => {
-		setVolume(newValue);
-		if (waveSurferRef.current) {
-			waveSurferRef.current.setVolume(newValue);
+	const toggleLoop = () => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.loop = !isLooping;
+			setIsLooping(!isLooping);
 		}
 	};
 
-	const handleImageLoad = () => setLoadingImage(false);
+	const handleVolumeChange = (event, newValue) => {
+		const audio = audioRef.current;
+		setVolume(newValue);
+		setIsMuted(newValue === 0);
+		if (audio) {
+			audio.volume = newValue;
+		}
+	};
 
-	// const progress = (currentTime / duration) * 100 || 0; // Рассчитываем процент прогресса
+	const toggleMute = () => {
+		const audio = audioRef.current;
+
+		if (audio) {
+			if (isMuted) {
+				setVolume(previousVolume);
+				audio.volume = previousVolume;
+			} else {
+				setPreviousVolume(volume);
+				setVolume(0);
+				audio.volume = 0;
+			}
+			setIsMuted(!isMuted);
+		}
+	};
+
+	const handleTimeSliderChange = (event, newValue) => {
+		setCurrentTime(newValue);
+		setIsSeeking(true);
+	};
+
+	const handleTimeSliderCommit = (event, newValue) => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.currentTime = newValue;
+		}
+		setIsSeeking(false);
+	};
 
 	return (
-		<Box
-			sx={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-			}}
-		>
-			{/* Верхняя строка с текущим временем и прогрессом */}
-			{/* <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-                <Typography sx={{ minWidth: '40px' }}>{Math.floor(currentTime)}s</Typography>
-                <Box sx={{ flexGrow: 1, mx: 2 }}>
-                    <LinearProgress
-                        variant="determinate"
-                        value={progress} // Передаем динамически рассчитанный прогресс
-                    />
-                </Box>
-                <Typography sx={{ minWidth: '40px' }}>{Math.floor(duration)}s</Typography>
-            </Box> */}
-
-			{/* Основная часть */}
-			<Box
-				sx={{
-					bgcolor: 'var(--color-background)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-around',
-					padding: 2,
-					borderRadius: 2,
-					boxShadow: '0 0.5rem 0.5rem rgba(0, 0, 0, 0.2)',
-					// width: '100%',
-				}}
-			>
-				<Button
-					onClick={togglePlayPause}
+		<Stack direction={'column'}>
+			<audio ref={audioRef} src={audioUrl} />
+			<Stack direction={'row'} alignItems={'center'}>
+				<Typography sx={{ marginRight: 2 }}>
+					{PlayerTime(Math.floor(currentTime))}
+				</Typography>
+				<Slider
+					value={currentTime}
+					onChange={handleTimeSliderChange}
+					onChangeCommitted={handleTimeSliderCommit}
+					min={0}
+					max={duration || 100}
+					variant='solid'
+					color='primary'
+					step={1}
 					sx={{
-						color: 'var(--color-button-secondary)',
-						backgroundColor: playing ? '#DB6400' : '#16697A',
-						fontSize: '1.5rem',
-						marginRight: 2,
-						flexShrink: 0,
-						height: 60,
-						width: 60,
-						borderRadius: '12px',
-						'&:hover': {
-							backgroundColor: playing ? '#c55300' : '#145f6b',
+						flexGrow: 1,
+						width: '100%',
+						'--Slider-trackSize': '6px',
+						'--Slider-thumbSize': '6px',
+						'& .MuiSlider-thumb': {
+							width: 'var(--Slider-thumbSize)',
+							height: 'var(--Slider-thumbSize)',
+							borderRadius: '50%',
+							transition:
+								'width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
+						},
+						'&:hover .MuiSlider-thumb': {
+							'--Slider-thumbSize': '23px',
+							width: 'var(--Slider-thumbSize)',
+							height: 'var(--Slider-thumbSize)',
 						},
 					}}
-					variant='solid'
-				>
-					{/* {playing ? '⏸' : '▶'} */}
-					{playing ? (
-						<PauseIcon fontSize='large' />
-					) : (
-						<PlayArrowIcon fontSize='large' />
-					)}
-				</Button>
-
-				<AspectRatio ratio='1' sx={{ minWidth: 60 }}>
-					<Skeleton
-						loading={loadingImage}
-						variant='rectangular'
-						sx={{ width: '100%', height: '100%' }}
+				/>
+				<Typography sx={{ marginLeft: 2 }}>
+					{PlayerTime(Math.floor(duration))}
+				</Typography>
+			</Stack>
+			<Box
+				sx={{
+					display: 'grid',
+					gridTemplateColumns: '1fr auto 1fr',
+					alignItems: 'center',
+				}}
+			>
+				<Stack justifySelf={'start'}>
+					<IconButton
+						onClick={toggleLoop}
+						variant='plain'
+						color={isLooping ? 'primary' : 'neutral'}
 					>
-						<img
-							src={imageUrl || ''}
-							alt={title}
-							style={{
-								width: '100%',
-								height: '100%',
-								marginRight: '20px',
-								objectFit: 'cover',
-							}}
-							onLoad={handleImageLoad}
-						/>
-					</Skeleton>
-				</AspectRatio>
-
-				<Box sx={{ maxWidth: '100px' }}>
-					<Typography
-						level='h3'
+						<LoopIcon />
+					</IconButton>
+				</Stack>
+				<Stack justifySelf={'center'}>
+					<IconButton
+						onClick={togglePlayPause}
+						variant='solid'
+						color='primary'
 						sx={{
-							fontWeight: 700,
-							color: 'var(--color-text)',
-							marginLeft: 1,
-							marginRight: 5,
-							flexShrink: 0,
-							maxWidth: 300,
+							'--IconButton-size': '40px',
 						}}
 					>
-						{title ? title : 'Default Title'}
-					</Typography>
-				</Box>
-
-				<Box
-					sx={{
-						display: 'flex',
-						flexDirection: 'row',
-						flexGrow: 1,
-						marginLeft: 0,
-					}}
-				>
-					{/* <Typography sx={{ marginLeft: 4, display: 'flex', alignItems: 'center' }}>{Math.floor(currentTime)}s</Typography> */}
-					<div className='wavesurfer' ref={waveFormRef} />
-					{/* <Typography sx={{ display: 'flex', alignItems: 'center' }}>{Math.floor(duration)}s</Typography> */}
-				</Box>
-
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						flexShrink: 0,
-					}}
-				>
-					<Typography sx={{ color: '#000', marginRight: 1 }}>
-						Громкость
-					</Typography>
+						{playing ? (
+							<PauseIcon fontSize='large' />
+						) : (
+							<PlayArrowIcon fontSize='large' />
+						)}
+					</IconButton>
+				</Stack>
+				<Stack justifySelf={'end'} direction={'row'}>
+					<IconButton onClick={toggleMute} variant='plain'>
+						{isMuted || volume === 0 ? <VolumeOffIcon /> : <VolumeUpIcon />}
+					</IconButton>
 					<Slider
 						value={volume}
 						onChange={handleVolumeChange}
 						min={0}
 						max={1}
-						step={0.01}
+						step={0.025}
 						sx={{
-							width: 150,
-							'& .MuiSlider-thumb': {
-								backgroundColor: '#DB6400',
-							},
-							'& .MuiSlider-track': {
-								backgroundColor: '#16697A',
-							},
-							'& .MuiSlider-rail': {
-								backgroundColor: '#ccc',
-							},
+							minWidth: '75px',
+							'--Slider-trackSize': '4px',
+							'--Slider-thumbSize': '15px',
 						}}
 					/>
-				</Box>
+				</Stack>
 			</Box>
-		</Box>
+		</Stack>
 	);
 }
 

@@ -25,6 +25,13 @@ const theme = extendTheme({
 		mainLight: '#fffcf5',
 	},
 	components: {
+		JoyIconButton: {
+			styleOverrides: {
+				root: {
+					borderRadius: '25%',
+				},
+			},
+		},
 		JoyButton: {
 			styleOverrides: {
 				root: {

@@ -2,12 +2,9 @@ import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import AudioPlayer from '../components/players/audio/AudioPlayer.jsx';
-import Player from '../components/players/audio/player.jsx';
-import Player2 from '../components/players/audio/player2.jsx';
+import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
 import usePodcastById from '../hooks/usePodcastById';
 import { mainMargin } from '../themes/mainMargin.js';
-import AudioPlayerNoWS from '../components/players/audio/AudioPlayerNoWS.jsx';
 
 function PodcastPage() {
 	const { id } = useParams();
@@ -34,10 +31,7 @@ function PodcastPage() {
 						overflow: 'hidden',
 					}}
 				>
-					{/* <Player file={data.audio_uri} /> */}
-					{/* <AudioPlayer pictureURL={data.cover_uri} audioUrl={data.audio_uri} /> */}
-					<AudioPlayerNoWS pictureURL={data.cover_uri} audioUrl={data.audio_uri}  />
-					{/* <Player2 file={data.audio_uri} /> */}
+					<AudioPlayer audioUrl={data.audio_uri} />
 				</Card>
 			)}
 		</Box>

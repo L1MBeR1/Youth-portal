@@ -29,18 +29,6 @@
                         </td>
                     </tr>
 
-                    <!-- Logo -->
-                    <tr>
-                        <td class="header" style="background-color: #fff; padding: 40px 40px 0 40px; text-align: center;">
-                            <table role="presentation" style="margin: 0 auto;">
-                                <tr>
-                                    <td style="padding: 0; text-align: center;">
-                                        <a href="http://185.242.118.145" target="_blank" style="display: block; width: 100px; height: 100px; background-color: #FF8911; border-radius: 50%; text-decoration: none; margin: 0 auto;"></a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
 
                     <!-- Body -->
                     <tr>
@@ -48,14 +36,9 @@
                             <table role="presentation" style="margin: 0 auto;">
                                 <tr>
                                     <td style="text-align: center; font-size: 20px; color: #333333; padding: 0 5px;">
-                                        Запрос на обновление пароля
+                                        Запрос на удаление аккаунта
                                     </td>
                                 </tr>
-                                <!-- <tr>
-                                    <td style="text-align: left; font-size: 16px; color: #555555; padding: 20px 0 0 0;">
-                                        Вы всего в одном клике от начала работы с порталом. Все, что вам нужно сделать, это подтвердить свой адрес электронной почты, чтобы активировать учетную запись и начать пользоваться всеми возможностями.
-                                    </td>
-                                </tr> -->
                             </table>
                         </td>
                     </tr>
@@ -66,7 +49,7 @@
                             <table cellspacing="0" cellpadding="0" style="margin: auto;">
                                 <tr>
                                     <td align="center" style="background-color: #FF8911; padding: 10px 20px; border-radius: 5px;">
-                                        <a href="{{ $verificationUrl }}" target="_blank" style="color: #fff; text-decoration: none; font-weight: bold;">Подтвердить email</a>
+                                        <a href="{{ $verificationUrl }}" target="_blank" style="color: #fff; text-decoration: none; font-weight: bold;">Подтвердить</a>
                                     </td>
                                 </tr>
                             </table>
@@ -76,7 +59,7 @@
                     <!-- Additional Info -->
                     <tr>
                         <td class="body" style="background-color: #fff; padding: 20px 40px; text-align: left; font-size: 14px; color: #555555; line-height: 1.6;">
-                            Вы получили это электронное письмо, потому что недавно создали новую учетную запись или добавили новый адрес электронной почты. Если это не вы, пожалуйста, проигнорируйте это сообщение.
+                            Вы получили это электронное письмо, потому что кто-то запросил удаление аккаунта.
                         </td>
                     </tr>
 

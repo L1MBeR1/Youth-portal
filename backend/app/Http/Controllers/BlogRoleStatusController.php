@@ -53,58 +53,58 @@ class BlogRoleStatusController extends Controller
     }
 
     public function setStatus(SetContentStatusRequest $request, $id)
-{
-    $blog_role_status = BlogRoleStatus::find($id);
+    {
+        $blog_role_status = BlogRoleStatus::find($id);
 
-    if (!$blog_role_status) {
-        return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
-    }
-
-    if (!Auth::user()->can('changeStatus', $blog_role_status)) {
-        return $this->errorResponse('Отсутствуют разрешения', [], Response::HTTP_FORBIDDEN);
-    }
-
-    $request->validated();
-
-    // Изменяем статус
-    $newStatus = $request->input('status');
-    $blog_role_status->status = $newStatus;
-
-    // Проверяем, если статус "approved"
-    if ($blog_role_status->status === 'approved') {
-        // Устанавливаем moder_id
-        $blog_role_status->moder_id = Auth::id(); // Получаем ID текущего пользователя
-    } elseif ($blog_role_status->status === 'withdrawn' || $blog_role_status->status === 'review') {
-        // Находим пользователя по author_id
-        $user = \App\Models\User::find($blog_role_status->author_id);
-    
-        if ($user) {
-            // Удаляем роль с role_id = 8 (или нужный вам ID) у пользователя
-            $user->roles()->detach(8); // Здесь 8 - это ID роли, которую нужно удалить
+        if (!$blog_role_status) {
+            return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
-    }
-    
 
-    $blog_role_status->save(); // Сохраняем изменения
+        if (!Auth::user()->can('changeStatus', $blog_role_status)) {
+            return $this->errorResponse('Отсутствуют разрешения', [], Response::HTTP_FORBIDDEN);
+        }
 
-    // Проверяем, если статус "approved" и добавляем запись в model_has_roles
-    if ($blog_role_status->status === 'approved') {
-        // Находим пользователя по author_id
-        $user = \App\Models\User::find($blog_role_status->author_id);
-    
-        if ($user) {
-            // Проверяем, есть ли уже роль с role_id = 8
-            if (!$user->roles()->where('role_id', 8)->exists()) {
-                // Присваиваем роль пользователю
-                $user->roles()->attach(8); // Здесь 8 - это ID роли, которую нужно добавить
+        $request->validated();
+
+        // Изменяем статус
+        $newStatus = $request->input('status');
+        $blog_role_status->status = $newStatus;
+
+        // Проверяем, если статус "approved"
+        if ($blog_role_status->status === 'approved') {
+            // Устанавливаем moder_id
+            $blog_role_status->moder_id = Auth::id(); // Получаем ID текущего пользователя
+        } elseif ($blog_role_status->status === 'withdrawn' || $blog_role_status->status === 'review') {
+            // Находим пользователя по author_id
+            $user = User::find($blog_role_status->author_id);
+
+            if ($user) {
+                // Удаляем роль с role_id = 8 (или нужный вам ID) у пользователя
+                $user->roles()->detach(8); // Здесь 8 - это ID роли, которую нужно удалить
             }
         }
-    }
-      
-    
 
-    return $this->successResponse($blog_role_status, 'Запись успешно обновлена', Response::HTTP_OK);
-}
+
+        $blog_role_status->save(); // Сохраняем изменения
+
+        // Проверяем, если статус "approved" и добавляем запись в model_has_roles
+        if ($blog_role_status->status === 'approved') {
+            // Находим пользователя по author_id
+            $user = User::find($blog_role_status->author_id);
+
+            if ($user) {
+                // Проверяем, есть ли уже роль с role_id = 8
+                if (!$user->roles()->where('role_id', 8)->exists()) {
+                    // Присваиваем роль пользователю
+                    $user->roles()->attach(8); // Здесь 8 - это ID роли, которую нужно добавить
+                }
+            }
+        }
+
+
+
+        return $this->successResponse($blog_role_status, 'Запись успешно обновлена', Response::HTTP_OK);
+    }
 
     /**
      * Поиск

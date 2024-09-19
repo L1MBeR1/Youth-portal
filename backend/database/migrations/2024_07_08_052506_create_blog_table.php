@@ -20,7 +20,6 @@ return new class extends Migration {
             $table->integer('views')->unsigned()->default(0);
             $table->integer('likes')->unsigned()->default(0);
             $table->integer('reposts')->unsigned()->default(0);
-            // $table->timestamps();
             $table->timestampsTz();
             $table->integer('author_id')->unsigned();
             $table->integer('draft_for')->unsigned()->nullable();

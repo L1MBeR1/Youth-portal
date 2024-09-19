@@ -4,72 +4,54 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Services\ImageSeeder; 
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 
 class EventFactory extends Factory
 {
+    protected $model = Event::class;
 
-    private function generateImageURL2($id, $str = "event_cover"): string
+    private function generateEventCover(int $eventId)
     {
-        $files = Storage::disk('local')->files("sample_images/{$str}");
-
-        if (empty($files)) {
-            Log::info('empty folder');
-            return '';
-        }
-
-        $randomFile = $files[array_rand($files)];
-        $filePath = Storage::disk('local')->path($randomFile);
-
-        $response = Http::attach(
-            'file',
-            file_get_contents($filePath),
-            basename($filePath)
-        )->post("http://127.0.0.1:8000/api/files/events/{$id}/");
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return env('FILES_LINK', '') .$data['filename'] ?? '';
-        }
-
-        return '';
+        $imageSeeder = new ImageSeeder();
+        $image = $imageSeeder->generateImageURL($eventId, ['sample_images/event_cover' => 1], 'events');
+        return $image[0];
     }
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+
     public function definition(): array
     {
         $userIds = User::pluck('id');
         $orgIds = Organization::pluck('id');
-        // $userId = $this->faker->randomElement($userIds->toArray());
         $orgId = $this->faker->randomElement($orgIds->toArray());
-        $projects = Project::where('organization_id', '=', $orgId)->pluck('id')->toArray();
+        $projects = Project::where('organization_id', $orgId)->pluck('id')->toArray();
 
         return [
             'name' => $this->faker->company(),
             'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
-                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
-                ]
+                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия']),
+                ],
             ],
-            //'location' => 'задать(EVENT_FACTORY.PHP)',
             'views' => $this->faker->numberBetween(0, 1000),
             'author_id' => $this->faker->randomElement($userIds->toArray()),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'start_time' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'end_time' => $this->faker->dateTimeBetween('-1 year', 'now'),
-
             'project_id' => $this->faker->randomElement($projects),
         ];
     }
 
+
+    public function configure(): self
+    {
+        return $this->afterCreating(function ($event) {
+            // Генерация cover_uri через ImageSeeder после создания записи
+            $coverUri = $this->generateEventCover($event->id);
+            $event->update(['cover_uri' => $coverUri]);
+        });
+    }
 }

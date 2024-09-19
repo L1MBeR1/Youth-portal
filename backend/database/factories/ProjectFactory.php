@@ -3,17 +3,15 @@
 namespace Database\Factories;
 
 use App\Models\Organization;
-// use App\Models\User;
-use Carbon\Carbon;
 use App\Models\Project;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Services\ImageSeeder;
 
 class ProjectFactory extends Factory
 {
+    protected $model = Project::class;
+
+
     private function generateProjectTitle()
     {
         $adjectives = [
@@ -36,87 +34,50 @@ class ProjectFactory extends Factory
 
         $adjective = $this->faker->randomElement($adjectives);
         $noun = $this->faker->randomElement($nouns);
-
-        // Согласуем прилагательное с существительным
-        if ($noun == 'лига' || $noun == 'команда' || $noun == 'ассоциация' || $noun == 'группа' || $noun == 'сеть') {
-            $adjective = rtrim($adjective, 'ый') . 'ая';
-        } elseif ($noun == 'движение' || $noun == 'фонд' || $noun == 'центр') {
-            $adjective = rtrim($adjective, 'ый') . 'ое';
-        } else {
-            $adjective = rtrim($adjective, 'ый') . 'ый';
-        }
-
         $location = $this->faker->randomElement($locations);
+
+ 
+        $adjective = match ($noun) {
+            'лига', 'команда', 'ассоциация', 'группа', 'сеть' => rtrim($adjective, 'ый') . 'ая',
+            'движение', 'фонд', 'центр' => rtrim($adjective, 'ый') . 'ое',
+            default => rtrim($adjective, 'ый') . 'ый'
+        };
 
         return "$adjective $noun $location";
     }
 
-
-    private function generateImageURL(int $width = 320, int $height = 240): string
+ 
+    private function generateProjectCover(int $projectId): string
     {
-        // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
-        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
-        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
+        $imageSeeder = new ImageSeeder();
+        $image = $imageSeeder->generateImageURL($projectId, ['sample_images/project_cover' => 1], 'projects');
+        return $image[0];
     }
 
-    private function generateImageURL2($id, $str = "project_cover"): string
-    {
-        $files = Storage::disk('local')->files("sample_images/{$str}");
 
-        if (empty($files)) {
-            Log::info('empty folder');
-            return '';
-        }
-
-        $randomFile = $files[array_rand($files)];
-        $filePath = Storage::disk('local')->path($randomFile);
-
-        $response = Http::attach(
-            'file',
-            file_get_contents($filePath),
-            basename($filePath)
-        )->post("http://127.0.0.1:8000/api/files/projects/{$id}/");
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return env('FILES_LINK', '') .$data['filename'] ?? '';
-        }
-
-        return '';
-    }
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $orgIds = Organization::pluck('id')->toArray();
-        
+
         return [
             'name' => $this->generateProjectTitle(),
             'description' => [
                 'desc' => $this->faker->realText(100),
                 'meta' => [
-                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия'])
-                ]
+                    'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия']),
+                ],
             ],
-            //'location' => 'задать(PROJECT_FACTORY.PHP)',
-            //'organization_id' => $this->faker->randomElement($orgIds),
-            'cover_uri' => $this->generateImageURL(),
+            'cover_uri' => '',
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            
         ];
     }
+
 
     public function configure(): self
     {
         return $this->afterCreating(function (Project $project) {
-            // Генерация cover_uri после создания записи с корректным id
-            $coverUri = $this->generateImageURL2($project->id);
+            $coverUri = $this->generateProjectCover($project->id);
             $project->update(['cover_uri' => $coverUri]);
         });
     }

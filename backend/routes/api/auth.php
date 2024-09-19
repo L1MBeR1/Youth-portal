@@ -15,6 +15,9 @@ Route::group([
     Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');
     Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
     Route::post('refresh', [AuthController::class, 'refresh'])->withoutMiddleware('auth');
+
+    Route::post('recover', [AuthController::class, 'recoverPassword'])->withoutMiddleware('auth');
+    Route::post('set_new_password', [AuthController::class, 'setNewPassword'])->withoutMiddleware('auth');
 });
 
 Route::group([

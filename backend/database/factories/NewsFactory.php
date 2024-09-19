@@ -5,43 +5,37 @@ namespace Database\Factories;
 use App\Models\News;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Services\ImageSeeder;
 
 class NewsFactory extends Factory
 {
-    private function generateImageURL2($id, $str = "news_cover"): string
+    protected $model = News::class;
+    private $images = [];
+    private $imageCount = null;
+
+    private function generateImageURLs(int $newsId): array
     {
-        $files = Storage::disk('local')->files("sample_images/{$str}");
+        $imageSeeder = new ImageSeeder();
+        $this->imageCount = random_int(1, 2); // Количество изображений для контента
 
-        if (empty($files)) {
-            Log::info('empty folder');
-            return '';
-        }
+        // Генерация URL для изображений контента и обложки
+        $this->images = $imageSeeder->generateImageURL(
+            $newsId,
+            [
+                'sample_images/news_content' => $this->imageCount,
+                'sample_images/news_cover' => 1,
+            ],
+            'news'
+        );
 
-        $randomFile = $files[array_rand($files)];
-        $filePath = Storage::disk('local')->path($randomFile);
-
-        $response = Http::attach(
-            'file',
-            file_get_contents($filePath),
-            basename($filePath)
-        )->post("http://127.0.0.1:8000/api/files/news/{$id}/");
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return env('FILES_LINK', '') .$data['filename'] ?? '';
-        }
-
-        return '';
+        return $this->images;
     }
 
-
-    private function generateContent($blogid): string
+    // Генерация контента новости
+    private function generateContent($newsId): string
     {
         $basePlainText = $this->faker->realText(400);
-        $contentInnerPictures = [];
         $finalText = '';
 
         $sentences = preg_split('/(?<=[.!?])\s+/', $basePlainText);
@@ -60,10 +54,7 @@ class NewsFactory extends Factory
             $paragraphs[] = trim($paragraph);
         }
 
-        for ($i = 0; $i < random_int(1, 2); $i++) {
-            $contentInnerPictures[] = $this->generateImageURL2($blogid, 'blog_content');
-        }
-
+        // HTML-теги для стилизации текста
         $htmlTags = ['<b>', '</b>', '<i>', '</i>', '<u>', '</u>', '<strong>', '</strong>', '<em>', '</em>'];
 
         foreach ($paragraphs as $paragraph) {
@@ -78,25 +69,17 @@ class NewsFactory extends Factory
             }
             $finalText = rtrim($finalText) . '</p>';
 
-            if (random_int(0, 10) > 7 && !empty($contentInnerPictures)) {
-                $image = array_shift($contentInnerPictures);
-                $finalText .= '<div style="text-align:center;"><img src="' . $image . '" alt="Blog Image" style="max-width:100%;height:auto;"></div>';
+            // Вставка изображений в текст
+            if (random_int(0, 10) > 7 && count($this->images) > 1) {
+                $image = array_shift($this->images);
+                $finalText .= '<div style="text-align:center;"><img src="' . $image . '" alt="News Image" style="max-width:100%;height:auto;"></div>';
             }
         }
 
         return $finalText;
     }
 
-    private function generateImageURL(int $width = 320, int $height = 240): string
-    {
-        // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
-        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
-        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
-    }
-    protected $model = News::class;
-
+    // Генерация заголовка новости
     private function generateTitle()
     {
         $adjectives = [
@@ -122,17 +105,15 @@ class NewsFactory extends Factory
             'в последние дни', 'в контексте событий', 'в новых исследованиях'
         ];
 
-        // Генерируем заголовок с учетом случайного выбора слов
         $adjective = $this->faker->randomElement($adjectives);
         $noun = $this->faker->randomElement($nouns);
         $verb = $this->faker->randomElement($verbs);
         $phrase = $this->faker->randomElement($phrases);
 
-        // Формируем заголовок
         return "$adjective $noun $verb $phrase.";
     }
 
-
+    // Определение состояния модели по умолчанию
     public function definition()
     {
         $userIds = User::pluck('id')->toArray();
@@ -148,7 +129,7 @@ class NewsFactory extends Factory
                 ]
             ],
             'content' => $this->faker->realText(100),
-            'cover_uri' => $this->generateImageURL(),
+            'cover_uri' => '', // поле будет заполнено позже
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'views' => $this->faker->numberBetween(0, 1000),
             'likes' => $this->faker->numberBetween(0, 1000),
@@ -157,12 +138,13 @@ class NewsFactory extends Factory
         ];
     }
 
+    // Настройка модели после создания
     public function configure(): self
     {
         return $this->afterCreating(function (News $news) {
-            // Генерация cover_uri после создания записи с корректным id
+            $this->generateImageURLs($news->id);
             $content = $this->generateContent($news->id);
-            $coverUri = $this->generateImageURL2($news->id);
+            $coverUri = $this->images[0] ?? '';
             $news->update(['cover_uri' => $coverUri, 'content' => $content]);
         });
     }

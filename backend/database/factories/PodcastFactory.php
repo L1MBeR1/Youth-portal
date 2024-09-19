@@ -4,100 +4,39 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Podcast;
+use App\Services\ImageSeeder;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PodcastFactory extends Factory
 {
-    private function generateImageURL2($id, $str = "podcast_cover"): string
+    protected $model = Podcast::class;
+    private $image = null;
+    private $audio = null;
+
+
+    private function generateMediaURLs(int $podcastId)
     {
-        $files = Storage::disk('local')->files("sample_images/{$str}");
-
-        if (empty($files)) {
-            Log::info('empty folder');
-            return '';
-        }
-
-        $randomFile = $files[array_rand($files)];
-        $filePath = Storage::disk('local')->path($randomFile);
-
-        // $response = Http::attach(
-        //     'file',
-        //     file_get_contents($filePath),
-        //     basename($filePath)
-        // )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
-        $fileSize = filesize($filePath);
-        Log::info("awfawf", ["file_size" => $fileSize]);
-        if ($fileSize > 134217728) { // если файл больше 128MB
-            Log::error('File is too large to upload');
-            return '';
-        }
-
-        $response = Http::attach(
-            'file',
-            fopen($filePath, 'r'),  // потоковое чтение файла
-            basename($filePath)
-        )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
+        $imageSeeder = new ImageSeeder();
 
 
-        if ($response->successful()) {
-            $data = $response->json();
-            return env('FILES_LINK', '') . $data['filename'] ?? '';
-        }
+        $mediaFiles = $imageSeeder->generateImageURL(
+            $podcastId,
+            [
+                'sample_images/podcast_cover' => 1,
+                'sample_audios/podcast_audio' => 1,
+            ],
+            'podcasts'
+        );
 
-        return '';
+
+        $this->image = $mediaFiles[0];
+        $this->audio = $mediaFiles[1];
+
+        return $mediaFiles;
     }
 
-
-    private function generateAudioURL($id, $str = "podcast_audio"): string
-    {
-        $files = Storage::disk('local')->files("sample_audios/{$str}");
-
-        if (empty($files)) {
-            Log::info('empty folder');
-            return '';
-        }
-
-        $randomFile = $files[array_rand($files)];
-        $filePath = Storage::disk('local')->path($randomFile);
-
-        // $response = Http::attach(
-        //     'file',
-        //     file_get_contents($filePath),
-        //     basename($filePath)
-        // )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
-        $fileSize = filesize($filePath);
-        if ($fileSize > 134217728) { // если файл больше 128MB
-            Log::error('File is too large to upload');
-            return '';
-        }
-
-        $response = Http::attach(
-            'file',
-            fopen($filePath, 'r'),  // потоковое чтение файла
-            basename($filePath)
-        )->post("http://127.0.0.1:8000/api/files/podcasts/{$id}/");
-
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return env('FILES_LINK', '') . $data['filename'] ?? '';
-        }
-
-        return '';
-    }
-
-    private function generateImageURL(int $width = 320, int $height = 240): string
-    {
-        // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
-        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
-        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
-    }
-
+    // Генерация заголовка подкаста
     private function generatePodcastTitle()
     {
         $singularTitles = [
@@ -153,13 +92,9 @@ class PodcastFactory extends Factory
         $isSingular = rand(0, 1);
 
         $titles = $isSingular ? $singularTitles : $pluralTitles;
-        $title = $this->faker->randomElement($titles);
-
-        return $title;
+        return $this->faker->randomElement($titles);
     }
 
-
-    protected $model = Podcast::class;
 
     public function definition()
     {
@@ -175,7 +110,7 @@ class PodcastFactory extends Factory
                     ]
                 ]
             ],
-            'audio_uri' => '',
+            'audio_uri' => '', 
             'cover_uri' => '',
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'views' => $this->faker->numberBetween(0, 1000),
@@ -188,9 +123,9 @@ class PodcastFactory extends Factory
     public function configure(): self
     {
         return $this->afterCreating(function (Podcast $podcast) {
-
-            $coverUri = $this->generateImageURL2($podcast->id);
-            $audioUri = $this->generateAudioURL($podcast->id);
+            $this->generateMediaURLs($podcast->id);
+            $coverUri = $this->image;
+            $audioUri = $this->audio;
             $podcast->update(['cover_uri' => $coverUri, 'audio_uri' => $audioUri]);
         });
     }

@@ -117,7 +117,12 @@ const theme = extendTheme({
 			fontSize: 'clamp(0.7rem,2vw, 0.9rem)',
 			color: 'var(--joy-palette-text-inverted)',
 		},
-
+		'title-xxxl': {
+			fontWeight: '600',
+			fontSize: 'clamp(1.4rem,2.5vw, 2.2rem)',
+			color: 'var(--joy-palette-main-text)',
+			lineHeight: '1.1',
+		},
 		'title-xxl': {
 			fontWeight: '600',
 			fontSize: 'clamp(1.2rem,2.5vw, 1.9rem)',
@@ -137,12 +142,20 @@ const theme = extendTheme({
 		},
 		'title-md': {
 			fontWeight: '600',
-			fontSize: 'clamp(0.9rem,2.5vw, 1.05rem)',
+			fontSize: 'clamp(1rem,2.5vw, 1.05rem)',
 			lineHeight: '1.1',
+		},
+		'body-lg': {
+			fontWeight: '400',
+			fontSize: 'clamp(1rem,2.4vw, 1.2rem)',
 		},
 		'body-md': {
 			fontWeight: '400',
-			fontSize: 'clamp(0.9rem,2.5vw, 1.05rem)',
+			fontSize: 'clamp(1rem,2.4vw, 1.1rem)',
+		},
+		'body-sm': {
+			fontWeight: '400',
+			fontSize: 'clamp(0.9rem,2.4vw, 1.05rem)',
 		},
 		info: {
 			fontWeight: '400',

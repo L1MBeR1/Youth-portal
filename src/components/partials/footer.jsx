@@ -45,8 +45,14 @@ function Footer() {
 							size={'md'}
 							placeholder='Введите почту'
 							endDecorator={
-								<IconButton variant='solid' color='primary'>
-									<SendIcon fontSize='20px' />
+								<IconButton
+									variant='solid'
+									color='primary'
+									sx={{
+										borderRadius: '100px',
+									}}
+								>
+									<SendIcon />
 								</IconButton>
 							}
 							sx={{

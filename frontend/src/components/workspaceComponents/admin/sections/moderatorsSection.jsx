@@ -31,8 +31,12 @@ import DatePopOver from '../../shared/modals/datePopOver.jsx';
 import SuccessNotification from '../../shared/modals/successNotification.jsx';
 import WarningModal from '../../shared/modals/warningModal.jsx';
 
-import { addModerator, deleteModerator } from '../../../../api/usersApi.js';
-import useModerators from '../../../../hooks/service/useUsers.js';
+import {
+	addModerator,
+	deleteModerator,
+	getUsers,
+} from '../../../../api/usersApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 
 function ModeratorsSection() {
@@ -63,7 +67,7 @@ function ModeratorsSection() {
 		data: moderators,
 		isLoading,
 		refetch,
-	} = useModerators(['admin/moderators'], ['service'], setLastPage, {
+	} = useServiceData(['admin/moderators'], getUsers, setLastPage, {
 		role_name: 'moderator',
 		page: page,
 		searchFields: searchFields,

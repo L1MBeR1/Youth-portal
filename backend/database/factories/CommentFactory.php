@@ -17,7 +17,7 @@ class CommentFactory extends Factory
     public function definition(): array
     {
         return [       
-            'content' => $this->faker->sentence(3) . $this->faker->emoji() . $this->faker->sentence(3),
+            'content' => $this->faker->realText(10) . $this->faker->emoji() . $this->faker->sentence(3),
             'user_id' => $this->faker->numberBetween(1, 50),
             'likes' => $this->faker->numberBetween(-50000, 1000000),
             // 'created_at' => $this->faker->dateTimeBetween('-11 month', 'now'),

@@ -11,4 +11,7 @@ Route::group([
     Route::get('{content_type}/{content_id}/{filename}', [FileController::class, 'download'])->withoutMiddleware('auth');
     Route::put('{content_type}/{content_id}/{filename}', [FileController::class, 'update'])->withoutMiddleware('auth');
     Route::delete('{content_type}/{content_id}/{filename}', [FileController::class, 'delete'])->withoutMiddleware('auth');
+
+    // Route::delete('clear/all', [FileController::class, 'clearAllSftpFiles'])->withoutMiddleware('auth');
+
 });

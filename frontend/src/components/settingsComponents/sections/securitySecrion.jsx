@@ -5,8 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import usePersonalData from '../../../hooks/usePersonalData';
-
-import { logoutFunc } from '../../../utils/authUtils/logout';
+import { removeToken } from '../../../utils/authUtils/tokenStorage';
 import ChangePassword from '../modals/changePassword';
 function SecuritySection() {
 	const queryClient = useQueryClient();
@@ -16,7 +15,7 @@ function SecuritySection() {
 	useEffect(() => {
 		if (!isLoading && !userData) {
 			const handleLogout = async () => {
-				await logoutFunc();
+				removeToken();
 				navigate('/login');
 				queryClient.removeQueries(['profile']);
 				return true;

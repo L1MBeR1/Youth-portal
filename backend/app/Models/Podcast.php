@@ -8,10 +8,36 @@ use Illuminate\Database\Eloquent\Model;
 class Podcast extends Model
 {
     use HasFactory;
+
     protected $table = 'podcasts';
-    protected $guarded = [];
+
     protected $casts = [
-        'description' => 'array',
+        'description' => 'array', 
+        'status' => 'string', 
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $hidden = [
+
+    ];
+
+    protected $guarded = [
+        'id', 
+        'created_at', 
+        'updated_at', 
+    ];
+
+    protected $fillable = [
+        'title',
+        'description',
+        'content',
+        'cover_uri',
+        'status',
+        'views',
+        'likes',
+        'reposts',
+        'author_id',
     ];
 
     const STATUSES = ['moderating', 'published', 'archived', 'pending'];
@@ -20,11 +46,6 @@ class Podcast extends Model
     {
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'podcast_id', 'comment_id')->withTimestamps();
     }
-
-    /*public function user()
-    {
-        return $this->belongsTo(User::class);
-    }*/
 
     public function author()
     {

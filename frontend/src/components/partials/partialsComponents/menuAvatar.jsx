@@ -14,9 +14,6 @@ import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
-import PublishIcon from '@mui/icons-material/Publish';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import profileBlank from '../../../img/profileBlank.png';
 
@@ -37,7 +34,7 @@ function MenuAvatar({ id, img, roles }) {
 	return (
 		<Box
 			sx={{
-				display: { xs: 'none', md: 'block' },
+				display: { xs: 'none', mdx: 'block' },
 			}}
 		>
 			<Dropdown>
@@ -48,15 +45,20 @@ function MenuAvatar({ id, img, roles }) {
 						cursor: 'pointer',
 					}}
 				>
-					<Avatar size='lg' src={img || profileBlank} />
+					<Avatar size='lg' variant='outlined' src={img || profileBlank} />
 				</MenuButton>
-				<Menu size='sm' placement='bottom-end' variant='plain'>
+				<Menu
+					size='sm'
+					placement='bottom-end'
+					variant='plain'
+					sx={{ boxShadow: 'sm' }}
+				>
 					<MenuItem
 						onClick={() => {
 							handleLink(`/profile/${id}`);
 						}}
 					>
-						<PersonIcon />
+						{/* <PersonIcon /> */}
 						Профиль
 					</MenuItem>
 					{(roles.includes('blogger') || roles.includes('news_creator')) && (
@@ -65,7 +67,7 @@ function MenuAvatar({ id, img, roles }) {
 								handleLink('/my-content');
 							}}
 						>
-							<PublishIcon />
+							{/* <PublishIcon /> */}
 							Мой контент
 						</MenuItem>
 					)}
@@ -74,7 +76,7 @@ function MenuAvatar({ id, img, roles }) {
 							handleLink(`/settings`);
 						}}
 					>
-						<SettingsIcon />
+						{/* <SettingsIcon /> */}
 						Настройки
 					</MenuItem>
 					{roles.includes('admin') && (

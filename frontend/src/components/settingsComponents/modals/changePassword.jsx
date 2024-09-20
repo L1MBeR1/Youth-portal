@@ -28,7 +28,7 @@ function ChangePassword({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [password, setPassword] = useState('');
-
+	const [oldPassword, setOldPassword] = useState('');
 	const [passwordRepeat, setPasswordRepeat] = useState('');
 	const [passwordRepeatError, setPasswordRepeatError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +37,8 @@ function ChangePassword({ id, open, setOpen }) {
 	const [passwordCriteria, setPasswordCriteria] = useState({
 		length: false,
 		specialChar: false,
+		lowercase: false,
+		uppercase: false,
 	});
 
 	const [PasswordStrength, setPasswordStrength] = useState('');
@@ -49,6 +51,8 @@ function ChangePassword({ id, open, setOpen }) {
 		setPasswordCriteria({
 			length: password.length >= 8,
 			specialChar: /[!@#$%^&*-]/.test(password),
+			lowercase: /[a-zа-я]/.test(password),
+			uppercase: /[A-ZА-Я]/.test(password),
 		});
 		checkPasswordStrength(password);
 	}, [password]);
@@ -102,6 +106,7 @@ function ChangePassword({ id, open, setOpen }) {
 
 	const handleClose = () => {
 		setOpen(false);
+		setOldPassword('');
 		setPassword('');
 		setPasswordRepeat('');
 		setPasswordRepeatError('');
@@ -116,7 +121,8 @@ function ChangePassword({ id, open, setOpen }) {
 			return null;
 		}
 		const updatedData = {
-			password,
+			password: oldPassword,
+			new_password: password,
 		};
 		const response = await updateUserPassword(id, token, updatedData);
 		if (response) {
@@ -127,6 +133,8 @@ function ChangePassword({ id, open, setOpen }) {
 			setIsSuccess(true);
 			queryClient.removeQueries(['profile']);
 			return;
+		} else {
+			setIsLoading(false);
 		}
 		return;
 	};
@@ -149,6 +157,11 @@ function ChangePassword({ id, open, setOpen }) {
 					<DialogContent>
 						<Stack spacing={0}>
 							<Stack spacing={0.5}>
+								<PasswordField
+									lable='Введите старый пароль'
+									password={oldPassword}
+									setPassword={setOldPassword}
+								/>
 								<PasswordField
 									lable='Введите новый пароль'
 									password={password}
@@ -198,6 +211,17 @@ function ChangePassword({ id, open, setOpen }) {
 											специальные символы (например, !, @, #, $, %, ^, &, *, -)
 										</Typography>
 									</ListItem>
+									<ListItem>
+										{passwordCriteria.lowercase &&
+										passwordCriteria.uppercase ? (
+											<CheckCircleOutlinedIcon style={{ color: 'green' }} />
+										) : (
+											<CircleOutlinedIcon />
+										)}
+										<Typography level='body-xs'>
+											строчную и заглавную букву
+										</Typography>
+									</ListItem>
 								</List>
 							</Stack>
 						</Stack>
@@ -212,10 +236,12 @@ function ChangePassword({ id, open, setOpen }) {
 						<Button
 							variant='solid'
 							onClick={handleConfirm}
+							loading={isLoading}
 							disabled={
 								!passwordCriteria.length ||
 								!passwordCriteria.specialChar ||
-								isLoading ||
+								!passwordCriteria.lowercase ||
+								!passwordCriteria.uppercase ||
 								passwordRepeatError
 							}
 						>

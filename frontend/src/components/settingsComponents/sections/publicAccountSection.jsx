@@ -5,10 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 import useProfile from '../../../hooks/useProfile';
 import useUser from '../../../hooks/useUser';
-import { logoutFunc } from '../../../utils/authUtils/logout';
 
 import EditIcon from '@mui/icons-material/Edit';
-
+import { removeToken } from '../../../utils/authUtils/tokenStorage';
 function PublicAccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -18,7 +17,7 @@ function PublicAccountSection() {
 	useEffect(() => {
 		if (!profileData) {
 			const handleLogout = async () => {
-				await logoutFunc();
+				removeToken();
 				navigate('/login');
 				queryClient.removeQueries(['profile']);
 			};

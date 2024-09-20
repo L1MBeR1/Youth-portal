@@ -31,6 +31,12 @@ import Podcasts from './pages/podcasts';
 import EventPage from './pages/eventPage';
 import Events from './pages/events';
 
+import ProjectPage from './pages/projectPage';
+import Projects from './pages/projects';
+
+import OrganizationPage from './pages/organizationPage';
+import Organizations from './pages/organizations';
+
 import Admin from './pages/admin';
 import Moderator from './pages/moderator';
 import Su from './pages/su';
@@ -74,6 +80,12 @@ function App() {
 
 						<Route path='events' element={<Events />} />
 						<Route path='event/:id' element={<EventPage />} />
+
+						<Route path='projects' element={<Projects />} />
+						<Route path='project/:id' element={<ProjectPage />} />
+
+						<Route path='organizations' element={<Organizations />} />
+						<Route path='organization/:id' element={<OrganizationPage />} />
 
 						<Route path='/profile/:id' element={<Profile />} />
 

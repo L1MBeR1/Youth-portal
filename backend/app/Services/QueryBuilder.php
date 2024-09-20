@@ -38,30 +38,54 @@ class QueryBuilder
             $this->query->select(explode(',', $fields[0]));
         }
 
-        foreach ($fields as $table => $fieldsArray) {
+        foreach ($fields as $table => $fieldsString) {
             if ($table !== 0) {
-                // Преобразуем массив полей в строку, разделяя запятыми
-                $fieldsString = explode(',', $fieldsArray);
-
-                // Если таблица объединяется с основной таблицей, добавляем её в запрос
-                $this->query->addSelect($table . '.' . $fieldsString);
+                $fieldsArray = explode(',', $fieldsString);
+                $this->query->addSelect($table . '.' . $fieldsArray);
             }
         }
     }
 
     public function applyFilters(Request $request): void
     {
-        if ($request->has('published')) {
-            $this->query->where('published', $request->query('published'));
+        /**
+         * Применение фильтров
+         * field => values
+         * table.field => values
+         */
+        $filters = $request->input('filter', []);
+
+        foreach ($filters as $field => $valuesString) {
+            $values = explode(',', $valuesString);
+            // dump($values[0]);
+            $this->query->where($field, $values[0]);
+            // $this->query->where($field, $values);
         }
+        // dump($filters);
+
+        // if ($request->has('published')) {
+        //     $this->query->where('published', $request->query('published'));
+        // }
     }
 
     public function applySearch(Request $request): void
     {
-        if ($request->has('search')) {
-            $searchTerm = $request->query('search');
-            $this->query->where('title', 'like', "%{$searchTerm}%");
+        $filters = $request->input('search', []);
+
+        foreach ($filters as $field => $valuesString) {
+            $values = explode(',', $valuesString);
+
+            foreach ($values as $value) {
+                $this->query->where($field,'like', "%{$value}%");
+            }
         }
+
+
+
+        // if ($request->has('search')) {
+        //     $searchTerm = $request->query('search');
+        //     $this->query->where('title', 'like', "%{$searchTerm}%");
+        // }
     }
 
     public function getResult()

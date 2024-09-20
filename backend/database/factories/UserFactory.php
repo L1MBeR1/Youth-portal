@@ -47,5 +47,7 @@ class UserFactory extends Factory
             UserMetadata::factory()->create(['user_id' => $user->id]);
         });
     }
+
+    
 }
 

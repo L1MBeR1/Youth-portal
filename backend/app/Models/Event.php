@@ -8,11 +8,39 @@ use Illuminate\Database\Eloquent\Model;
 class Event extends Model
 {
     use HasFactory;
+
     protected $table = 'events';
-    protected $guarded = [];
 
     protected $casts = [
-        'address' => 'array',
+        'address' => 'array', 
+        'start_time' => 'datetime', 
+        'end_time' => 'datetime', 
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime', 
+    ];
+
+    protected $hidden = [
+
+    ];
+
+    protected $guarded = [
+        'id', 
+        'created_at', 
+        'updated_at',
+    ];
+
+    protected $fillable = [
+        'name',
+        'description',
+        'address',
+        'cover_uri',
+        'longitude',
+        'latitude',
+        'views',
+        'start_time',
+        'end_time',
+        'author_id',
+        'project_id',
     ];
 
     public function author()

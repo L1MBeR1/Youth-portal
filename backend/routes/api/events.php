@@ -22,7 +22,6 @@ Route::group([
 ], function () {
     Route::get('userEvents', [EventController::class, 'getUserEvents'])->withoutMiddleware('auth');
     Route::get('{id}', [EventController::class, 'getEventById'])->withoutMiddleware('auth');
-    
 });
 
 Route::group([

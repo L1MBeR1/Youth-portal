@@ -156,7 +156,7 @@ function EventPage() {
 					</CardOverflow>
 					<Stack
 						direction={'column'}
-						spacing={4}
+						spacing={6}
 						sx={{
 							marginTop: '4vh',
 						}}

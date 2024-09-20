@@ -25,11 +25,11 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 
-import useNews from '../../../../hooks/service/useNews.js';
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
 
-import { changeNewStatus } from '../../../../api/newsApi.js';
+import { changeNewStatus, getNewsByPage } from '../../../../api/newsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 
 function NewsSection() {
@@ -64,7 +64,7 @@ function NewsSection() {
 		data: news,
 		isLoading,
 		refetch,
-	} = useNews(['moderator/news'], ['service'], setLastPage, {
+	} = useServiceData(['moderator/news'], getNewsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,

@@ -31,7 +31,7 @@ import Man2Icon from '@mui/icons-material/Man2';
 import Woman2Icon from '@mui/icons-material/Woman2';
 
 import { updateUser } from '../../../api/usersApi';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
+import { getToken, removeToken } from '../../../utils/authUtils/tokenStorage';
 function AccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -40,7 +40,7 @@ function AccountSection() {
 	useEffect(() => {
 		if (!isLoading && !userData) {
 			const handleLogout = async () => {
-				await logoutFunc();
+				removeToken();
 				navigate('/login');
 				queryClient.removeQueries(['profile']);
 				return true;

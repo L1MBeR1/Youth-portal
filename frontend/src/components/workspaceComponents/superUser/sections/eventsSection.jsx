@@ -17,13 +17,13 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 import EditIcon from '@mui/icons-material/Edit';
 
-import useEvents from '../../../../hooks/service/useEvents.js';
 import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 
+import { getEventsByPage } from '../../../../api/eventsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
-
 function EventsSection() {
 	const [openEvents, setOpenEvents] = useState(false);
 
@@ -52,7 +52,7 @@ function EventsSection() {
 		data: events,
 		isLoading,
 		refetch,
-	} = useEvents(['su/events'], ['service'], setLastPage, {
+	} = useServiceData(['su/events'], getEventsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,

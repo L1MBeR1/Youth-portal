@@ -1,257 +1,351 @@
 import {
-	AspectRatio,
 	Box,
-	Button,
-	Skeleton,
+	IconButton,
+	Option,
+	Select,
 	Slider,
+	Stack,
 	Typography,
 } from '@mui/joy';
 import React, { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
-import '../styles.css';
 
+import Forward10Icon from '@mui/icons-material/Forward10';
+import LoopIcon from '@mui/icons-material/Loop';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import Replay10Icon from '@mui/icons-material/Replay10';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import { PlayerTime } from '../../../utils/timeAndDate/playerTime';
 
-import { getFile } from '../../../api/files.js';
-
-// npm install wavesurfer.js
-
-function AudioPlayer({ title, filename, pictureURL }) {
+function AudioPlayer({ audioUrl }) {
 	const [playing, setPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
-	const [volume, setVolume] = useState(0.5);
-	const [imageUrl, setImageUrl] = useState(null);
-	const waveSurferRef = useRef(null);
-	const waveFormRef = useRef(null);
-	const [loadingImage, setLoadingImage] = useState(true);
+	const [volume, setVolume] = useState(0.4);
+	const [previousVolume, setPreviousVolume] = useState(0.4);
+	const [isMuted, setIsMuted] = useState(false);
+	const [isSeeking, setIsSeeking] = useState(false);
+	const [isLooping, setIsLooping] = useState(false);
+	const [playbackRate, setPlaybackRate] = useState(1);
+
+	const audioRef = useRef(null);
 
 	useEffect(() => {
-		let isMounted = true;
+		const audio = audioRef.current;
 
-		const loadAudio = async () => {
-			const audioUrl = await getFile({
-				contentType: 'podcasts',
-				contentId: '1',
-				fileName: '864f4bc35ae74079cfc6cbc19a7b376c.mp3',
-			});
+		const handleLoadedMetadata = () => {
+			setDuration(audio.duration);
+		};
 
-			if (isMounted) {
-				if (waveSurferRef.current) {
-					waveSurferRef.current.destroy();
-				}
-
-				waveSurferRef.current = WaveSurfer.create({
-					container: waveFormRef.current,
-					waveColor: '#16697A',
-					progressColor: '#DB6400',
-					height: 40,
-					responsive: true,
-					normalize: true,
-					backend: 'MediaElement',
-				});
-
-				waveSurferRef.current.load(audioUrl);
-
-				waveSurferRef.current.on('ready', () => {
-					setDuration(waveSurferRef.current.getDuration());
-				});
-
-				waveSurferRef.current.on('audioprocess', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
-
-				waveSurferRef.current.on('seek', () => {
-					setCurrentTime(waveSurferRef.current.getCurrentTime());
-				});
+		const handleTimeUpdate = () => {
+			if (!isSeeking) {
+				setCurrentTime(audio.currentTime);
 			}
 		};
 
-		const loadImage = async () => {
-			try {
-				const imageUrl = await getFile({
-					contentType: 'podcasts',
-					contentId: '1',
-					fileName: '1.png',
-				});
-				if (isMounted) {
-					setImageUrl(imageUrl);
-				}
-			} catch (error) {
-				console.error('Error loading the image:', error);
-			}
+		const handleEnded = () => {
+			setPlaying(false);
 		};
 
-		loadAudio();
-		loadImage();
+		if (audio) {
+			audio.volume = volume;
+			audio.playbackRate = playbackRate;
+			audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+			audio.addEventListener('timeupdate', handleTimeUpdate);
+			audio.addEventListener('ended', handleEnded);
+		}
 
 		return () => {
-			isMounted = false;
-			if (waveSurferRef.current) {
-				waveSurferRef.current.destroy();
+			if (audio) {
+				audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+				audio.removeEventListener('timeupdate', handleTimeUpdate);
+				audio.removeEventListener('ended', handleEnded);
 			}
 		};
-	}, [filename]);
+	}, [isSeeking, volume, playbackRate]);
 
 	const togglePlayPause = () => {
-		if (waveSurferRef.current) {
-			waveSurferRef.current.playPause();
+		const audio = audioRef.current;
+
+		if (audio) {
+			if (playing) {
+				audio.pause();
+			} else {
+				audio.play();
+			}
 			setPlaying(!playing);
 		}
 	};
 
-	const handleVolumeChange = (event, newValue) => {
-		setVolume(newValue);
-		if (waveSurferRef.current) {
-			waveSurferRef.current.setVolume(newValue);
+	const toggleLoop = () => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.loop = !isLooping;
+			setIsLooping(!isLooping);
 		}
 	};
 
-	const handleImageLoad = () => setLoadingImage(false);
+	const handleVolumeChange = (event, newValue) => {
+		const audio = audioRef.current;
+		setVolume(newValue);
+		setIsMuted(newValue === 0);
+		if (audio) {
+			audio.volume = newValue;
+		}
+	};
 
-	// const progress = (currentTime / duration) * 100 || 0; // Рассчитываем процент прогресса
+	const toggleMute = () => {
+		const audio = audioRef.current;
+
+		if (audio) {
+			if (isMuted) {
+				setVolume(previousVolume);
+				audio.volume = previousVolume;
+			} else {
+				setPreviousVolume(volume);
+				setVolume(0);
+				audio.volume = 0;
+			}
+			setIsMuted(!isMuted);
+		}
+	};
+
+	const handleTimeSliderChange = (event, newValue) => {
+		setCurrentTime(newValue);
+		setIsSeeking(true);
+	};
+
+	const handleTimeSliderCommit = (event, newValue) => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.currentTime = newValue;
+		}
+		setIsSeeking(false);
+	};
+
+	const handleRewind = () => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.currentTime = Math.max(0, audio.currentTime - 10);
+			setCurrentTime(audio.currentTime);
+		}
+	};
+
+	const handleForward = () => {
+		const audio = audioRef.current;
+		if (audio) {
+			audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+			setCurrentTime(audio.currentTime);
+		}
+	};
 
 	return (
-		<Box
-			sx={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-			}}
-		>
-			{/* Верхняя строка с текущим временем и прогрессом */}
-			{/* <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-                <Typography sx={{ minWidth: '40px' }}>{Math.floor(currentTime)}s</Typography>
-                <Box sx={{ flexGrow: 1, mx: 2 }}>
-                    <LinearProgress
-                        variant="determinate"
-                        value={progress} // Передаем динамически рассчитанный прогресс
-                    />
-                </Box>
-                <Typography sx={{ minWidth: '40px' }}>{Math.floor(duration)}s</Typography>
-            </Box> */}
-
-			{/* Основная часть */}
-			<Box
-				sx={{
-					bgcolor: 'var(--color-background)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-around',
-					padding: 2,
-					borderRadius: 2,
-					boxShadow: '0 0.5rem 0.5rem rgba(0, 0, 0, 0.2)',
-					// width: '100%',
-				}}
-			>
-				<Button
-					onClick={togglePlayPause}
-					sx={{
-						color: 'var(--color-button-secondary)',
-						backgroundColor: playing ? '#DB6400' : '#16697A',
-						fontSize: '1.5rem',
-						marginRight: 2,
-						flexShrink: 0,
-						height: 60,
-						width: 60,
-						borderRadius: '12px',
-						'&:hover': {
-							backgroundColor: playing ? '#c55300' : '#145f6b',
-						},
-					}}
-					variant='solid'
-				>
-					{/* {playing ? '⏸' : '▶'} */}
-					{playing ? (
-						<PauseIcon fontSize='large' />
-					) : (
-						<PlayArrowIcon fontSize='large' />
-					)}
-				</Button>
-
-				<AspectRatio ratio='1' sx={{ minWidth: 60 }}>
-					<Skeleton
-						loading={loadingImage}
-						variant='rectangular'
-						sx={{ width: '100%', height: '100%' }}
-					>
-						<img
-							src={imageUrl || ''}
-							alt={title}
-							style={{
-								width: '100%',
-								height: '100%',
-								marginRight: '20px',
-								objectFit: 'cover',
-							}}
-							onLoad={handleImageLoad}
-						/>
-					</Skeleton>
-				</AspectRatio>
-
-				<Box sx={{ maxWidth: '100px' }}>
-					<Typography
-						level='h3'
+		<Stack direction={'column'} flexGrow={1} spacing={1.25}>
+			<audio ref={audioRef} src={audioUrl} />
+			<Stack direction={'column'}>
+				<Stack direction={'row'} alignItems={'center'}>
+					<Box
 						sx={{
-							fontWeight: 700,
-							color: 'var(--color-text)',
-							marginLeft: 1,
-							marginRight: 5,
-							flexShrink: 0,
-							maxWidth: 300,
+							minWidth: { xs: '45px', md: '60px' },
+							display: { xs: 'none', smx: 'block' },
 						}}
 					>
-						{title ? title : 'Default Title'}
-					</Typography>
-				</Box>
+						<Typography level='body-sm'>
+							{PlayerTime(Math.floor(currentTime))}
+						</Typography>
+					</Box>
 
-				<Box
-					sx={{
-						display: 'flex',
-						flexDirection: 'row',
-						flexGrow: 1,
-						marginLeft: 0,
-					}}
-				>
-					{/* <Typography sx={{ marginLeft: 4, display: 'flex', alignItems: 'center' }}>{Math.floor(currentTime)}s</Typography> */}
-					<div className='wavesurfer' ref={waveFormRef} />
-					{/* <Typography sx={{ display: 'flex', alignItems: 'center' }}>{Math.floor(duration)}s</Typography> */}
-				</Box>
-
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						flexShrink: 0,
-					}}
-				>
-					<Typography sx={{ color: '#000', marginRight: 1 }}>
-						Громкость
-					</Typography>
 					<Slider
-						value={volume}
-						onChange={handleVolumeChange}
+						value={currentTime}
+						onChange={handleTimeSliderChange}
+						onChangeCommitted={handleTimeSliderCommit}
 						min={0}
-						max={1}
-						step={0.01}
+						max={duration || 100}
+						variant='solid'
+						color='primary'
+						step={1}
 						sx={{
-							width: 150,
+							flexGrow: 1,
+							width: '100%',
+							'--Slider-trackSize': '6px',
+							'--Slider-thumbSize': '6px',
 							'& .MuiSlider-thumb': {
-								backgroundColor: '#DB6400',
+								width: 'var(--Slider-thumbSize)',
+								height: 'var(--Slider-thumbSize)',
+								borderRadius: '50%',
+								transition:
+									'width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
 							},
-							'& .MuiSlider-track': {
-								backgroundColor: '#16697A',
-							},
-							'& .MuiSlider-rail': {
-								backgroundColor: '#ccc',
+							'&:hover .MuiSlider-thumb': {
+								'--Slider-thumbSize': '23px',
+								width: 'var(--Slider-thumbSize)',
+								height: 'var(--Slider-thumbSize)',
 							},
 						}}
 					/>
-				</Box>
+					<Box
+						sx={{
+							justifyContent: 'flex-end',
+							minWidth: { xs: '45px', md: '60px' },
+							display: { xs: 'none', smx: 'flex' },
+						}}
+					>
+						<Typography level='body-sm'>
+							{PlayerTime(Math.floor(duration))}
+						</Typography>
+					</Box>
+				</Stack>
+				<Stack
+					flexGrow={1}
+					direction={'row'}
+					justifyContent='space-between'
+					sx={{ display: { xs: 'flex', smx: 'none' } }}
+				>
+					<Typography level='body-sm'>
+						{PlayerTime(Math.floor(currentTime))}
+					</Typography>
+					<Typography level='body-sm'>
+						{PlayerTime(Math.floor(duration))}
+					</Typography>
+				</Stack>
+			</Stack>
+			<Box
+				sx={{
+					display: 'grid',
+					gridTemplateColumns: '1fr auto 1fr',
+					alignItems: 'center',
+				}}
+			>
+				<Stack justifySelf={'start'} direction={'row'} alignItems={'center'}>
+					<IconButton
+						onClick={toggleLoop}
+						variant='plain'
+						color={isLooping ? 'primary' : 'neutral'}
+						sx={{ '--IconButton-size': { xs: '45px', smx: '50px' } }}
+					>
+						<LoopIcon />
+					</IconButton>
+					<Box sx={{ display: { xs: 'none', smx: 'block' } }}>
+						<Select
+							variant='plain'
+							indicator={''}
+							value={playbackRate}
+							onChange={(e, value) => {
+								setPlaybackRate(value);
+							}}
+							renderValue={selected => (
+								<Box
+									sx={{
+										my: '10px',
+									}}
+								>
+									<Typography level='title-lg'>{selected.label}</Typography>
+								</Box>
+							)}
+						>
+							<Option value={0.5}>0.5x</Option>
+							<Option value={0.75}>0.75x</Option>
+							<Option value={1}>1x</Option>
+							<Option value={1.25}>1.25x</Option>
+							<Option value={1.5}>1.5x</Option>
+							<Option value={1.75}>1.75x</Option>
+							<Option value={2}>2x</Option>
+						</Select>
+					</Box>
+				</Stack>
+				<Stack
+					justifySelf={'center'}
+					spacing={1.5}
+					direction={'row'}
+					alignItems={'center'}
+				>
+					<IconButton
+						onClick={handleRewind}
+						variant='plain'
+						sx={{ '--IconButton-size': '55px' }}
+					>
+						<Replay10Icon />
+					</IconButton>
+					<IconButton
+						onClick={togglePlayPause}
+						variant='solid'
+						color='primary'
+						sx={{ '--IconButton-size': { xs: '50px', smx: '60px' } }}
+					>
+						{playing ? (
+							<PauseIcon fontSize='large' />
+						) : (
+							<PlayArrowIcon fontSize='large' />
+						)}
+					</IconButton>
+					<IconButton
+						onClick={handleForward}
+						variant='plain'
+						sx={{ '--IconButton-size': { xs: '50px', smx: '55px' } }}
+					>
+						<Forward10Icon />
+					</IconButton>
+				</Stack>
+
+				<Stack justifySelf={'end'} direction={'row'} alignItems={'center'}>
+					<Box sx={{ display: { xs: 'block', smx: 'none' } }}>
+						<Select
+							variant='plain'
+							indicator={''}
+							value={playbackRate}
+							onChange={(e, value) => {
+								setPlaybackRate(value);
+							}}
+							renderValue={selected => (
+								<Box
+									sx={{
+										my: '10px',
+									}}
+								>
+									<Typography level='title-lg' sx={{ fontSize: '22px' }}>
+										{selected.label}
+									</Typography>
+								</Box>
+							)}
+						>
+							<Option value={0.5}>0.5x</Option>
+							<Option value={0.75}>0.75x</Option>
+							<Option value={1}>1x</Option>
+							<Option value={1.25}>1.25x</Option>
+							<Option value={1.5}>1.5x</Option>
+							<Option value={1.75}>1.75x</Option>
+							<Option value={2}>2x</Option>
+						</Select>
+					</Box>
+					<Box
+						sx={{
+							display: { xs: 'none', smx: 'flex' },
+						}}
+					>
+						<IconButton
+							onClick={toggleMute}
+							variant='plain'
+							sx={{ '--IconButton-size': '45px' }}
+						>
+							{isMuted || volume === 0 ? <VolumeOffIcon /> : <VolumeUpIcon />}
+						</IconButton>
+						<Slider
+							value={volume}
+							onChange={handleVolumeChange}
+							min={0}
+							max={1}
+							step={0.025}
+							sx={{
+								minWidth: '100px',
+								'--Slider-trackSize': '4px',
+								'--Slider-thumbSize': '15px',
+							}}
+						/>
+					</Box>
+				</Stack>
 			</Box>
-		</Box>
+		</Stack>
 	);
 }
 

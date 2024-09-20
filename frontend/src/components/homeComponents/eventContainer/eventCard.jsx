@@ -25,6 +25,7 @@ function EventCard({ data }) {
 				variant='plain'
 				orientation='vertical'
 				sx={{
+					padding: '20px',
 					boxSizing: 'border-box',
 					borderRadius: '30px',
 					flexGrow: '1',
@@ -60,6 +61,7 @@ function EventCard({ data }) {
 				</CardOverflow>
 				<CardContent>
 					<Stack
+						sx={{ marginTop: '5px' }}
 						direction={'column'}
 						spacing={2}
 						justifyContent={'space-between'}

@@ -24,9 +24,11 @@ import CustomList from '../../shared/workSpaceList.jsx';
 import Pagination from '../../shared/workSpacePagination.jsx';
 import CustomTable from '../../shared/workSpaceTable.jsx';
 
-import usePodcasts from '../../../../hooks/service/usePodcasts.js';
-
-import { changePodcastStatus } from '../../../../api/podcastsApi.js';
+import {
+	changePodcastStatus,
+	getPodcastsByPage,
+} from '../../../../api/podcastsApi.js';
+import useServiceData from '../../../../hooks/service/useServiceData.js';
 import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
 import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
 import DatePopOver from '../../shared/modals/datePopOver.jsx';
@@ -61,7 +63,7 @@ function PodcastsSection() {
 		data: podcasts,
 		isLoading,
 		refetch,
-	} = usePodcasts(['moderator/podcasts'], ['service'], setLastPage, {
+	} = useServiceData(['moderator/podcasts'], getPodcastsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,

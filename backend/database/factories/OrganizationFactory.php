@@ -3,22 +3,46 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Organization;
+use App\Services\ImageSeeder;  
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Organization>
- */
 class OrganizationFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Organization::class;
+
+
+    private function generateOrganizationCover(int $organizationId)
+    {
+        $imageSeeder = new ImageSeeder();
+        $image = $imageSeeder->generateImageURL($organizationId, ['sample_images/organization_cover' => 1], 'organizations');
+        return $image[0];
+    }
+
+ 
+    private function generateRandomImage(int $width = 320, int $height = 240): string
+    {
+        $number = random_int(1, 100000);
+        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
+
+        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
+    }
+
+
     public function definition(): array
     {
         return [
             'name' => $this->faker->company(),
-            'status' => $this->faker->randomElement(['moderating', 'approved', 'rejected']),
+            'description' => $this->faker->realText(30),
+            'cover_uri' => $this->generateRandomImage(),  
         ];
+    }
+
+ 
+    public function configure(): self
+    {
+        return $this->afterCreating(function (Organization $organization) {
+            $coverUri = $this->generateOrganizationCover($organization->id);
+            $organization->update(['cover_uri' => $coverUri]);
+        });
     }
 }

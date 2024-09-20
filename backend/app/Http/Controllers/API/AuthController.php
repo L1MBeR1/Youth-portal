@@ -5,11 +5,12 @@ namespace App\Http\Controllers\API;
 use Exception;
 use App\Models\User;
 use Illuminate\Support\Str;
-use App\Models\UserMetadata;
-use Illuminate\Http\Request;
-// use Illuminate\Http\Response;
-use App\Mail\EmailVerification;
 use App\Mail\PasswordUpdate;
+use App\Models\UserMetadata;
+// use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use App\Mail\RecoverPassword;
+use App\Mail\EmailVerification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
@@ -20,15 +21,21 @@ use Illuminate\Support\Facades\Mail;
 // use Illuminate\Support\Facades\Validator;
 
 // use Illuminate\Validation\ValidationException;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Validator;
 // use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 // use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
-use Illuminate\Support\Facades\Validator;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 
 class AuthController extends Controller
 {
     protected $jwtSecret;
+    private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
+    private $emailRegexp = "/^[^\s@]+@[^\s@]+\.[^\s@]+$/";
+    private $phoneRegexp = "/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/";
 
     public function __construct()
     {
@@ -56,17 +63,17 @@ class AuthController extends Controller
                 'nullable',
                 'email',
                 'unique:user_login_data,email',
-                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                "regex:{$this->emailRegexp}",
             ],
             'phone' => [
                 'nullable',
                 'string',
                 'unique:user_login_data,phone',
-                'regex:/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/',
+                "regex:{$this->phoneRegexp}",
             ],
             'password' => [
                 'required',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
+                "regex:{$this->passwordRegexp}",
             ],
         ]);
 
@@ -90,8 +97,10 @@ class AuthController extends Controller
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
 
+        $input['nickname'] = $this->getRandomNickname();
         $user = User::create($input);
         $user->assignRole('guest');
+
 
         UserMetadata::create(['user_id' => $user->id]);
 
@@ -127,10 +136,28 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function login(Request $request)
     {
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'nullable|email',
+        //     'phone' => 'nullable|string',
+        //     'password' => 'required|string',
+        // ]);
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'password' => 'required|string',
+            'email' => [
+                'nullable',
+                'email',
+                // 'unique:user_login_data,email',
+                "regex:{$this->emailRegexp}",
+            ],
+            'phone' => [
+                'nullable',
+                'string',
+                // 'unique:user_login_data,phone',
+                "regex:{$this->phoneRegexp}",
+            ],
+            'password' => [
+                'required',
+                // "regex:{$this->passwordRegexp}",
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -168,35 +195,125 @@ class AuthController extends Controller
      * @group Авторизация
      *
      */
-    // public function verifyEmail(Request $request)
-    // {
-    //     $token = $request->query('token');
+    private function getRandomNickname(): string
+    {
+        // Список  прилагательных
+        $adjectives1 = [
+            'счастливый',
+            'быстрый',
+            'яркий',
+            'крутой',
+            'тихий',
+            'сладкий',
+            'злой',
+            'элегантный',
+            'удачливый',
+            'сказочный',
+            'умный',
+            'смелый',
+            'доброжелательный',
+            'сильный',
+            'веселый',
+            'любопытный',
+            'острый',
+            'спокойный',
+            'дружелюбный',
+            'мудрый'
+        ];
+        $adjectives2 = [
+            'happy',
+            'fast',
+            'bright',
+            'cool',
+            'silent',
+            'sweet',
+            'angry',
+            'fancy',
+            'lucky',
+            'candy',
+            'clever',
+            'brave',
+            'kind',
+            'strong',
+            'funny',
+            'curious',
+            'sharp',
+            'calm',
+            'friendly',
+            'wise',
+        ];
 
-    //     if (!$token) {
-    //         return $this->errorResponse('Token is missing', [], 400);
-    //     }
+        // Список  существительных
+        $nouns1 = [
+            'кот',
+            'собака',
+            'птица',
+            'медведь',
+            'рыба',
+            'волк',
+            'лиса',
+            'тигр',
+            'лев',
+            'кролик',
+            'мышь',
+            'слон',
+            'жираф',
+            'обезьяна',
+            'пингвин',
+            'олень',
+            'лошадь',
+            'корова',
+            'сова',
+            'акула'
+        ];
+        $nouns2 = [
+            'cat',
+            'dog',
+            'bird',
+            'bear',
+            'fish',
+            'wolf',
+            'fox',
+            'tiger',
+            'lion',
+            'rabbit',
+            'mouse',
+            'elephant',
+            'giraffe',
+            'monkey',
+            'penguin',
+            'deer',
+            'horse',
+            'cow',
+            'owl',
+            'shark',
+        ];
 
-    //     $user = JWTAuth::setToken($token)->toUser();
 
-    //     if (!$user) {
-    //         return $this->errorResponse('Invalid or expired token', [], 400);
-    //     }
+        do {
+            // Генерируем случайное число
+            $number = random_int(1000, 9999);
 
-    //     // проверить тут поле new_email из JWT токена
+            // Определяем, какой язык использовать (1 или 2)
+            $locale = random_int(1, 2);
 
-    //     // Проверка, подтвержден ли email
-    //     if ($user->email_verified_at) {
-    //         return $this->errorResponse('Email already verified', [], 422);
-    //     }
+            // Выбираем случайные прилагательные и существительные в зависимости от языка
+            $adjectiveList = ${"adjectives{$locale}"};
+            $nounList = ${"nouns{$locale}"};
 
-    //     // Подтверждение email
-    //     $user->email_verified_at = now();
-    //     $user->removeRole('guest');
-    //     $user->assignRole('user');
-    //     $user->save();
+            $adjective = $adjectiveList[random_int(0, count($adjectiveList) - 1)];
+            $noun = $nounList[random_int(0, count($nounList) - 1)];
 
-    //     return response()->view('emails.thanks');
-    // }
+            // Собираем никнейм
+            $nickname = "{$adjective}_{$noun}_{$number}";
+
+            // Проверяем, существует ли уже такой никнейм
+            $nicknameExists = UserMetadata::where('nickname', $nickname)->exists();
+
+        } while ($nicknameExists); // Генерируем новый никнейм, если текущий занят
+
+        return $nickname;
+    }
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
@@ -372,13 +489,6 @@ class AuthController extends Controller
 
 
 
-
-
-
-
-
-
-
     /**
      * Выход из аккаунта
      *
@@ -389,45 +499,14 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        // Log::info('LOGOUT STARTING...');
         $user = Auth::user();
-        // Log::info('DEFINED USER: ' . $user->email);
-        // Log::info('SETTING REMEMBER TOKEN TO NULL...');
         $user->remember_token = null;
-        // Log::info('REMEMBER TOKEN SET TO NULL');
         $user->save();
-        // Log::info('SAVED USER');
-
-        // Log::info('LOGGING OUT...');
         Auth::logout();
-        // Log::info('LOGGED OUT');
-
-        // Log::info('RESPONDING...');
         $response = response()->json(['message' => 'Successfully logged out.']);
         $response->withCookie(cookie()->forget('refresh_token'));
-
-        // Log::info('LOGOUT DONE');
         return $response;
     }
-    // public function logout()
-    // {
-    //     $user = Auth::user();
-
-    //     if ($user) {
-    //         $user->remember_token = null;
-    //         $user->save();
-    //     }
-
-    //     Auth::logout();
-
-    //     $response = response()->json(['message' => 'Successfully logged out.']);
-    //     $response->withCookie(cookie()->forget('refresh_token'));
-
-    //     return $response;
-    // }
-
-
-
 
 
 
@@ -491,13 +570,22 @@ class AuthController extends Controller
 
     public function changeEmail(Request $request)
     {
+        $credentials["password"] = $request->input('password');
+        $user = Auth::user();
+        $credentials[$user->email ? 'email' : 'phone'] = $user->{$user->email ? 'email' : 'phone'};
+
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+        }
+
+    
         // Валидация нового email
         $validator = Validator::make($request->all(), [
             'email' => [
                 'required',
                 'email',
                 'unique:user_login_data,email',
-                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                'regex:{$this->emailRegexp}',
             ]
         ]);
 
@@ -530,11 +618,20 @@ class AuthController extends Controller
 
     public function requestChangePassword(Request $request)
     {
+        $credentials["password"] = $request->input('password');
+        $user = Auth::user();
+        $credentials[$user->email ? 'email' : 'phone'] = $user->{$user->email ? 'email' : 'phone'};
+
+        if (!$token = Auth::attempt($credentials)) {
+            return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
+        }
+
+
         // Валидация нового email
         $validator = Validator::make($request->all(), [
-            'password' => [
+            'new_password' => [
                 'required',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]{8,}$/',
+                'regex:{$this->passwordRegexp}',
             ]
         ]);
 
@@ -542,8 +639,8 @@ class AuthController extends Controller
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
 
-        $user = Auth::user();
-        $password = $request->input('password');
+
+        $password = $request->input('new_password');
 
         // Создание кастомного payload для токена
         $customPayload = [
@@ -562,8 +659,90 @@ class AuthController extends Controller
         // Отправка письма на новый email с токеном для подтверждения
         Mail::to($user->email)->send(new PasswordUpdate($user, $token));
 
-        return $this->successResponse(null, 'Password change request sent successfully.');
+        return $this->successResponse([], 'Password change request sent successfully.');
     }
 
+
+    public function recoverPassword(Request $request)
+    {
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+        $customPayload = [
+            'sub' => $user->id,
+            'iat' => now()->timestamp,
+            'email' => $user->email,
+            'exp' => now()->addMinutes(15)->timestamp,
+        ];
+
+        $payload = JWTAuth::factory()->customClaims($customPayload)->make();
+        $token = JWTAuth::encode($payload)->get();
+
+        Mail::to($user->email)->send(new RecoverPassword($user, $token));
+
+        return $this->successResponse([], 'Password change request sent successfully.');
+
+    }
+
+    public function setNewPassword(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            return $this->errorResponse('Token is missing', [], 400);
+        }
+
+        try {
+            // Проверка подлинности токена и извлечение payload
+            $payload = JWTAuth::setToken($token)->getPayload();
+
+            // Извлечение данных пользователя из токена
+            $userId = $payload->get('sub'); // Идентификатор пользователя
+
+            // Получаем пользователя по userId
+            $user = User::find($userId);
+
+            if (!$user) {
+                return $this->errorResponse('User not found', [], 404);
+            }
+
+        
+
+            // Валидация нового пароля
+            $validator = Validator::make($request->all(), [
+                'password' => [
+                    'required',
+                    'regex:{$this->passwordRegexp}',
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse('Validation Error', $validator->errors(), 422);
+            }
+
+            // Установка нового пароля
+            $password = bcrypt($request->input('password'));
+            $user->password = $password;
+
+            // Дополнительные действия
+            $user->email_verified_at = now();
+            $user->removeRole('guest');
+            $user->assignRole('user');
+            $user->save();
+
+            return response()->view('emails.thanks');
+        } catch (TokenExpiredException $e) {
+            return $this->errorResponse('Token has expired', [], 400);
+        } catch (TokenInvalidException $e) {
+            return $this->errorResponse('Token is invalid', [], 400);
+        } catch (JWTException $e) {
+            return $this->errorResponse('Token error', [], 400);
+        } catch (Exception $e) {
+            return $this->errorResponse('An unexpected error occurred', [], 500);
+        }
+    }
 
 }

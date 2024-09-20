@@ -15,12 +15,8 @@ return new class extends Migration
             $table->increments('id');
             $table->text('name');
             $table->jsonb('description');
-            //$table->text('address'); 
-            $table->integer('organization_id')->unsigned();
-            // $table->timestamps();
+            $table->text('cover_uri')->nullable();
             $table->timestampsTz();
-
-            $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
         });
     }
 

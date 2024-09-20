@@ -29,19 +29,6 @@
                         </td>
                     </tr>
 
-                    <!-- Logo -->
-                    <tr>
-                        <td class="header" style="background-color: #fff; padding: 40px 40px 0 40px; text-align: center;">
-                            <table role="presentation" style="margin: 0 auto;">
-                                <tr>
-                                    <td style="padding: 0; text-align: center;">
-                                        <a href="http://185.242.118.145" target="_blank" style="display: block; width: 100px; height: 100px; background-color: #FF8911; border-radius: 50%; text-decoration: none; margin: 0 auto;"></a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
                     <!-- Body -->
                     <tr>
                         <td class="body" style="padding: 0px 40px 24px 40px; background-color: #fff; text-align: left;">

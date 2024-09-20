@@ -228,20 +228,22 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, $resource_type, $resource_id)
     {
-        // Получаем текущего пользователя
         $user = Auth::user();
 
-        // Проверяем, имеет ли пользователь право создавать комментарий
         if (!$user->can('createComment', [Comment::class, $resource_type, $resource_id])) {
             return $this->errorResponse('Нет прав на создание комментария', [], 403);
         }
 
-        // Создаем комментарий на основе проверенных данных
         $comment = Comment::createComment($request->validated(), $resource_type, $resource_id);
 
-        // Возвращаем успешный ответ JSON
+        if (!$comment) {
+            return $this->errorResponse('Ваш комментарий содержит недопустимые слова', [], 400);
+        }
+
         return $this->successResponse(['comment' => $comment], 'Коммент создан успешно', 200);
     }
+
+
 
     /**
      * Обновить
@@ -254,23 +256,19 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, $id)
     {
-        // Найти комментарий по идентификатору
         $comment = Comment::find($id);
 
         if (!$comment) {
             return $this->errorResponse('Комментарий не найден', [], Response::HTTP_NOT_FOUND);
         }
 
-        // Проверка прав пользователя на обновление комментария
         if (!Auth::user()->can('update', $comment)) {
             return $this->errorResponse('Нет прав на обновление комментария', [], 403);
         }
 
-        // Обновление комментария с использованием проверенных данных
-        $comment->content = $request->validated();
+        $comment->content = $request->validated()['content'];
         $comment->save();
 
-        // Возвращаем успешный ответ JSON
         return $this->successResponse(['comment' => $comment], 'Комментарий обновлен успешно', 200);
     }
 

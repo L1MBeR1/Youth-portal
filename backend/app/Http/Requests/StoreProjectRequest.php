@@ -27,6 +27,7 @@ class StoreProjectRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string',
+            'cover_uri' => 'nullable|string',
         ];
     }
 

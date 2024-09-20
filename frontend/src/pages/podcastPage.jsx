@@ -1,14 +1,15 @@
+import { AspectRatio, Avatar, Stack, Typography } from '@mui/joy';
 import Box from '@mui/joy/Box';
+import Card from '@mui/joy/Card';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import AudioPlayer from '../components/players/audio/AudioPlayer';
-import AudioPlayerMini from '../components/players/audio/AudioPlayerMini';
+import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
+import usePodcastById from '../hooks/usePodcastById';
+import { mainMargin } from '../themes/mainMargin.js';
 
 function PodcastPage() {
 	const { id } = useParams();
-	const url =
-		'https://www.dropbox.com/scl/fi/w29p4jx0a9gqsd8urjqxq/gena.mp3?rlkey=y3q2wplt6g4jvqa990x7nostc&st=az1rjytd&dl=1';
-
+	const { data, isFetching } = usePodcastById(id);
 	return (
 		<Box
 			sx={{
@@ -16,41 +17,62 @@ function PodcastPage() {
 				display: 'flex',
 				flexDirection: 'column',
 				flexGrow: 1,
-				marginX: { xs: '10px', md: '10%', lg: '15%' },
+				marginX: mainMargin,
 			}}
 		>
-			{/* Секция-заголовок */}
-
-			{/* Секция плеера */}
-			{/* <div>  */}
-
-			<br />
-			<br />
-			<AudioPlayer
-				styles={{ marginTop: '20px', marginBottom: '20px' }}
-				// filename={"gena.mp3"}
-				filename={'hotel_pools_melt.mp3'}
-				title={'Название подкаста'}
-				contentName=''
-				contentId={''}
-				// pictureURL={"https://images.unsplash.com/photo-1722808333348-1b61caa91203?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
-				pictureURL={''}
-			/>
-			{/* </div> */}
-
-			<br />
-			<br />
-			<br />
-
-			<AudioPlayerMini
-				// filename={"gena.mp3"}
-				filename={'hotel_pools_melt.mp3'}
-				title={'Название подкаста'}
-				contentName=''
-				contentId={''}
-				// pictureURL={"https://images.unsplash.com/photo-1722808333348-1b61caa91203?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
-				pictureURL={''}
-			/>
+			{isFetching || !data ? (
+				<></>
+			) : (
+				<Card
+					variant='plain'
+					sx={{
+						marginTop: '40px',
+						borderRadius: '30px',
+						p: '25px',
+						overflow: 'hidden',
+					}}
+				>
+					<Stack direction={'column'} spacing={3}>
+						<Stack
+							sx={{
+								gap: '30px',
+								flexDirection: { xs: 'column', smx: 'row' },
+							}}
+						>
+							<Stack
+								alignItems={'center'}
+								sx={{
+									minWidth: '250px',
+								}}
+							>
+								<AspectRatio
+									ratio='1'
+									sx={{
+										overflow: 'hidden',
+										width: '100%',
+									}}
+								>
+									<img src={data.cover_uri} alt={data.title} />
+								</AspectRatio>
+							</Stack>
+							<Stack direction={'column'} spacing={1}>
+								<Typography level='title-xxxl' component={'h1'}>
+									{data.title}
+								</Typography>
+								<Stack direction={'row'} alignItems={'center'} spacing={2}>
+									<Avatar size='sm' src={data.profile_image_uri} />
+									<Typography level='title-md'>{data.nickname}</Typography>
+								</Stack>
+							</Stack>
+						</Stack>
+						<AudioPlayer audioUrl={data.audio_uri} />
+						<Stack direction={'column'} spacing={1}>
+							<Typography level='title-xxl'>О подкасте </Typography>
+							<Typography level='body-md'>{data.description.desc}</Typography>
+						</Stack>
+					</Stack>
+				</Card>
+			)}
 		</Box>
 	);
 }

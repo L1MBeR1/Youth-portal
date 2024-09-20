@@ -9,6 +9,6 @@ class PodcastSeeder extends Seeder
 {
     public function run(): void
     {
-        Podcast::factory(50)->create();
+        Podcast::factory(30)->create();
     }
 }

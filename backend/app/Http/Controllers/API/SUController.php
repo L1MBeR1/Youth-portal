@@ -95,7 +95,7 @@ class SUController extends Controller
 
     public function updateUserRoles(StoreUserRequest $request)
     {
-        Log::info($request);
+        // Log::info($request);
         $request->validated();
 
         $user = null;

@@ -3,31 +3,53 @@
 namespace Database\Factories;
 
 use Carbon\Carbon;
+use App\Models\Blog;
 use App\Models\User;
-use Faker\Factory as FakerFactory;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Services\ImageSeeder;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Blog>
  */
 class BlogFactory extends Factory
 {
-    private function generateImageURL(int $width = 320, int $height = 240): string
+    protected $model = Blog::class;
+
+    private $images = [];
+    private $imageCount;
+
+
+    private function generateImageUrls(int $blogId): array
     {
-        // Для избежания кеширования изображений при многократном обращении к сайту
-        $number = random_int(1, 100000);
-        $category = $this->faker->randomElement(['cat', 'dog', 'bird']);
-        // return "https://loremflickr.com/{$width}/{$height}/{$category}?random={$number}";
-        return "https://loremflickr.com/{$width}/{$height}/{$category}?lock={$number}";
+        $imageSeeder = new ImageSeeder();
+        return $imageSeeder->generateImageURL(
+            $blogId,
+            [
+                'sample_images/blog_content' => $this->imageCount,
+                'sample_images/blog_cover' => 1,
+            ],
+            'blogs'
+        );
     }
 
-    private function generateContent(): string
+
+    private function generateContent(int $blogId): string
     {
         $basePlainText = $this->faker->realText(15000);
-        $contentInnerPictures = [];
-        $finalText = '';
-
         $sentences = preg_split('/(?<=[.!?])\s+/', $basePlainText);
+        $paragraphs = $this->createParagraphs($sentences);
+
+        $this->imageCount = random_int(1, 3);
+        $this->images = $this->generateImageUrls($blogId);
+
+        return $this->buildContentWithImages($paragraphs);
+    }
+
+
+    private function createParagraphs(array $sentences): array
+    {
         $paragraphs = [];
         $paragraph = '';
 
@@ -38,33 +60,26 @@ class BlogFactory extends Factory
                 $paragraph = '';
             }
         }
+
         if (!empty($paragraph)) {
             $paragraphs[] = trim($paragraph);
         }
 
-        for ($i = 0; $i < random_int(1, 5); $i++) {
-            $contentInnerPictures[] = $this->generateImageURL();
-        }
+        return $paragraphs;
+    }
 
+
+    private function buildContentWithImages(array $paragraphs): string
+    {
         $htmlTags = ['<b>', '</b>', '<i>', '</i>', '<u>', '</u>', '<strong>', '</strong>', '<em>', '</em>'];
+        $finalText = '';
 
         foreach ($paragraphs as $paragraph) {
-            $finalText .= '<p>';
+            $finalText .= '<p>' . $this->applyRandomHtmlTags($paragraph, $htmlTags) . '</p>';
 
-            $words = explode(' ', $paragraph);
-            foreach ($words as $word) {
-                if (random_int(0, 10) > 7) {
-                    $tag = $htmlTags[array_rand($htmlTags)];
-                    $word = $tag . $word . str_replace('<', '</', $tag);
-                }
-                $finalText .= $word . ' ';
-            }
-
-            $finalText = rtrim($finalText) . '</p>';
-
-            if (random_int(0, 10) > 7 && !empty($contentInnerPictures)) {
-                $image = array_shift($contentInnerPictures);
-                $finalText .= '<div style="text-align:center;"><img src="' . $image . '" alt="Blog Image" style="max-width:100%;height:auto;"></div>';
+            if (random_int(0, 10) > 7 && count($this->images) > 1) {
+                $image = array_shift($this->images);
+                $finalText .= $this->embedImage($image);
             }
         }
 
@@ -72,48 +87,80 @@ class BlogFactory extends Factory
     }
 
 
+    private function applyRandomHtmlTags(string $paragraph, array $htmlTags): string
+    {
+        $words = explode(' ', $paragraph);
+        foreach ($words as &$word) {
+            if (random_int(0, 10) > 7) {
+                $tag = $htmlTags[array_rand($htmlTags)];
+                $word = $tag . $word . str_replace('<', '</', $tag);
+            }
+        }
+        return implode(' ', $words);
+    }
 
 
+    private function embedImage(string $imageUrl): string
+    {
+        return '<div style="text-align:center;"><img src="' . $imageUrl . '" alt="Blog Image" style="max-width:100%;height:auto;"></div>';
+    }
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+
+    private function generateBlogTitle(): string
+    {
+        $adjectives = [
+            'мужской род' => ['Вдохновляющий', 'Познавательный', 'Захватывающий'],
+            'женский род' => ['Вдохновляющая', 'Познавательная', 'Захватывающая'],
+            'средний род' => ['Вдохновляющее', 'Познавательное', 'Захватывающее'],
+        ];
+        $nouns = [
+            'мужской род' => ['опыт', 'путь', 'стиль'],
+            'женский род' => ['жизнь', 'мечта', 'страсть'],
+            'средний род' => ['саморазвитие', 'здоровье', 'хобби'],
+        ];
+        $thirdWords = [
+            'мужской род' => ['пути', 'разума', 'духа'],
+            'женский род' => ['мечты', 'страсти', 'идеи'],
+            'средний род' => ['человека', 'мудрости', 'озарения'],
+        ];
+
+        $gender = array_rand($adjectives);
+        $adjective = $this->faker->randomElement($adjectives[$gender]);
+        $noun = $this->faker->randomElement($nouns[$gender]);
+        $thirdWord = $this->faker->randomElement($thirdWords[$gender]);
+
+        return "$adjective $noun $thirdWord";
+    }
+
+
     public function definition(): array
     {
-        // TODO: 
-        $year = random_int(2019, 2022);
-        $month = random_int(1, 12);
-        $day = random_int(1, 28);
-        $time = "{$year}-{$month}-{$day} 10:00:00";
-
-        $timezone = 'Europe/Moscow';
-
-        $dateTime = Carbon::createFromFormat('Y-m-d H:i:s', $time, $timezone)->setTimezone('UTC');
-
-
-        // echo "Carbon DateTime (UTC): " . $dateTime . "\n";
-        // echo "Carbon DateTime (UTC): " . $dateTime->format('Y-m-d H:i:s.uP') . "\n";
-
+        $dateTime = Carbon::create(random_int(2019, 2022), random_int(1, 12), random_int(1, 28), 10)->setTimezone('UTC');
         $userIds = User::pluck('id')->toArray();
 
         return [
-            'title' => $this->faker->company(),
+            'title' => $this->generateBlogTitle(),
             'description' => [
                 'desc' => $this->faker->realText(100),
-                'meta' => [
-                    'tags' => [
-                        $this->faker->randomElement(['наука', 'культура', 'путешествия'])
-                    ]
-                ]
+                'meta' => ['tags' => [$this->faker->randomElement(['наука', 'культура', 'путешествия'])]]
             ],
-            'content' => $this->generateContent(),
-            'cover_uri' => $this->generateImageURL(),
+            'content' => '',
+            'cover_uri' => '',
             'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
             'created_at' => $dateTime->format('Y-m-d H:i:s'),
             'updated_at' => $dateTime->format('Y-m-d H:i:s'),
             'author_id' => $this->faker->randomElement($userIds),
         ];
+    }
+
+
+    public function configure(): self
+    {
+        return $this->afterCreating(function (Blog $blog) {
+            $content = $this->generateContent($blog->id);
+            $coverUri = $this->images[0] ?? '';
+
+            $blog->update(['cover_uri' => $coverUri, 'content' => $content]);
+        });
     }
 }

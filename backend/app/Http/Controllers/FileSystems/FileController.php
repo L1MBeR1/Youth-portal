@@ -98,7 +98,7 @@ class FileController extends Controller
 
             // Полный путь для сохранения файла с именем на основе MD5-хэша
             $filePath = 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
-            $filename = 'http://127.0.0.1:8000/api/files/' . $folder . '/' . $md5Hash . '.' . $extension;
+            $filename = env('APP_FILE_URL') . $folder . '/' . $md5Hash . '.' . $extension;
 
             // Проверка на существование файла с таким хэшем
             if (Storage::disk('sftp')->exists($filePath)) {

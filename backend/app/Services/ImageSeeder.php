@@ -184,7 +184,7 @@ class ImageSeeder
         return array_map(function ($file) {
             // Удаляем префикс media/ из пути к файлу для создания URL
             $filenameWithoutMedia = preg_replace('/^media\//', '', $file['filename']);
-            return env('FILES_LINK', '') . $filenameWithoutMedia;
+            return env('APP_FILE_URL', '') . $filenameWithoutMedia;
         }, $uploadResponse['filenames']);
     }
 

@@ -66,12 +66,11 @@ function ChangeEmail({ id, open, setOpen }) {
 		};
 		const response = await updateUserEmail(id, token, updatedData);
 		if (response) {
-			queryClient.removeQueries(['profile']);
+			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
-			setOpen(false);
+			handleClose();
 			console.log(response);
 			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
 			return;
 		}
 		return;

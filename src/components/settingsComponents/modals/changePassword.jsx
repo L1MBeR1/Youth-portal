@@ -126,12 +126,10 @@ function ChangePassword({ id, open, setOpen }) {
 		};
 		const response = await updateUserPassword(id, token, updatedData);
 		if (response) {
-			queryClient.removeQueries(['profile']);
+			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
-			setOpen(false);
-			console.log(response);
+			handleClose();
 			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
 			return;
 		} else {
 			setIsLoading(false);

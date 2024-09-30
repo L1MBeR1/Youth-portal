@@ -90,6 +90,38 @@ export const updateUserPassword = async (id, token, data) => {
 	}
 };
 
+export const updateProfileImage = async (id, token, data) => {
+	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
+	console.log(id, token, data);
+
+	try {
+		const response = await axios.put(`${API_URL}/users/${id}`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to update password');
+	}
+};
+
+export const loadProfileImage = async (id, token, data) => {
+	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
+	console.log(id, token, data);
+
+	try {
+		const response = await axios.post(`${API_URL}/files/profiles/${id}`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to update password');
+	}
+};
+
 export const deleteModerator = async (token, id) => {
 	try {
 		const response = await axios.delete(

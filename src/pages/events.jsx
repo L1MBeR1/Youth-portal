@@ -6,8 +6,9 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Grid from '@mui/joy/Grid';
 import IconButton from '@mui/joy/IconButton';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
+import Carousel from '../components/homeComponents/carousel';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
 import Map from '../components/maps/map';
 import useEventsWithSortData from '../hooks/useEventsWithSortData';
@@ -22,6 +23,8 @@ function Events() {
 	const [country, setCountry] = useState('');
 	const [city, setCity] = useState('');
 	const [filtersCleared, setFiltersCleared] = useState(false);
+
+	const swiperRef = useRef(null);
 
 	const {
 		events,
@@ -46,14 +49,17 @@ function Events() {
 			setFiltersCleared(false);
 		}
 	}, [filtersCleared, refetchEvents]);
+
 	const handleRefetch = () => {
 		refetchEvents();
 	};
+
 	const clearFilters = () => {
 		setCountry('');
 		setCity('');
 		setFiltersCleared(true);
 	};
+
 	return (
 		<Stack
 			direction={'column'}
@@ -66,6 +72,7 @@ function Events() {
 				<Typography level='h1'>Мероприятия</Typography>
 			</Box>
 			<Stack direction={'column'} spacing={2}>
+				{/* Фильтры */}
 				<Box
 					sx={{
 						borderRadius: 'sm',
@@ -111,52 +118,84 @@ function Events() {
 						Найти
 					</Button>
 				</Box>
-				<Stack
-					direction={'row'}
-					height={'75vh'}
+
+				{/* Версия для ПК - скролл */}
+				<Box
 					sx={{
-						borderRadius: '30px',
-						overflow: 'hidden',
+						display: { xs: 'none', md: 'block' },
 					}}
 				>
-					{events && (
-						<>
-							<Stack
-								direction={'column'}
-								flexGrow={1}
-								sx={{
-									maxWidth: '50%',
-								}}
-							>
+					<Stack
+						height={'75vh'}
+						sx={{
+							flexDirection: 'row',
+							borderRadius: '30px',
+							overflow: 'hidden',
+						}}
+					>
+						{events && (
+							<>
 								<Stack
+									direction={'column'}
 									flexGrow={1}
 									sx={{
-										paddingRight: '20px',
-										overflowY: 'scroll',
+										maxWidth: '50%',
 									}}
 								>
-									<Grid container spacing={2}>
-										{events.map((event, index) => (
-											<Grid
-												xs={12}
-												smx={6}
-												mdx={6}
-												lgx={4}
-												xxl={6}
-												key={event.id}
-											>
-												<EventCard key={index} data={event} />
-											</Grid>
-										))}
-									</Grid>
+									<Stack
+										flexGrow={1}
+										sx={{
+											paddingRight: '20px',
+											overflowY: 'scroll', // Скролл для ПК
+										}}
+									>
+										<Grid container spacing={2}>
+											{events.map((event, index) => (
+												<Grid
+													xs={12}
+													smx={12}
+													mdx={6}
+													lgx={4}
+													xxl={6}
+													key={event.id}
+												>
+													<EventCard key={index} data={event} />
+												</Grid>
+											))}
+										</Grid>
+									</Stack>
 								</Stack>
-							</Stack>
-							<Stack direction={'column'} flexGrow={1}>
-								<Map markers={events} />
-							</Stack>
-						</>
-					)}
-				</Stack>
+								<Stack direction={'row'} flexGrow={1}>
+									<Map markers={events} />
+								</Stack>
+							</>
+						)}
+					</Stack>
+				</Box>
+
+				{/* Версия для мобильных устройств - карусель */}
+				<Box
+					sx={{
+						display: { xs: 'block', md: 'none' },
+					}}
+				>
+					<Stack direction={'column'}>
+						{events && (
+							<>
+								<Stack flexGrow={1}>
+									<Map markers={events} />
+								</Stack>
+								<Carousel
+									data={events}
+									swiperRef={swiperRef}
+									onPrevSlide={() => {}}
+									onNextSlide={() => {}}
+									Card={EventCard}
+								/>
+							</>
+						)}
+					</Stack>
+				</Box>
 			</Stack>
 		</Stack>
 	);

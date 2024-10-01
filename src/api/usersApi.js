@@ -89,6 +89,21 @@ export const updateUserPassword = async (id, token, data) => {
 		throw new Error('Failed to update password');
 	}
 };
+export const updateUserNickname = async (id, token, data) => {
+	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
+	console.log(id, token, data);
+
+	try {
+		const response = await axios.put(`${API_URL}/users/nickname`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to update password');
+	}
+};
 
 export const updateProfileImage = async (id, token, data) => {
 	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');

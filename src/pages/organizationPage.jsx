@@ -144,7 +144,7 @@ function OrganizationPage() {
 								spacing={1}
 								flexGrow={1}
 							>
-								<Typography level='publications-h2'>О организации</Typography>
+								<Typography level='publications-h2'>Об организации</Typography>
 							</Stack>
 							<Stack
 								direction={'column'}

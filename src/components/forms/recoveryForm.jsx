@@ -18,6 +18,7 @@ function RecoveryForm() {
 				width: '100%',
 				maxWidth: '450px',
 				padding: '25px',
+				marginTop: '40px',
 			}}
 		>
 			<form>

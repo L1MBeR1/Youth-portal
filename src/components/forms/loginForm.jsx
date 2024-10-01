@@ -31,7 +31,9 @@ function LoginForm() {
 			const data = await login(email, password);
 			console.log(data);
 			const token = data.access_token;
+
 			if (token) {
+				await queryClient.invalidateQueries(['profile']);
 				setToken(token);
 				const decoded = jwtDecode(token);
 				if (decoded.roles.includes('admin')) {
@@ -44,7 +46,6 @@ function LoginForm() {
 					navigate('/');
 				}
 			}
-			queryClient.invalidateQueries(['profile']);
 			setIsLoading(false);
 		} catch (error) {
 			setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');
@@ -61,6 +62,7 @@ function LoginForm() {
 				width: '100%',
 				maxWidth: '450px',
 				padding: '25px',
+				marginTop: '40px',
 			}}
 		>
 			<form onSubmit={handleSubmit}>

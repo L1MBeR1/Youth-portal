@@ -121,7 +121,8 @@ function ChangeEmail({ id, open, setOpen }) {
 						<Button
 							variant='solid'
 							onClick={handleConfirm}
-							disabled={!isConfirmEnabled || isLoading}
+							disabled={!isConfirmEnabled}
+							loading={isLoading}
 						>
 							Отправить письмо
 						</Button>

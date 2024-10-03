@@ -12,6 +12,8 @@ Route::group([
     Route::get('', [NewsController::class, 'getNews']);
     
     Route::post('', [NewsController::class, 'store']);
+    Route::post('drafts/{id}', [NewsController::class, 'createDraft']);
+    Route::put('drafts/{id}', [NewsController::class, 'applyDraft']); 
     Route::put('{id}', [NewsController::class, 'update']);
     Route::delete('{id}', [NewsController::class, 'destroy']);
     Route::put('{id}/status', [NewsController::class, 'updateStatus']);

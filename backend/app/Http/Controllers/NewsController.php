@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use Illuminate\Http\Request;
+use App\Services\FileService;
 use App\Traits\PaginationTrait;
-use App\Traits\QueryBuilderTrait;
 // use Illuminate\Support\Facades\Log;
+use App\Traits\QueryBuilderTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreNewsRequest;
@@ -34,7 +35,7 @@ class NewsController extends Controller
         if ($news->status !== 'published') {
             $user = Auth::user();
             // Если не авторизован или нет прав
-            if (!$user || !$user->can('requestSpecificBlog', $blog)) {
+            if (!$user || !$user->can('requestSpecificNews', $news)) {
                 return $this->errorResponse('Нет прав на просмотр', [], 403);
             }
         }
@@ -241,6 +242,69 @@ class NewsController extends Controller
     }
 
 
+    public function createDraft($newsId)
+    {
+        if (News::where('draft_for', $newsId)->exists()) {
+            return $this->errorResponse('Черновик уже существует', [], Response::HTTP_CONFLICT);
+        }
+
+        $news = News::find($newsId);
+        $newsData = $news->toArray();
+
+        unset($newsData['id'], $newsData['draft_for'],$newsData['updated_at']);
+        $newsData['draft_for'] = $news->id;
+
+        // Поле описания должно быть массивом
+        if (is_string($newsData['description'])) {
+            $newsData['description'] = json_decode($newsData['description'], true);
+        }
+
+        $draft = News::create($newsData);
+
+        // Копировать файлы для черновика
+        $fileService = new FileService();
+        $fileService->copyFolder('media/news/' . $news->id, 'media/news/' . $draft->id);
+
+        return $this->successResponse($draft, 'Черновик создан', Response::HTTP_OK);
+    }
+
+
+
+
+
+    public function applyDraft($draftId)
+    {
+        $fileService = new FileService();
+
+        // Получаем черновик по ID
+        $draft = News::find($draftId);
+        if (!$draft) {
+            return $this->errorResponse('Черновик не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Получаем новость, который нужно заменить, по ID черновика
+        $newsToReplace = News::find($draft->draft_for);
+        if (!$newsToReplace) {
+            return $this->errorResponse('Новость для замены не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Удаляем папку, связанную с черновиком
+        $folder = 'media/news/' . $draft->id;
+        $fileService->deleteFolder($folder);
+
+        // Преобразуем черновик в массив и удаляем ненужные поля
+        $draftData = $draft->toArray();
+        unset($draftData['id'], $draftData['draft_for'], $draftData['created_at'], $draftData['updated_at'], $draftData['author_id']);
+
+        // Обновляем новость полями черновика
+        $newsToReplace->update($draftData);
+
+        $draft->delete();
+
+        return $this->successResponse($newsToReplace, 'Новость успешно обновлена черновиком', Response::HTTP_OK);
+    }
+
+
     /**
      * Создать
      * 
@@ -297,7 +361,7 @@ class NewsController extends Controller
             $news->increment('likes');
         }
 
-        return $this->successResponse(['news' => $news], 'News liked successfully', 200);
+        return $this->successResponse($news, 'News liked successfully', 200);
     }
 
 
@@ -330,7 +394,7 @@ class NewsController extends Controller
 
         $news->update(['status' => $newStatus]);
 
-        return $this->successResponse(['news' => $news], 'News status updated successfully', 200);
+        return $this->successResponse($news, 'News status updated successfully', 200);
     }
 
 
@@ -349,12 +413,16 @@ class NewsController extends Controller
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
 
+        if ($news->status === "published") {
+            return $this->errorResponse('Нельзя редактировать опубликованную новость', [], Response::HTTP_FORBIDDEN);
+        }
+
         if (!Auth::user()->can('update', $news)) {
             return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
 
         $news->update($request->validated());
-        return $this->successResponse(['news' => $news], 'News updated successfully', 200);
+        return $this->successResponse($news, 'News updated successfully', 200);
     }
 
     /**
@@ -385,7 +453,7 @@ class NewsController extends Controller
 
         $news->delete();
 
-        return $this->successResponse(['news' => $news], 'News deleted successfully', 200);
+        return $this->successResponse($news, 'News deleted successfully', 200);
     }
 }
 

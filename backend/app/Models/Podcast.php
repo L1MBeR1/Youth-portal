@@ -25,7 +25,7 @@ class Podcast extends Model
     protected $guarded = [
         'id', 
         'created_at', 
-        'updated_at', 
+        // 'updated_at', 
     ];
 
     protected $fillable = [
@@ -37,7 +37,7 @@ class Podcast extends Model
         'views',
         'likes',
         'reposts',
-        'author_id',
+        'author_id', // для черновиков
     ];
 
     const STATUSES = ['moderating', 'published', 'archived', 'pending'];

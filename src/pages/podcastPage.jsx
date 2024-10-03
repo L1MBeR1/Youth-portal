@@ -3,7 +3,7 @@ import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
+import AudioPlayer from '../components/players/audio/AudioPlayer.jsx';
 import usePodcastById from '../hooks/usePodcastById';
 import { mainMargin } from '../themes/mainMargin.js';
 

@@ -21,7 +21,7 @@ import { Stack } from '@mui/joy';
 import { updateUserEmail } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
+import PasswordField from '../../fields/passwordField';
 
 function ChangeEmail({ id, open, setOpen }) {
 	const queryClient = useQueryClient();

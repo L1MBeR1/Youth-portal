@@ -20,8 +20,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import { jwtDecode } from 'jwt-decode';
 
-import EmailField from './formComponents/emailField.jsx';
-import PasswordField from './formComponents/passwordField.jsx';
+import EmailField from '../fields/emailField.jsx';
+import PasswordField from '../fields/passwordField.jsx';
 
 function RegistrationForm() {
 	const queryClient = useQueryClient();

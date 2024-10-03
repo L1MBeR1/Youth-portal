@@ -22,7 +22,7 @@ import NeutralModal from '../../modals/neutralModal';
 import { updateUserPassword } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
+import PasswordField from '../../fields/passwordField';
 
 function ChangePassword({ id, open, setOpen }) {
 	const queryClient = useQueryClient();

@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../../api/authApi.js';
 import { setToken } from '../../utils/authUtils/tokenStorage.js';
-import PasswordField from './formComponents/passwordField';
+import PasswordField from '../fields/passwordField.jsx';
 
 import { jwtDecode } from 'jwt-decode';
 

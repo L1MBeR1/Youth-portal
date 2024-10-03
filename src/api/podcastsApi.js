@@ -80,7 +80,7 @@ export const getPublishedPodcasts = async (token, params) => {
 export const getUserPublishedPodcasts = async userId => {
 	try {
 		const response = await axios.get(`${API_URL}/podcasts/published/`, {
-			userId,
+			params: { authorId: userId, }
 		});
 		// console.log(response)
 		return response.data;

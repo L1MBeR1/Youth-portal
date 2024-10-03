@@ -85,9 +85,8 @@ export const getBlog = async (token, id) => {
 export const getUserPublishedBlogs = async userId => {
 	try {
 		const response = await axios.get(`${API_URL}/blogs/published/`, {
-			userId,
+			params: { authorId: userId, }
 		});
-		// console.log(response)
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching blogs:', error);

@@ -34,6 +34,10 @@ trait QueryBuilderTrait
         if ($onlyPublished) {
             $query->where('status', 'published');
         }
+
+        if ($authorId = $request->query('authorId')) {
+            $query->where('author_id', $authorId);
+        }
     }
 
 

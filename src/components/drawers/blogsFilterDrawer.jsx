@@ -1,5 +1,4 @@
 import {
-	Autocomplete,
 	Box,
 	Button,
 	DialogTitle,
@@ -7,32 +6,39 @@ import {
 	FormControl,
 	FormLabel,
 	ModalClose,
+	Option,
+	Select,
 	Stack,
 } from '@mui/joy';
 import React from 'react';
+import usePublicationsTags from '../../hooks/usePublicationsTags';
 
-function EventFilterDrawer({
+function BlogsFilterDrawer({
 	open,
 	setOpen,
-	countries,
-	cities,
-	country,
-	setCountry,
-	city,
-	setCity,
+	setTag,
+	tag,
 	clearFilters,
 	refetch,
 }) {
+	const { data: tags } = usePublicationsTags();
 	const handleRefetch = () => {
 		refetch();
 		setOpen(false);
 	};
+
+	const handleTagChange = (event, value) => {
+		if (value) {
+			setTag(value);
+		} else {
+			setTag(null);
+		}
+	};
+
 	return (
 		<Drawer open={open} onClose={() => setOpen(false)} anchor='left' size='sm'>
 			<ModalClose />
-			<DialogTitle sx={{ maxWidth: '70%' }}>
-				Фильтры для мероприятий
-			</DialogTitle>
+			<DialogTitle>Фильтры для блогов</DialogTitle>
 			<Box
 				sx={{
 					display: 'flex',
@@ -41,28 +47,24 @@ function EventFilterDrawer({
 					padding: '20px',
 				}}
 			>
-				{countries && (
+				{tags && (
 					<FormControl>
-						<FormLabel>Страна</FormLabel>
-						<Autocomplete
-							placeholder='Выберите страну'
-							options={countries}
-							onChange={(e, value) => setCountry(value)}
-							value={country}
+						<FormLabel>Категории</FormLabel>
+						<Select
+							placeholder='Выберите категорию'
+							value={tag || ''}
+							onChange={handleTagChange}
 							size='sm'
-						/>
-					</FormControl>
-				)}
-				{cities && (
-					<FormControl>
-						<FormLabel>Город</FormLabel>
-						<Autocomplete
-							placeholder='Выберите город'
-							options={cities}
-							onChange={(e, value) => setCity(value)}
-							value={city}
-							size='sm'
-						/>
+							sx={{
+								backgroundColor: 'var(--joy-palette-background-body)',
+							}}
+						>
+							{tags.map(tagOption => (
+								<Option key={tagOption} value={tagOption}>
+									{tagOption}
+								</Option>
+							))}
+						</Select>
 					</FormControl>
 				)}
 				<Stack direction={'row'} spacing={2}>
@@ -91,4 +93,4 @@ function EventFilterDrawer({
 	);
 }
 
-export default EventFilterDrawer;
+export default BlogsFilterDrawer;

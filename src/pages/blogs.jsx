@@ -9,6 +9,7 @@ import usePublications from '../hooks/usePublications';
 
 import SortIcon from '@mui/icons-material/Sort';
 import { Button, Stack, Typography } from '@mui/joy';
+import BlogsFilterDrawer from '../components/drawers/blogsFilterDrawer.jsx';
 import SearchField from '../components/fields/searchField.jsx';
 import BlogCart from '../components/publicationsComponents/blogCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
@@ -17,8 +18,12 @@ function Blogs() {
 	const [lastPage, setLastPage] = useState(1);
 	const [orderDir, setOrderDir] = useState('desc');
 
-	const [sortChanged, setSortChanged] = useState(false);
-
+	const [tag, setTag] = useState('');
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
+	const searchFields = ['title'];
+	const [searchValue, setSearchValue] = useState('');
+	const [searchValues, setSearchValues] = useState([]);
 	const {
 		data: blogs,
 		isLoading,
@@ -26,6 +31,8 @@ function Blogs() {
 	} = usePublications(['blogs'], getPublishedBlogs, setLastPage, {
 		page: page,
 		per_page: 8,
+		searchFields: searchFields,
+		searchValues: searchValues,
 		withAuthors: true,
 		orderBy: 'created_at',
 		orderDir,
@@ -35,17 +42,30 @@ function Blogs() {
 	}, [page, refetch]);
 
 	useEffect(() => {
-		if (sortChanged) {
+		if (isNeedRefetch) {
 			refetch();
-			setSortChanged(false);
+			setIsNeedRefetch(false);
 		}
-	}, [sortChanged, refetch]);
+	}, [isNeedRefetch, refetch]);
 
+	const clearSearchValue = () => {
+		setSearchValue('');
+		setSearchValues([]);
+		setIsNeedRefetch(true);
+	};
+	const applySearchValue = () => {
+		setSearchValues([searchValue]);
+		setIsNeedRefetch(true);
+	};
 	const handleSortChange = newValue => {
 		setOrderDir(newValue);
-		setSortChanged(true);
+		setIsNeedRefetch(true);
 	};
 
+	const clearFilters = () => {
+		setTag('');
+		setIsNeedRefetch(true);
+	};
 	return (
 		<Stack
 			direction={'column'}
@@ -59,6 +79,14 @@ function Blogs() {
 					Блоги
 				</Typography>
 			</Box>
+			<BlogsFilterDrawer
+				open={drawerOpen}
+				setOpen={setDrawerOpen}
+				tag={tag}
+				setTag={setTag}
+				clearFilters={clearFilters}
+				refetch={refetch}
+			/>
 			<Stack
 				justifyContent={'space-between'}
 				sx={{
@@ -67,9 +95,22 @@ function Blogs() {
 				gap={3}
 			>
 				<Stack direction={'row'} spacing={2}>
-					<SearchField size='sm' sx={{ borderRadius: '30px', width: '100%' }} />
+					<SearchField
+						size='sm'
+						searchValue={searchValue}
+						setSearchValue={setSearchValue}
+						onClear={clearSearchValue}
+						sx={{ borderRadius: '30px', width: '100%' }}
+					/>
 
-					<Button color='primary'>Найти</Button>
+					<Button
+						color='primary'
+						onClick={() => {
+							applySearchValue();
+						}}
+					>
+						Найти
+					</Button>
 				</Stack>
 				<Stack
 					direction={'row'}
@@ -78,7 +119,7 @@ function Blogs() {
 						justifyContent: { xs: 'space-between', md: '' },
 					}}
 				>
-					<Button>
+					<Button onClick={() => setDrawerOpen(true)}>
 						<FilterAltIcon />
 					</Button>
 					<Select

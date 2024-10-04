@@ -7,6 +7,7 @@ import Option from '@mui/joy/Option';
 import Select from '@mui/joy/Select';
 import React, { useEffect, useState } from 'react';
 import { getPublishedNews } from '../api/newsApi.js';
+import NewsFilterDrawer from '../components/drawers/newsFilterDrawer.jsx';
 import SearchField from '../components/fields/searchField.jsx';
 import NewsCard from '../components/publicationsComponents/newsCard.jsx';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination.jsx';
@@ -16,7 +17,12 @@ function News() {
 	const [lastPage, setLastPage] = useState(1);
 	const [orderDir, setOrderDir] = useState('desc');
 
-	const [sortChanged, setSortChanged] = useState(false);
+	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
+	const [tag, setTag] = useState('');
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const searchFields = ['title'];
+	const [searchValue, setSearchValue] = useState('');
+	const [searchValues, setSearchValues] = useState([]);
 
 	const {
 		data: news,
@@ -25,6 +31,8 @@ function News() {
 	} = usePublications(['news'], getPublishedNews, setLastPage, {
 		page: page,
 		per_page: 8,
+		searchFields: searchFields,
+		searchValues: searchValues,
 		withAuthors: true,
 		orderBy: 'created_at',
 		orderDir,
@@ -34,17 +42,29 @@ function News() {
 	}, [page, refetch]);
 
 	useEffect(() => {
-		if (sortChanged) {
+		if (isNeedRefetch) {
 			refetch();
-			setSortChanged(false);
+			setIsNeedRefetch(false);
 		}
-	}, [sortChanged, refetch]);
-
+	}, [isNeedRefetch, refetch]);
+	const clearSearchValue = () => {
+		setSearchValue('');
+		setSearchValues([]);
+		setIsNeedRefetch(true);
+	};
+	const applySearchValue = () => {
+		setSearchValues([searchValue]);
+		setIsNeedRefetch(true);
+	};
 	const handleSortChange = newValue => {
 		setOrderDir(newValue);
-		setSortChanged(true);
+		setIsNeedRefetch(true);
 	};
 
+	const clearFilters = () => {
+		setTag('');
+		setIsNeedRefetch(true);
+	};
 	return (
 		<Stack
 			direction={'column'}
@@ -58,6 +78,14 @@ function News() {
 					Новости
 				</Typography>
 			</Box>
+			<NewsFilterDrawer
+				open={drawerOpen}
+				setOpen={setDrawerOpen}
+				tag={tag}
+				setTag={setTag}
+				clearFilters={clearFilters}
+				refetch={refetch}
+			/>
 			<Stack
 				justifyContent={'space-between'}
 				sx={{
@@ -66,9 +94,22 @@ function News() {
 				gap={3}
 			>
 				<Stack direction={'row'} spacing={2}>
-					<SearchField size='sm' sx={{ borderRadius: '30px', width: '100%' }} />
+					<SearchField
+						size='sm'
+						searchValue={searchValue}
+						setSearchValue={setSearchValue}
+						onClear={clearSearchValue}
+						sx={{ borderRadius: '30px', width: '100%' }}
+					/>
 
-					<Button color='primary'>Найти</Button>
+					<Button
+						color='primary'
+						onClick={() => {
+							applySearchValue();
+						}}
+					>
+						Найти
+					</Button>
 				</Stack>
 				<Stack
 					direction={'row'}
@@ -77,7 +118,7 @@ function News() {
 						justifyContent: { xs: 'space-between', md: '' },
 					}}
 				>
-					<Button>
+					<Button onClick={() => setDrawerOpen(true)}>
 						<FilterAltIcon />
 					</Button>
 					<Select

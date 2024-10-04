@@ -15,40 +15,66 @@ function Events() {
 	const end_date = new Date();
 	end_date.setMonth(end_date.getMonth() + 12);
 	const endDateString = end_date.toISOString().split('T')[0];
-	const per_page = 10;
+	const per_page = 8;
 	const [country, setCountry] = useState('');
 	const [lastPage, setLastPage] = useState();
 	const [page, setPage] = useState(1);
 	const [city, setCity] = useState('');
-	const [filtersCleared, setFiltersCleared] = useState(false);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
+	const [orderDir, setOrderDir] = useState('desc');
+	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
+	const searchFields = ['name'];
+	const [searchValue, setSearchValue] = useState('');
+	const [searchValues, setSearchValues] = useState([]);
 	const { data: events, refetch } = useEvents(setLastPage, {
 		page,
-		start_date,
 		end_date: endDateString,
 		per_page,
 		country,
 		city,
+
+		searchFields: searchFields,
+		searchValues: searchValues,
+		withAuthors: true,
+		orderBy: 'created_at',
+		orderDir,
 	});
 	const { data: cities } = useCities();
 	const { data: countries } = useCountries();
 
 	useEffect(() => {
-		if (filtersCleared) {
-			refetch();
-			setFiltersCleared(false);
-		}
-	}, [filtersCleared, refetch]);
-
+		refetch();
+	}, [page, refetch]);
 	const handleRefetch = () => {
 		refetch();
+	};
+
+	useEffect(() => {
+		if (isNeedRefetch) {
+			refetch();
+			setIsNeedRefetch(false);
+		}
+	}, [isNeedRefetch, refetch]);
+
+	const clearSearchValue = () => {
+		setSearchValue('');
+		setSearchValues([]);
+		setIsNeedRefetch(true);
+	};
+	const applySearchValue = () => {
+		setSearchValues([searchValue]);
+		setIsNeedRefetch(true);
+	};
+	const handleSortChange = newValue => {
+		setOrderDir(newValue);
+		setIsNeedRefetch(true);
 	};
 
 	const clearFilters = () => {
 		setCountry('');
 		setCity('');
-		setFiltersCleared(true);
+		setIsNeedRefetch(true);
 	};
 
 	return (
@@ -81,9 +107,20 @@ function Events() {
 				gap={3}
 			>
 				<Stack direction={'row'} spacing={2}>
-					<SearchField size='sm' sx={{ borderRadius: '30px', width: '100%' }} />
+					<SearchField
+						size='sm'
+						searchValue={searchValue}
+						setSearchValue={setSearchValue}
+						onClear={clearSearchValue}
+						sx={{ borderRadius: '30px', width: '100%' }}
+					/>
 
-					<Button color='primary' onClick={handleRefetch}>
+					<Button
+						color='primary'
+						onClick={() => {
+							applySearchValue();
+						}}
+					>
 						Найти
 					</Button>
 				</Stack>
@@ -104,6 +141,7 @@ function Events() {
 						endDecorator={<SortIcon />}
 						indicator={null}
 						color='neutral'
+						onChange={(e, newValue) => handleSortChange(newValue)}
 					>
 						<Option value={'desc'}>Сначала новые</Option>
 						<Option value={'asc'}>Сначала старые</Option>

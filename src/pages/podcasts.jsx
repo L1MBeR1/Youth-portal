@@ -13,6 +13,11 @@ function Podcasts() {
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
 
+	const [orderDir, setOrderDir] = useState('desc');
+	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
+	const searchFields = ['title'];
+	const [searchValue, setSearchValue] = useState('');
+	const [searchValues, setSearchValues] = useState([]);
 	const {
 		data: podcasts,
 		isLoading,
@@ -20,12 +25,36 @@ function Podcasts() {
 	} = usePublications(['podcasts'], getPublishedPodcasts, setLastPage, {
 		page: page,
 		per_page: 12,
+		searchFields: searchFields,
+		searchValues: searchValues,
 		withAuthors: true,
+		orderBy: 'created_at',
+		orderDir,
 	});
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
 
+	useEffect(() => {
+		if (isNeedRefetch) {
+			refetch();
+			setIsNeedRefetch(false);
+		}
+	}, [isNeedRefetch, refetch]);
+
+	const clearSearchValue = () => {
+		setSearchValue('');
+		setSearchValues([]);
+		setIsNeedRefetch(true);
+	};
+	const applySearchValue = () => {
+		setSearchValues([searchValue]);
+		setIsNeedRefetch(true);
+	};
+	const handleSortChange = newValue => {
+		setOrderDir(newValue);
+		setIsNeedRefetch(true);
+	};
 	return (
 		<Stack
 			direction={'column'}
@@ -47,9 +76,22 @@ function Podcasts() {
 				gap={3}
 			>
 				<Stack direction={'row'} spacing={2}>
-					<SearchField size='sm' sx={{ borderRadius: '30px', width: '100%' }} />
+					<SearchField
+						size='sm'
+						searchValue={searchValue}
+						setSearchValue={setSearchValue}
+						onClear={clearSearchValue}
+						sx={{ borderRadius: '30px', width: '100%' }}
+					/>
 
-					<Button color='primary'>Найти</Button>
+					<Button
+						color='primary'
+						onClick={() => {
+							applySearchValue();
+						}}
+					>
+						Найти
+					</Button>
 				</Stack>
 				<Stack
 					direction={'row'}
@@ -68,6 +110,7 @@ function Podcasts() {
 						endDecorator={<SortIcon />}
 						indicator={null}
 						color='neutral'
+						onChange={(e, newValue) => handleSortChange(newValue)}
 					>
 						<Option value={'desc'}>Сначала новые</Option>
 						<Option value={'asc'}>Сначала старые</Option>

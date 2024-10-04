@@ -3,9 +3,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import { IconButton, Input } from '@mui/joy';
 import React from 'react';
 
-const SearchField = ({ searchValue, setSearchValue, sx, size }) => {
+const SearchField = ({ searchValue, setSearchValue, sx, size, onClear }) => {
 	const handleClear = () => {
 		setSearchValue('');
+		if (onClear) {
+			onClear();
+		}
 	};
 
 	return (

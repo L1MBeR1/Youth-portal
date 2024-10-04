@@ -45,6 +45,8 @@ import Su from './pages/su';
 import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
 import BlogWrapper from './pages/testing/v1/BlogWrapper';
 import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
+
+import ResetPassword from './pages/testing/forgotPassword';
 // <===================>
 
 //Роуты
@@ -113,6 +115,7 @@ function App() {
 							/editor
 						*/}
 						<Route path='/test_blog_creator_v1' element={<BlogWrapper />} />
+						<Route path='reset-password' element={<ResetPassword />} />
 						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
 						<Route path='/blog_creator' element={<BlogCreator />} />
 					</Route>

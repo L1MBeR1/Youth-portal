@@ -25,11 +25,11 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class EventController extends Controller
 {
-    use QueryBuilderTrait, PaginationTrait, EventTrait;
+    use QueryBuilderTrait, PaginationTrait;
     //TODO: Сделать метод для получения списка событий 
     // с пагинацией с минимальным набором параметров
 
-    
+
     /**
      * Поиск
      *
@@ -61,7 +61,7 @@ class EventController extends Controller
      */
     public function getEvents(Request $request)
     {
-        
+
         // TODO: Что-то сделать с трейтом
 
 
@@ -71,11 +71,22 @@ class EventController extends Controller
 
         $requiredFields = [
             'events' => [
-                'id', 'name', 'description', 'address', 'longitude', 'latitude', 'start_time', 'end_time', 'views', 'author_id', 'project_id'
+                'id',
+                'name',
+                'description',
+                'address',
+                'longitude',
+                'latitude',
+                'start_time',
+                'end_time',
+                'views',
+                'author_id',
+                'project_id'
             ],
             'user_metadata' => [
                 //TODO: Определиться с полями
-                'nickname', 'profile_image_uri'
+                'nickname',
+                'profile_image_uri'
             ],
         ];
 
@@ -122,7 +133,7 @@ class EventController extends Controller
         return $this->successResponse(['events' => $event], 'Мероприятие успешно создано', 200);
     }
 
-  
+
 
     /**
      * Update the specified resource in storage.
@@ -145,7 +156,7 @@ class EventController extends Controller
 
         $event->update($request->validated());
 
-        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', Response::HTTP_OK); 
+        return $this->successResponse(['events' => $event], 'Мероприятие успешно обновлено', Response::HTTP_OK);
     }
 
 
@@ -186,12 +197,85 @@ class EventController extends Controller
      * @urlParam perPage int Количество элементов на странице.
      */
     public function getUserEvents(Request $request)
-        //TODO убрать определенные поля из response в EventTrait?
     {
-        return $this->getEventsForUsers($request);
+        Log::info($request);
+        $query = Event::with(['project', 'author.metadata']);
+
+        $this->applyEventDateFilters($query, $request);
+        $this->applyEventLocationFilters($query, $request);
+        $this->applyEventCategoryFilter($query, $request);
+
+        if ($request->input('operator') === 'or') {
+            $query->orWhere(function ($q) use ($request) {
+                $this->applyEventLocationFilters($q, $request);
+                $this->applyEventCategoryFilter($q, $request);
+            });
+        }
+
+        $result = $query->paginate($request->get('per_page', 10));
+        $paginationData = $this->makePaginationData($result);
+
+        $formattedResult = $result->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'name' => $event->name,
+                'description' => $event->description,
+                'address' => $event->address,
+                'cover_uri' => $event->cover_uri,
+                'longitude' => $event->longitude,
+                'latitude' => $event->latitude,
+                'views' => $event->views,
+                'start_time' => $event->start_time,
+                'end_time' => $event->end_time,
+                'project' => $event->project ? $event->project : [
+                    'author' => [
+                        'first_name' => $event->author->metadata->first_name,
+                        'last_name' => $event->author->metadata->last_name,
+                        'nickname' => $event->author->metadata->nickname,
+                    ]
+                ]
+            ];
+        });
+
+        return $this->successResponse($formattedResult, $paginationData, 200);
     }
 
-    public function getEventById($id): \Illuminate\Http\JsonResponse
+
+
+    private function applyEventDateFilters($query, $request)
+    {
+        if ($request->has('start_date')) {
+            $startDate = $request->input('start_date') . ' 00:00:00';
+            $query->where('start_time', '>=', $startDate);
+        }
+
+        if ($request->has('end_date')) {
+            $endDate = $request->input('end_date') . ' 23:59:59';
+            $query->where('start_time', '<=', $endDate);
+        }
+    }
+
+    private function applyEventLocationFilters($query, $request)
+    {
+        if ($request->has('country') && trim($request->input('country')) !== '') {
+            $query->whereRaw("address->>'country' = ?", [$request->input('country')]);
+        }
+
+        if ($request->has('city') && trim($request->input('city')) !== '') {
+            $query->whereRaw("address->>'city' = ?", [$request->input('city')]);
+        }
+    }
+
+
+    private function applyEventCategoryFilter($query, $request)
+    {
+        if ($request->has('category') && trim($request->input('category')) !== '') {
+            $query->where('category', $request->input('category'));
+        }
+    }
+
+
+    public function getEventById($id)
     {
         $event = Event::with(['project', 'author.metadata'])->find($id);
         $user = null;
@@ -236,8 +320,9 @@ class EventController extends Controller
 
         return $this->successResponse(data: $eventData);
     }
-    
-    public function getTags(){
+
+    public function getTags()
+    {
         // Добавить теги в миграцию, сидер (и фабрику), дописать
     }
 
@@ -249,13 +334,14 @@ class EventController extends Controller
     /**
      * Получить города
      */
-    public function getCities(Request $request) {
+    public function getCities(Request $request)
+    {
         // TODO: Добавить возможность применения параметров:
         // ?events_available=<bool>
         // если будут какие-то ограничения по доступности мероприятий
 
         $cities = Event::select(DB::raw("DISTINCT(address->>'city') as city"))
-                            ->pluck('city');
+            ->pluck('city');
 
         return response()->json($cities);
     }
@@ -264,13 +350,14 @@ class EventController extends Controller
     /**
      * Получить страны
      */
-    public function getCountries(Request $request) {
+    public function getCountries(Request $request)
+    {
         // TODO: Добавить возможность применения параметров:
         // ?events_available=<bool>
         // если будут какие-то ограничения по доступности мероприятий
 
         $countries = Event::select(DB::raw("DISTINCT(address->>'country') as country"))
-                            ->pluck('country');
+            ->pluck('country');
 
         return response()->json($countries);
     }

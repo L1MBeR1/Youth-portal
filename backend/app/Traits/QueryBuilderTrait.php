@@ -1,10 +1,5 @@
 <?php
 
-// TODO: сделать универсальным для всех контроллеров
-// Исправить выбор лайков для авторизаованных пользователей
-// Исправить цепочки параметров
-
-
 namespace App\Traits;
 
 use Carbon\Carbon;
@@ -69,8 +64,6 @@ trait QueryBuilderTrait
     /**
      * Выборка необходимых полей для запроса
      */
-    // use Illuminate\Support\Facades\DB;
-
     private function selectFields($query, $requiredFields, $userId = null, $timezone = null): void
     {
         $selectFields = [];
@@ -150,7 +143,6 @@ trait QueryBuilderTrait
             $type = ucfirst($type);
             $type = "App\Models\\$type";
 
-            Log::info($type);
 
             // Добавляем поле is_liked в выборку
             $query->addSelect(DB::raw(
@@ -175,10 +167,6 @@ trait QueryBuilderTrait
                 $query->groupBy($field);
             }
         }
-
-
-
-
 
         return $query->first();
     }

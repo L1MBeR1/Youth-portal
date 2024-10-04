@@ -12,6 +12,9 @@ Route::group([
     Route::get('verify_email', [AuthController::class, 'verifyEmail'])->withoutMiddleware('auth');
     Route::get('change_password', [AuthController::class, 'changePassword'])->withoutMiddleware('auth');
     
+    Route::post('password/email', [AuthController::class, 'sendPasswordResetLink'])->withoutMiddleware('auth');
+    Route::post('password/reset', [AuthController::class, 'setNewPasswordRecover'])->withoutMiddleware('auth');
+    
     Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');
     Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
     Route::post('refresh', [AuthController::class, 'refresh'])->withoutMiddleware('auth');

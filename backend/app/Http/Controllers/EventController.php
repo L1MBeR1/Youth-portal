@@ -204,6 +204,7 @@ class EventController extends Controller
         $this->applyEventDateFilters($query, $request);
         $this->applyEventLocationFilters($query, $request);
         $this->applyEventCategoryFilter($query, $request);
+        $this->applySearch($query, $request);
 
         if ($request->input('operator') === 'or') {
             $query->orWhere(function ($q) use ($request) {
@@ -238,6 +239,32 @@ class EventController extends Controller
         });
 
         return $this->successResponse($formattedResult, $paginationData, 200);
+    }
+
+    private function applySearch($query, Request $request): void
+    {
+        $searchFields = $request->query('searchFields', []);
+
+        foreach ($searchFields as $field) {
+            if ($field && in_array($field, ['name', 'description', 'address'])) {
+                $searchValues = $request->query('searchValues', []);
+                $operator = $request->query('operator', 'and');
+
+                if (!empty($searchFields) && !empty($searchValues)) {
+                    $query->where(function ($query) use ($searchFields, $searchValues, $operator) {
+                        foreach ($searchFields as $index => $field) {
+                            if (!empty($searchValues[$index])) {
+                                $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'LIKE', '%' . $searchValues[$index] . '%');
+                            }
+                        }
+                    });
+                }
+
+                if ($tagFilter = $request->query('tagFilter')) {
+                    $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+                }
+            }
+        }
     }
 
 

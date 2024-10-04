@@ -158,7 +158,22 @@ class NewsController extends Controller
             return $this->errorResponse('You do not have permission to view your own news.', [], 403);
         }
 
-        $news = News::where('author_id', $user->id)->paginate($request->get('per_page', 10));
+        $query = News::query();
+
+        $query->where('author_id', $user->id);
+        
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+                
+        $news = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($news);
         return $this->successResponse($news->items(), $paginationData, 200);
     }

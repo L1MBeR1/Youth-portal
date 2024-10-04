@@ -162,8 +162,24 @@ class BlogController extends Controller
             return $this->errorResponse('You do not have permission to view your own blogs.', [], 403);
         }
 
-        $blogs = Blog::where('author_id', $user->id)->paginate($request->get('per_page', 10));
+        $query = Blog::query();
+
+        $query->where('author_id', $user->id);
+        
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+                
+        $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);
+
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
 

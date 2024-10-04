@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Podcast;
 use Illuminate\Http\Request;
+use App\Services\FileService;
 use App\Traits\PaginationTrait;
-use App\Traits\QueryBuilderTrait; 
 // use Illuminate\Support\Facades\Log;
+use App\Traits\QueryBuilderTrait; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StorePodcastRequest;
@@ -159,7 +160,22 @@ class PodcastController extends Controller
             return $this->errorResponse('You do not have permission to view your own podcasts.', [], 403);
         }
 
-        $podcasts = Podcast::where('author_id', $user->id)->paginate($request->get('per_page', 10));
+        $query = Podcast::query();
+
+        $query->where('author_id', $user->id);
+        
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+                
+        $podcasts = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($podcasts);
         return $this->successResponse($podcasts->items(), $paginationData, 200);
     }
@@ -295,12 +311,79 @@ class PodcastController extends Controller
             return $this->errorResponse('Запись не найдена', [], Response::HTTP_NOT_FOUND);
         }
 
+        if ($podcast->status === "published") {
+            return $this->errorResponse('Нельзя редактировать опубликованный подкаст', [], Response::HTTP_FORBIDDEN);
+        }
+
         if (!Auth::user()->can('update', $podcast)) {
             return $this->errorResponse('Отсутствуют разрешения', [], 403);
         }
 
         $podcast->update($request->validated());
         return $this->successResponse(['podcast' => $podcast], 'Podcast updated successfully', 200);
+    }
+
+
+    public function createDraft($podcastId)
+    {
+        if (Podcast::where('draft_for', $podcastId)->exists()) {
+            return $this->errorResponse('Черновик уже существует', [], Response::HTTP_CONFLICT);
+        }
+
+        $podcast = Podcast::find($podcastId);
+        $podcastData = $podcast->toArray();
+
+        unset($podcastData['id'], $podcastData['draft_for'], $podcastData['updated_at']);
+        $podcastData['draft_for'] = $podcast->id;
+
+        // Поле описания должно быть массивом
+        if (is_string($podcastData['description'])) {
+            $podcastData['description'] = json_decode($podcastData['description'], true);
+        }
+
+        $draft = Podcast::create($podcastData);
+
+        // Копировать файлы для черновика
+        $fileService = new FileService();
+        $fileService->copyFolder('media/podcasts/' . $podcast->id, 'media/podcasts/' . $draft->id);
+
+        return $this->successResponse($draft, 'Черновик создан', Response::HTTP_OK);
+    }
+
+
+
+
+
+    public function applyDraft($draftId)
+    {
+        $fileService = new FileService();
+
+        // Получаем черновик по ID
+        $draft = Podcast::find($draftId);
+        if (!$draft) {
+            return $this->errorResponse('Черновик не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Получаем блог, который нужно заменить, по ID черновика
+        $podcastToReplace = Podcast::find($draft->draft_for);
+        if (!$podcastToReplace) {
+            return $this->errorResponse('Подкаст для замены не найден', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Удаляем папку, связанную с черновиком
+        $folder = 'media/podcasts/' . $draft->id;
+        $fileService->deleteFolder($folder);
+
+        // Преобразуем черновик в массив и удаляем ненужные поля
+        $draftData = $draft->toArray();
+        unset($draftData['id'], $draftData['draft_for'], $draftData['created_at'], $draftData['updated_at'], $draftData['author_id']);
+
+        // Обновляем блог полями черновика
+        $podcastToReplace->update($draftData);
+
+        $draft->delete();
+
+        return $this->successResponse($podcastToReplace, 'Подкаст успешно обновлен черновиком', Response::HTTP_OK);
     }
 
     /**

@@ -24,6 +24,7 @@ return new class extends Migration
             // $table->timestamps();
             $table->timestampsTz();
             $table->integer('author_id')->unsigned();
+            $table->integer('draft_for')->unsigned()->nullable();
 
             $table->foreign('author_id')->references('id')->on('user_login_data')->onDelete('cascade');
         });

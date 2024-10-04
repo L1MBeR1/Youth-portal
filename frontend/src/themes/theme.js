@@ -13,7 +13,7 @@ const theme = extendTheme({
 			lg: 1200,
 			lgx: 1350,
 			xl: 1536,
-			xxl: 2000,
+			xxl: 2200,
 		},
 	},
 	colorSchemes: {
@@ -151,11 +151,11 @@ const theme = extendTheme({
 		},
 		'body-md': {
 			fontWeight: '400',
-			fontSize: 'clamp(1rem,2.4vw, 1.1rem)',
+			fontSize: 'clamp(1rem,2.2vw, 1.1rem)',
 		},
 		'body-sm': {
 			fontWeight: '400',
-			fontSize: 'clamp(0.9rem,2.4vw, 1.05rem)',
+			fontSize: 'clamp(0.8rem,2.1vw, 1.05rem)',
 		},
 		info: {
 			fontWeight: '400',

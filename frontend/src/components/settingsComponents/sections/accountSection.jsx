@@ -55,7 +55,6 @@ function AccountSection() {
 	const [city, setCity] = useState('');
 	const [gender, setGender] = useState('');
 	const [birthday, setBirthday] = useState('');
-	const [email, setEmail] = useState('');
 
 	useEffect(() => {
 		if (!isLoading && userData) {
@@ -65,7 +64,6 @@ function AccountSection() {
 			setCity(userData.city);
 			setGender(userData.gender);
 			setBirthday(userData.birthday);
-			setEmail(userData.email);
 		}
 	}, [isLoading, userData]);
 
@@ -75,8 +73,7 @@ function AccountSection() {
 		patronymic !== userData?.patronymic ||
 		city !== userData?.city ||
 		gender !== userData?.gender ||
-		birthday !== userData?.birthday ||
-		email !== userData?.email;
+		birthday !== userData?.birthday;
 
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [changeEmailOpen, setChangeEmailOpen] = useState(false);
@@ -115,10 +112,11 @@ function AccountSection() {
 		};
 		const response = await updateUser(userData.user_id, token, updatedData);
 		if (response) {
+			await queryClient.refetchQueries(['personalData']);
 			setIsLoadingUpdate(false);
 			console.log(response);
 			setIsSuccess(true);
-			queryClient.removeQueries(['personalData']);
+
 			return true;
 		} else {
 			setIsLoadingUpdate(false);
@@ -291,7 +289,6 @@ function AccountSection() {
 												setCity(userData.city);
 												setGender(userData.gender);
 												setBirthday(userData.birthday);
-												setEmail(userData.email);
 											}}
 										>
 											Отменить
@@ -301,9 +298,9 @@ function AccountSection() {
 							)}
 							<Divider />
 							<Stack direction={'column'} spacing={1.5}>
-								<Typography level='title-xl'>Почта</Typography>
+								<Typography level='title-lg'>Почта</Typography>
 								<Stack spacing={2} direction={'row'} alignItems={'center'}>
-									<Typography>{maskEmail(email)}</Typography>
+									<Typography>{maskEmail(userData?.email)}</Typography>
 									<Button
 										size='sm'
 										onClick={() => {
@@ -316,7 +313,7 @@ function AccountSection() {
 							</Stack>
 							<Divider />
 							<Stack direction={'column'} spacing={1.5}>
-								<Typography level='title-xl' color='danger'>
+								<Typography level='title-lg' color='danger'>
 									Удалить аккаунт
 								</Typography>
 								<Stack spacing={1.5}>

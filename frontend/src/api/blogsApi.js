@@ -43,7 +43,6 @@ export const getPublishedBlogs = async (token, params) => {
 			},
 			params: params,
 		});
-		// console.log(response)
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching blogs:', error);
@@ -81,13 +80,26 @@ export const getBlog = async (token, id) => {
 		throw error;
 	}
 };
+export const getBlogsTags = async token => {
+	try {
+		const response = await axios.get(`${API_URL}/blogs/tags`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		console.log(response);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching blogs:', error);
+		throw error;
+	}
+};
 
 export const getUserPublishedBlogs = async userId => {
 	try {
 		const response = await axios.get(`${API_URL}/blogs/published/`, {
-			userId,
+			params: { authorId: userId },
 		});
-		// console.log(response)
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching blogs:', error);

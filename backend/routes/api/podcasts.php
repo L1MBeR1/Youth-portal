@@ -11,6 +11,8 @@ Route::group([
     Route::get('', [PodcastController::class, 'getPodcasts']);
     Route::get('/index', [PodcastController::class, 'index']);
     Route::post('', [PodcastController::class, 'store']);
+    Route::post('drafts/{id}', [PodcastController::class, 'createDraft']);
+    Route::put('drafts/{id}', [PodcastController::class, 'applyDraft']); 
     Route::delete('{id}', [PodcastController::class, 'destroy']);
     Route::put('{id}', [PodcastController::class, 'update']);
     Route::put('{id}/status', [PodcastController::class, 'updateStatus']);

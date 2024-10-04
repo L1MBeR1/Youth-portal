@@ -162,8 +162,24 @@ class BlogController extends Controller
             return $this->errorResponse('You do not have permission to view your own blogs.', [], 403);
         }
 
-        $blogs = Blog::where('author_id', $user->id)->paginate($request->get('per_page', 10));
+        $query = Blog::query();
+
+        $query->where('author_id', $user->id);
+        
+        $orderBy = $request->query('orderBy');
+        $orderDirection = $request->query('orderDir');
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($orderBy && in_array($orderBy, ['created_at', 'updated_at', 'status', 'title'])) {
+            $query->orderBy($orderBy, $orderDirection ?? 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+                
+        $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);
+
         return $this->successResponse($blogs->items(), $paginationData, 200);
     }
 
@@ -266,6 +282,10 @@ class BlogController extends Controller
             return $this->errorResponse('Блог не найден', [], Response::HTTP_NOT_FOUND);
         }
 
+        if ($blog->status === "published") {
+            return $this->errorResponse('Нельзя редактировать опубликованный блог', [], Response::HTTP_FORBIDDEN);
+        }
+
         if (!Auth::user()->can('update', $blog)) {
             return $this->errorResponse('Нет прав на обновление блога', [], 403);
         }
@@ -306,24 +326,28 @@ class BlogController extends Controller
     }
 
 
-    public function createDraft($blogId)
+    public function createDraft($id)
     {
-        if (Blog::where('draft_for', $blogId)->exists()) {
+        if (Blog::where('draft_for', $id)->exists()) {
             return $this->errorResponse('Черновик уже существует', [], Response::HTTP_CONFLICT);
         }
 
-        $blog = Blog::find($blogId);
+        $blog = Blog::find($id);
         $blogData = $blog->toArray();
 
-        unset($blogData['id'], $blogData['draft_for']);
+        unset($blogData['id'], $blogData['draft_for'], $blogData['updated_at']);
         $blogData['draft_for'] = $blog->id;
+        // $blogData['status'] = "moderating";
 
+        // dump($blog->author_id);   
+        
         // Поле описания должно быть массивом
         if (is_string($blogData['description'])) {
             $blogData['description'] = json_decode($blogData['description'], true);
         }
-
+        
         $draft = Blog::create($blogData);
+        // dd($blogData);
 
         // Копировать файлы для черновика
         $fileService = new FileService();
@@ -358,14 +382,14 @@ class BlogController extends Controller
 
         // Преобразуем черновик в массив и удаляем ненужные поля
         $draftData = $draft->toArray();
-        unset($draftData['id'], $draftData['draft_for'], $draftData['created_at'], $draftData['updated_at']);
+        unset($draftData['id'], $draftData['draft_for'], $draftData['created_at'], $draftData['updated_at'], $draftData['author_id']);
 
         // Обновляем блог полями черновика
         $blogToReplace->update($draftData);
 
         $draft->delete();
 
-        return $this->successResponse(['blog' => $blogToReplace], 'Блог успешно обновлен черновиком', Response::HTTP_OK);
+        return $this->successResponse($blogToReplace, 'Блог успешно обновлен черновиком', Response::HTTP_OK);
     }
 
 

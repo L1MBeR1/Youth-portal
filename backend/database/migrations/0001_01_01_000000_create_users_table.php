@@ -27,8 +27,8 @@ return new class extends Migration {
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->unsignedInteger('user_id')->primary();
+            // $table->string('email')->primary();
             $table->text('token');
-            // $table->timestamp('created_at')->nullable();
             $table->timestampTz('created_at')->nullable();
 
             $table->foreign('user_id')
@@ -36,7 +36,19 @@ return new class extends Migration {
                 ->on('user_login_data')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
+            // $table->foreign('email')
+            //     ->references('email')
+            //     ->on('user_login_data')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
         });
+
+        // Schema::create('password_reset_tokens', function (Blueprint $table) {
+        //     $table->string('email')->primary();
+        //     $table->string('token');
+        //     $table->timestamp('created_at')->nullable();
+        // });
+        
 
 
         Schema::create('sessions', function (Blueprint $table) {

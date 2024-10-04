@@ -17,9 +17,9 @@ class Blog extends Model
 
     protected $guarded = [
         'id', 
-        'author_id', 
+        // 'author_id', // для черновиков
         'created_at', 
-        'updated_at',
+        // 'updated_at',
     ];
 
     protected $fillable = [
@@ -32,6 +32,7 @@ class Blog extends Model
         'likes',
         'reposts',
         'draft_for',
+        'author_id', // для черновиков
     ];
 
     protected $hidden = [

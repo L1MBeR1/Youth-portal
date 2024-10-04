@@ -20,8 +20,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import { jwtDecode } from 'jwt-decode';
 
-import EmailField from './formComponents/emailField.jsx';
-import PasswordField from './formComponents/passwordField.jsx';
+import EmailField from '../fields/emailField.jsx';
+import PasswordField from '../fields/passwordField.jsx';
 
 function RegistrationForm() {
 	const queryClient = useQueryClient();
@@ -121,6 +121,7 @@ function RegistrationForm() {
 			const token = data.access_token;
 
 			if (token) {
+				await queryClient.invalidateQueries(['profile']);
 				setToken(token);
 				const decoded = jwtDecode(token);
 				if (decoded.roles.includes('admin')) {
@@ -131,7 +132,6 @@ function RegistrationForm() {
 					navigate('/');
 				}
 			}
-			queryClient.invalidateQueries(['profile']);
 			setIsLoading(false);
 		} catch (error) {
 			setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');
@@ -148,6 +148,7 @@ function RegistrationForm() {
 				width: '100%',
 				maxWidth: '450px',
 				padding: '25px',
+				marginTop: '40px',
 			}}
 		>
 			<form onSubmit={handleSubmit}>

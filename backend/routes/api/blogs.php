@@ -11,28 +11,28 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'blogs'
 ], function () {
-    Route::get('my', [BlogController::class, 'getOwnBlogs']); // для всех авторизованных  
-    // Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth:api'); // Все
-    Route::get('', [BlogController::class, 'getBlogs']); // TODO: переименовать в поиск. Роли: админ, модератор, су.
+    Route::get('my', [BlogController::class, 'getOwnBlogs']); 
+    // Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth:api'); 
+    Route::get('', [BlogController::class, 'getBlogs']);
     
-    Route::get('/index', [BlogController::class, 'index']); // TODO: включен в другие методы.
+    Route::get('/index', [BlogController::class, 'index']); 
 
-    Route::post('', [BlogController::class, 'store']); // для всех авторизованных
-    Route::post('drafts/{id}', [BlogController::class, 'createDraft']); // для всех авторизованных
-    Route::put('drafts/{id}', [BlogController::class, 'applyDraft']); // для всех авторизованных
-    Route::post('{id}/like', [BlogController::class, 'likeBlog']); // для всех авторизованных
+    Route::post('', [BlogController::class, 'store']); 
+    Route::post('drafts/{id}', [BlogController::class, 'createDraft']);
+    Route::put('drafts/{id}', [BlogController::class, 'applyDraft']); 
+    Route::post('{id}/like', [BlogController::class, 'likeBlog']); 
 
-    Route::delete('{id}', [BlogController::class, 'destroy']);  // для всех авторизованных владельцев. для 
+    Route::delete('{id}', [BlogController::class, 'destroy']); 
 
-    Route::put('{id}', [BlogController::class, 'update']); // для всех авторизованных владельцев
-    Route::put('{id}/status', [BlogController::class, 'setStatus']); // для всех авторизованных владельцев. для админов, модераторов, су
+    Route::put('{id}', [BlogController::class, 'update']); 
+    Route::put('{id}/status', [BlogController::class, 'setStatus']); 
 });
 
 Route::group([
     'middleware' => ['api'],
     'prefix' => 'blogs'
 ], function () {
-    Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); // Все
+    Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); 
     Route::get('tags/', [BlogController::class, 'getTags'])->withoutMiddleware('auth');
-    Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); // Для админов, модераторов, су. Если статус published, то для всех
+    Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); 
 });

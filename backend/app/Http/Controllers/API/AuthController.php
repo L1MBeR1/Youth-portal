@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Mail\ForgotPassword;
 use Exception;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -578,14 +579,14 @@ class AuthController extends Controller
             return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
         }
 
-    
+
         // Валидация нового email
         $validator = Validator::make($request->all(), [
             'email' => [
                 'required',
                 'email',
                 'unique:user_login_data,email',
-                'regex:{$this->emailRegexp}',
+                'regex:' . $this->emailRegexp,
             ]
         ]);
 
@@ -626,19 +627,16 @@ class AuthController extends Controller
             return $this->errorResponse('Предоставленные учетные данные неверны', [], 401);
         }
 
-
-        // Валидация нового email
         $validator = Validator::make($request->all(), [
             'new_password' => [
                 'required',
-                'regex:{$this->passwordRegexp}',
+                'regex:' . $this->passwordRegexp,
             ]
         ]);
 
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
         }
-
 
         $password = $request->input('new_password');
 
@@ -662,6 +660,43 @@ class AuthController extends Controller
         return $this->successResponse([], 'Password change request sent successfully.');
     }
 
+    public function sendPasswordResetLink(Request $request)
+    {
+        // Валидируем email
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        // Ищем пользователя по email
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
+
+        // Если пользователь не найден
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Формируем payload для токена
+        $customPayload = [
+            'sub' => $user->id,  // ID пользователя
+            'iat' => now()->timestamp,  // Время создания токена
+            'email' => $user->email,  // Email пользователя
+            'exp' => now()->addMinutes(15)->timestamp,  // Время истечения токена
+        ];
+
+        // Создаем токен JWT
+        $payload = JWTAuth::factory()->customClaims($customPayload)->make();
+        $token = JWTAuth::encode($payload)->get();
+
+        // Формируем URL для сброса пароля (React-страница)
+        $resetUrl = config('app.frontend_url') . "/reset-password?token=" . $token;
+
+        // Отправляем письмо
+        Mail::to($user->email)->send(new ForgotPassword($user, $resetUrl));
+
+        // Возвращаем успешный ответ
+        return response()->json(['message' => 'Password reset link sent successfully.'], 200);
+    }
 
     public function recoverPassword(Request $request)
     {
@@ -709,13 +744,13 @@ class AuthController extends Controller
                 return $this->errorResponse('User not found', [], 404);
             }
 
-        
+
 
             // Валидация нового пароля
             $validator = Validator::make($request->all(), [
                 'password' => [
                     'required',
-                    'regex:{$this->passwordRegexp}',
+                    'regex:' . $this->passwordRegexp,
                 ]
             ]);
 
@@ -729,6 +764,65 @@ class AuthController extends Controller
 
             // Дополнительные действия
             $user->email_verified_at = now();
+            $user->removeRole('guest');
+            $user->assignRole('user');
+            $user->save();
+
+            return response()->view('emails.thanks');
+        } catch (TokenExpiredException $e) {
+            return $this->errorResponse('Token has expired', [], 400);
+        } catch (TokenInvalidException $e) {
+            return $this->errorResponse('Token is invalid', [], 400);
+        } catch (JWTException $e) {
+            return $this->errorResponse('Token error', [], 400);
+        } catch (Exception $e) {
+            return $this->errorResponse('An unexpected error occurred', [], 500);
+        }
+    }
+    public function setNewPasswordRecover(Request $request)
+    {
+        $token = $request->input('token');
+
+        if (!$token) {
+            return $this->errorResponse('Token is missing', [], 400);
+        }
+
+        try {
+            // Проверка подлинности токена и извлечение payload
+            $payload = JWTAuth::setToken($token)->getPayload();
+
+            // Извлечение данных пользователя из токена
+            $userId = $payload->get('sub'); // Идентификатор пользователя
+
+            // Получаем пользователя по userId
+            $user = User::find($userId);
+
+            if (!$user) {
+                return $this->errorResponse('User not found', [], 404);
+            }
+
+
+
+            // Валидация нового пароля
+            $validator = Validator::make($request->all(), [
+                'password' => [
+                    'required',
+                  
+                    'regex:' . $this->passwordRegexp,
+
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse('Validation Error', $validator->errors(), 422);
+            }
+
+            // Установка нового пароля
+            $password = bcrypt($request->input('password'));
+            $user->password = $password;
+
+            // Дополнительные действия
+            // $user->email_verified_at = now();
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();

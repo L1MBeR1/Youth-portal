@@ -21,7 +21,7 @@ import { Stack } from '@mui/joy';
 import { updateUserEmail } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
+import PasswordField from '../../fields/passwordField';
 
 function ChangeEmail({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
@@ -66,12 +66,11 @@ function ChangeEmail({ id, open, setOpen }) {
 		};
 		const response = await updateUserEmail(id, token, updatedData);
 		if (response) {
-			queryClient.removeQueries(['profile']);
+			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
-			setOpen(false);
+			handleClose();
 			console.log(response);
 			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
 			return;
 		}
 		return;
@@ -122,7 +121,8 @@ function ChangeEmail({ id, open, setOpen }) {
 						<Button
 							variant='solid'
 							onClick={handleConfirm}
-							disabled={!isConfirmEnabled || isLoading}
+							disabled={!isConfirmEnabled}
+							loading={isLoading}
 						>
 							Отправить письмо
 						</Button>

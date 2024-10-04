@@ -22,7 +22,7 @@ import NeutralModal from '../../modals/neutralModal';
 import { updateUserPassword } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
+import PasswordField from '../../fields/passwordField';
 
 function ChangePassword({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
@@ -126,12 +126,10 @@ function ChangePassword({ id, open, setOpen }) {
 		};
 		const response = await updateUserPassword(id, token, updatedData);
 		if (response) {
-			queryClient.removeQueries(['profile']);
+			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
-			setOpen(false);
-			console.log(response);
+			handleClose();
 			setIsSuccess(true);
-			queryClient.removeQueries(['profile']);
 			return;
 		} else {
 			setIsLoading(false);

@@ -77,16 +77,14 @@ export const UserPublications = ({ id }) => {
 				</TabList>
 			</Tabs>
 			<Stack
-				justifyContent={'center'}
-				alignItems={'center'}
 				flexGrow={1}
 				sx={{
 					width: '100%',
 				}}
 			>
 				{tab === 0 &&
-					(blogs.data ? (
-						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
+					(blogs?.data && blogs.data.length > 0 ? (
+						<Grid container spacing={'50px'}>
 							{blogs.data.map(blog => (
 								<Grid key={blog.id} xs={12} sm={6} md={6} lg={4}>
 									<ProfileBlogCard data={blog} />
@@ -94,10 +92,13 @@ export const UserPublications = ({ id }) => {
 							))}
 						</Grid>
 					) : (
-						<Typography level='body-sm'>Нет блогов</Typography>
+						<Stack justifyContent={'center'} alignItems={'center'} flexGrow={1}>
+							<Typography level='body-sm'>Нет блогов</Typography>
+						</Stack>
 					))}
+
 				{tab === 1 &&
-					(podcasts.data ? (
+					(podcasts?.data && podcasts.data.length > 0 ? (
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
 							{podcasts.data.map(podcast => (
 								<Grid key={podcast.id} xs={6} sm={4} md={3} lg={3}>
@@ -111,19 +112,24 @@ export const UserPublications = ({ id }) => {
 							))}
 						</Grid>
 					) : (
-						<Typography level='body-sm'>Нет блогов</Typography>
+						<Stack justifyContent={'center'} alignItems={'center'} flexGrow={1}>
+							<Typography level='body-sm'>Нет подкастов</Typography>
+						</Stack>
 					))}
+
 				{tab === 2 &&
-					(news.data ? (
+					(news?.data && news.data.length > 0 ? (
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
-							{news.data.map(news => (
-								<Grid key={news.id} xs={12} sm={6} md={6} lg={4}>
-									<ProfileBlogCard data={news} />
+							{news.data.map(newsItem => (
+								<Grid key={newsItem.id} xs={12} sm={6} md={6} lg={4}>
+									<ProfileBlogCard data={newsItem} />
 								</Grid>
 							))}
 						</Grid>
 					) : (
-						<Typography level='body-sm'>Нет новостей</Typography>
+						<Stack justifyContent={'center'} alignItems={'center'} flexGrow={1}>
+							<Typography level='body-sm'>Нет новостей</Typography>
+						</Stack>
 					))}
 			</Stack>
 		</Stack>

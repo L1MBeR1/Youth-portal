@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { deleteUser } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
+import PasswordField from '../../fields/passwordField';
 import NeutralModal from '../../modals/neutralModal';
 function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const queryClient = useQueryClient();

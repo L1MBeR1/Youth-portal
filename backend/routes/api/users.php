@@ -22,6 +22,8 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'users'
 ], function () {
+    Log::info('User management');
+    Route::get('/check/nickname', [UserController::class, 'checkNickname']);
     Route::put('nickname', [UserController::class, 'updateNickname']);
     Route::get('', [UserController::class, 'listUsers']);
     Route::put('{user_id}', [UserController::class, 'updateProfile']);

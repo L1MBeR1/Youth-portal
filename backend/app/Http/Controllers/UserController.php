@@ -458,4 +458,17 @@ class UserController extends Controller
 
         return $this->successResponse($metadata, 'Nickname updated successfully.');
     }
+
+    public function checkNickname(Request $request) //проверка доступности никнейма
+    {
+        $nickname = $request->nickname;
+        Log::info('Checking nickname', ['nickname' => $nickname]);
+        $existingNickname = UserMetadata::where('nickname', $nickname)->first();
+
+        if ($existingNickname) {
+            return response()->json(false);
+        }
+
+        return response()->json(true);
+    }
 }

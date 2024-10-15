@@ -28,6 +28,7 @@ class BlogRoleStatusController extends Controller
         $blog_role_status = BlogRoleStatus::create([
             'status' => 'review',
             'author_id' => Auth::id(),
+            'content' => $request->input('content'),
         ]);
 
         return $this->successResponse(['blog_role_status' => $blog_role_status], 'Created successfully', 200);
@@ -141,6 +142,7 @@ class BlogRoleStatusController extends Controller
             "blog_role_status" => [
                 "id",
                 "status",
+                "content",
                 "created_at",
                 "updated_at",
                 "moder_id", // Добавляем moder_id для получения данных о модераторе

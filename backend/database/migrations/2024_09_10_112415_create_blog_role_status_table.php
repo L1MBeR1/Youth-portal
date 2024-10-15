@@ -11,6 +11,7 @@ class CreateBlogRoleStatusTable extends Migration
         Schema::create('blog_role_status', function (Blueprint $table) {
             $table->increments('id');
             $table->enum('status', ['review', 'approved', 'withdrawn']);
+            $table->text('content');
             $table->timestampsTz();
 
             $table->unsignedInteger('moder_id')->nullable();

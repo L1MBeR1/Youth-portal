@@ -1,0 +1,21 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API для Youth-portal",
+        "description": "Документация API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/users": {
+            "get": {
+                "summary": "Получить список пользователей",
+                "operationId": "88efa537f220b5745f7dceb6b2cf1cfb",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    }
+                }
+            }
+        }
+    }
+}

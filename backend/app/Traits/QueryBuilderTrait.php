@@ -298,14 +298,14 @@ trait QueryBuilderTrait
             $query->where(function ($query) use ($searchFields, $searchValues, $operator) {
                 foreach ($searchFields as $index => $field) {
                     if (!empty($searchValues[$index])) {
-                        $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'LIKE', '%' . $searchValues[$index] . '%');
+                        $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'iLIKE', '%' . $searchValues[$index] . '%');
                     }
                 }
             });
         }
 
         if ($tagFilter = $request->query('tagFilter')) {
-            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+            $query->whereRaw("description->'meta'->>'tags' iLIKE ?", ['%' . $tagFilter . '%']);
         }
     }
 }

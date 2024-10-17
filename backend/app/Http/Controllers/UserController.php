@@ -91,9 +91,9 @@ class UserController extends Controller
                         $value = $searchValues[$index] ?? null;
                         if ($value) {
                             if (in_array($field, ['email', 'phone'])) {
-                                $query->orWhere('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                                $query->orWhere('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
                             } else {
-                                $query->orWhere('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                                $query->orWhere('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
                             }
                         }
                     }
@@ -103,9 +103,9 @@ class UserController extends Controller
                     $value = $searchValues[$index] ?? null;
                     if ($value) {
                         if (in_array($field, ['email', 'phone'])) {
-                            $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                            $query->where('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
                         } else {
-                            $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                            $query->where('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
                         }
                     }
                 }
@@ -117,9 +117,9 @@ class UserController extends Controller
         //         $value = $searchValues[$index] ?? null;
         //         if ($value) {
         //             if (in_array($field, ['email', 'phone'])) {
-        //                 $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+        //                 $query->where('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
         //             } else {
-        //                 $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+        //                 $query->where('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
         //             }
         //         }
         //     }
@@ -127,9 +127,9 @@ class UserController extends Controller
 
         // if ($searchColumnName && $searchValue) {
         //     if (in_array($searchColumnName, ['email', 'phone'])) {
-        //         $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //         $query->where('user_login_data.' . $searchColumnName, 'iLIKE', '%' . $searchValue . '%');
         //     } else {
-        //         $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //         $query->where('user_metadata.' . $searchColumnName, 'iLIKE', '%' . $searchValue . '%');
         //     }
         // }
 

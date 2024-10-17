@@ -76,7 +76,7 @@ class QueryBuilder
             $values = explode(',', $valuesString);
 
             foreach ($values as $value) {
-                $this->query->where($field,'like', "%{$value}%");
+                $this->query->where($field,'ilike', "%{$value}%");
             }
         }
 
@@ -84,7 +84,7 @@ class QueryBuilder
 
         // if ($request->has('search')) {
         //     $searchTerm = $request->query('search');
-        //     $this->query->where('title', 'like', "%{$searchTerm}%");
+        //     $this->query->where('title', 'ilike', "%{$searchTerm}%");
         // }
     }
 

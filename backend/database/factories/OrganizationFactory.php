@@ -33,7 +33,10 @@ class OrganizationFactory extends Factory
         return [
             'name' => $this->faker->company(),
             'description' => $this->faker->realText(30),
-            'cover_uri' => $this->generateRandomImage(),  
+            'cover_uri' => $this->generateRandomImage(), 
+            'meta' => [
+                'tags' => $this->faker->randomElements(['государство', 'предприятия', 'мебельная фабрика'], 2)
+            ]
         ];
     }
 

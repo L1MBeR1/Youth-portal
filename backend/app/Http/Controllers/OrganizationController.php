@@ -160,6 +160,7 @@ class OrganizationController extends Controller
                 "cover_uri",
                 "created_at",
                 "updated_at",
+                "meta"
             ]
         ];
     
@@ -177,6 +178,7 @@ class OrganizationController extends Controller
                 "cover_uri",
                 "created_at",
                 "updated_at",
+                "meta"
             ]
         ];
 

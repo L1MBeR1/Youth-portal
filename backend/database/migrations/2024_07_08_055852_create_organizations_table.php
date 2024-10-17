@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('name');
             $table->text('description')->nullable();
             $table->text('cover_uri')->nullable();
+            $table->jsonb('meta')->nullable();
             //$table->enum('status', ['moderating', 'approved', 'rejected']);
             //$table->text('address')->nullable();      
         });

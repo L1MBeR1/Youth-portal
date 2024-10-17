@@ -8,22 +8,22 @@
   flex-direction: column;
 }
 
-.ql-snow.ql-toolbar button:hover {
+/* .ql-snow.ql-toolbar button:hover {
   color: rgb(26, 255, 0) !important;
-}
+} */
 
-button.ql-image:hover {
+/* button.ql-image:hover {
   background-color: aqua;
   stroke: chartreuse;
-}
+} */
 
 /* blog-creator path .ql-snow .ql-stroke {
   stroke: #ff0 !important; 
 } */
 
-button:hover .ql-stroke {
+/* button:hover .ql-stroke {
   stroke: #ff0 !important; 
-}
+} */
 
 /* Стиль для контейнера с подсказкой */
 .tooltip {

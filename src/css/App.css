@@ -58,6 +58,9 @@ a {
 .leaflet-popup-close-button {
 	display: none !important;
 }
+.leaflet-left {
+	z-index: 800 !important;
+}
 /* .verticalCarousel{
 } */
 .slick-vertical {

@@ -72,3 +72,43 @@ export const getProfile = async token => {
 		throw new Error('Failed to fetch profile');
 	}
 };
+
+export const postChangePasswordMessage = async email => {
+	try {
+		const response = await axios.post(`${API_URL}/auth/password/email`, {
+			email,
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to send password reset email');
+	}
+};
+
+export const postValidateEmailToken = async token => {
+	try {
+		const response = await axios.post(`${API_URL}/auth/token/validate`, {
+			token,
+		});
+		console.log(response);
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to validate token');
+	}
+};
+
+export const postResetPassword = async (
+	token,
+	password,
+	password_confirmation
+) => {
+	try {
+		const response = await axios.post(`${API_URL}/auth/password/reset`, {
+			token,
+			password,
+			password_confirmation,
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to reset password');
+	}
+};

@@ -225,7 +225,7 @@ function Header() {
 								placement='bottom-end'
 								variant='plain'
 								sx={{ boxShadow: 'sm' }}
-								size='lg'
+								size='md'
 							>
 								<MenuItem
 									onClick={() => {
@@ -241,16 +241,15 @@ function Header() {
 								>
 									Подкасты
 								</MenuItem>
+								<MenuItem
+									onClick={() => {
+										handleLink('/news');
+									}}
+								>
+									Новости
+								</MenuItem>
 							</Menu>
 						</Dropdown>
-						<Button
-							variant='plain'
-							onClick={() => {
-								handleLink('/news');
-							}}
-						>
-							<Typography level={'headerButton'}>Новости</Typography>
-						</Button>
 						<Button
 							variant='plain'
 							onClick={() => {

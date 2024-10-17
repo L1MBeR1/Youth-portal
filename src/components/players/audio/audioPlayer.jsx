@@ -16,6 +16,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import Replay10Icon from '@mui/icons-material/Replay10';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import { getCookie, setCookie } from '../../../utils/cookie/cookieUtils';
 import { PlayerTime } from '../../../utils/timeAndDate/playerTime';
 
 function AudioPlayer({ audioUrl }) {
@@ -32,6 +33,10 @@ function AudioPlayer({ audioUrl }) {
 	const audioRef = useRef(null);
 
 	useEffect(() => {
+		const savedVolume = getCookie('audioVolume');
+		if (savedVolume !== undefined) {
+			setVolume(parseFloat(savedVolume));
+		}
 		const audio = audioRef.current;
 
 		const handleLoadedMetadata = () => {
@@ -48,12 +53,22 @@ function AudioPlayer({ audioUrl }) {
 			setPlaying(false);
 		};
 
+		const handlePause = () => {
+			setPlaying(false);
+		};
+
+		const handlePlay = () => {
+			setPlaying(true);
+		};
+
 		if (audio) {
 			audio.volume = volume;
 			audio.playbackRate = playbackRate;
 			audio.addEventListener('loadedmetadata', handleLoadedMetadata);
 			audio.addEventListener('timeupdate', handleTimeUpdate);
 			audio.addEventListener('ended', handleEnded);
+			audio.addEventListener('pause', handlePause);
+			audio.addEventListener('play', handlePlay);
 		}
 
 		return () => {
@@ -61,6 +76,8 @@ function AudioPlayer({ audioUrl }) {
 				audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
 				audio.removeEventListener('timeupdate', handleTimeUpdate);
 				audio.removeEventListener('ended', handleEnded);
+				audio.removeEventListener('pause', handlePause);
+				audio.removeEventListener('play', handlePlay);
 			}
 		};
 	}, [isSeeking, volume, playbackRate]);
@@ -87,11 +104,12 @@ function AudioPlayer({ audioUrl }) {
 	};
 
 	const handleVolumeChange = (event, newValue) => {
-		const audio = audioRef.current;
 		setVolume(newValue);
 		setIsMuted(newValue === 0);
+		const audio = audioRef.current;
 		if (audio) {
 			audio.volume = newValue;
+			setCookie('audioVolume', newValue, 365);
 		}
 	};
 

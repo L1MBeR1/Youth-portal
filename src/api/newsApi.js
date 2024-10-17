@@ -83,7 +83,7 @@ export const getNew = async (token, id) => {
 export const getUserPublishedNews = async userId => {
 	try {
 		const response = await axios.get(`${API_URL}/news/published/`, {
-			userId,
+			params: { authorId: userId, }
 		});
 		// console.log(response)
 		return response.data;

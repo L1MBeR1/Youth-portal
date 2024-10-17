@@ -1,4 +1,3 @@
-import InfoIcon from '@mui/icons-material/Info';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import Button from '@mui/joy/Button';
 import DialogActions from '@mui/joy/DialogActions';
@@ -13,11 +12,11 @@ import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { deleteUser } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../forms/formComponents/passwordField';
-import NeutralModal from '../../modals/neutralModal';
+import PasswordField from '../../fields/passwordField';
 function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -26,8 +25,6 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const [isConfirmEnabled, setIsConfirmEnabled] = useState(false);
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-
-	const [isSuccess, setIsSuccess] = useState(false);
 
 	useEffect(() => {
 		if (inputValue === `Удалить аккаунт ${unique}`) {
@@ -63,7 +60,9 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 				setIsLoading(false);
 				setOpen(false);
 				console.log(response);
-				setIsSuccess(true);
+				toast.info(
+					'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
+				);
 				setPassword('');
 				setInputValue('');
 			}
@@ -75,15 +74,6 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 	};
 	return (
 		<>
-			<NeutralModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={
-					'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
-				}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<InfoIcon />}
-			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>
@@ -104,7 +94,7 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 							придет письмо для подтверждения — перейдите по ссылке в письме.
 						</Typography>
 						<PasswordField
-							lable={'Пароль'}
+							label={'Пароль'}
 							password={password}
 							setPassword={setPassword}
 						/>
@@ -127,6 +117,7 @@ function DeleteAccountModal({ id, unique, open, setOpen }) {
 						<Button
 							variant='solid'
 							color='danger'
+							loading={isLoading}
 							onClick={handleConfirm}
 							disabled={!isConfirmEnabled}
 						>

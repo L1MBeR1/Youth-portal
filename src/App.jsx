@@ -45,6 +45,8 @@ import Su from './pages/su';
 import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
 import BlogWrapper from './pages/testing/v1/BlogWrapper';
 import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
+
+import ResetPassword from './pages/resetPassword';
 // <===================>
 
 //Роуты
@@ -56,6 +58,7 @@ import { CssBaseline } from '@mui/joy';
 import { CssVarsProvider } from '@mui/joy/styles';
 import './css/App.css';
 //Тема
+import { Toaster } from 'sonner';
 import theme from './themes/theme';
 import BlogRoleRequest from './pages/blogRoleRequest';
 
@@ -63,6 +66,7 @@ function App() {
 	return (
 		<CssVarsProvider theme={theme} defaultMode='system'>
 			<CssBaseline />
+			<Toaster richColors toastOptions={{ duration: 5000 }} />
 			<Router>
 				<Routes>
 					<Route path='/' element={<MainLayout />}>
@@ -113,7 +117,7 @@ function App() {
 							path='recovery'
 							element={<GuestRoute element={<Recovery />} />}
 						/>
-
+						<Route path='reset-password' element={<ResetPassword />} />
 						{/* TODO: ! 
 							Сделать маршрут для роли blogger
 							/editor

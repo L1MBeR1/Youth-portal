@@ -1,120 +1,191 @@
-import SearchOffIcon from '@mui/icons-material/SearchOff';
-import { Button, Stack, Typography } from '@mui/joy';
-import Autocomplete from '@mui/joy/Autocomplete';
-import Box from '@mui/joy/Box';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Grid from '@mui/joy/Grid';
-import IconButton from '@mui/joy/IconButton';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import SortIcon from '@mui/icons-material/Sort';
+import { Box, Button, Grid, Option, Select, Stack, Typography } from '@mui/joy';
 import React, { useEffect, useState } from 'react';
-
+import EventFilterDrawer from '../components/drawers/eventFilterDrawer';
+import SearchField from '../components/fields/searchField';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
 import Map from '../components/maps/map';
-import useEventsWithSortData from '../hooks/useEventsWithSortData';
-
+import Pagination from '../components/workspaceComponents/shared/workSpacePagination';
+import useCities from '../hooks/useCities';
+import useCountries from '../hooks/useContries';
+import useEvents from '../hooks/useEvents';
 function Events() {
 	const start_date = new Date().toISOString().split('T')[0];
 	const end_date = new Date();
-	end_date.setMonth(end_date.getMonth() + 2);
+	end_date.setMonth(end_date.getMonth() + 12);
 	const endDateString = end_date.toISOString().split('T')[0];
-	const per_page = 10;
-
+	const per_page = 8;
 	const [country, setCountry] = useState('');
+	const [lastPage, setLastPage] = useState();
+	const [page, setPage] = useState(1);
 	const [city, setCity] = useState('');
-	const [filtersCleared, setFiltersCleared] = useState(false);
+	const [drawerOpen, setDrawerOpen] = useState(false);
 
-	const {
-		events,
-		cities,
-		countries,
-		refetchEvents,
-		refetchCities,
-		refetchCountries,
-		isLoading,
-		isError,
-	} = useEventsWithSortData({
-		start_date,
+	const [orderDir, setOrderDir] = useState('desc');
+	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
+	const searchFields = ['name'];
+	const [searchValue, setSearchValue] = useState('');
+	const [searchValues, setSearchValues] = useState([]);
+	const { data: events, refetch } = useEvents(setLastPage, {
+		page,
 		end_date: endDateString,
 		per_page,
 		country,
 		city,
+
+		searchFields: searchFields,
+		searchValues: searchValues,
+		withAuthors: true,
+		orderBy: 'created_at',
+		orderDir,
 	});
+	const { data: cities } = useCities();
+	const { data: countries } = useCountries();
 
 	useEffect(() => {
-		if (filtersCleared) {
-			refetchEvents();
-			setFiltersCleared(false);
-		}
-	}, [filtersCleared, refetchEvents]);
+		refetch();
+	}, [page, refetch]);
 	const handleRefetch = () => {
-		refetchEvents();
+		refetch();
 	};
+
+	useEffect(() => {
+		if (isNeedRefetch) {
+			refetch();
+			setIsNeedRefetch(false);
+		}
+	}, [isNeedRefetch, refetch]);
+
+	const clearSearchValue = () => {
+		setSearchValue('');
+		setSearchValues([]);
+		setIsNeedRefetch(true);
+	};
+	const applySearchValue = () => {
+		setSearchValues([searchValue]);
+		setIsNeedRefetch(true);
+	};
+	const handleSortChange = newValue => {
+		setOrderDir(newValue);
+		setIsNeedRefetch(true);
+	};
+
 	const clearFilters = () => {
 		setCountry('');
 		setCity('');
-		setFiltersCleared(true);
+		setIsNeedRefetch(true);
 	};
+
 	return (
 		<Stack
 			direction={'column'}
-			sx={{
-				gap: '30px',
-				padding: { xs: '15px', sm: '40px' },
-			}}
+			sx={{ gap: '30px', padding: { xs: '15px', sm: '40px' } }}
 		>
 			<Box marginTop={{ xs: '15px', md: '25px' }}>
 				<Typography level='h1'>Мероприятия</Typography>
 			</Box>
-			<Stack direction={'column'} spacing={2}>
-				<Box
-					sx={{
-						borderRadius: 'sm',
-						display: { xs: 'none', sm: 'flex' },
-						flexWrap: 'wrap',
-						alignItems: 'flex-end',
-						gap: 1.5,
-					}}
-				>
-					<FormControl>
-						<FormLabel>Страна</FormLabel>
-						<Autocomplete
-							disableClearable={true}
-							placeholder='Выберите страну'
-							options={countries || []}
-							onChange={(e, value) => {
-								setCountry(value);
-							}}
-							value={country}
-						/>
-					</FormControl>
-					<FormControl>
-						<FormLabel>Город</FormLabel>
-						<Autocomplete
-							disableClearable={true}
-							placeholder='Выберите город'
-							options={cities || []}
-							onChange={(e, value) => setCity(value)}
-							value={city}
-						/>
-					</FormControl>
-					<IconButton
-						variant='outlined'
-						onClick={clearFilters}
-						color='danger'
-						sx={{
-							'--IconButton-size': '35px',
+
+			<EventFilterDrawer
+				open={drawerOpen}
+				setOpen={setDrawerOpen}
+				countries={countries}
+				cities={cities}
+				country={country}
+				setCountry={setCountry}
+				city={city}
+				setCity={setCity}
+				clearFilters={clearFilters}
+				refetch={handleRefetch}
+			/>
+
+			<Stack
+				justifyContent={'space-between'}
+				sx={{
+					flexDirection: { xs: 'column', md: 'row' },
+				}}
+				gap={3}
+			>
+				<Stack direction={'row'} spacing={2}>
+					<SearchField
+						size='sm'
+						searchValue={searchValue}
+						setSearchValue={setSearchValue}
+						onClear={clearSearchValue}
+						sx={{ borderRadius: '30px', width: '100%' }}
+					/>
+
+					<Button
+						color='primary'
+						onClick={() => {
+							applySearchValue();
 						}}
 					>
-						<SearchOffIcon />
-					</IconButton>
-					<Button color='primary' onClick={handleRefetch}>
 						Найти
 					</Button>
-				</Box>
+				</Stack>
 				<Stack
 					direction={'row'}
-					height={'75vh'}
+					spacing={2}
 					sx={{
+						justifyContent: { xs: 'space-between', md: '' },
+					}}
+				>
+					<Button onClick={() => setDrawerOpen(true)}>
+						<FilterAltIcon />
+					</Button>
+					<Select
+						variant='plain'
+						defaultValue='desc'
+						placeholder='Сначала новые'
+						endDecorator={<SortIcon />}
+						indicator={null}
+						color='neutral'
+						onChange={(e, newValue) => handleSortChange(newValue)}
+					>
+						<Option value={'desc'}>Сначала новые</Option>
+						<Option value={'asc'}>Сначала старые</Option>
+					</Select>
+				</Stack>
+			</Stack>
+
+			<Box sx={{ display: { xs: 'block', md: 'none' } }}>
+				<Stack direction={'column'} spacing={2}>
+					{events && (
+						<>
+							<Stack
+								flexGrow={1}
+								sx={{
+									height: '50vh',
+									borderRadius: '30px',
+									overflow: 'hidden',
+								}}
+							>
+								<Map markers={events} />
+							</Stack>
+							<Grid container spacing={2}>
+								{events.map((event, index) => (
+									<Grid xs={12} sm={6} mdx={6} key={event.id}>
+										<EventCard key={index} data={event} />
+									</Grid>
+								))}
+							</Grid>
+							<Pagination
+								page={page}
+								lastPage={lastPage}
+								onPageChange={setPage}
+							/>
+						</>
+					)}
+				</Stack>
+			</Box>
+
+			<Box sx={{ display: { xs: 'none', md: 'block' } }}>
+				<Stack
+					height={'75vh'}
+					gap={2}
+					sx={{
+						flexDirection: 'row',
 						borderRadius: '30px',
 						overflow: 'hidden',
 					}}
@@ -124,6 +195,7 @@ function Events() {
 							<Stack
 								direction={'column'}
 								flexGrow={1}
+								spacing={2}
 								sx={{
 									maxWidth: '50%',
 								}}
@@ -139,7 +211,7 @@ function Events() {
 										{events.map((event, index) => (
 											<Grid
 												xs={12}
-												smx={6}
+												smx={12}
 												mdx={6}
 												lgx={4}
 												xxl={6}
@@ -150,14 +222,19 @@ function Events() {
 										))}
 									</Grid>
 								</Stack>
+								<Pagination
+									page={page}
+									lastPage={lastPage}
+									onPageChange={setPage}
+								/>
 							</Stack>
-							<Stack direction={'column'} flexGrow={1}>
+							<Stack direction={'row'} flexGrow={1}>
 								<Map markers={events} />
 							</Stack>
 						</>
 					)}
 				</Stack>
-			</Stack>
+			</Box>
 		</Stack>
 	);
 }

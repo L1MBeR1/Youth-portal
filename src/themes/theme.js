@@ -61,6 +61,13 @@ const theme = extendTheme({
 				},
 			},
 		},
+		JoyTextarea: {
+			styleOverrides: {
+				root: {
+					background: 'var(--joy-palette-main-background)',
+				},
+			},
+		},
 	},
 
 	focus: {

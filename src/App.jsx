@@ -57,6 +57,7 @@ import { CssVarsProvider } from '@mui/joy/styles';
 import './css/App.css';
 //Тема
 import theme from './themes/theme';
+import BlogRoleRequest from './pages/blogRoleRequest';
 
 function App() {
 	return (
@@ -97,6 +98,11 @@ function App() {
 							path='my-content'
 							element={<NotGuestRoute element={<MyContent />} />}
 						/>
+						<Route
+							path='blog-role-request'
+							element={<NotGuestRoute element={<BlogRoleRequest />} />}
+						/>
+
 
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
 						<Route

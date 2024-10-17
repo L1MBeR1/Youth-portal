@@ -15,6 +15,9 @@ Route::group([
     Route::post('password/email', [AuthController::class, 'sendPasswordResetLink'])->withoutMiddleware('auth');
     Route::post('password/reset', [AuthController::class, 'setNewPasswordRecover'])->withoutMiddleware('auth');
     
+    Route::post('token/validate', [AuthController::class, 'validateToken'])->withoutMiddleware('auth');
+    Route::post('token/invalidate', [AuthController::class, 'invalidateToken'])->withoutMiddleware('auth');
+
     Route::post('register', [AuthController::class, 'register'])->withoutMiddleware('auth');
     Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
     Route::post('refresh', [AuthController::class, 'refresh'])->withoutMiddleware('auth');

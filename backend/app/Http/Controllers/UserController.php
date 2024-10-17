@@ -14,6 +14,13 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @OA\Info(
+ *     title="API для Youth-portal",
+ *     version="1.0.0",
+ *     description="Документация API"
+ * )
+ */
 class UserController extends Controller
 {
     public function getUserById($userId)
@@ -322,6 +329,16 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/users",
+     *     summary="Получить список пользователей",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успешный ответ"
+     *     )
+     * )
+     */
     public function deleteAccount(Request $request)
     {
         try {

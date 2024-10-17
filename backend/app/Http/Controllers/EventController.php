@@ -98,6 +98,26 @@ class EventController extends Controller
         $paginationData = $this->makePaginationData($events);
         return $this->successResponse($events->items(), $paginationData, 200);
     }
+    
+    
+    public function getEventsMap(Request $request)
+    {
+        $requiredFields = [
+            'events' => [
+                'id',
+                'longitude',
+                'latitude',
+            ],
+        ];
+
+        $query = Event::query();
+        $this->selectFields($query, $requiredFields);
+        $this->applyFilters($query, $request, false);
+        // $this->applySearch($query, $request);
+        $events = $query->paginate($request->get('per_page', 100));
+        $paginationData = $this->makePaginationData($events);
+        return $this->successResponse($events->items(), $paginationData, 200);
+    }
 
 
 

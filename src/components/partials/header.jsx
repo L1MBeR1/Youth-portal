@@ -222,7 +222,7 @@ function Header() {
 								<Typography level={'headerButton'}>Публикации </Typography>
 							</MenuButton>
 							<Menu
-								placement='bottom-end'
+								placement='bottom'
 								variant='plain'
 								sx={{ boxShadow: 'sm' }}
 								size='md'

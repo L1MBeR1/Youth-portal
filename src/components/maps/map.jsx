@@ -2,6 +2,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import useMapEvents from '../../hooks/useMapEvents';
 import marker from '../../img/marker.svg';
 import EventMarkerCard from '../homeComponents/eventContainer/eventMarkerCard';
 delete L.Icon.Default.prototype._getIconUrl;
@@ -19,7 +20,16 @@ const CustomAttribution = () => {
 	return null;
 };
 
-const Map = props => {
+const Map = () => {
+	const endFrom = new Date().toISOString().split('T')[0];
+	const endDate = new Date();
+	endDate.setMonth(endDate.getMonth() + 6);
+	const endTo = endDate.toISOString().split('T')[0];
+	const { data, isLoading } = useMapEvents({
+		per_page: 200,
+		endFrom,
+		endTo,
+	});
 	return (
 		<MapContainer
 			center={[63, 90]}
@@ -32,13 +42,14 @@ const Map = props => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 			/>
 			<CustomAttribution />
-			{props.markers.map((marker, index) => (
-				<Marker key={index} position={[marker.latitude, marker.longitude]}>
-					<Popup>
-						<EventMarkerCard data={marker} />
-					</Popup>
-				</Marker>
-			))}
+			{data &&
+				data.map((marker, index) => (
+					<Marker key={index} position={[marker.latitude, marker.longitude]}>
+						<Popup>
+							<EventMarkerCard id={marker.id} />
+						</Popup>
+					</Marker>
+				))}
 		</MapContainer>
 	);
 };

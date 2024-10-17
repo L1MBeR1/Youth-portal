@@ -1,6 +1,5 @@
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import InfoIcon from '@mui/icons-material/Info';
 import { Stack } from '@mui/joy';
 import Button from '@mui/joy/Button';
 import DialogActions from '@mui/joy/DialogActions';
@@ -17,8 +16,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
-import NeutralModal from '../../modals/neutralModal';
 
+import { toast } from 'sonner';
 import { updateUserPassword } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
@@ -32,7 +31,6 @@ function ChangePassword({ id, open, setOpen }) {
 	const [passwordRepeat, setPasswordRepeat] = useState('');
 	const [passwordRepeatError, setPasswordRepeatError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
 
 	const [passwordCriteria, setPasswordCriteria] = useState({
 		length: false,
@@ -129,7 +127,9 @@ function ChangePassword({ id, open, setOpen }) {
 			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
 			handleClose();
-			setIsSuccess(true);
+			toast.info(
+				'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
+			);
 			return;
 		} else {
 			setIsLoading(false);
@@ -139,13 +139,6 @@ function ChangePassword({ id, open, setOpen }) {
 
 	return (
 		<>
-			<NeutralModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={'Пароль успешно обновлён.'}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<InfoIcon />}
-			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>
@@ -156,12 +149,12 @@ function ChangePassword({ id, open, setOpen }) {
 						<Stack spacing={0}>
 							<Stack spacing={0.5}>
 								<PasswordField
-									lable='Введите старый пароль'
+									label='Введите старый пароль'
 									password={oldPassword}
 									setPassword={setOldPassword}
 								/>
 								<PasswordField
-									lable='Введите новый пароль'
+									label='Введите новый пароль'
 									password={password}
 									setPassword={setPassword}
 								/>
@@ -224,7 +217,7 @@ function ChangePassword({ id, open, setOpen }) {
 							</Stack>
 						</Stack>
 						<PasswordField
-							lable='Повторите пароль'
+							label='Повторите пароль'
 							password={passwordRepeat}
 							setPassword={setPasswordRepeat}
 							error={passwordRepeatError}

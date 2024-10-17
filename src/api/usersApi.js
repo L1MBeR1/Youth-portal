@@ -121,6 +121,22 @@ export const updateProfileImage = async (id, token, data) => {
 	}
 };
 
+export const getCheckNickName = async (token, nickname) => {
+	try {
+		const response = await axios.get(`${API_URL}/users/check/nickname`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			params: {
+				nickname,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to fetch nickname availability');
+	}
+};
+
 export const loadProfileImage = async (id, token, data) => {
 	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
 	console.log(id, token, data);

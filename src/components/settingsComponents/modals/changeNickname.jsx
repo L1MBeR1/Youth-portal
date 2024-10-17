@@ -1,5 +1,8 @@
-import InfoIcon from '@mui/icons-material/Info';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Stack, Tooltip } from '@mui/joy';
 import Button from '@mui/joy/Button';
+import CircularProgress from '@mui/joy/CircularProgress';
 import DialogActions from '@mui/joy/DialogActions';
 import DialogContent from '@mui/joy/DialogContent';
 import DialogTitle from '@mui/joy/DialogTitle';
@@ -11,27 +14,27 @@ import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { Stack } from '@mui/joy';
-import { updateUserNickname } from '../../../api/usersApi';
+import { toast } from 'sonner';
+import { getCheckNickName, updateUserNickname } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import SuccessModal from '../../modals/successModal';
 
 function ChangeNickname({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-
+	const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
+	const [checking, setChecking] = useState(false);
 	const handleClose = () => {
 		setOpen(false);
 		setInputValue('');
 		setErrorMessage('');
+		setIsNicknameAvailable(false);
 	};
 
 	const updateNickname = async () => {
@@ -55,24 +58,56 @@ function ChangeNickname({ id, open, setOpen }) {
 				await queryClient.refetchQueries(['profile']);
 				setIsLoading(false);
 				handleClose();
-				setIsSuccess(true);
+				toast.success('Отображаемое имя успешно обновлено');
 			}
 		} catch (error) {
 			console.error('Ошибка при обновлении ника:', error);
 			setIsLoading(false);
-			setErrorMessage('Данное имя занято. Попробуйте другое.');
+			setErrorMessage('Ошибка при обновлении ника');
 		}
 	};
 
+	const checkNicknameAvailability = async nickname => {
+		const { token } = await getToken();
+		setChecking(true);
+		try {
+			const isAvailable = await getCheckNickName(token, nickname);
+			setIsNicknameAvailable(isAvailable);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Ошибка при проверке ника.');
+		} finally {
+			setChecking(false);
+		}
+	};
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const debouncedCheckNickname = useCallback(
+		debounce(nickname => {
+			if (nickname.length > 0) {
+				checkNicknameAvailability(nickname);
+			} else {
+				setIsNicknameAvailable(false);
+			}
+		}, 500),
+		[]
+	);
+
+	const handleInputChange = e => {
+		const value = e.target.value;
+		setChecking(true);
+		setInputValue(value);
+		debouncedCheckNickname(value);
+	};
+
+	useEffect(() => {
+		return () => {
+			debouncedCheckNickname.cancel();
+		};
+	}, [debouncedCheckNickname]);
+
 	return (
 		<>
-			<SuccessModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={'Отображаемое имя успешно обновлено'}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<InfoIcon />}
-			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>
@@ -90,12 +125,31 @@ function ChangeNickname({ id, open, setOpen }) {
 							)}
 							<FormControl sx={{ marginTop: 2 }}>
 								<FormLabel>Новое имя</FormLabel>
-								<Input
-									placeholder={`Введите новое имя`}
-									value={inputValue}
-									onChange={e => setInputValue(e.target.value)}
-									autoFocus
-								/>
+								<Stack direction='row' spacing={1} alignItems='center'>
+									<Input
+										sx={{ width: '100%' }}
+										placeholder={`Введите новое имя`}
+										value={inputValue}
+										onChange={handleInputChange}
+										autoFocus
+										endDecorator={
+											inputValue.length === 0 ? null : checking ? (
+												<CircularProgress size='sm' />
+											) : isNicknameAvailable ? (
+												<CheckCircleOutlineIcon color='success' />
+											) : (
+												<Tooltip
+													title='Данное имя занято'
+													color='danger'
+													placement='top-end'
+													variant='plain'
+												>
+													<ErrorOutlineIcon color='danger' />
+												</Tooltip>
+											)
+										}
+									/>
+								</Stack>
 							</FormControl>
 						</Stack>
 					</DialogContent>
@@ -103,7 +157,9 @@ function ChangeNickname({ id, open, setOpen }) {
 						<Button
 							variant='solid'
 							onClick={updateNickname}
-							disabled={inputValue.length === 0}
+							disabled={
+								inputValue.length === 0 || !isNicknameAvailable || checking
+							}
 							loading={isLoading}
 						>
 							Сохранить

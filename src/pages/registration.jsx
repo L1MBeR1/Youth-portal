@@ -11,6 +11,7 @@ function Registration() {
 				justifyContent: 'center',
 				flexGrow: '1',
 				margin: '20px 15px',
+				minHeight: '70vh',
 			}}
 		>
 			<RegistrationForm />

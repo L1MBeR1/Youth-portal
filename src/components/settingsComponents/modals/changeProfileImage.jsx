@@ -1,4 +1,3 @@
-import InfoIcon from '@mui/icons-material/Info';
 import { Stack } from '@mui/joy';
 import Avatar from '@mui/joy/Avatar';
 import Button from '@mui/joy/Button';
@@ -13,10 +12,10 @@ import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { loadProfileImage, updateProfileImage } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
-import SuccessModal from '../../modals/successModal';
 
 const MAX_FILE_SIZE_MB = process.env.REACT_APP_MAX_IMG_SIZE || 2;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -25,7 +24,6 @@ function ChangeProfileImage({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [filePreview, setFilePreview] = useState('');
 	const [isDragging, setIsDragging] = useState(false);
@@ -57,7 +55,7 @@ function ChangeProfileImage({ id, open, setOpen }) {
 			await updateProfileImage(id, token, updateData);
 			await queryClient.refetchQueries(['profile']);
 			setIsLoading(false);
-			setIsSuccess(true);
+			toast.success('Аватар успешно обновлен');
 			handleClose();
 		} catch (error) {
 			console.error('Ошибка при сохранении аватара:', error);
@@ -113,13 +111,6 @@ function ChangeProfileImage({ id, open, setOpen }) {
 
 	return (
 		<>
-			<SuccessModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={'Аватар успешно обновлен'}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<InfoIcon />}
-			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>

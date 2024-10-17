@@ -11,6 +11,7 @@ function Login() {
 				justifyContent: 'center',
 				flexGrow: '1',
 				mx: '15px',
+				minHeight: '70vh',
 			}}
 		>
 			<LoginForm />

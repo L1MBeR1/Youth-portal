@@ -33,9 +33,9 @@ function LoginForm() {
 			const token = data.access_token;
 
 			if (token) {
-				await queryClient.invalidateQueries(['profile']);
 				setToken(token);
 				const decoded = jwtDecode(token);
+				await queryClient.refetchQueries(['profile']);
 				if (decoded.roles.includes('admin')) {
 					navigate('/admin');
 				} else if (decoded.roles.includes('moderator')) {
@@ -93,7 +93,7 @@ function LoginForm() {
 					</FormControl>
 					<Stack>
 						<PasswordField
-							lable={'Пароль'}
+							label={'Пароль'}
 							password={password}
 							setPassword={setPassword}
 						/>

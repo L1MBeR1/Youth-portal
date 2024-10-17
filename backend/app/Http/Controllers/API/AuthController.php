@@ -353,8 +353,9 @@ class AuthController extends Controller
             $user->save();
 
 
-
-            return response()->view('emails.thanks');
+            //TODO: x
+            // Mail::to($user->email)->send(new EmailVerification($user, $token));
+            return $this->successResponse([], 'Email verified successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
         }
@@ -395,8 +396,8 @@ class AuthController extends Controller
             $user->save();
 
 
-
-            return response()->view('emails.thanks');
+            //TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
         }
@@ -774,7 +775,8 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-            return response()->view('emails.thanks');
+            // TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (TokenExpiredException $e) {
             return $this->errorResponse('Token has expired', [], 400);
         } catch (TokenInvalidException $e) {
@@ -833,7 +835,8 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-            return response()->view('emails.thanks');
+            // TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (TokenExpiredException $e) {
             return $this->errorResponse('Token has expired', [], 400);
         } catch (TokenInvalidException $e) {
@@ -957,5 +960,5 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    
+
 }

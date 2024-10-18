@@ -103,7 +103,7 @@ function App() {
 							element={<NotGuestRoute element={<MyContent />} />}
 						/>
 						<Route
-							path='blog-role-request'
+							path='request/blogger'
 							element={<NotGuestRoute element={<BlogRoleRequest />} />}
 						/>
 

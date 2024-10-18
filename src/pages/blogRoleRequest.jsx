@@ -1,37 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
-
-import AspectRatio from '@mui/joy/AspectRatio';
+import usePersonalData from '../hooks/usePersonalData';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import DOMPurify from 'dompurify';
-import ScrollButton from '../components/common/scrollButton.jsx';
-import useProfile from '../hooks/useProfile.js';
+import { useNavigate } from 'react-router-dom';
+import { getToken } from '../utils/authUtils/tokenStorage';
+
 import { mainMargin } from '../themes/mainMargin.js';
 import {
     Button,
     FormControl,
     FormLabel,
 } from '@mui/joy';
+import { requestBloggerRole } from '../api/usersApi.js';
 
 
 function RoleRequest() {
-    const { id } = useParams();
-    const [comment, setComment] = useState('');
-
+    const { data: userData } = usePersonalData();
     const [moveButtonDown, setMoveButtonDown] = useState(false);
     const textareaRef = useRef(null);
 
     const [text, setText] = useState('');
-    const [wordCount, setWordCount] = useState(0);
+    const [isLoadingUpdate] = useState(false);
+    const navigate = useNavigate();
 
     const handleTextChange = (event) => {
         const value = event.target.value;
         setText(value);
-        setWordCount(value.length);
         setMoveButtonDown(value.length > 30 || value.includes('\n'));
     };
 
@@ -44,10 +42,26 @@ function RoleRequest() {
         }
     }, [text, moveButtonDown]);
 
-    const handleInputChange = e => {
-        const value = e.target.value;
-        setComment(value);
-        setMoveButtonDown(value.length > 15 || value.includes('\n'));
+    const handleSubmit = async () => {
+        const sanitizedText = DOMPurify.sanitize(text);
+        console.log(sanitizedText);
+        const { token, needsRedirect } = await getToken();
+        if (needsRedirect) {
+            navigate('/login');
+        }
+        let response;
+
+        response = await requestBloggerRole(
+            userData.user_id,
+            token,
+            sanitizedText
+        );
+
+        if (response) {
+            setText('');
+            setMoveButtonDown(false);
+            console.log(response);
+        }
     };
 
     return (
@@ -122,7 +136,12 @@ function RoleRequest() {
 
                         <Stack direction={'row'} spacing={4}>
                             <Box>
-                                <Button>
+                                <Button
+                                    loading={isLoadingUpdate}
+                                    onClick={() => {
+                                        handleSubmit();
+                                    }}
+                                >
                                     Отправить
                                 </Button>
                             </Box>

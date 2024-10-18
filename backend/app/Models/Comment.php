@@ -64,7 +64,6 @@ class Comment extends Model
 
     public function checkForBadWords() {
         $bad_words = config('badwords.bad_words');
-        Log::info('Плохие слова: ', $bad_words);
     
         if (is_array($bad_words)) {
             foreach ($bad_words as $word) {

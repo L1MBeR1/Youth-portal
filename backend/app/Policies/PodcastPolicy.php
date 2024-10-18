@@ -74,7 +74,7 @@ class PodcastPolicy
      */
     public function create(User $user)
     {
-        return $user->hasRole('admin') || $user->hasRole('blogger');
+        return $user->hasRole('admin|su') || $user->hasRole('blogger');
     }
 
     /**
@@ -120,7 +120,7 @@ class PodcastPolicy
         }
 
         // Блогеры могут удалять только свои подкасты
-        if ($user->hasRole('blogger') && $user->id === $podcast->author_id) {
+        if ($user->hasRole('blogger|su') && $user->id === $podcast->author_id) {
             Log::info('User ' . $user->id . ' is the author and can delete podcast ' . $podcast->id);
             return true;
         }

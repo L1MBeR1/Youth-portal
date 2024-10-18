@@ -33,6 +33,7 @@ class Podcast extends Model
         'description',
         'content',
         'cover_uri',
+        'audio_uri',
         'status',
         'views',
         'likes',

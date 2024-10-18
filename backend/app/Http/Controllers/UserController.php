@@ -14,6 +14,13 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @OA\Info(
+ *     title="API для Youth-portal",
+ *     version="1.0.0",
+ *     description="Документация API"
+ * )
+ */
 class UserController extends Controller
 {
     public function getUserById($userId)
@@ -91,9 +98,9 @@ class UserController extends Controller
                         $value = $searchValues[$index] ?? null;
                         if ($value) {
                             if (in_array($field, ['email', 'phone'])) {
-                                $query->orWhere('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                                $query->orWhere('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
                             } else {
-                                $query->orWhere('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                                $query->orWhere('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
                             }
                         }
                     }
@@ -103,9 +110,9 @@ class UserController extends Controller
                     $value = $searchValues[$index] ?? null;
                     if ($value) {
                         if (in_array($field, ['email', 'phone'])) {
-                            $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+                            $query->where('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
                         } else {
-                            $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+                            $query->where('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
                         }
                     }
                 }
@@ -117,9 +124,9 @@ class UserController extends Controller
         //         $value = $searchValues[$index] ?? null;
         //         if ($value) {
         //             if (in_array($field, ['email', 'phone'])) {
-        //                 $query->where('user_login_data.' . $field, 'LIKE', '%' . $value . '%');
+        //                 $query->where('user_login_data.' . $field, 'iLIKE', '%' . $value . '%');
         //             } else {
-        //                 $query->where('user_metadata.' . $field, 'LIKE', '%' . $value . '%');
+        //                 $query->where('user_metadata.' . $field, 'iLIKE', '%' . $value . '%');
         //             }
         //         }
         //     }
@@ -127,9 +134,9 @@ class UserController extends Controller
 
         // if ($searchColumnName && $searchValue) {
         //     if (in_array($searchColumnName, ['email', 'phone'])) {
-        //         $query->where('user_login_data.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //         $query->where('user_login_data.' . $searchColumnName, 'iLIKE', '%' . $searchValue . '%');
         //     } else {
-        //         $query->where('user_metadata.' . $searchColumnName, 'LIKE', '%' . $searchValue . '%');
+        //         $query->where('user_metadata.' . $searchColumnName, 'iLIKE', '%' . $searchValue . '%');
         //     }
         // }
 
@@ -322,6 +329,16 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/users",
+     *     summary="Получить список пользователей",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успешный ответ"
+     *     )
+     * )
+     */
     public function deleteAccount(Request $request)
     {
         try {
@@ -457,5 +474,18 @@ class UserController extends Controller
         $metadata->save();
 
         return $this->successResponse($metadata, 'Nickname updated successfully.');
+    }
+
+    public function checkNickname(Request $request) //проверка доступности никнейма
+    {
+        $nickname = $request->nickname;
+        Log::info('Checking nickname', ['nickname' => $nickname]);
+        $existingNickname = UserMetadata::where('nickname', $nickname)->first();
+
+        if ($existingNickname) {
+            return response()->json(false);
+        }
+
+        return response()->json(true);
     }
 }

@@ -1,78 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../../api/authApi.js';
-import { setToken } from '../../utils/authUtils/tokenStorage.js';
-
-import { useQueryClient } from '@tanstack/react-query';
-import zxcvbn from 'zxcvbn';
-
-import Box from '@mui/joy/Box';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { Stack } from '@mui/joy';
 import Button from '@mui/joy/Button';
 import Card from '@mui/joy/Card';
 import LinearProgress from '@mui/joy/LinearProgress';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
-import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import zxcvbn from 'zxcvbn';
 
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import { toast } from 'sonner';
+import { postResetPassword } from '../../api/authApi';
+import PasswordField from '../fields/passwordField';
 
-import { jwtDecode } from 'jwt-decode';
-
-import EmailField from '../fields/emailField.jsx';
-import PasswordField from '../fields/passwordField.jsx';
-
-function RegistrationForm() {
-	const queryClient = useQueryClient();
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState('');
-	const [email, setEmail] = useState('');
-	const [emailStatus, setEmailStatus] = useState('');
-	const [emailError, setEmailError] = useState('');
-
+function ResetPasswordForm({ token }) {
 	const [password, setPassword] = useState('');
 	const [passwordRepeat, setPasswordRepeat] = useState('');
 	const [passwordRepeatError, setPasswordRepeatError] = useState('');
-
 	const [passwordCriteria, setPasswordCriteria] = useState({
 		length: false,
 		specialChar: false,
 		lowercase: false,
 		uppercase: false,
 	});
-
+	const [error, setError] = useState('');
+	const [passwordStrength, setPasswordStrength] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
-
-	const [PasswordStrength, setPasswordStrength] = useState('');
-	function checkPasswordStrength(password) {
-		setPasswordStrength(zxcvbn(password));
-	}
 
 	useEffect(() => {
 		setPasswordCriteria({
 			length: password.length >= 8,
 			specialChar: /[!@#$%^&*-]/.test(password),
-			lowercase: /[a-zа-я]/.test(password),
-			uppercase: /[A-ZА-Я]/.test(password),
+			lowercase: /[a-z]/.test(password),
+			uppercase: /[A-Z]/.test(password),
 		});
-		checkPasswordStrength(password);
+		setPasswordStrength(zxcvbn(password));
 	}, [password]);
 
+	const getProgressColor = () => {
+		const color = ['#f44336', '#ff9800', '#ffc107', '#84ad5b', '#3DAD44'];
+
+		return color[Math.min(passwordStrength.score, color.length)];
+	};
 	const calculateProgress = score => {
 		if (score > 0) {
 			return (score / 4) * 100;
 		} else return 3;
 	};
-
-	const getProgressColor = () => {
-		const color = ['#f44336', '#ff9800', '#ffc107', '#84ad5b', '#3DAD44'];
-
-		return color[Math.min(PasswordStrength.score, color.length)];
-	};
-
 	const getStrengthText = () => {
-		switch (PasswordStrength.score) {
+		switch (passwordStrength.score) {
 			case 0:
 				return 'Очень слабый';
 			case 1:
@@ -117,71 +96,49 @@ function RegistrationForm() {
 		}
 
 		try {
-			const data = await register(email, password);
-			const token = data.access_token;
-
-			if (token) {
-				setToken(token);
-				const decoded = jwtDecode(token);
-				await queryClient.refetchQueries(['profile']);
-				if (decoded.roles.includes('admin')) {
-					navigate('/admin');
-				} else if (decoded.roles.includes('moderator')) {
-					navigate('/moderator');
-				} else {
-					navigate('/');
-				}
+			const response = await postResetPassword(token, password, passwordRepeat);
+			if (response) {
+				toast.success('Пароль успешно изменён!');
+				navigate('/login');
 			}
 			setIsLoading(false);
 		} catch (error) {
-			setError('Ошибка авторизации. Пожалуйста, проверьте свои данные.');
-			console.error('Registration failed', error);
+			setError('Ошибка сброса пароля, попробуйте позже');
+			console.error('Reset password failed', error);
 			setIsLoading(false);
 		}
 	};
 
 	return (
-		<Card
-			variant='plain'
-			sx={{
-				borderRadius: '30px',
-				width: '100%',
-				maxWidth: '450px',
-				padding: '25px',
-				marginTop: '40px',
-			}}
-		>
-			<form onSubmit={handleSubmit}>
-				<Stack spacing={1.5}>
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Typography level='h4'>Регистрация</Typography>
-					</Box>
-					<Typography level='body-xs' sx={{ color: 'red' }}>
-						{error}
-					</Typography>
-					<EmailField
-						email={email}
-						setEmail={setEmail}
-						setEmailStatus={setEmailStatus}
-						setEmailError={setEmailError}
-					/>
-					<Stack spacing={0}>
+		<>
+			<Card
+				variant='plain'
+				sx={{
+					borderRadius: '30px',
+					width: '100%',
+					maxWidth: '450px',
+					padding: '25px',
+					marginTop: '40px',
+				}}
+			>
+				<form onSubmit={handleSubmit}>
+					<Stack spacing={2}>
+						<Typography level='h4' sx={{ textAlign: 'center' }}>
+							Сброс пароля
+						</Typography>
+						<Typography level='body-xs' sx={{ color: 'red' }}>
+							{error}
+						</Typography>
 						<Stack spacing={0.5}>
 							<PasswordField
-								label='Пароль'
+								label='Введите новый пароль'
 								password={password}
 								setPassword={setPassword}
 							/>
 							<LinearProgress
 								determinate
 								size='sm'
-								value={calculateProgress(PasswordStrength.score)}
+								value={calculateProgress(passwordStrength.score)}
 								sx={{
 									bgcolor: 'background.level3',
 									color: getProgressColor(),
@@ -229,35 +186,31 @@ function RegistrationForm() {
 								</ListItem>
 							</List>
 						</Stack>
+						<PasswordField
+							label='Повторите новый пароль'
+							password={passwordRepeat}
+							setPassword={setPasswordRepeat}
+							error={passwordRepeatError}
+						/>
+						<Button
+							type='submit'
+							variant='solid'
+							loading={isLoading}
+							disabled={Boolean(
+								!passwordCriteria.length ||
+									!passwordCriteria.specialChar ||
+									!passwordCriteria.lowercase ||
+									!passwordCriteria.uppercase ||
+									passwordRepeatError
+							)}
+						>
+							Сбросить пароль
+						</Button>
 					</Stack>
-					<PasswordField
-						label='Повторите пароль'
-						password={passwordRepeat}
-						setPassword={setPasswordRepeat}
-						error={passwordRepeatError}
-					/>
-					<Button loading={Boolean(isLoading)} type='submit'>
-						Зарегистрироваться
-					</Button>
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							flexDirection: 'row',
-							paddingTop: '5px',
-							gap: '5px',
-						}}
-					>
-						<Typography level='body-sm'>Уже есть аккаунт?</Typography>
-						<Link to='/login'>
-							<Typography level='body-sm'>Войти в аккаунт</Typography>
-						</Link>
-					</Box>
-				</Stack>
-			</form>
-		</Card>
+				</form>
+			</Card>
+		</>
 	);
 }
 
-export default RegistrationForm;
+export default ResetPasswordForm;

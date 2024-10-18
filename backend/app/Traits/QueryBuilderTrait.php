@@ -198,12 +198,12 @@ trait QueryBuilderTrait
         }
 
         // Обработка crtFrom и crtTo
-        if ($crtFrom = $request->query('crtFrom')) {
-            if (!hasTime($crtFrom)) {
-                $crtFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+        if ($startFrom = $request->query('crtFrom')) {
+            if (!hasTime($startFrom)) {
+                $startFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
             }
-            $crtFrom = Carbon::parse($crtFrom, $timezone)->setTimezone('UTC');
-            $query->where('created_at', '>=', $crtFrom);
+            $startFrom = Carbon::parse($startFrom, $timezone)->setTimezone('UTC');
+            $query->where('created_at', '>=', $startFrom);
         }
 
         if ($crtTo = $request->query('crtTo')) {
@@ -241,6 +241,38 @@ trait QueryBuilderTrait
             $updDate = Carbon::parse($updDate, $timezone)->setTimezone('UTC')->startOfDay();
             $query->whereBetween('updated_at', [$updDate, $updDate->endOfDay()]);
         }
+
+        if ($startFrom = $request->query('startFrom')) {
+            if (!hasTime($startFrom)) {
+                $startFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $startFrom = Carbon::parse($startFrom, $timezone)->setTimezone('UTC');
+            $query->where('start_time', '>=', $startFrom);
+        }
+
+        if ($startTo = $request->query('startTo')) {
+            if (!hasTime($startTo)) {
+                $startTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $startTo = Carbon::parse($startTo, $timezone)->setTimezone('UTC');
+            $query->where('start_time', '<=', $startTo);
+        }
+
+        if ($endFrom = $request->query('endFrom')) {
+            if (!hasTime($endFrom)) {
+                $endFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $endFrom = Carbon::parse($endFrom, $timezone)->setTimezone('UTC');
+            $query->where('end_time', '>=', $endFrom);
+        }
+
+        if ($endTo = $request->query('endTo')) {
+            if (!hasTime($endTo)) {
+                $endTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $endTo = Carbon::parse($endTo, $timezone)->setTimezone('UTC');
+            $query->where('end_time', '<=', $endTo);
+        }
     }
 
 
@@ -266,14 +298,14 @@ trait QueryBuilderTrait
             $query->where(function ($query) use ($searchFields, $searchValues, $operator) {
                 foreach ($searchFields as $index => $field) {
                     if (!empty($searchValues[$index])) {
-                        $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'LIKE', '%' . $searchValues[$index] . '%');
+                        $query->{$operator === 'or' ? 'orWhere' : 'where'}($field, 'iLIKE', '%' . $searchValues[$index] . '%');
                     }
                 }
             });
         }
 
         if ($tagFilter = $request->query('tagFilter')) {
-            $query->whereRaw("description->'meta'->>'tags' LIKE ?", ['%' . $tagFilter . '%']);
+            $query->whereRaw("description->'meta'->>'tags' iLIKE ?", ['%' . $tagFilter . '%']);
         }
     }
 }

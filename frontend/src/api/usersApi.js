@@ -121,6 +121,22 @@ export const updateProfileImage = async (id, token, data) => {
 	}
 };
 
+export const getCheckNickName = async (token, nickname) => {
+	try {
+		const response = await axios.get(`${API_URL}/users/check/nickname`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			params: {
+				nickname,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to fetch nickname availability');
+	}
+};
+
 export const loadProfileImage = async (id, token, data) => {
 	console.log(`%cCALL: updateUser`, 'background: #000; color: #ff0');
 	console.log(id, token, data);
@@ -208,5 +224,24 @@ export const addBlogger = async (token, email) => {
 		return response.data;
 	} catch (error) {
 		throw new Error('Failed to add blogger');
+	}
+};
+
+export const requestBloggerRole = async (id, token, content) => {
+	console.log(`%cCALL: requestBloggerRole`, 'background: #000; color: #ff0');
+	console.log(id, token, content);
+	const data = {
+        status: 'review', 
+        content: content
+    };
+	try {
+		const response = await axios.post(`${API_URL}/blog_role_status`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to request role');
 	}
 };

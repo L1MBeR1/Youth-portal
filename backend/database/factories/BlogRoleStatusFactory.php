@@ -16,6 +16,7 @@ class BlogRoleStatusFactory extends Factory
     {
         return [
             'status' => $this->faker->randomElement(['review', 'approved', 'withdrawn']),
+            'content' => $this->faker->realText(100),
             'moder_id' => $this->getModeratorId(),
             'author_id' => \App\Models\User::factory(), // Создание нового пользователя
         ];

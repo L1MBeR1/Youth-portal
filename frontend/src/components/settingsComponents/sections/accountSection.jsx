@@ -24,12 +24,11 @@ import ChangeEmail from '../modals/changeEmail';
 import DeleteAccountModal from '../modals/deleteAccount';
 
 import DatePicker from '../../common/datePicker';
-import SuccessModal from '../../modals/successModal';
 
-import EditIcon from '@mui/icons-material/Edit';
 import Man2Icon from '@mui/icons-material/Man2';
 import Woman2Icon from '@mui/icons-material/Woman2';
 
+import { toast } from 'sonner';
 import { updateUser } from '../../../api/usersApi';
 import { getToken, removeToken } from '../../../utils/authUtils/tokenStorage';
 function AccountSection() {
@@ -79,7 +78,6 @@ function AccountSection() {
 	const [changeEmailOpen, setChangeEmailOpen] = useState(false);
 
 	const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
 
 	function maskEmail(email) {
 		if (email) {
@@ -115,7 +113,7 @@ function AccountSection() {
 			await queryClient.refetchQueries(['personalData']);
 			setIsLoadingUpdate(false);
 			console.log(response);
-			setIsSuccess(true);
+			toast.success('Данные успешно обновлены');
 
 			return true;
 		} else {
@@ -125,13 +123,6 @@ function AccountSection() {
 	};
 	return (
 		<>
-			<SuccessModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={'Данные успешно обновлены'}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<EditIcon />}
-			/>
 			<Box>
 				<DeleteAccountModal
 					id={userData?.id}

@@ -31,6 +31,7 @@ class BlogRoleStatus extends Model
         'status',
         'moder_id',
         'author_id',
+        'content',
     ];
 
     public function author(){

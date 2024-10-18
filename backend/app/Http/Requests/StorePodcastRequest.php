@@ -24,8 +24,9 @@ class StorePodcastRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'content' => 'required|string',
+            // 'content' => 'required|string',
             'cover_uri' => 'nullable|string',
+            'audio_uri' => 'nullable|string',
             'status' => 'nullable|string|max:255',
             'views' => 'nullable|integer',
             'likes' => 'nullable|integer',

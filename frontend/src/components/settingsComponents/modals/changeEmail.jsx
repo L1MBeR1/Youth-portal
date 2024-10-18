@@ -1,4 +1,3 @@
-import InfoIcon from '@mui/icons-material/Info';
 import Button from '@mui/joy/Button';
 import DialogActions from '@mui/joy/DialogActions';
 import DialogContent from '@mui/joy/DialogContent';
@@ -15,9 +14,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 
-import NeutralModal from '../../modals/neutralModal';
-
 import { Stack } from '@mui/joy';
+import { toast } from 'sonner';
 import { updateUserEmail } from '../../../api/usersApi';
 import { logoutFunc } from '../../../utils/authUtils/logout';
 import { getToken } from '../../../utils/authUtils/tokenStorage';
@@ -30,7 +28,6 @@ function ChangeEmail({ id, open, setOpen }) {
 	const [password, setPassword] = useState('');
 	const [isConfirmEnabled, setIsConfirmEnabled] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
 
 	useEffect(() => {
 		if (validator.isEmail(inputValue)) {
@@ -70,7 +67,9 @@ function ChangeEmail({ id, open, setOpen }) {
 			setIsLoading(false);
 			handleClose();
 			console.log(response);
-			setIsSuccess(true);
+			toast.info(
+				'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
+			);
 			return;
 		}
 		return;
@@ -78,15 +77,6 @@ function ChangeEmail({ id, open, setOpen }) {
 
 	return (
 		<>
-			<NeutralModal
-				open={isSuccess}
-				setOpen={setIsSuccess}
-				message={
-					'Перейдите по ссылке, отправленной на ваш новый email для подтверждения'
-				}
-				position={{ vertical: 'bottom', horizontal: 'right' }}
-				icon={<InfoIcon />}
-			/>
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>
@@ -96,7 +86,7 @@ function ChangeEmail({ id, open, setOpen }) {
 					<DialogContent>
 						<Stack spacing={2}>
 							<PasswordField
-								lable={'Пароль'}
+								label={'Пароль'}
 								password={password}
 								setPassword={setPassword}
 							/>

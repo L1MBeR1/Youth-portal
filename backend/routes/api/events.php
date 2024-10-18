@@ -21,6 +21,7 @@ Route::group([
     'prefix' => 'events'
 ], function () {
     Route::get('userEvents', [EventController::class, 'getUserEvents'])->withoutMiddleware('auth');
+    Route::get('map', [EventController::class, 'getEventsMap'])->withoutMiddleware('auth');
     Route::get('{id}', [EventController::class, 'getEventById'])->withoutMiddleware('auth');
 });
 

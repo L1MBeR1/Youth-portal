@@ -30,6 +30,8 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
+// use PHPOpenSourceSaver\JWTAuth\Exceptions\;
 
 class AuthController extends Controller
 {
@@ -59,6 +61,10 @@ class AuthController extends Controller
     //TODO Изменить принцип валидации на валидацию через request
     public function register(Request $request)
     {
+        if ($request->email) {
+            $request->merge(['email' => strtolower($request->email)]);
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => [
                 'nullable',
@@ -347,8 +353,9 @@ class AuthController extends Controller
             $user->save();
 
 
-
-            return response()->view('emails.thanks');
+            //TODO: x
+            // Mail::to($user->email)->send(new EmailVerification($user, $token));
+            return $this->successResponse([], 'Email verified successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
         }
@@ -389,8 +396,8 @@ class AuthController extends Controller
             $user->save();
 
 
-
-            return response()->view('emails.thanks');
+            //TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
         }
@@ -768,7 +775,8 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-            return response()->view('emails.thanks');
+            // TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (TokenExpiredException $e) {
             return $this->errorResponse('Token has expired', [], 400);
         } catch (TokenInvalidException $e) {
@@ -807,7 +815,7 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'password' => [
                     'required',
-                  
+
                     'regex:' . $this->passwordRegexp,
 
                 ]
@@ -827,7 +835,8 @@ class AuthController extends Controller
             $user->assignRole('user');
             $user->save();
 
-            return response()->view('emails.thanks');
+            // TODO: x
+            return $this->successResponse([], 'Email verified successfully');
         } catch (TokenExpiredException $e) {
             return $this->errorResponse('Token has expired', [], 400);
         } catch (TokenInvalidException $e) {
@@ -836,6 +845,119 @@ class AuthController extends Controller
             return $this->errorResponse('Token error', [], 400);
         } catch (Exception $e) {
             return $this->errorResponse('An unexpected error occurred', [], 500);
+        }
+    }
+
+
+    // use Illuminate\Http\Request;
+    // use OpenSSl\Exceptions\TokenExpiredException;
+    // use OpenSSl\Exceptions\TokenInvalidException;
+    // use OpenSSl\Exceptions\TokenBlacklistedException;
+    // use OpenSSl\Exceptions\JWTException;
+    // use OpenSSl\Exceptions\NotBeforeException;
+    // use JWTAuth;
+
+    public function validateToken(Request $request)
+    {
+        // Получение токена из тела запроса
+        $token = $request->input('token');
+
+        if (!$token) {
+            return response()->json([
+                'error' => 'Token is missing',
+            ], 400);
+        }
+
+        try {
+            // Валидация и получение payload токена
+            $payload = JWTAuth::setToken($token)->getPayload();
+
+            // Получение userId из payload
+            $userId = $payload->get('sub');
+
+            // Возвращаем успешный ответ
+            return response()->json([
+                'message' => 'Token is valid',
+                'user_id' => $userId,
+            ], 200);
+
+        } catch (TokenExpiredException $e) {
+            // Токен истек
+            return response()->json([
+                'error' => 'Token has expired',
+            ], 400);
+
+        } catch (TokenInvalidException $e) {
+            // Токен недействителен
+            return response()->json([
+                'error' => 'Token is invalid',
+            ], 400);
+
+        // } catch (NotBeforeException $e) {
+        //     // Токен ещё не действителен
+        //     return response()->json([
+        //         'error' => 'Token is not valid yet',
+        //     ], 400);
+
+        // 
+        } catch (TokenBlacklistedException $e) {
+            // Токен уже аннулирован (инвалидирован)
+            return response()->json([
+                'error' => 'Token is blacklisted',
+            ], 400);
+
+        } catch (JWTException $e) {
+            // Любая другая ошибка, связанная с JWT
+            return response()->json([
+                'error' => 'Token error',
+            ], 400);
+
+        } catch (Exception $e) {
+            // Любая другая неожиданная ошибка
+            return response()->json([
+                'error' => 'An unexpected error occurred',
+            ], 500);
+        }
+    }
+
+
+    public function invalidateToken(Request $request)
+    {
+        // Получение токена из тела запроса
+        $token = $request->input('token');
+
+        if (!$token) {
+            return response()->json([
+                'error' => 'Token is missing',
+            ], 400);
+        }
+
+        try {
+            // Инвалидация токена
+            
+            JWTAuth::setToken($token)->invalidate();
+
+            return response()->json([
+                'message' => 'Token has been invalidated',
+            ], 200);
+
+        } catch (TokenBlacklistedException $e) {
+            // Если токен уже был инвалидирован
+            return response()->json([
+                'error' => 'Token is already blacklisted',
+            ], 400);
+
+        } catch (JWTException $e) {
+            // Любая другая ошибка, связанная с JWT
+            return response()->json([
+                'error' => 'Token error',
+                'e' => $e->getMessage(),
+            ], 400);
+        } catch (Exception $e) {
+            // Любая другая неожиданная ошибка
+            return response()->json([
+                'error' => 'An unexpected error occurred',
+            ], 500);
         }
     }
 

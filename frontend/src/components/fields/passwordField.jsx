@@ -10,7 +10,7 @@ import Input from '@mui/joy/Input';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 
-function PasswordField({ error, lable, password, setPassword }) {
+function PasswordField({ error, label, password, setPassword }) {
 	const [showPassword, setShowPassword] = useState(false);
 
 	const togglePasswordVisibility = () => {
@@ -24,7 +24,7 @@ function PasswordField({ error, lable, password, setPassword }) {
 
 	return (
 		<FormControl error={Boolean(error)}>
-			<FormLabel>{lable}</FormLabel>
+			<FormLabel>{label}</FormLabel>
 			<Input
 				type={showPassword ? 'text' : 'password'}
 				placeholder='Введите пароль'

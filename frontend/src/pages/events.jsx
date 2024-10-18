@@ -161,7 +161,7 @@ function Events() {
 									overflow: 'hidden',
 								}}
 							>
-								<Map markers={events} />
+								<Map />
 							</Stack>
 							<Grid container spacing={2}>
 								{events.map((event, index) => (
@@ -229,7 +229,7 @@ function Events() {
 								/>
 							</Stack>
 							<Stack direction={'row'} flexGrow={1}>
-								<Map markers={events} />
+								<Map />
 							</Stack>
 						</>
 					)}

@@ -3,48 +3,64 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-// use Socialite;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
+use App\Models\User; 
+use App\Models\SocialAccount; 
+use App\Models\UserMetadata;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+//команда для запуска ngrok - ngrok http http://localhost:8000 
 class VKAuthController extends Controller
 {
-    /*public function redirectToProvider()
-    {
-        Log::info('Redirecting to VKontakte provider'); // Логируем сообщение о перенаправлении
-        return Socialite::driver('vkontakte')->stateless()->redirect();
-    }*/
+    public function handleAuth(Request $request)
+{
+    Log::info('Handling VKontakte authentication');
 
-    public function handleProviderCallback()
-    {
-        Log::info('Handling VKontakte callback'); // Логируем сообщение о колбэке
-
+    // Проверяем, есть ли код аутентификации
+    if ($request->has('code')) {
         try {
-            //$vkUser = Socialite::driver('vkontakte')->stateless()->user();
-            $vkUser = Socialite::driver('vkontakte')->stateless()->setHttpClient(
+            // Получаем пользователя из ВК
+            $vkUser  = Socialite::driver('vkontakte')->stateless()->setHttpClient(
                 new \GuzzleHttp\Client(['verify' => false])
             )->user();
-            
 
-            // Логирование полученных данных
-            Log::info('VK User:', (array)$vkUser);
+            Log::info('VK User:', (array)$vkUser );
 
-            // Найти или создать пользователя в базе данных
             $user = User::firstOrCreate(
-                ['email' => $vkUser->email],
-                ['name' => $vkUser->name]
+                ['email' => $vkUser ->email],
+                [
+                    'password' => 'password',
+                    'phone' => null,
+                ]
             );
 
-            // Аутентификация пользователя
+            SocialAccount::updateOrCreate(
+                ['user_id' => $user->id, 'provider' => 'vk'],
+                ['provider_user_id' => $vkUser ->id]
+            );
+
+            UserMetadata::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'first_name' => $vkUser ->user['first_name'] ?? null,
+                    'last_name' => $vkUser ->user['last_name'] ?? null,
+                    'nickname' => $vkUser ->user['screen_name'] ?? null,
+                    'profile_image_uri' => $vkUser ->user['photo_200'] ?? null, // URL изображения профиля
+                ]
+            );
+
+            // Проверяем, если пользователь новый, то присваиваем роль
+            if ($user->wasRecentlyCreated) {
+                $user->roles()->attach(7);
+            }
+
             Auth::login($user, true);
 
-            // Возвращаем JSON-ответ
             return response()->json([
                 'status' => 'success',
-                'message' => 'User authenticated successfully',
+                'message' => 'User  authenticated successfully',
                 'user' => $user,
             ]);
         } catch (\Exception $e) {
@@ -54,7 +70,12 @@ class VKAuthController extends Controller
                 'message' => 'Failed to authenticate user',
             ], 500);
         }
+    } else {
+        // Перенаправление на страницу аутентификации ВК
+        Log::info('Redirecting to VKontakte provider');
+        return Socialite::driver('vkontakte')->stateless()->redirect();
     }
+}
 
     public function user(Request $request)
     {

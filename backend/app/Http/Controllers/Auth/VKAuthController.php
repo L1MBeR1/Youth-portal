@@ -54,9 +54,8 @@ class VKAuthController extends Controller
                 );
 
                 // Проверяем, если пользователь новый, то присваиваем роль
-                // TODO: Это работает через attach (в БД таблица models has roles)? $user->assignRole('guest');
                 if ($user->wasRecentlyCreated) {
-                    $user->roles()->attach(7); //TODO: Возможно, заменить на имя роли, чтобы не ломался код, при изменении ролей
+                    $user->assignRole('user');
                 }
 
                 Auth::login($user, true);

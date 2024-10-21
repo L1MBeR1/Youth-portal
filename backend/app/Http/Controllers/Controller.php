@@ -15,6 +15,20 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 
+/**
+* @OA\Info(
+*      version="0.1.0",
+*      title="Документация API",
+*      description="Документация API",
+* )
+*
+*
+* @OA\Server(
+*      url=L5_SWAGGER_CONST_HOST,
+*      description="API сервер"
+* )
+*
+*/
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -49,11 +63,11 @@ class Controller extends BaseController
         if ($e instanceof AccessDeniedHttpException) {
             return $this->errorResponse('Access Denied', ['description' => 'You do not have permission to access this resource.'], 403);
         }
-        
+
         if ($e instanceof ModelNotFoundException) {
             return $this->errorResponse('Not Found', ['description' => 'The requested resource was not found.'], 404);
         }
-        
+
         Log::error($e->getMessage());
         return $this->errorResponse('Server Error', [], 500);
     }

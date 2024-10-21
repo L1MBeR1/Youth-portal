@@ -14,13 +14,7 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
-/**
- * @OA\Info(
- *     title="API для Youth-portal",
- *     version="1.0.0",
- *     description="Документация API"
- * )
- */
+
 class UserController extends Controller
 {
     public function getUserById($userId)

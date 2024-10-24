@@ -322,6 +322,8 @@ class AuthController extends Controller
 
         return $nickname;
     }
+
+
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
@@ -352,6 +354,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
 
             //TODO: x
@@ -395,6 +398,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
 
             //TODO: x
@@ -775,6 +779,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
             // TODO: x
             return $this->successResponse([], 'Email verified successfully');
@@ -835,6 +840,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
             // TODO: x
             return $this->successResponse([], 'Email verified successfully');

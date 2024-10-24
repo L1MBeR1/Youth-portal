@@ -154,13 +154,29 @@ class BlogFactory extends Factory
     }
 
 
+    // public function configure(): self
+    // {
+    //     return $this->afterCreating(function (Blog $blog) {
+    //         $content = $this->generateContent($blog->id);
+    //         $coverUri = $this->images[0] ?? '';
+
+    //         $blog->update(['cover_uri' => $coverUri, 'content' => $content]);
+    //     });
+    // }
     public function configure(): self
     {
         return $this->afterCreating(function (Blog $blog) {
-            $content = $this->generateContent($blog->id);
-            $coverUri = $this->images[0] ?? '';
+            try {
+                $content = $this->generateContent($blog->id);
+                $coverUri = $this->images[0] ?? '';
 
-            $blog->update(['cover_uri' => $coverUri, 'content' => $content]);
+                $blog->update(['cover_uri' => $coverUri, 'content' => $content]);
+            } catch (\RuntimeException $e) {
+                Log::error('Error during blog creation: ' . $e->getMessage());
+                
+                echo 'Error during blog creation: ' . $e->getMessage() . PHP_EOL;
+            }
         });
     }
+
 }

@@ -83,26 +83,47 @@ class NewsFactory extends Factory
     private function generateTitle()
     {
         $adjectives = [
-            'Новые', 'Удивительные', 'Сенсационные', 
-            'Эксклюзивные', 'Скандальные', 'Неожиданные', 
-            'Интригующие', 'Захватывающие', 'Актуальные'
+            'Новые',
+            'Удивительные',
+            'Сенсационные',
+            'Эксклюзивные',
+            'Скандальные',
+            'Неожиданные',
+            'Интригующие',
+            'Захватывающие',
+            'Актуальные'
         ];
 
         $nouns = [
-            'открытия', 'факты', 'доклады', 
-            'исследования', 'события', 'анализы', 
-            'тренды', 'проблемы', 'решения'
+            'открытия',
+            'факты',
+            'доклады',
+            'исследования',
+            'события',
+            'анализы',
+            'тренды',
+            'проблемы',
+            'решения'
         ];
 
         $verbs = [
-            'показывают', 'подтверждают', 'разоблачают', 
-            'объясняют', 'предсказывают', 'поднимают вопросы', 
-            'вызывают интерес', 'открывают новые горизонты'
+            'показывают',
+            'подтверждают',
+            'разоблачают',
+            'объясняют',
+            'предсказывают',
+            'поднимают вопросы',
+            'вызывают интерес',
+            'открывают новые горизонты'
         ];
 
         $phrases = [
-            'в мире', 'в деталях', 'в современном обществе', 
-            'в последние дни', 'в контексте событий', 'в новых исследованиях'
+            'в мире',
+            'в деталях',
+            'в современном обществе',
+            'в последние дни',
+            'в контексте событий',
+            'в новых исследованиях'
         ];
 
         $adjective = $this->faker->randomElement($adjectives);
@@ -142,10 +163,22 @@ class NewsFactory extends Factory
     public function configure(): self
     {
         return $this->afterCreating(function (News $news) {
-            $this->generateImageURLs($news->id);
-            $content = $this->generateContent($news->id);
-            $coverUri = $this->images[0] ?? '';
-            $news->update(['cover_uri' => $coverUri, 'content' => $content]);
+            // $this->generateImageURLs($news->id);
+            // $content = $this->generateContent($news->id);
+            // $coverUri = $this->images[0] ?? '';
+            // $news->update(['cover_uri' => $coverUri, 'content' => $content]);
+
+
+            try {
+                $this->generateImageURLs($news->id);
+                $content = $this->generateContent($news->id);
+                $coverUri = $this->images[0] ?? '';
+                $news->update(['cover_uri' => $coverUri, 'content' => $content]);
+            } catch (\RuntimeException $e) {
+                Log::error('Error during news creation: ' . $e->getMessage());
+
+                echo 'Error during news creation: ' . $e->getMessage() . PHP_EOL;
+            }
         });
     }
 }

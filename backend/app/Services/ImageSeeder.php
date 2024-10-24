@@ -86,12 +86,12 @@ class ImageSeeder
 
         foreach ($attachments as $attachment) {
             if ($error = $this->validateAttachment($attachment)) {
-                return ['error' => $error];
+                throw new \RuntimeException($error);
             }
 
             $fileSizeMB = strlen($attachment['file']) / (1024 * 1024);
             if ($error = $this->validateDirectory($folder, $fileSizeMB)) {
-                return ['error' => $error];
+                throw new \RuntimeException($error);
             }
 
             $filename = $this->generateUniqueFilename($attachment, $folder);
@@ -102,7 +102,7 @@ class ImageSeeder
             }
 
             if ($error = $this->saveFileToSFTP($filename, $attachment['file'])) {
-                return ['error' => $error];
+                throw new \RuntimeException($error);
             }
 
             $uploadedFiles[] = ['filename' => $filename];
@@ -110,6 +110,7 @@ class ImageSeeder
 
         return ['filenames' => $uploadedFiles];
     }
+
 
     private function validateAttachment(array $attachment): ?string
     {

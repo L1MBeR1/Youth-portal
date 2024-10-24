@@ -15,7 +15,18 @@ class UserMetadataFactory extends Factory
     private function generateProfileImageURL()
     {
         $imageSeeder = new ImageSeeder();
-        $image = $imageSeeder->generateImageURL(0, ['sample_images/profile' => 1], 'profiles');
+        // $image = $imageSeeder->generateImageURL(0, ['sample_images/profile' => 1], 'profiles');
+        $image = null;
+        try {
+            $image = $imageSeeder->generateImageURL(0, ['sample_images/profile' => 1], 'profiles');
+        } catch (\RuntimeException $e) {
+            Log::error('Error during blog creation: ' . $e->getMessage());
+            
+            echo 'Error during blog creation: ' . $e->getMessage() . PHP_EOL;
+            // return null;
+            exit;
+        }
+        
         return $image[0];
     }
 

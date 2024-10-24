@@ -33,8 +33,24 @@ trait QueryBuilderTrait
         if ($authorId = $request->query('authorId')) {
             $query->where('author_id', $authorId);
         }
-    }
 
+        if ($cityName = $request->query('city_name')) {
+            $query->whereRaw("address->>'city' ILIKE ?", ["%$cityName%"]);
+        }
+        
+        if ($countryName = $request->query('country_name')) {
+            $query->whereRaw("address->>'country' ILIKE ?", ["%$countryName%"]);
+        }
+        
+        if ($metaTags = $request->query('meta_tags')) {
+            $metaTags = explode(',', $metaTags);
+            // dump($metaTags);
+            foreach ($metaTags as $tag) {
+                // dump($tag);
+                $query->whereRaw("meta->>'tags' ILIKE ?", ["%$tag%"]);
+            }
+        }
+    }
 
 
 

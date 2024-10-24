@@ -35,6 +35,9 @@ class EventFactory extends Factory
                     'tags' => $this->faker->randomElement(['наука', 'культура', 'путешествия']),
                 ],
             ],
+            'meta' => [
+                'tags' => $this->faker->randomElements(['государство', 'предприятия', 'мебельная фабрика'], 2)
+            ],
             'views' => $this->faker->numberBetween(0, 1000),
             'author_id' => $this->faker->randomElement($userIds->toArray()),
             'created_at' => $this->faker->dateTimeBetween('-2 year', 'now'),

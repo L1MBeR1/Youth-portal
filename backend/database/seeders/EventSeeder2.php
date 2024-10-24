@@ -29,6 +29,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'Тверская улица',
                     'house' => 'д. 1'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 37.6173,
                 'latitude' => 55.7558,
                 'views' => 150,
@@ -47,6 +48,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Абая',
                     'house' => 'д. 25'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't5']]),
                 'cover_uri' => $this->generateEventCover(2),
                 'longitude' => 71.4287,
                 'latitude' => 51.1694,
@@ -66,6 +68,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'улица Ленина',
                     'house' => 'д. 10'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't6']]),
                 'longitude' => 27.5615,
                 'latitude' => 53.9023,
                 'views' => 120,
@@ -84,6 +87,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Независимости',
                     'house' => 'д. 100'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't7']]),
                 'longitude' => 69.2401,
                 'latitude' => 41.2995,
                 'views' => 300,
@@ -102,6 +106,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'улица Маштоца',
                     'house' => 'д. 15'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2']]),
                 'longitude' => 44.5090,
                 'latitude' => 40.1833,
                 'views' => 180,
@@ -120,6 +125,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'улица Низами',
                     'house' => 'д. 30'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 49.8671,
                 'latitude' => 40.4093,
                 'views' => 220,
@@ -138,6 +144,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Манаса',
                     'house' => 'д. 5'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 74.5895,
                 'latitude' => 42.8746,
                 'views' => 250,
@@ -156,6 +163,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Рудаки',
                     'house' => 'д. 20'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 68.7791,
                 'latitude' => 38.5598,
                 'views' => 350,
@@ -174,6 +182,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'улица Штефан чел Маре',
                     'house' => 'д. 25'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 28.8575,
                 'latitude' => 47.0105,
                 'views' => 230,
@@ -192,6 +201,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'проспект Туркменбаши',
                     'house' => 'д. 45'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 58.3838,
                 'latitude' => 37.9601,
                 'views' => 400,
@@ -210,6 +220,7 @@ class EventSeeder2 extends Seeder
                     'street' => 'улица Ленина',
                     'house' => 'д. 50'
                 ]),
+                'meta' => json_encode(['tags' => ['t1', 't2', 't3']]),
                 'longitude' => 104.2960,
                 'latitude' => 52.2978,
                 'views' => 1000,

@@ -36,7 +36,8 @@ use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
 class AuthController extends Controller
 {
     protected $jwtSecret;
-    private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
+    // private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
+    private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
     private $emailRegexp = "/^[^\s@]+@[^\s@]+\.[^\s@]+$/";
     private $phoneRegexp = "/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/";
 

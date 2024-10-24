@@ -226,3 +226,22 @@ export const addBlogger = async (token, email) => {
 		throw new Error('Failed to add blogger');
 	}
 };
+
+export const requestBloggerRole = async (id, token, content) => {
+	console.log(`%cCALL: requestBloggerRole`, 'background: #000; color: #ff0');
+	console.log(id, token, content);
+	const data = {
+        status: 'review', 
+        content: content
+    };
+	try {
+		const response = await axios.post(`${API_URL}/blog_role_status`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		throw new Error('Failed to request role');
+	}
+};

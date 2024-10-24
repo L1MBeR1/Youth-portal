@@ -2,12 +2,9 @@ import axios from 'axios';
 
 const API_URL = `${process.env.REACT_APP_HTTP_PROTOCOL}://${process.env.REACT_APP_SERVER_IP}/api`;
 
-export const getOrganizationsByPage = async (token, params) => {
+export const getOrganizationsByPage = async params => {
 	try {
 		const response = await axios.get(`${API_URL}/organizations`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 			params: params,
 		});
 		return response.data;
@@ -17,14 +14,10 @@ export const getOrganizationsByPage = async (token, params) => {
 	}
 };
 
-export const getOrganization = async (token, id) => {
+export const getOrganization = async id => {
 	console.log(id);
 	try {
-		const response = await axios.get(`${API_URL}/organizations/${id}`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
+		const response = await axios.get(`${API_URL}/organizations/${id}`, {});
 		console.log(response);
 		return response.data;
 	} catch (error) {

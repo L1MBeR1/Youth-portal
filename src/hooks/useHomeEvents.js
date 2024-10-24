@@ -12,7 +12,7 @@ const useHomeEvents = () => {
 		queryKey: ['homeEvents'],
 		queryFn: async () => {
 			console.log(startDate, endDateString, perPage);
-			const response = await getHomeEvents(null, {
+			const response = await getHomeEvents({
 				start_date: startDate,
 				end_date: endDateString,
 				per_page: perPage,

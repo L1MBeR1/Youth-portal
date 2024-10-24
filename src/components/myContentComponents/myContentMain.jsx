@@ -1,17 +1,18 @@
 import { Sheet } from '@mui/joy';
 import React from 'react';
 
-import BlogSections from './sections/blogsSections';
+import BlogSection from './sections/blogsSection';
+import PodcastsSection from './sections/podcastsSection';
 
 function MyContentMain({ section }) {
 	const getContent = section => {
 		switch (section) {
 			case 'blogs':
-				return <BlogSections />;
+				return <BlogSection />;
 			// case 'news':
 			// 	return <PublicAccountSection />;
-			// case 'podcasts':
-			// 	return <SecuritySection />;
+			case 'podcasts':
+				return <PodcastsSection />;
 			default:
 				return '';
 		}

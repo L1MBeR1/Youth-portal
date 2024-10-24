@@ -35,12 +35,9 @@ export const changeBlogStatus = async (token, id, status) => {
 	}
 };
 
-export const getPublishedBlogs = async (token, params) => {
+export const getPublishedBlogs = async params => {
 	try {
 		const response = await axios.get(`${API_URL}/blogs/published`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 			params: params,
 		});
 		return response.data;
@@ -80,13 +77,9 @@ export const getBlog = async (token, id) => {
 		throw error;
 	}
 };
-export const getBlogsTags = async token => {
+export const getBlogsTags = async () => {
 	try {
-		const response = await axios.get(`${API_URL}/blogs/tags`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
+		const response = await axios.get(`${API_URL}/blogs/tags`, {});
 		console.log(response);
 		return response.data;
 	} catch (error) {

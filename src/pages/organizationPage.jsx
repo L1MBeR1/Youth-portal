@@ -29,7 +29,7 @@ function OrganizationPage() {
 	}, [data]);
 
 	const createMarkup = html => {
-		return { __html: DOMPurify.sanitize(html) }; //TODO: Использовать DOMPurify
+		return { __html: DOMPurify.sanitize(html) };
 	};
 
 	return (
@@ -153,7 +153,11 @@ function OrganizationPage() {
 								maxWidth={{ xs: '100%', md: '50%' }}
 								sx={{ paddingTop: '15px' }}
 							>
-								<Typography level='body-lg'>{data.description}</Typography>
+								<Typography level='body-lg'>
+									<Box
+										dangerouslySetInnerHTML={createMarkup(data.description)}
+									/>
+								</Typography>
 							</Stack>
 						</Stack>
 					</Stack>

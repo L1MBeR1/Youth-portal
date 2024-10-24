@@ -102,12 +102,7 @@ export const UserPublications = ({ id }) => {
 						<Grid container spacing={6} sx={{ flexGrow: 1 }}>
 							{podcasts.data.map(podcast => (
 								<Grid key={podcast.id} xs={6} sm={4} md={3} lg={3}>
-									<ProfilePodcastsCard
-										id={podcast.id}
-										title={podcast.title}
-										img={podcast.cover_uri}
-										createDate={podcast.created_at}
-									/>
+									<ProfilePodcastsCard data={podcast} />
 								</Grid>
 							))}
 						</Grid>

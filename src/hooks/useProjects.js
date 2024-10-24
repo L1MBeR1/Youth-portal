@@ -4,7 +4,7 @@ const useProjects = (setLastPage, params) => {
 	return useQuery({
 		queryKey: ['projects'],
 		queryFn: async () => {
-			const response = await getProjectsByPage(null, params);
+			const response = await getProjectsByPage(params);
 			if (setLastPage) {
 				setLastPage(response.message.last_page);
 			}

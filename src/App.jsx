@@ -59,8 +59,9 @@ import { CssVarsProvider } from '@mui/joy/styles';
 import './css/App.css';
 //Тема
 import { Toaster } from 'sonner';
-import theme from './themes/theme';
 import BlogRoleRequest from './pages/blogRoleRequest';
+import CreatePodcast from './pages/createPodcast';
+import theme from './themes/theme';
 
 function App() {
 	return (
@@ -107,7 +108,6 @@ function App() {
 							element={<NotGuestRoute element={<BlogRoleRequest />} />}
 						/>
 
-
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
 						<Route
 							path='registration'
@@ -125,6 +125,10 @@ function App() {
 						<Route path='/test_blog_creator_v1' element={<BlogWrapper />} />
 						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
 						<Route path='/blog_creator' element={<BlogCreator />} />
+						<Route
+							path='/create-podcast'
+							element={<NotGuestRoute element={<CreatePodcast />} />}
+						/>
 					</Route>
 
 					<Route

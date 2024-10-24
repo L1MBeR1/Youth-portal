@@ -5,7 +5,7 @@ const useCountries = () => {
 	return useQuery({
 		queryKey: ['countries'],
 		queryFn: async () => {
-			const response = await getCountries(null);
+			const response = await getCountries();
 			console.log(response);
 			return response.data;
 		},

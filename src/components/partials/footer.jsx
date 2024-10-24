@@ -1,7 +1,7 @@
-import React from 'react';
-
-import { IconButton, Input, Stack } from '@mui/joy';
+import { IconButton, Input, Link, Stack } from '@mui/joy';
 import Typography from '@mui/joy/Typography';
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 import SendIcon from '@mui/icons-material/Send';
 
@@ -108,24 +108,36 @@ function Footer() {
 							</Typography>
 						</Stack>
 						<Stack direction={'column'}>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Блоги
-							</Typography>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Новости
-							</Typography>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Подкасты
-							</Typography>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Мероприятия
-							</Typography>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Проекты
-							</Typography>
-							<Typography textColor={'var(--joy-staticColors-mainLight)'}>
-								Организации
-							</Typography>
+							<Link color='neutral' component={RouterLink} to='/blogs'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Блоги
+								</Typography>
+							</Link>
+							<Link color='neutral' component={RouterLink} to='/news'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Новости
+								</Typography>
+							</Link>
+							<Link color='neutral' component={RouterLink} to='/podcasts'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Подкасты
+								</Typography>
+							</Link>
+							<Link color='neutral' component={RouterLink} to='/events'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Мероприятия
+								</Typography>
+							</Link>
+							<Link color='neutral' component={RouterLink} to='/projects'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Проекты
+								</Typography>
+							</Link>
+							<Link color='neutral' component={RouterLink} to='/organizations'>
+								<Typography textColor={'var(--joy-staticColors-mainLight)'}>
+									Организации
+								</Typography>
+							</Link>
 						</Stack>
 					</Stack>
 					<Stack

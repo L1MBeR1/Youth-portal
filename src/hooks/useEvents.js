@@ -5,7 +5,7 @@ const useEvents = (setLastPage, params) => {
 	return useQuery({
 		queryKey: ['events'],
 		queryFn: async () => {
-			const response = await getHomeEvents(null, params);
+			const response = await getHomeEvents(params);
 			setLastPage(response.message.last_page);
 			console.log(response);
 			return response.data;

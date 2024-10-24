@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { postComment, postReplyComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 
+import { Typography } from '@mui/joy';
 import EmojiPicker from '../common/emojiPicker';
 
 export const CommentInput = ({
@@ -22,6 +23,7 @@ export const CommentInput = ({
 	replyTo,
 	profileData,
 }) => {
+	const MAX_COMMENT = 1000;
 	const [comment, setComment] = useState('');
 
 	const [moveButtonDown, setMoveButtonDown] = useState(false);
@@ -110,6 +112,7 @@ export const CommentInput = ({
 							placeholder='Введите комментарий'
 							value={comment}
 							onChange={handleInputChange}
+							maxLength={MAX_COMMENT}
 							ref={textareaRef}
 							style={{
 								fontFamily: 'inter',
@@ -137,6 +140,17 @@ export const CommentInput = ({
 								bottom: { xs: '5px', md: '8px' },
 							}}
 						>
+							<Box
+								sx={{
+									display: 'flex',
+									justifyContent: 'center',
+									flexDirection: 'column',
+								}}
+							>
+								<Typography level='body-xs'>
+									{comment.length} / {MAX_COMMENT} символов
+								</Typography>
+							</Box>
 							<Box
 								sx={{
 									display: { xs: 'none', md: 'flex' },

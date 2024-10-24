@@ -1,63 +1,83 @@
-import AspectRatio from '@mui/joy/AspectRatio';
 import Card from '@mui/joy/Card';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Box from '@mui/joy/Box';
-
+import { CardContent, CardCover, CardOverflow, Chip } from '@mui/joy';
+import { getStatus } from '../../utils/getStatus';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
-const ProfilePodcastsCard = ({ id, title, img, createDate }) => {
+const ProfilePodcastsCard = ({ data, status }) => {
 	const navigate = useNavigate();
 
 	const handleRedirect = id => {
-		navigate(`/blog/${id}`);
+		navigate(`/podcast/${id}`);
 	};
 	return (
 		<Card
 			variant='plain'
 			sx={{
 				display: 'flex',
-				// maxWidth:'200px',
-				p: 0,
+				padding: '15px',
 				cursor: 'pointer',
-				'--Card-radius': '20px',
-				transition: 'transform 0.3s',
-				'&:hover': {
-					transform: 'scale(1.025)',
+				'--Card-radius': '30px',
+				bgcolor: 'var(--joy-palette-main-background)',
+				flexGrow: '1',
+				overflow: 'hidden',
+				height: '100%',
+				'&:hover .cover': {
+					transform: 'scale(1.075)',
 				},
+				gap: '0',
 			}}
-			onClick={() => handleRedirect(id)}
+			onClick={() => handleRedirect(data.id)}
 		>
-			<Stack direction='column' spacing={1.5} flexGrow={1}>
-				<AspectRatio ratio='1'>
-					<img src={img} alt={title} loading='lazy' />
-				</AspectRatio>
-				<Stack
-					spacing={1}
-					direction='column'
-					flexGrow={1}
-					justifyContent='space-between'
+			<CardOverflow
+				sx={{
+					p: 0,
+				}}
+			>
+				<Card
+					variant='plain'
+					sx={{
+						aspectRatio: '1',
+						width: '100%',
+						position: 'relative',
+						overflow: 'hidden',
+						borderRadius: '0',
+						p: 0,
+					}}
 				>
-					<Stack spacing={1}>
-						<Typography level='title-lg'>{title}</Typography>
-						<Box
+					<CardCover>
+						<img
+							src={data.cover_uri}
+							alt={data.title}
+							style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+						/>
+					</CardCover>
+					{status && (
+						<CardContent
 							sx={{
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								display: '-webkit-box',
-								WebkitLineClamp: 2,
-								WebkitBoxOrient: 'vertical',
-								whiteSpace: 'normal',
+								p: '25px',
 							}}
 						>
-							<Typography level='body-md'>
-								{createDate ? timeAgo(createDate) : <></>}
-							</Typography>
-						</Box>
-					</Stack>
-				</Stack>
+							<Chip size={'md'} color={getStatus(data.status).color}>
+								{getStatus(data.status).label}
+							</Chip>
+						</CardContent>
+					)}
+				</Card>
+			</CardOverflow>
+			<Stack
+				direction='column'
+				spacing={1.5}
+				flexGrow={1}
+				sx={{
+					mt: '20px',
+				}}
+			>
+				<Typography level='title-lg'>{data.title}</Typography>
+				<Typography level='body-sm'>{timeAgo(data.created_at)}</Typography>
 			</Stack>
 		</Card>
 	);

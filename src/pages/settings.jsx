@@ -10,6 +10,7 @@ function Settings() {
 	return (
 		<Stack
 			sx={{
+				minHeight: '85vh',
 				flexDirection: { xs: 'column', md: 'row' },
 				marginX: mainMargin,
 				marginTop: '40px',

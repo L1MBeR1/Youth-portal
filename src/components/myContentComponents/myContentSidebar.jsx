@@ -59,7 +59,6 @@ function MyContentSidebar({ selectedSection, setSection, roles = [] }) {
 								</ListItem>
 								<ListItem>
 									<ListItemButton
-										disabled
 										selected={selectedSection === 'podcasts'}
 										onClick={() => handleSetSection('podcasts')}
 									>

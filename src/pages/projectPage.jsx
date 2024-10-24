@@ -30,7 +30,7 @@ function ProjectPage() {
 	}, [data]);
 
 	const createMarkup = html => {
-		return { __html: DOMPurify.sanitize(html) }; //TODO: Использовать DOMPurify
+		return { __html: DOMPurify.sanitize(html) };
 	};
 
 	return (
@@ -154,7 +154,13 @@ function ProjectPage() {
 								maxWidth={{ xs: '100%', md: '50%' }}
 								sx={{ paddingTop: '15px' }}
 							>
-								<Typography level='body-lg'>{data.description.desc}</Typography>
+								<Typography level='body-lg'>
+									<Box
+										dangerouslySetInnerHTML={createMarkup(
+											data.description.desc
+										)}
+									/>
+								</Typography>
 							</Stack>
 						</Stack>
 						{data.events && data.events.length > 0 && (

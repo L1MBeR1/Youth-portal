@@ -49,16 +49,11 @@ export const changeNewStatus = async (token, id, status) => {
 	}
 };
 
-export const getPublishedNews = async (token, params) => {
-	console.log(token, params);
+export const getPublishedNews = async params => {
 	try {
 		const response = await axios.get(`${API_URL}/news/published`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 			params: params,
 		});
-		// console.log(response)
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching news:', error);
@@ -83,7 +78,7 @@ export const getNew = async (token, id) => {
 export const getUserPublishedNews = async userId => {
 	try {
 		const response = await axios.get(`${API_URL}/news/published/`, {
-			params: { authorId: userId, }
+			params: { authorId: userId },
 		});
 		// console.log(response)
 		return response.data;

@@ -5,7 +5,7 @@ const usePublicationsTags = () => {
 	return useQuery({
 		queryKey: ['tags'],
 		queryFn: async () => {
-			const response = await getBlogsTags(null);
+			const response = await getBlogsTags();
 			console.log(response);
 			return response.data;
 		},

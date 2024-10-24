@@ -1,15 +1,21 @@
 import { AspectRatio, Avatar, Stack, Typography } from '@mui/joy';
 import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
+import DOMPurify from 'dompurify';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { getPodcast } from '../api/podcastsApi.js';
 import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
-import usePodcastById from '../hooks/usePodcastById';
+import usePublicationsById from '../hooks/usePublicationById.js';
 import { mainMargin } from '../themes/mainMargin.js';
 
 function PodcastPage() {
 	const { id } = useParams();
-	const { data, isFetching } = usePodcastById(id);
+	const createMarkup = html => {
+		return { __html: DOMPurify.sanitize(html) };
+	};
+
+	const { data, isFetching } = usePublicationsById('podcast', getPodcast, id);
 	return (
 		<Box
 			sx={{
@@ -68,7 +74,11 @@ function PodcastPage() {
 						<AudioPlayer audioUrl={data.audio_uri} />
 						<Stack direction={'column'} spacing={1}>
 							<Typography level='title-xxl'>О подкасте </Typography>
-							<Typography level='body-md'>{data.description.desc}</Typography>
+							<Typography level='body-lg'>
+								<Box
+									dangerouslySetInnerHTML={createMarkup(data.description.desc)}
+								/>
+							</Typography>
 						</Stack>
 					</Stack>
 				</Card>

@@ -15,6 +15,7 @@ import { formatDate } from '../utils/timeAndDate/formatDate.js';
 
 import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
+import { Avatar } from '@mui/joy';
 import { mainMargin } from '../themes/mainMargin.js';
 
 function EventPage() {
@@ -33,7 +34,7 @@ function EventPage() {
 	}, [data]);
 
 	const createMarkup = html => {
-		return { __html: DOMPurify.sanitize(html) }; //TODO: Использовать DOMPurify
+		return { __html: DOMPurify.sanitize(html) };
 	};
 
 	return (
@@ -106,7 +107,25 @@ function EventPage() {
 										justifyContent: 'flex-end',
 									}}
 								>
-									<Box></Box>
+									{data.project && (
+										<Stack direction='row' spacing={2} alignItems={'center'}>
+											<Avatar
+												variant='outlined'
+												size='lg'
+												src={data.project.cover_uri}
+												alt={data.project.name}
+											/>
+											<Box>
+												<Typography
+													level='title-md'
+													sx={{ color: 'var(--joy-staticColors-mainLight)' }}
+												>
+													{data.project.name}
+												</Typography>
+											</Box>
+										</Stack>
+									)}
+
 									<Box>
 										<Typography level='publications-h1-white'>
 											{data.title}
@@ -180,7 +199,11 @@ function EventPage() {
 								maxWidth={{ xs: '100%', md: '50%' }}
 								sx={{ paddingTop: '15px' }}
 							>
-								<Typography level='body-lg'>{data.description}</Typography>
+								<Typography level='body-lg'>
+									<Box
+										dangerouslySetInnerHTML={createMarkup(data.description)}
+									/>
+								</Typography>
 							</Stack>
 						</Stack>
 						<Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>

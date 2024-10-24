@@ -11,7 +11,7 @@ import ProfileBlogCard from '../../profileComponents/profileBlogCard';
 
 import Pagination from '../../workspaceComponents/shared/workSpacePagination';
 
-function PodcastsSections() {
+function BlogSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
@@ -131,4 +131,4 @@ function PodcastsSections() {
 	);
 }
 
-export default PodcastsSections;
+export default BlogSection;

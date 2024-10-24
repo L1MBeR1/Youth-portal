@@ -4,14 +4,14 @@ import { Box, Button, Grid, Option, Select, Stack, Typography } from '@mui/joy';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyBlogs } from '../../../api/blogsApi';
 import useMyPublications from '../../../hooks/useMyPublications';
 import { logoutFunc } from '../../../utils/authUtils/logout';
-import ProfileBlogCard from '../../profileComponents/profileBlogCard';
 
+import { getMyPodcasts } from '../../../api/podcastsApi';
+import ProfilePodcastsCard from '../../profileComponents/profilePodcastsCard';
 import Pagination from '../../workspaceComponents/shared/workSpacePagination';
 
-function BlogSections() {
+function PodcastsSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
@@ -25,7 +25,7 @@ function BlogSections() {
 		data: blogs,
 		isLoading,
 		refetch,
-	} = useMyPublications(['MyBlogs'], getMyBlogs, setLastPage, {
+	} = useMyPublications(['MyPodcasts'], getMyPodcasts, setLastPage, {
 		page: page,
 		per_page: 8,
 		withAuthors: true,
@@ -70,12 +70,12 @@ function BlogSections() {
 				<Stack direction={'column'} spacing={3}>
 					<Stack direction={'column'} spacing={2}>
 						<Stack direction={'row'} justifyContent={'space-between'}>
-							<Typography level='title-xl'>Мои блоги</Typography>
+							<Typography level='title-xl'>Мои подкасты</Typography>
 							<Button
 								size={'sm'}
 								endDecorator={<AddIcon />}
 								onClick={() => {
-									navigate('/blog_creator');
+									navigate('/create-podcast');
 								}}
 							>
 								Создать
@@ -83,7 +83,6 @@ function BlogSections() {
 						</Stack>
 						<Stack direction={'row'}>
 							<Select
-								disabled
 								variant='plain'
 								defaultValue='desc'
 								placeholder='Сначала новые'
@@ -96,7 +95,6 @@ function BlogSections() {
 								<Option value={'asc'}>Сначала старые</Option>
 							</Select>
 							<Select
-								disabled
 								variant='plain'
 								placeholder='Выберете статус'
 								endDecorator={<SortIcon />}
@@ -114,8 +112,16 @@ function BlogSections() {
 							<Box sx={{ marginX: '-25px' }}>
 								<Grid container spacing={'40px'}>
 									{blogs.map(blog => (
-										<Grid xs={12} sm={6} md={12} lgx={6} xxl={4} key={blog.id}>
-											<ProfileBlogCard data={blog} status={blog.status} />
+										<Grid
+											xs={12}
+											sm={6}
+											md={12}
+											mdx={6}
+											xl={6}
+											xxl={4}
+											key={blog.id}
+										>
+											<ProfilePodcastsCard data={blog} status={blog.status} />
 										</Grid>
 									))}
 								</Grid>
@@ -133,4 +139,4 @@ function BlogSections() {
 	);
 }
 
-export default BlogSections;
+export default PodcastsSection;

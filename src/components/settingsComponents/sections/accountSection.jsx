@@ -82,15 +82,19 @@ function AccountSection() {
 	function maskEmail(email) {
 		if (email) {
 			const [localPart, domain] = email.split('@');
-			const visibleChars = 3;
+			const totalChars = localPart.length;
+
 			const maskedLocalPart =
-				localPart.slice(0, visibleChars) +
-				'*'.repeat(localPart.length - visibleChars);
+				totalChars <= 2
+					? '*'.repeat(totalChars)
+					: localPart.slice(0, totalChars - 3) + '***';
+
 			return `${maskedLocalPart}@${domain}`;
 		} else {
 			return;
 		}
 	}
+
 	const handleUpdateData = async () => {
 		const { token, needsRedirect } = await getToken();
 		if (needsRedirect) {

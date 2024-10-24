@@ -37,11 +37,11 @@ trait QueryBuilderTrait
         if ($cityName = $request->query('city_name')) {
             $query->whereRaw("address->>'city' ILIKE ?", ["%$cityName%"]);
         }
-        
+
         if ($countryName = $request->query('country_name')) {
             $query->whereRaw("address->>'country' ILIKE ?", ["%$countryName%"]);
         }
-        
+
         if ($metaTags = $request->query('meta_tags')) {
             $metaTags = explode(',', $metaTags);
             // dump($metaTags);
@@ -199,6 +199,10 @@ trait QueryBuilderTrait
         $this->applyOtherFilters($query, $request, $onlyPublished);
     }
 
+    private function hasTime($dateString)
+    {
+        return preg_match('/\d{2}:\d{2}:\d{2}/', $dateString) > 0;
+    }
 
     /**
      * Применение фильтров по дате
@@ -208,14 +212,11 @@ trait QueryBuilderTrait
         $timezone = $request->query('timezone', 'UTC');
 
         // Функция для проверки наличия времени в строке даты
-        function hasTime($dateString)
-        {
-            return preg_match('/\d{2}:\d{2}:\d{2}/', $dateString) > 0;
-        }
+
 
         // Обработка crtFrom и crtTo
         if ($startFrom = $request->query('crtFrom')) {
-            if (!hasTime($startFrom)) {
+            if (!$this->hasTime($startFrom)) {
                 $startFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
             }
             $startFrom = Carbon::parse($startFrom, $timezone)->setTimezone('UTC');
@@ -223,7 +224,7 @@ trait QueryBuilderTrait
         }
 
         if ($crtTo = $request->query('crtTo')) {
-            if (!hasTime($crtTo)) {
+            if (!$this->hasTime($crtTo)) {
                 $crtTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
             }
             $crtTo = Carbon::parse($crtTo, $timezone)->setTimezone('UTC');
@@ -232,7 +233,7 @@ trait QueryBuilderTrait
 
         // Обработка updFrom и updTo
         if ($updFrom = $request->query('updFrom')) {
-            if (!hasTime($updFrom)) {
+            if (!$this->hasTime($updFrom)) {
                 $updFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
             }
             $updFrom = Carbon::parse($updFrom, $timezone)->setTimezone('UTC');
@@ -240,7 +241,7 @@ trait QueryBuilderTrait
         }
 
         if ($updTo = $request->query('updTo')) {
-            if (!hasTime($updTo)) {
+            if (!$this->hasTime($updTo)) {
                 $updTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
             }
             $updTo = Carbon::parse($updTo, $timezone)->setTimezone('UTC');
@@ -259,7 +260,7 @@ trait QueryBuilderTrait
         }
 
         if ($startFrom = $request->query('startFrom')) {
-            if (!hasTime($startFrom)) {
+            if (!$this->hasTime($startFrom)) {
                 $startFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
             }
             $startFrom = Carbon::parse($startFrom, $timezone)->setTimezone('UTC');
@@ -267,7 +268,7 @@ trait QueryBuilderTrait
         }
 
         if ($startTo = $request->query('startTo')) {
-            if (!hasTime($startTo)) {
+            if (!$this->hasTime($startTo)) {
                 $startTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
             }
             $startTo = Carbon::parse($startTo, $timezone)->setTimezone('UTC');
@@ -275,7 +276,7 @@ trait QueryBuilderTrait
         }
 
         if ($endFrom = $request->query('endFrom')) {
-            if (!hasTime($endFrom)) {
+            if (!$this->hasTime($endFrom)) {
                 $endFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
             }
             $endFrom = Carbon::parse($endFrom, $timezone)->setTimezone('UTC');
@@ -283,7 +284,7 @@ trait QueryBuilderTrait
         }
 
         if ($endTo = $request->query('endTo')) {
-            if (!hasTime($endTo)) {
+            if (!$this->hasTime($endTo)) {
                 $endTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
             }
             $endTo = Carbon::parse($endTo, $timezone)->setTimezone('UTC');

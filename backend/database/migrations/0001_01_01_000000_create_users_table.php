@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('user_login_data', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('password')->nullable();
+            $table->text('password');
             $table->text('email')->nullable()->unique();
             $table->timestampTz('email_verified_at')->nullable();
             $table->text('phone')->nullable()->unique();

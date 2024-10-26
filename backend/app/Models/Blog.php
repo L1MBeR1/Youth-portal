@@ -2,11 +2,21 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Blog extends Model
 {
     use HasFactory;
+
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('onlyWithExistingAuthors', function (Builder $builder) {
+    //         $builder->whereHas('author', function ($query) {
+    //             $query->whereNull('deleted_at');
+    //         });
+    //     });
+    // }
 
     protected $casts = [
         'description' => 'array',

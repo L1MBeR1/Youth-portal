@@ -6,7 +6,7 @@ use App\Models\News;
 use Illuminate\Http\Request;
 use App\Services\FileService;
 use App\Traits\PaginationTrait;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use App\Traits\QueryBuilderTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -469,6 +469,77 @@ class NewsController extends Controller
         $news->delete();
 
         return $this->successResponse($news, 'News deleted successfully', 200);
+    }
+
+    /**
+     * Получение популярных новостей
+     * 
+     * Популярность определяется на основе лайков, просмотров и репостов с заданными весами.
+     * 
+     * Поддерживает фильтрацию новостей за последние 24 часа через параметр `last_24_hours`.
+     * В этом случае можно указать `limit` для ограничения количества возвращаемых новостей.
+     * 
+     * Если `last_24_hours` не установлен, метод возвращает популярные новости с пагинацией 
+     * по параметрам `page` и `per_page`.
+     * 
+     * @group Новости
+     * @authenticated
+     * 
+     * @urlParam page int Номер страницы. По умолчанию 1.
+     * @urlParam per_page int Элементов на странице. По умолчанию 10.
+     * @urlParam last_24_hours bool Флаг для фильтрации новостей за последние 24 часа. 
+     * @urlParam limit int Количество новостей для возврата, если установлен параметр last_24_hours. По умолчанию 1.
+     * 
+     */
+    public function getPopularNews(Request $request)
+    {
+        // Параметры лимита
+        $limit = $request->get('limit', 1); // По умолчанию 1 новость
+
+        // Проверяем, установлен ли параметр last_24_hours
+        if ($request->input('last_24_hours', false)) {
+            $timeFrames = [
+                'last_24_hours' => now()->subDay(),
+                'last_week' => now()->subWeek(),
+                'last_month' => now()->subMonth(),
+            ];
+
+            foreach ($timeFrames as $key => $timeFrame) {
+                $popularNews = $this->getPopularNewsByTimeFrame($timeFrame, $limit);
+                if (!$popularNews->isEmpty()) {
+                    return $this->successResponse($popularNews, [], 200);
+                }
+                Log::info("Ищем за " . str_replace('last_', '', $key));
+            }
+
+            // Если все еще нет новостей, возвращаем ошибку
+            return $this->errorResponse('Нет популярных новостей', [], 404);
+        }
+
+        // Если параметр last_24_hours не установлен, возвращаем все новости, отсортированные по популярности
+        $news = News::query()
+            ->selectRaw('*, (likes * 0.5 + views * 0.3 + reposts * 0.2) as popularity')
+            ->where('status', 'published')
+            ->orderBy('popularity', 'desc')
+            ->paginate($request->get('per_page', 10));
+
+        if ($news->isEmpty()) {
+            return $this->errorResponse('Нет популярных новостей', [], 404);
+        }
+
+        $paginationData = $this->makePaginationData($news);
+        return $this->successResponse($news->items(), $paginationData, 200);
+    }
+
+    private function getPopularNewsByTimeFrame($timeFrame, $limit)
+    {
+        return News::query()
+            ->selectRaw('*, (likes * 0.5 + views * 0.3 + reposts * 0.2) as popularity')
+            ->where('status', 'published')
+            ->where('created_at', '>=', $timeFrame)
+            ->orderBy('popularity', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }
 

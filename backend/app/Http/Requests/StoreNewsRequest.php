@@ -23,10 +23,10 @@ class StoreNewsRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'description.desc' => 'required|string',
-            'description.meta' => 'required|array',
+            'description.desc' => 'string',
+            'description.meta' => 'array',
             'description.meta.*' => 'string',
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'cover_uri' => 'nullable|string',
             'status' => 'nullable|string|max:255',
             'views' => 'nullable|integer',

@@ -12,10 +12,10 @@ class Podcast extends Model
     protected $table = 'podcasts';
 
     protected $casts = [
-        'description' => 'array', 
-        'status' => 'string', 
-        'created_at' => 'datetime', 
-        'updated_at' => 'datetime', 
+        'description' => 'array',
+        'status' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected $hidden = [
@@ -23,8 +23,8 @@ class Podcast extends Model
     ];
 
     protected $guarded = [
-        'id', 
-        'created_at', 
+        'id',
+        'created_at',
         // 'updated_at', 
     ];
 
@@ -56,5 +56,10 @@ class Podcast extends Model
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }

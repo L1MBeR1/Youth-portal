@@ -16,15 +16,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     protected $table = 'user_login_data';
 
-    
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'email',  
-        'password', 
+        'email',
+        'password',
         'phone',
     ];
 
@@ -57,20 +57,29 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return $this->hasOne(UserMetadata::class, 'user_id');
     }
 
-    public function blogs(){
+    public function blogs()
+    {
         return $this->hasMany(Blog::class, 'author_id');
     }
 
-    public function news(){
+    public function news()
+    {
         return $this->hasMany(News::class, 'author_id');
     }
 
-    public function podcast(){
+    public function podcast()
+    {
         return $this->hasMany(Podcast::class, 'author_id');
     }
 
-    public function socialAccount(){
+    public function socialAccount()
+    {
         return $this->hasOne(SocialAccount::class, 'user_id');
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 
     /**

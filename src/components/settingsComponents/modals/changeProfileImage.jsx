@@ -1,4 +1,4 @@
-import { Stack } from '@mui/joy';
+import { Box, Stack } from '@mui/joy';
 import Avatar from '@mui/joy/Avatar';
 import Button from '@mui/joy/Button';
 import DialogActions from '@mui/joy/DialogActions';
@@ -150,6 +150,8 @@ function ChangeProfileImage({ id, open, setOpen }) {
 								onDragOver={handleDragOver}
 								onDragLeave={handleDragLeave}
 								sx={{
+									height: '150px',
+									width: '100%',
 									padding: '20px',
 									border: `2px dashed ${isDragging ? '#1976d2' : '#ccc'}`,
 									borderRadius: '8px',
@@ -164,31 +166,41 @@ function ChangeProfileImage({ id, open, setOpen }) {
 									alignItems={'center'}
 									spacing={1}
 								>
-									<Typography level='body-lg' sx={{ textAlign: 'center' }}>
-										Загрузка картинки (макс. {MAX_FILE_SIZE_MB}MB)
-									</Typography>
-									<Button
-										variant='solid'
-										component='label'
-										sx={{ marginTop: 2 }}
-									>
-										Выбрать файл
-										<input
-											type='file'
-											accept='image/*'
-											onChange={handleFileChange}
-											style={{
-												opacity: 0,
-												position: 'absolute',
-												width: '100%',
-												height: '100%',
-												cursor: 'pointer',
-											}}
-										/>
-									</Button>
-									<Typography level='body-sm' sx={{ textAlign: 'center' }}>
-										или перетащите файл
-									</Typography>
+									{isDragging ? (
+										<Box>
+											<Typography level='body-lg' sx={{ textAlign: 'center' }}>
+												Перетащите файл сюда
+											</Typography>
+										</Box>
+									) : (
+										<>
+											<Typography level='body-lg' sx={{ textAlign: 'center' }}>
+												Загрузка картинки (макс. {MAX_FILE_SIZE_MB}MB)
+											</Typography>
+											<Button
+												variant='solid'
+												component='label'
+												sx={{ marginTop: 2 }}
+											>
+												Выбрать файл
+												<input
+													type='file'
+													accept='image/*'
+													onChange={handleFileChange}
+													style={{
+														opacity: 0,
+														position: 'absolute',
+														width: '100%',
+														height: '100%',
+														cursor: 'pointer',
+													}}
+												/>
+											</Button>
+											<Typography level='body-sm' sx={{ textAlign: 'center' }}>
+												или перетащите файл
+											</Typography>
+										</>
+									)}
 								</Stack>
 							</Sheet>
 						)}

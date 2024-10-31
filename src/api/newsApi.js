@@ -87,3 +87,16 @@ export const getUserPublishedNews = async userId => {
 		throw error;
 	}
 };
+export const addNews = async (token, data) => {
+	try {
+		const response = await axios.post(`${API_URL}/news/`, data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error adding news:', error);
+		throw error;
+	}
+};

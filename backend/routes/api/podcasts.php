@@ -23,6 +23,8 @@ Route::group([
     'middleware' => ['api'],
     'prefix' => 'podcasts'
 ], function () {
+    Route::get('popular/by_time', [PodcastController::class, 'getPopularPodcastsByTime'])->withoutMiddleware('auth');
+    Route::get('popular', [PodcastController::class, 'getPopularPodasts'])->withoutMiddleware('auth'); // Новый маршрут для популярных новостей
     Route::get('published', [PodcastController::class, 'getPublishedPodcasts'])->withoutMiddleware('auth');
     Route::get('tags/', [PodcastController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [PodcastController::class, 'getPodcastById'])->withoutMiddleware('auth');

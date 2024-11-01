@@ -9,6 +9,7 @@ use App\Traits\QueryBuilderTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PopularityCalculator;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use App\Http\Requests\SetContentStatusRequest;
@@ -616,5 +617,35 @@ class BlogController extends Controller
         );
     }
 
+    protected $popularityCalculator;
+    public function __construct(PopularityCalculator $popularityCalculator)
+    {
+        $this->popularityCalculator = $popularityCalculator;
+    }
 
+    public function getPopularBlogs(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $currentPage = $request->input('page', 1);
+        $paginatedData = $this->popularityCalculator->getPopularContent('blogs', $perPage, $currentPage);
+
+        if ($paginatedData === null) {
+            return $this->errorResponse('Нет популярных блогов', [], 404);
+        }
+
+        $paginationData = $this->makePaginationData($paginatedData);
+
+        return $this->successResponse($paginatedData->items(), $paginationData, 200);
+    }
+
+    public function getPopularBlogsByTime(Request $request)
+    {
+        $limit = $request->get('limit', 1);
+        $popularBlogs = $this->popularityCalculator->getPopularContentByTime('podcasts', $limit);
+
+        if ($popularBlogs === null) {
+            return $this->errorResponse('Нет популярных блогов за установленный промежуток', [], 404);
+        }
+        return $this->successResponse($popularBlogs, 200);
+    }
 }

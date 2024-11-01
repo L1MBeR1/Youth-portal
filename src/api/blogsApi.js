@@ -133,3 +133,17 @@ export const addBlog = async (token, data) => {
 		throw error;
 	}
 };
+
+export const updateBlog = async (token, id, params) => {
+	try {
+		const response = await axios.put(`${API_URL}/blogs/${id}`, params, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error update podcast ', error);
+		throw error;
+	}
+};

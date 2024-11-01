@@ -282,7 +282,7 @@ function CreatePodcast() {
 										<AspectRatio
 											minHeight='250px'
 											maxHeight='250px'
-											ratio='16/8'
+											ratio='1/1'
 											sx={{
 												borderRadius: '20px',
 												overflow: 'hidden',
@@ -332,10 +332,12 @@ function CreatePodcast() {
 									sx={{
 										padding: '20px',
 										border: `1px  ${
-											isCoverDragging ? 'dashed #1976d2' : 'solid #ccc'
+											isCoverDragging
+												? 'dashed var(--joy-palette-main-primary)'
+												: 'solid var(--joy-palette-neutral-outlinedBorder)'
 										}`,
 										borderRadius: '20px',
-										backgroundColor: isCoverDragging ? '#f0f8ff' : '#fafafa',
+										backgroundColor: 'var(--joy-palette-main-background)',
 										cursor: 'pointer',
 										transition: 'border 0.3s ease-in-out',
 									}}
@@ -429,10 +431,12 @@ function CreatePodcast() {
 									sx={{
 										padding: '20px',
 										border: `1px  ${
-											isAudioDragging ? 'dashed #1976d2' : 'solid #ccc'
+											isAudioDragging
+												? 'dashed var(--joy-palette-main-primary)'
+												: 'solid var(--joy-palette-neutral-outlinedBorder)'
 										}`,
 										borderRadius: '20px',
-										backgroundColor: isAudioDragging ? '#f0f8ff' : '#fafafa',
+										backgroundColor: 'var(--joy-palette-main-background)',
 										cursor: 'pointer',
 										transition: 'border 0.3s ease-in-out',
 									}}

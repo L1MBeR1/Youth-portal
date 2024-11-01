@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import { getPodcast } from '../api/podcastsApi.js';
 import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
 import usePublicationsById from '../hooks/usePublicationById.js';
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function PodcastPage() {
 	const { id } = useParams();
@@ -71,7 +71,7 @@ function PodcastPage() {
 								</Stack>
 							</Stack>
 						</Stack>
-						<AudioPlayer audioUrl={data.audio_uri} />
+						<AudioPlayer audioUrl={data.audio_uri} data={data} />
 						<Stack direction={'column'} spacing={1}>
 							<Typography level='title-xxl'>О подкасте </Typography>
 							<Typography level='body-lg'>

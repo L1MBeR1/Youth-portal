@@ -20,6 +20,8 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 
 import { jwtDecode } from 'jwt-decode';
 
+import { Divider } from '@mui/joy';
+import { VkAuthButton } from '../buttons/auth/vkAuthButton.jsx';
 import EmailField from '../fields/emailField.jsx';
 import PasswordField from '../fields/passwordField.jsx';
 
@@ -152,93 +154,103 @@ function RegistrationForm() {
 			}}
 		>
 			<form onSubmit={handleSubmit}>
-				<Stack spacing={1.5}>
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Typography level='h4'>Регистрация</Typography>
-					</Box>
-					<Typography level='body-xs' sx={{ color: 'red' }}>
-						{error}
-					</Typography>
-					<EmailField
-						email={email}
-						setEmail={setEmail}
-						setEmailStatus={setEmailStatus}
-						setEmailError={setEmailError}
-					/>
-					<Stack spacing={0}>
-						<Stack spacing={0.5}>
-							<PasswordField
-								label='Пароль'
-								password={password}
-								setPassword={setPassword}
-							/>
-							<LinearProgress
-								determinate
-								size='sm'
-								value={calculateProgress(PasswordStrength.score)}
-								sx={{
-									bgcolor: 'background.level3',
-									color: getProgressColor(),
-								}}
-							/>
-							<Typography
-								level='body-xs'
-								sx={{ alignSelf: 'flex-end', color: 'hsl(var(--hue) 80% 30%)' }}
-							>
-								{getStrengthText()}
-							</Typography>
+				<Stack spacing={2.5}>
+					<Stack spacing={1}>
+						<Box
+							sx={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+							}}
+						>
+							<Typography level='h4'>Регистрация</Typography>
+						</Box>
+						<Typography level='body-xs' sx={{ color: 'red' }}>
+							{error}
+						</Typography>
+						<EmailField
+							email={email}
+							setEmail={setEmail}
+							setEmailStatus={setEmailStatus}
+							setEmailError={setEmailError}
+						/>
+						<Stack spacing={0}>
+							<Stack spacing={0.5}>
+								<PasswordField
+									label='Пароль'
+									password={password}
+									setPassword={setPassword}
+								/>
+								<LinearProgress
+									determinate
+									size='sm'
+									value={calculateProgress(PasswordStrength.score)}
+									sx={{
+										bgcolor: 'background.level3',
+										color: getProgressColor(),
+									}}
+								/>
+								<Typography
+									level='body-xs'
+									sx={{
+										alignSelf: 'flex-end',
+										color: 'hsl(var(--hue) 80% 30%)',
+									}}
+								>
+									{getStrengthText()}
+								</Typography>
+							</Stack>
+							<Stack>
+								<Typography level='body-xs'>
+									Пароль должен содержать:
+								</Typography>
+								<List size='sm' sx={{ '--List-gap': '-5px' }}>
+									<ListItem>
+										{passwordCriteria.length ? (
+											<CheckCircleOutlinedIcon style={{ color: 'green' }} />
+										) : (
+											<CircleOutlinedIcon />
+										)}
+										<Typography level='body-xs'>
+											длину больше 8 символов
+										</Typography>
+									</ListItem>
+									<ListItem>
+										{passwordCriteria.specialChar ? (
+											<CheckCircleOutlinedIcon style={{ color: 'green' }} />
+										) : (
+											<CircleOutlinedIcon />
+										)}
+										<Typography level='body-xs'>
+											специальный символ (например, !, @, #, $, %, ^, &, *, -)
+										</Typography>
+									</ListItem>
+									<ListItem>
+										{passwordCriteria.lowercase &&
+										passwordCriteria.uppercase ? (
+											<CheckCircleOutlinedIcon style={{ color: 'green' }} />
+										) : (
+											<CircleOutlinedIcon />
+										)}
+										<Typography level='body-xs'>
+											строчную и заглавную букву
+										</Typography>
+									</ListItem>
+								</List>
+							</Stack>
 						</Stack>
-						<Stack>
-							<Typography level='body-xs'>Пароль должен содержать:</Typography>
-							<List size='sm' sx={{ '--List-gap': '-5px' }}>
-								<ListItem>
-									{passwordCriteria.length ? (
-										<CheckCircleOutlinedIcon style={{ color: 'green' }} />
-									) : (
-										<CircleOutlinedIcon />
-									)}
-									<Typography level='body-xs'>
-										длину больше 8 символов
-									</Typography>
-								</ListItem>
-								<ListItem>
-									{passwordCriteria.specialChar ? (
-										<CheckCircleOutlinedIcon style={{ color: 'green' }} />
-									) : (
-										<CircleOutlinedIcon />
-									)}
-									<Typography level='body-xs'>
-										специальный символ (например, !, @, #, $, %, ^, &, *, -)
-									</Typography>
-								</ListItem>
-								<ListItem>
-									{passwordCriteria.lowercase && passwordCriteria.uppercase ? (
-										<CheckCircleOutlinedIcon style={{ color: 'green' }} />
-									) : (
-										<CircleOutlinedIcon />
-									)}
-									<Typography level='body-xs'>
-										строчную и заглавную букву
-									</Typography>
-								</ListItem>
-							</List>
-						</Stack>
+						<PasswordField
+							label='Повторите пароль'
+							password={passwordRepeat}
+							setPassword={setPasswordRepeat}
+							error={passwordRepeatError}
+						/>
+						<Button loading={Boolean(isLoading)} type='submit'>
+							Зарегистрироваться
+						</Button>
 					</Stack>
-					<PasswordField
-						label='Повторите пароль'
-						password={passwordRepeat}
-						setPassword={setPasswordRepeat}
-						error={passwordRepeatError}
-					/>
-					<Button loading={Boolean(isLoading)} type='submit'>
-						Зарегистрироваться
-					</Button>
+					<Divider />
+					<VkAuthButton label={'Продолжить через Вконтакте'} variant={'soft'} />
 					<Box
 						sx={{
 							display: 'flex',

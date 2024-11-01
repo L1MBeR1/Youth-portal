@@ -17,20 +17,20 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import usePersonalData from '../../../hooks/usePersonalData';
+import usePersonalData from '../../hooks/usePersonalData';
 
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import ChangeEmail from '../modals/changeEmail';
-import DeleteAccountModal from '../modals/deleteAccount';
+import ChangeEmail from '../../components/settingsComponents/modals/changeEmail';
+import DeleteAccountModal from '../../components/settingsComponents/modals/deleteAccount';
+import { logoutFunc } from '../../utils/authUtils/logout';
 
-import DatePicker from '../../common/datePicker';
+import DatePicker from '../../components/common/datePicker';
 
 import Man2Icon from '@mui/icons-material/Man2';
 import Woman2Icon from '@mui/icons-material/Woman2';
 
 import { toast } from 'sonner';
-import { updateUser } from '../../../api/usersApi';
-import { getToken, removeToken } from '../../../utils/authUtils/tokenStorage';
+import { updateUser } from '../../api/usersApi';
+import { getToken, removeToken } from '../../utils/authUtils/tokenStorage';
 function AccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();

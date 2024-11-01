@@ -112,3 +112,13 @@ export const postResetPassword = async (
 		throw new Error('Failed to reset password');
 	}
 };
+
+export const vkAuth = async () => {
+	try {
+		const response = await axios.get(`${API_URL}/vk`);
+		return response.data;
+	} catch (error) {
+		console.error('Error vk auth', error);
+		throw error;
+	}
+};

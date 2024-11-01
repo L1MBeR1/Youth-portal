@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import usePersonalData from '../../../hooks/usePersonalData';
-import { removeToken } from '../../../utils/authUtils/tokenStorage';
-import ChangePassword from '../modals/changePassword';
+import ChangePassword from '../../components/settingsComponents/modals/changePassword';
+import usePersonalData from '../../hooks/usePersonalData';
+import { removeToken } from '../../utils/authUtils/tokenStorage';
 function SecuritySection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();

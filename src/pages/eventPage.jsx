@@ -16,7 +16,7 @@ import { formatDate } from '../utils/timeAndDate/formatDate.js';
 import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
 import { Avatar } from '@mui/joy';
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function EventPage() {
 	const { id } = useParams();

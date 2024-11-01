@@ -19,7 +19,7 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { getCookie, setCookie } from '../../../utils/cookie/cookieUtils';
 import { PlayerTime } from '../../../utils/timeAndDate/playerTime';
 
-function AudioPlayer({ audioUrl }) {
+function AudioPlayer({ audioUrl, data }) {
 	const [playing, setPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -61,6 +61,12 @@ function AudioPlayer({ audioUrl }) {
 			setPlaying(true);
 		};
 
+		const handleVisibilityChange = () => {
+			if (!document.hidden && audio) {
+				setPlaying(!audio.paused);
+			}
+		};
+
 		if (audio) {
 			audio.volume = volume;
 			audio.playbackRate = playbackRate;
@@ -69,6 +75,7 @@ function AudioPlayer({ audioUrl }) {
 			audio.addEventListener('ended', handleEnded);
 			audio.addEventListener('pause', handlePause);
 			audio.addEventListener('play', handlePlay);
+			document.addEventListener('visibilitychange', handleVisibilityChange);
 		}
 
 		return () => {
@@ -78,9 +85,59 @@ function AudioPlayer({ audioUrl }) {
 				audio.removeEventListener('ended', handleEnded);
 				audio.removeEventListener('pause', handlePause);
 				audio.removeEventListener('play', handlePlay);
+				document.removeEventListener(
+					'visibilitychange',
+					handleVisibilityChange
+				);
 			}
 		};
 	}, [isSeeking, volume, playbackRate]);
+
+	useEffect(() => {
+		const audio = audioRef.current;
+
+		if ('mediaSession' in navigator && data) {
+			const { title, nickname, cover_uri } = data;
+			navigator.mediaSession.metadata = new window.MediaMetadata({
+				title: title,
+				artist: nickname,
+				artwork: [
+					{
+						src: cover_uri,
+						sizes: '512x512',
+					},
+				],
+			});
+
+			navigator.mediaSession.setActionHandler('play', () => {
+				audio.play();
+				setPlaying(true);
+			});
+
+			navigator.mediaSession.setActionHandler('pause', () => {
+				audio.pause();
+				setPlaying(false);
+			});
+
+			navigator.mediaSession.setActionHandler('seekbackward', () => {
+				audio.currentTime = Math.max(0, audio.currentTime - 10);
+			});
+
+			navigator.mediaSession.setActionHandler('seekforward', () => {
+				audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+			});
+		}
+
+		return () => {
+			if ('mediaSession' in navigator) {
+				navigator.mediaSession.metadata = null;
+				navigator.mediaSession.setActionHandler('play', null);
+				navigator.mediaSession.setActionHandler('pause', null);
+				navigator.mediaSession.setActionHandler('seekbackward', null);
+				navigator.mediaSession.setActionHandler('seekforward', null);
+			}
+		};
+	}, [audioUrl, data]);
 
 	const togglePlayPause = () => {
 		const audio = audioRef.current;
@@ -91,7 +148,6 @@ function AudioPlayer({ audioUrl }) {
 			} else {
 				audio.play();
 			}
-			setPlaying(!playing);
 		}
 	};
 

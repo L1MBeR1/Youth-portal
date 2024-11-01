@@ -12,7 +12,7 @@ import useProjectById from '../hooks/useProjectById.js';
 import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
 
 import ProjectEventsSection from '../components/projectsComponents/projectEventsSection.jsx';
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function ProjectPage() {
 	const { id } = useParams();

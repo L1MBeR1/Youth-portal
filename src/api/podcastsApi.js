@@ -110,7 +110,7 @@ export const updatePodcast = async (token, params, id) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error('Error createPodcast', error);
+		console.error('Error update podcast', error);
 		throw error;
 	}
 };

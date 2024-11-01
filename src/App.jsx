@@ -64,6 +64,9 @@ import CreateNews from './pages/my-content/createNews';
 import CreatePodcast from './pages/my-content/createPodacast';
 import NewsSection from './pages/my-content/newsSection';
 import PodcastsSection from './pages/my-content/podcastsSection';
+import AccountSection from './pages/settings/accountSection';
+import PublicAccountSection from './pages/settings/publicAccountSection';
+import SecuritySection from './pages/settings/securitySecrion';
 import theme from './themes/theme';
 
 function App() {
@@ -101,7 +104,12 @@ function App() {
 						<Route
 							path='settings'
 							element={<NotGuestRoute element={<Settings />} />}
-						/>
+						>
+							<Route index element={<Navigate to='/settings/account' />} />
+							<Route path='account' element={<AccountSection />} />
+							<Route path='public' element={<PublicAccountSection />} />
+							<Route path='security' element={<SecuritySection />} />
+						</Route>
 
 						{/* Мой контент */}
 						<Route
@@ -162,6 +170,7 @@ function App() {
 								}
 							/>
 						</Route>
+
 						<Route
 							path='request/blogger'
 							element={<NotGuestRoute element={<BlogRoleRequest />} />}

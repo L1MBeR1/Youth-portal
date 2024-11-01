@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 import useOrganizationById from '../hooks/useOrganizationById.js';
 import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
 
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function OrganizationPage() {
 	const { id } = useParams();

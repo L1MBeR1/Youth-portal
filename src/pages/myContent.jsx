@@ -16,7 +16,7 @@ import PodcastsIcon from '@mui/icons-material/Podcasts';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 import useProfile from '../hooks/useProfile';
-import { mainMargin } from '../themes/mainMargin';
+import { mainMargin } from '../themes/margins';
 
 function MyContent() {
 	const { data: profileData } = useProfile();

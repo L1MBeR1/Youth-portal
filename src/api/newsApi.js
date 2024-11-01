@@ -100,3 +100,17 @@ export const addNews = async (token, data) => {
 		throw error;
 	}
 };
+
+export const updateNews = async (token, id, params) => {
+	try {
+		const response = await axios.put(`${API_URL}/news/${id}`, params, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error update news ', error);
+		throw error;
+	}
+};

@@ -13,7 +13,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { uploadFile } from '../../api/files.js';
-import { addNews } from '../../api/newsApi.js';
+import { addNews, updateNews } from '../../api/newsApi.js';
 import { getToken } from '../../utils/authUtils/tokenStorage.js';
 import QuillEditor from '../testing/BlogCreator/QuillEditor.jsx';
 function CreateNews() {
@@ -82,6 +82,7 @@ function CreateNews() {
 	};
 
 	const isFormValid = name && description && content && selectedImage;
+
 	const handleSubmit = async e => {
 		setIsLoading(true);
 		e.preventDefault();
@@ -93,31 +94,45 @@ function CreateNews() {
 				navigate('/login');
 				return;
 			}
+
+			const initialResponse = await addNews(token, {
+				title: name,
+				description: {
+					desc: description,
+					meta: ['Что-то', 'сделать', 'с тегами'],
+				},
+				content: content,
+				cover_uri: '',
+			});
+
+			if (!initialResponse || !initialResponse.data.id) {
+				throw new Error('Ошибка при создании новости.');
+			}
+
+			const newsId = initialResponse.data.id;
 			let coverImageUri = '';
 
 			if (selectedImage) {
 				coverImageUri = await uploadFile({
 					contentType: 'news',
-					contentId: `${Math.round(Math.random() * 100000)}`,
+					contentId: newsId,
 					file: selectedImage,
 				});
-				console.log(coverImageUri);
 			}
-
-			const response = await addNews(token, {
+			const updateResponse = await updateNews(token, newsId, {
 				title: name,
 				description: {
 					desc: description,
-					meta: ['Что-то', 'сделать', 'с тегами'], // TODO: Добавить теги в создание
+					meta: ['Что-то', 'сделать', 'с тегами'],
 				},
 				content: content,
 				cover_uri: coverImageUri,
 			});
-			if (response) {
-				toast.success('Новость успешно создана');
+			if (updateResponse) {
+				toast.success('Новость успешно создана!');
 				navigate('/my-content/news');
 			} else {
-				throw new Error('Ошибка при создании новости.');
+				throw new Error('Ошибка при создании новости');
 			}
 		} catch (error) {
 			console.error(error);
@@ -233,9 +248,7 @@ function CreateNews() {
 								<Grid container spacing={'20px'}>
 									<Grid xs={12} md={6}>
 										<AspectRatio
-											minHeight='250px'
-											maxHeight='250px'
-											ratio='16/8'
+											ratio='16/10'
 											sx={{
 												borderRadius: '20px',
 												overflow: 'hidden',
@@ -250,7 +263,7 @@ function CreateNews() {
 										</AspectRatio>
 									</Grid>
 									<Grid xs={12} md={6} direction={'column'}>
-										<Stack spacing={2} alignItems={'center'}>
+										<Stack spacing={2}>
 											<Typography
 												level='body-sm'
 												sx={{
@@ -282,10 +295,12 @@ function CreateNews() {
 									sx={{
 										padding: '20px',
 										border: `1px  ${
-											isDragging ? 'dashed #1976d2' : 'solid #ccc'
+											isDragging
+												? 'dashed var(--joy-palette-main-primary)'
+												: 'solid var(--joy-palette-neutral-outlinedBorder)'
 										}`,
 										borderRadius: '20px',
-										backgroundColor: isDragging ? '#f0f8ff' : '#fafafa',
+										backgroundColor: 'var(--joy-palette-main-background)',
 										cursor: 'pointer',
 										transition: 'border 0.3s ease-in-out',
 									}}

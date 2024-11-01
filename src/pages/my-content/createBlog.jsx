@@ -12,7 +12,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { addBlog } from '../../api/blogsApi.js';
+import { addBlog, updateBlog } from '../../api/blogsApi.js';
 import { uploadFile } from '../../api/files.js';
 import { getToken } from '../../utils/authUtils/tokenStorage.js';
 import QuillEditor from '../testing/BlogCreator/QuillEditor.jsx';
@@ -82,6 +82,7 @@ function CreateBlog() {
 	};
 
 	const isFormValid = name && description && content && selectedImage;
+
 	const handleSubmit = async e => {
 		setIsLoading(true);
 		e.preventDefault();
@@ -93,30 +94,45 @@ function CreateBlog() {
 				navigate('/login');
 				return;
 			}
+
+			const initialResponse = await addBlog(token, {
+				title: name,
+				description: {
+					desc: description,
+					meta: ['Что-то', 'сделать', 'с тегами'],
+				},
+				content: content,
+				cover_uri: '',
+			});
+
+			if (!initialResponse || !initialResponse.data.id) {
+				throw new Error('Ошибка при создании блога.');
+			}
+
+			const blogId = initialResponse.data.id;
 			let coverImageUri = '';
 
 			if (selectedImage) {
 				coverImageUri = await uploadFile({
 					contentType: 'blogs',
-					contentId: `${Math.round(Math.random() * 100000)}`,
+					contentId: blogId,
 					file: selectedImage,
 				});
 			}
-
-			const response = await addBlog(token, {
+			const updateResponse = await updateBlog(token, blogId, {
 				title: name,
 				description: {
 					desc: description,
-					meta: ['Что-то', 'сделать', 'с тегами'], // TODO: Добавить теги в создание
+					meta: ['Что-то', 'сделать', 'с тегами'],
 				},
 				content: content,
 				cover_uri: coverImageUri,
 			});
-			if (response) {
+			if (updateResponse) {
 				toast.success('Блог успешно создан!');
 				navigate('/my-content/blogs');
 			} else {
-				throw new Error('Ошибка при создании блога.');
+				throw new Error('Ошибка при создании блога');
 			}
 		} catch (error) {
 			console.error(error);
@@ -232,9 +248,7 @@ function CreateBlog() {
 								<Grid container spacing={'20px'}>
 									<Grid xs={12} md={6}>
 										<AspectRatio
-											minHeight='250px'
-											maxHeight='250px'
-											ratio='16/8'
+											ratio='16/10'
 											sx={{
 												borderRadius: '20px',
 												overflow: 'hidden',
@@ -249,7 +263,7 @@ function CreateBlog() {
 										</AspectRatio>
 									</Grid>
 									<Grid xs={12} md={6} direction={'column'}>
-										<Stack spacing={2} alignItems={'center'}>
+										<Stack spacing={2}>
 											<Typography
 												level='body-sm'
 												sx={{
@@ -281,10 +295,12 @@ function CreateBlog() {
 									sx={{
 										padding: '20px',
 										border: `1px  ${
-											isDragging ? 'dashed #1976d2' : 'solid #ccc'
+											isDragging
+												? 'dashed var(--joy-palette-main-primary)'
+												: 'solid var(--joy-palette-neutral-outlinedBorder)'
 										}`,
 										borderRadius: '20px',
-										backgroundColor: isDragging ? '#f0f8ff' : '#fafafa',
+										backgroundColor: 'var(--joy-palette-main-background)',
 										cursor: 'pointer',
 										transition: 'border 0.3s ease-in-out',
 									}}

@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\Organization;
 use App\Models\Project;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Organization;
 use App\Services\ImageSeeder;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProjectFactory extends Factory
 {
@@ -15,28 +16,46 @@ class ProjectFactory extends Factory
     private function generateProjectTitle()
     {
         $adjectives = [
-            'Креативный', 'Творческий', 'Инновационный',
-            'Спортивный', 'Культурный', 'Научный',
-            'Технологический', 'Образовательный', 'Развлекательный'
+            'Креативный',
+            'Творческий',
+            'Инновационный',
+            'Спортивный',
+            'Культурный',
+            'Научный',
+            'Технологический',
+            'Образовательный',
+            'Развлекательный'
         ];
 
         $nouns = [
-            'лига', 'команда', 'ассоциация',
-            'платформа', 'группа', 'сеть',
-            'движение', 'фонд', 'центр'
+            'лига',
+            'команда',
+            'ассоциация',
+            'платформа',
+            'группа',
+            'сеть',
+            'движение',
+            'фонд',
+            'центр'
         ];
 
         $locations = [
-            'Иркутска', 'Сибири', 'России',
-            'мира', 'вселенной', 'города',
-            'региона', 'страны', 'континента'
+            'Иркутска',
+            'Сибири',
+            'России',
+            'мира',
+            'вселенной',
+            'города',
+            'региона',
+            'страны',
+            'континента'
         ];
 
         $adjective = $this->faker->randomElement($adjectives);
         $noun = $this->faker->randomElement($nouns);
         $location = $this->faker->randomElement($locations);
 
- 
+
         $adjective = match ($noun) {
             'лига', 'команда', 'ассоциация', 'группа', 'сеть' => rtrim($adjective, 'ый') . 'ая',
             'движение', 'фонд', 'центр' => rtrim($adjective, 'ый') . 'ое',
@@ -46,7 +65,7 @@ class ProjectFactory extends Factory
         return "$adjective $noun $location";
     }
 
- 
+
     private function generateProjectCover(int $projectId): string
     {
         $imageSeeder = new ImageSeeder();
@@ -77,8 +96,18 @@ class ProjectFactory extends Factory
     public function configure(): self
     {
         return $this->afterCreating(function (Project $project) {
-            $coverUri = $this->generateProjectCover($project->id);
-            $project->update(['cover_uri' => $coverUri]);
+            // $coverUri = $this->generateProjectCover($project->id);
+            // $project->update(['cover_uri' => $coverUri]);
+
+
+            try {
+                $coverUri = $this->generateProjectCover($project->id);
+                $project->update(['cover_uri' => $coverUri]);
+            } catch (\RuntimeException $e) {
+                Log::error('Error during project creation: ' . $e->getMessage());
+
+                echo 'Error during project creation: ' . $e->getMessage() . PHP_EOL;
+            }
         });
     }
 }

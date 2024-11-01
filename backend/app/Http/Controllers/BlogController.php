@@ -9,6 +9,7 @@ use App\Traits\QueryBuilderTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PopularityCalculator;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use App\Http\Requests\SetContentStatusRequest;
@@ -22,10 +23,36 @@ class BlogController extends Controller
     use QueryBuilderTrait, PaginationTrait;
 
     /**
-     * Get blog by id
-     * 
-     * 
-     * 
+     * @OA\Get(
+     *      path="/api/blogs/{id}",
+     *      operationId="getBlogById",
+     *      tags={"Blogs"},
+     *      summary="Получить блог по ID",
+     *      description="Возвращает блог по требуемому ID",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="ID блога",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *           response=404,
+     *           description="Not found"
+     *      )
+     *     )
      */
     public function getBlogById($id): \Illuminate\Http\JsonResponse
     {
@@ -77,30 +104,125 @@ class BlogController extends Controller
 
 
     /**
-     * Поиск
-     * 
-     * Получение списка блогов
-     * 
-     * @group Блоги
-     * @authenticated
-     * 
-     * @bodyParam userId int ID пользователя.
-     * @bodyParam currentUser bool Флаг для поиска по текущему пользователю.
-     * @urlParam page int Номер страницы.
-     * @urlParam per_page int Элементов на странице.
-     * 
-     * 
-     * @urlParam searchFields string[] Массив столбцов для поиска.
-     * @urlParam searchValues string[] Массив значений для поиска.
-     * @urlParam tagFilter string Фильтр по тегу в meta описания.
-     * @urlParam crtFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
-     * @urlParam crtTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
-     * @urlParam crtDate string Дата создания (формат: Y-m-d).
-     * @urlParam updFrom string Дата начала (формат: Y-m-d H:i:s или Y-m-d).
-     * @urlParam updTo string Дата окончания (формат: Y-m-d H:i:s или Y-m-d).
-     * @urlParam updDate string Дата обновления (формат: Y-m-d).
-     * @urlParam operator string Логический оператор для условий поиска ('and' или 'or').
-     * 
+     * @OA\Get(
+     *     path="/api/blogs/",
+     *     summary="Поиск блогов",
+     *     description="Получение списка блогов с фильтрацией и пагинацией",
+     *     tags={"Blogs"},
+     *     security={{"bearerAuth":{}}},
+     *     
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Номер страницы",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Количество элементов на странице",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="searchFields",
+     *         in="query",
+     *         description="Массив столбцов для поиска",
+     *         required=false,
+     *         @OA\Schema(type="array", @OA\Items(type="string"), example={"title", "content"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="searchValues",
+     *         in="query",
+     *         description="Массив значений для поиска",
+     *         required=false,
+     *         @OA\Schema(type="array", @OA\Items(type="string"), example={"Laravel", "Swagger"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="tagFilter",
+     *         in="query",
+     *         description="Фильтр по тегу в meta описания",
+     *         required=false,
+     *         @OA\Schema(type="string", example="tech")
+     *     ),
+     *     @OA\Parameter(
+     *         name="crtFrom",
+     *         in="query",
+     *         description="Дата начала (формат: Y-m-d H:i:s или Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-01-01")
+     *     ),
+     *     @OA\Parameter(
+     *         name="crtTo",
+     *         in="query",
+     *         description="Дата окончания (формат: Y-m-d H:i:s или Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-12-31")
+     *     ),
+     *     @OA\Parameter(
+     *         name="crtDate",
+     *         in="query",
+     *         description="Дата создания (формат: Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-06-01")
+     *     ),
+     *     @OA\Parameter(
+     *         name="updFrom",
+     *         in="query",
+     *         description="Дата начала обновления (формат: Y-m-d H:i:s или Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-01-01")
+     *     ),
+     *     @OA\Parameter(
+     *         name="updTo",
+     *         in="query",
+     *         description="Дата окончания обновления (формат: Y-m-d H:i:s или Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-12-31")
+     *     ),
+     *     @OA\Parameter(
+     *         name="updDate",
+     *         in="query",
+     *         description="Дата обновления (формат: Y-m-d)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2023-06-01")
+     *     ),
+     *     @OA\Parameter(
+     *         name="operator",
+     *         in="query",
+     *         description="Логический оператор для условий поиска ('and' или 'or')",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"and", "or"}, example="and")
+     *     ),
+     *     @OA\Parameter(
+     *         description="Фильтрация по пользователю",
+     *         required=false,
+     *          in="query",
+     *         name="authorId",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *      @OA\Parameter(
+     *         description="Результат для текущего (авторизованного) пользователя",
+     *         required=false,
+     *          in="query",
+     *         name="currentUser",
+     *         @OA\Schema(type="boolean", example=true)
+     *     ),
+     *     
+     *     @OA\Response(
+     *         response=200,
+     *         description="Успешный поиск",
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Неавторизован"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Блоги не найдены"
+     *     )
+     * )
      */
     public function getBlogs(Request $request)
     {
@@ -165,7 +287,7 @@ class BlogController extends Controller
         $query = Blog::query();
 
         $query->where('author_id', $user->id);
-        
+
         $orderBy = $request->query('orderBy');
         $orderDirection = $request->query('orderDir');
         if ($status = $request->query('status')) {
@@ -176,7 +298,7 @@ class BlogController extends Controller
         } else {
             $query->orderBy('created_at', 'desc');
         }
-                
+
         $blogs = $query->paginate($request->get('per_page', 10));
         $paginationData = $this->makePaginationData($blogs);
 
@@ -249,7 +371,7 @@ class BlogController extends Controller
         // Log::info($request->input("description"));
 
         $blog = Blog::create($request->validated() + [
-            'status' => 'unsaved',
+            'status' => 'moderating',
             'author_id' => Auth::id(),
         ]);
 
@@ -340,12 +462,12 @@ class BlogController extends Controller
         // $blogData['status'] = "moderating";
 
         // dump($blog->author_id);   
-        
+
         // Поле описания должно быть массивом
         if (is_string($blogData['description'])) {
             $blogData['description'] = json_decode($blogData['description'], true);
         }
-        
+
         $draft = Blog::create($blogData);
         // dd($blogData);
 
@@ -495,5 +617,35 @@ class BlogController extends Controller
         );
     }
 
+    protected $popularityCalculator;
+    public function __construct(PopularityCalculator $popularityCalculator)
+    {
+        $this->popularityCalculator = $popularityCalculator;
+    }
 
+    public function getPopularBlogs(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $currentPage = $request->input('page', 1);
+        $paginatedData = $this->popularityCalculator->getPopularContent('blogs', $perPage, $currentPage);
+
+        if ($paginatedData === null) {
+            return $this->errorResponse('Нет популярных блогов', [], 404);
+        }
+
+        $paginationData = $this->makePaginationData($paginatedData);
+
+        return $this->successResponse($paginatedData->items(), $paginationData, 200);
+    }
+
+    public function getPopularBlogsByTime(Request $request)
+    {
+        $limit = $request->get('limit', 1);
+        $popularBlogs = $this->popularityCalculator->getPopularContentByTime('podcasts', $limit);
+
+        if ($popularBlogs === null) {
+            return $this->errorResponse('Нет популярных блогов за установленный промежуток', [], 404);
+        }
+        return $this->successResponse($popularBlogs, 200);
+    }
 }

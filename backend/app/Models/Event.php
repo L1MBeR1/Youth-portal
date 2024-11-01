@@ -12,7 +12,8 @@ class Event extends Model
     protected $table = 'events';
 
     protected $casts = [
-        'address' => 'array', 
+        'address' => 'array',
+        'meta' => 'array', 
         'start_time' => 'datetime', 
         'end_time' => 'datetime', 
         'created_at' => 'datetime', 
@@ -32,6 +33,7 @@ class Event extends Model
     protected $fillable = [
         'name',
         'description',
+        'meta',
         'address',
         'cover_uri',
         'longitude',

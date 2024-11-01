@@ -4,7 +4,7 @@ const usePublications = (queryKey, api, setLastPage, params) => {
 	return useQuery({
 		queryKey: queryKey,
 		queryFn: async () => {
-			const response = await api(null, params);
+			const response = await api(params);
 			setLastPage(response.message.last_page);
 			console.log(response);
 			return response.data;

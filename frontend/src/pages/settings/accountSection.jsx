@@ -17,20 +17,20 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import usePersonalData from '../../../hooks/usePersonalData';
+import usePersonalData from '../../hooks/usePersonalData';
 
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import ChangeEmail from '../modals/changeEmail';
-import DeleteAccountModal from '../modals/deleteAccount';
+import ChangeEmail from '../../components/settingsComponents/modals/changeEmail';
+import DeleteAccountModal from '../../components/settingsComponents/modals/deleteAccount';
+import { logoutFunc } from '../../utils/authUtils/logout';
 
-import DatePicker from '../../common/datePicker';
+import DatePicker from '../../components/common/datePicker';
 
 import Man2Icon from '@mui/icons-material/Man2';
 import Woman2Icon from '@mui/icons-material/Woman2';
 
 import { toast } from 'sonner';
-import { updateUser } from '../../../api/usersApi';
-import { getToken, removeToken } from '../../../utils/authUtils/tokenStorage';
+import { updateUser } from '../../api/usersApi';
+import { getToken, removeToken } from '../../utils/authUtils/tokenStorage';
 function AccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -82,15 +82,19 @@ function AccountSection() {
 	function maskEmail(email) {
 		if (email) {
 			const [localPart, domain] = email.split('@');
-			const visibleChars = 3;
+			const totalChars = localPart.length;
+
 			const maskedLocalPart =
-				localPart.slice(0, visibleChars) +
-				'*'.repeat(localPart.length - visibleChars);
+				totalChars <= 2
+					? '*'.repeat(totalChars)
+					: localPart.slice(0, totalChars - 3) + '***';
+
 			return `${maskedLocalPart}@${domain}`;
 		} else {
 			return;
 		}
 	}
+
 	const handleUpdateData = async () => {
 		const { token, needsRedirect } = await getToken();
 		if (needsRedirect) {

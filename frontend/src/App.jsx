@@ -42,9 +42,6 @@ import Moderator from './pages/moderator';
 import Su from './pages/su';
 
 // <====== TEST =======>
-import BlogCreator from './pages/testing/BlogCreator/BlogCreator';
-import BlogWrapper from './pages/testing/v1/BlogWrapper';
-import BlogCreatorV2 from './pages/testing/v2/BlogCreator';
 
 import ResetPassword from './pages/resetPassword';
 // <===================>
@@ -59,8 +56,18 @@ import { CssVarsProvider } from '@mui/joy/styles';
 import './css/App.css';
 //Тема
 import { Toaster } from 'sonner';
-import theme from './themes/theme';
+
 import BlogRoleRequest from './pages/blogRoleRequest';
+import BlogsSection from './pages/my-content/blogsSection';
+import CreateBlog from './pages/my-content/createBlog';
+import CreateNews from './pages/my-content/createNews';
+import CreatePodcast from './pages/my-content/createPodacast';
+import NewsSection from './pages/my-content/newsSection';
+import PodcastsSection from './pages/my-content/podcastsSection';
+import AccountSection from './pages/settings/accountSection';
+import PublicAccountSection from './pages/settings/publicAccountSection';
+import SecuritySection from './pages/settings/securitySecrion';
+import theme from './themes/theme';
 
 function App() {
 	return (
@@ -97,16 +104,77 @@ function App() {
 						<Route
 							path='settings'
 							element={<NotGuestRoute element={<Settings />} />}
-						/>
+						>
+							<Route index element={<Navigate to='/settings/account' />} />
+							<Route path='account' element={<AccountSection />} />
+							<Route path='public' element={<PublicAccountSection />} />
+							<Route path='security' element={<SecuritySection />} />
+						</Route>
+
+						{/* Мой контент */}
 						<Route
 							path='my-content'
 							element={<NotGuestRoute element={<MyContent />} />}
-						/>
+						>
+							<Route index element={<Navigate to='/404' />} />
+							<Route
+								path='blogs'
+								element={
+									<PrivateRoute
+										element={<BlogsSection />}
+										roles={['blogger']}
+									/>
+								}
+							/>
+
+							<Route
+								path='podcasts'
+								element={
+									<PrivateRoute
+										element={<PodcastsSection />}
+										roles={['blogger']}
+									/>
+								}
+							/>
+							<Route
+								path='news'
+								element={
+									<PrivateRoute
+										element={<NewsSection />}
+										roles={['news_creator']}
+									/>
+								}
+							/>
+							<Route
+								path='blogs/create'
+								element={
+									<PrivateRoute element={<CreateBlog />} roles={['blogger']} />
+								}
+							/>
+							<Route
+								path='podcasts/create'
+								element={
+									<PrivateRoute
+										element={<CreatePodcast />}
+										roles={['blogger']}
+									/>
+								}
+							/>
+							<Route
+								path='news/create'
+								element={
+									<PrivateRoute
+										element={<CreateNews />}
+										roles={['news_creator']}
+									/>
+								}
+							/>
+						</Route>
+
 						<Route
 							path='request/blogger'
 							element={<NotGuestRoute element={<BlogRoleRequest />} />}
 						/>
-
 
 						<Route path='login' element={<GuestRoute element={<Login />} />} />
 						<Route
@@ -122,9 +190,9 @@ function App() {
 							Сделать маршрут для роли blogger
 							/editor
 						*/}
-						<Route path='/test_blog_creator_v1' element={<BlogWrapper />} />
+						{/* <Route path='/test_blog_creator_v1' element={<BlogWrapper />} />
 						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
-						<Route path='/blog_creator' element={<BlogCreator />} />
+						<Route path='/blog_creator' element={<BlogCreator />} /> */}
 					</Route>
 
 					<Route

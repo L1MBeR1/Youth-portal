@@ -110,9 +110,10 @@ class PodcastFactory extends Factory
                     ]
                 ]
             ],
-            'audio_uri' => '', 
+            'audio_uri' => '',
             'cover_uri' => '',
-            'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
+            // 'status' => $this->faker->randomElement(['moderating', 'published', 'archived', 'pending']),
+            'status' => $this->faker->randomElement(['published']),
             'views' => $this->faker->numberBetween(0, 1000),
             'likes' => $this->faker->numberBetween(0, 1000),
             'reposts' => $this->faker->numberBetween(0, 1000),
@@ -123,10 +124,22 @@ class PodcastFactory extends Factory
     public function configure(): self
     {
         return $this->afterCreating(function (Podcast $podcast) {
-            $this->generateMediaURLs($podcast->id);
-            $coverUri = $this->image;
-            $audioUri = $this->audio;
-            $podcast->update(['cover_uri' => $coverUri, 'audio_uri' => $audioUri]);
+            // $this->generateMediaURLs($podcast->id);
+            // $coverUri = $this->image;
+            // $audioUri = $this->audio;
+            // $podcast->update(['cover_uri' => $coverUri, 'audio_uri' => $audioUri]);
+
+
+            try {
+                $this->generateMediaURLs($podcast->id);
+                $coverUri = $this->image;
+                $audioUri = $this->audio;
+                $podcast->update(['cover_uri' => $coverUri, 'audio_uri' => $audioUri]);
+            } catch (\RuntimeException $e) {
+                Log::error('Error during podcast creation: ' . $e->getMessage());
+
+                echo 'Error during podcast creation: ' . $e->getMessage() . PHP_EOL;
+            }
         });
     }
 }

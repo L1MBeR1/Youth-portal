@@ -1,31 +1,39 @@
+import { CloseRounded } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import SortIcon from '@mui/icons-material/Sort';
-import { Box, Button, Grid, Option, Select, Stack, Typography } from '@mui/joy';
-import { useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import {
+	Box,
+	Button,
+	CircularProgress,
+	Grid,
+	IconButton,
+	Option,
+	Select,
+	Stack,
+	Typography,
+} from '@mui/joy';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyBlogs } from '../../../api/blogsApi';
-import useMyPublications from '../../../hooks/useMyPublications';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import ProfileBlogCard from '../../profileComponents/profileBlogCard';
+import { getMyNews } from '../../api/newsApi';
+import ProfileBlogCard from '../../components/profileComponents/profileBlogCard';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination';
+import useMyPublications from '../../hooks/useMyPublications';
 
-import Pagination from '../../workspaceComponents/shared/workSpacePagination';
-
-function BlogSections() {
-	const queryClient = useQueryClient();
+function NewsSection() {
 	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState(1);
 	const [orderDir, setOrderDir] = useState('desc');
-	const [status, setStatus] = useState(null);
+	const action = useRef(null);
+	const [status, setStatus] = useState('');
 
 	const [isNeedRefetch, setIsNeedRefetch] = useState(false);
 
 	const {
-		data: blogs,
-		isLoading,
+		data: news,
+		isFetching,
 		refetch,
-	} = useMyPublications(['MyBlogs'], getMyBlogs, setLastPage, {
+	} = useMyPublications(['MyNews'], getMyNews, setLastPage, {
 		page: page,
 		per_page: 8,
 		withAuthors: true,
@@ -36,17 +44,6 @@ function BlogSections() {
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
-	useEffect(() => {
-		if (!isLoading && !blogs) {
-			const handleLogout = async () => {
-				await logoutFunc();
-				navigate('/login');
-				queryClient.removeQueries(['profile']);
-				return true;
-			};
-			handleLogout();
-		}
-	}, [isLoading, blogs, navigate, queryClient]);
 
 	useEffect(() => {
 		if (isNeedRefetch) {
@@ -61,7 +58,7 @@ function BlogSections() {
 	};
 
 	const handleStatusChange = newValue => {
-		setStatus(newValue);
+		setStatus(newValue || '');
 		setIsNeedRefetch(true);
 	};
 	return (
@@ -70,12 +67,12 @@ function BlogSections() {
 				<Stack direction={'column'} spacing={3}>
 					<Stack direction={'column'} spacing={2}>
 						<Stack direction={'row'} justifyContent={'space-between'}>
-							<Typography level='title-xl'>Мои блоги</Typography>
+							<Typography level='title-xl'>Мои новости</Typography>
 							<Button
 								size={'sm'}
 								endDecorator={<AddIcon />}
 								onClick={() => {
-									navigate('/blog_creator');
+									navigate('/my-content/news/create');
 								}}
 							>
 								Создать
@@ -83,7 +80,6 @@ function BlogSections() {
 						</Stack>
 						<Stack direction={'row'}>
 							<Select
-								disabled
 								variant='plain'
 								defaultValue='desc'
 								placeholder='Сначала новые'
@@ -96,13 +92,31 @@ function BlogSections() {
 								<Option value={'asc'}>Сначала старые</Option>
 							</Select>
 							<Select
-								disabled
+								action={action}
 								variant='plain'
 								placeholder='Выберете статус'
-								endDecorator={<SortIcon />}
-								indicator={null}
 								color='neutral'
+								value={status}
 								onChange={(e, newValue) => handleStatusChange(newValue)}
+								{...(status && {
+									endDecorator: (
+										<IconButton
+											size='sm'
+											variant='plain'
+											color='neutral'
+											onMouseDown={event => {
+												event.stopPropagation();
+											}}
+											onClick={() => {
+												handleStatusChange('');
+												action.current?.focusVisible();
+											}}
+										>
+											<CloseRounded />
+										</IconButton>
+									),
+									indicator: null,
+								})}
 							>
 								<Option value={'published'}>Опубликованные</Option>
 								<Option value={'moderating'}>На проверке</Option>
@@ -110,16 +124,26 @@ function BlogSections() {
 								<Option value={'pending'}>На доработке</Option>
 							</Select>
 						</Stack>
-						{!isLoading && blogs && (
+						{isFetching ? (
+							<Stack
+								justifyContent={'center'}
+								alignItems={'center'}
+								sx={{ height: '20vh' }}
+							>
+								<CircularProgress size='md' />
+							</Stack>
+						) : news && news.length > 0 ? (
 							<Box sx={{ marginX: '-25px' }}>
 								<Grid container spacing={'40px'}>
-									{blogs.map(blog => (
-										<Grid xs={12} sm={6} md={12} lgx={6} xxl={4} key={blog.id}>
-											<ProfileBlogCard data={blog} status={blog.status} />
+									{news.map(item => (
+										<Grid xs={12} sm={6} md={12} lgx={6} xxl={4} key={item.id}>
+											<ProfileBlogCard data={item} status={item.status} />
 										</Grid>
 									))}
 								</Grid>
 							</Box>
+						) : (
+							<Typography>Новостей по такому запросу нет</Typography>
 						)}
 						<Pagination
 							page={page}
@@ -133,4 +157,4 @@ function BlogSections() {
 	);
 }
 
-export default BlogSections;
+export default NewsSection;

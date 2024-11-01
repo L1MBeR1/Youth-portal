@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Project;
@@ -16,8 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -98,8 +99,8 @@ class EventController extends Controller
         $paginationData = $this->makePaginationData($events);
         return $this->successResponse($events->items(), $paginationData, 200);
     }
-    
-    
+
+
     public function getEventsMap(Request $request)
     {
         $requiredFields = [
@@ -291,15 +292,69 @@ class EventController extends Controller
 
     private function applyEventDateFilters($query, $request)
     {
-        if ($request->has('start_date')) {
-            $startDate = $request->input('start_date') . ' 00:00:00';
-            $query->where('start_time', '>=', $startDate);
+        // if ($request->has('start_date')) {
+        //     $startDate = $request->input('start_date') . ' 00:00:00';
+        //     $query->where('start_time', '>=', $startDate);
+        // }
+
+        // if ($request->has('end_date')) {
+        //     $endDate = $request->input('end_date') . ' 23:59:59';
+        //     $query->where('end_time', '<=', $endDate);
+        // }
+
+        $timezone = $request->query('timezone', 'UTC');
+
+        if ($startFrom = $request->query('startFrom')) {
+            if (!$this->hasTime($startFrom)) {
+                $startFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $startFrom = Carbon::parse($startFrom, $timezone)->setTimezone('UTC');
+            $query->where('start_time', '>=', $startFrom);
         }
 
-        if ($request->has('end_date')) {
-            $endDate = $request->input('end_date') . ' 23:59:59';
-            $query->where('start_time', '<=', $endDate);
+        if ($startTo = $request->query('startTo')) {
+            if (!$this->hasTime($startTo)) {
+                $startTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $startTo = Carbon::parse($startTo, $timezone)->setTimezone('UTC');
+            $query->where('start_time', '<=', $startTo);
         }
+
+        if ($endFrom = $request->query('endFrom')) {
+            if (!$this->hasTime($endFrom)) {
+                $endFrom .= ' 00:00:00'; // Добавляем время начала дня, если его нет
+            }
+            $endFrom = Carbon::parse($endFrom, $timezone)->setTimezone('UTC');
+            $query->where('end_time', '>=', $endFrom);
+        }
+
+        if ($endTo = $request->query('endTo')) {
+            if (!$this->hasTime($endTo)) {
+                $endTo .= ' 23:59:59'; // Добавляем время конца дня, если его нет
+            }
+            $endTo = Carbon::parse($endTo, $timezone)->setTimezone('UTC');
+            $query->where('end_time', '<=', $endTo);
+        }
+
+        // (без времени, только дата)
+        if ($endDate = $request->query('endDate')) {
+            $endDate_start = Carbon::parse($endDate, $timezone)->setTimezone('UTC')->startOfDay();
+            $endDate_end = Carbon::parse($endDate, $timezone)->setTimezone('UTC')->endOfDay();
+            $query->whereBetween('end_time', [$endDate_start, $endDate_end]);
+        }
+
+        if ($startDate = $request->query('startDate')) {
+            $startDate_start = Carbon::parse($startDate, $timezone)->setTimezone('UTC')->startOfDay();
+            $startDate_end = Carbon::parse($startDate, $timezone)->setTimezone('UTC')->endOfDay();
+            $query->whereBetween('start_time', [$startDate_start, $startDate_end]);
+        }
+
+       
+    }
+
+    private function hasTime($dateString)
+    {
+        return preg_match('/\d{2}:\d{2}:\d{2}/', $dateString) > 0;
     }
 
     private function applyEventLocationFilters($query, $request)

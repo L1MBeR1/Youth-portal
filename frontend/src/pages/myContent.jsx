@@ -1,44 +1,34 @@
-import { useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+	Box,
+	List,
+	ListItem,
+	ListItemButton,
+	ListItemContent,
+	Sheet,
+	Stack,
+	Typography,
+} from '@mui/joy';
+import React from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-import MyContentMain from '../components/myContentComponents/myContentMain';
-import MyContentSidebar from '../components/myContentComponents/myContentSidebar';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import PodcastsIcon from '@mui/icons-material/Podcasts';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
-import { Stack } from '@mui/joy';
 import useProfile from '../hooks/useProfile';
-import { mainMargin } from '../themes/mainMargin';
-import { logoutFunc } from '../utils/authUtils/logout';
+import { mainMargin } from '../themes/margins';
 
 function MyContent() {
-	const queryClient = useQueryClient();
+	const { data: profileData } = useProfile();
+	const roles = profileData?.roles || [];
 	const navigate = useNavigate();
-	const [section, setSection] = useState(null);
-	const { data: profileData, isLoading } = useProfile();
+	const location = useLocation();
 
-	useEffect(() => {
-		if (!isLoading && !profileData) {
-			const handleLogout = async () => {
-				await logoutFunc();
-				navigate('/login');
-				queryClient.removeQueries(['profile']);
-				return true;
-			};
-			handleLogout();
-		}
-	}, [isLoading, profileData, navigate, queryClient]);
+	const handleNavigate = path => {
+		navigate(path);
+	};
 
-	useEffect(() => {
-		if (profileData) {
-			if (profileData.roles.includes('blogger')) {
-				setSection('blogs');
-			} else if (profileData.roles.includes('news_creator')) {
-				setSection('news');
-			} else {
-				setSection(null);
-			}
-		}
-	}, [profileData]);
+	const isActive = path => location.pathname.startsWith(path);
 
 	return (
 		<Stack
@@ -49,12 +39,70 @@ function MyContent() {
 				gap: '20px',
 			}}
 		>
-			<MyContentSidebar
-				selectedSection={section}
-				setSection={setSection}
-				roles={profileData?.roles}
-			/>
-			<MyContentMain section={section} />
+			<Sheet sx={{ borderRadius: '30px', padding: '25px', minWidth: '300px' }}>
+				<Box sx={{ marginLeft: '5px' }}>
+					<Typography level='title-lg'>Мой контент</Typography>
+				</Box>
+				<List
+					size='sm'
+					sx={{
+						marginTop: '10px',
+						gap: 1,
+						'--List-nestedInsetStart': '30px',
+						'--ListItem-radius': theme => theme.vars.radius.sm,
+					}}
+				>
+					{roles.includes('blogger') && (
+						<>
+							<ListItem>
+								<ListItemButton
+									selected={isActive('/my-content/blogs')}
+									onClick={() => handleNavigate('/my-content/blogs')}
+								>
+									<TextSnippetIcon />
+									<ListItemContent>
+										<Typography level='body-md'>Блоги</Typography>
+									</ListItemContent>
+								</ListItemButton>
+							</ListItem>
+							<ListItem>
+								<ListItemButton
+									selected={isActive('/my-content/podcasts')}
+									onClick={() => handleNavigate('/my-content/podcasts')}
+								>
+									<PodcastsIcon />
+									<ListItemContent>
+										<Typography level='body-md'>Подкасты</Typography>
+									</ListItemContent>
+								</ListItemButton>
+							</ListItem>
+						</>
+					)}
+					{roles.includes('news_creator') && (
+						<ListItem>
+							<ListItemButton
+								selected={isActive('/my-content/news')}
+								onClick={() => handleNavigate('/my-content/news')}
+							>
+								<NewspaperIcon />
+								<ListItemContent>
+									<Typography level='body-md'>Новости</Typography>
+								</ListItemContent>
+							</ListItemButton>
+						</ListItem>
+					)}
+				</List>
+			</Sheet>
+
+			<Sheet
+				sx={{
+					flexGrow: 1,
+					borderRadius: '30px',
+					padding: '25px',
+				}}
+			>
+				<Outlet />
+			</Sheet>
 		</Stack>
 	);
 }

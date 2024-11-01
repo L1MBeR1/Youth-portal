@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
+use App\Models\Blog;
+use App\Models\News;
+use App\Models\Podcast;
 use App\Mail\AccountDelete;
 use App\Models\UserMetadata;
 use Illuminate\Http\Request;
@@ -14,13 +17,7 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
-/**
- * @OA\Info(
- *     title="API для Youth-portal",
- *     version="1.0.0",
- *     description="Документация API"
- * )
- */
+
 class UserController extends Controller
 {
     public function getUserById($userId)
@@ -309,6 +306,36 @@ class UserController extends Controller
             }
 
 
+            // Очистка профиля
+            $target_user->metadata->first_name = null;
+            $target_user->metadata->last_name = null;
+            $target_user->metadata->patronymic = null;
+            $target_user->metadata->nickname = null;
+            Log::info('Deleting user with ID: ' . $target_user->id);
+            // $target_user->metadata->profile_image_uri = null;
+            // $target_user->metadata->city = null;
+            // $target_user->metadata->gender = null;
+            // $target_user->metadata->birthday = null;
+            $target_user->metadata->save();
+
+            // Скрытие материалов
+            $blogs = Blog::where('author_id', $target_user->id)->get();
+            foreach ($blogs as $blog) {
+                $blog->status = 'archived';
+                $blog->save();
+            }
+            $news = News::where('author_id', $target_user->id)->get();
+            foreach ($news as $new) {
+                $new->status = 'archived';
+                $new->save();
+            }
+            $podcasts = Podcast::where('author_id', $target_user->id)->get();
+            foreach ($podcasts as $podcast) {
+                $podcast->status = 'archived';
+                $podcast->save();
+            }
+
+
             $res = $target_user->delete();
             if ($res) {
                 // if ($user_id == $target_user->id) {
@@ -374,7 +401,7 @@ class UserController extends Controller
                 //     $response->withCookie(cookie()->forget('refresh_token'));
                 //     return $response;
 
-                $response = response()->view('emails.thanks');
+                $response = response()->json(['message' => 'User deleted successfully.']);
                 $response->withCookie(cookie()->forget('refresh_token'));
                 return $response;
             // return response()->view('emails.thanks');

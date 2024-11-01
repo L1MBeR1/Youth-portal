@@ -4,7 +4,7 @@ const useOrganizations = (setLastPage, params) => {
 	return useQuery({
 		queryKey: ['organizations'],
 		queryFn: async () => {
-			const response = await getOrganizationsByPage(null, params);
+			const response = await getOrganizationsByPage(params);
 			if (setLastPage) {
 				setLastPage(response.message.last_page);
 			}

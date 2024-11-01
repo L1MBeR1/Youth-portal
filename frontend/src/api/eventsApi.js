@@ -16,13 +16,10 @@ export const getEventsByPage = async (token, params) => {
 		throw error;
 	}
 };
-export const getHomeEvents = async (token, params) => {
+export const getHomeEvents = async params => {
 	console.log(params);
 	try {
 		const response = await axios.get(`${API_URL}/events/userEvents`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
 			params: params,
 		});
 		return response.data;
@@ -60,13 +57,9 @@ export const getMapEvents = async params => {
 	}
 };
 
-export const getCountries = async token => {
+export const getCountries = async () => {
 	try {
-		const response = await axios.get(`${API_URL}/countries/`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
+		const response = await axios.get(`${API_URL}/countries/`, {});
 		console.log(response);
 		return response;
 	} catch (error) {
@@ -75,13 +68,9 @@ export const getCountries = async token => {
 	}
 };
 
-export const getCities = async token => {
+export const getCities = async () => {
 	try {
-		const response = await axios.get(`${API_URL}/cities/`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
+		const response = await axios.get(`${API_URL}/cities/`, {});
 		console.log(response);
 		return response;
 	} catch (error) {

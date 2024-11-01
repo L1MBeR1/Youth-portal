@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\FileService;
 use App\Traits\PaginationTrait;
 // use Illuminate\Support\Facades\Log;
+use App\Services\PopularityCalculator;
 use App\Traits\QueryBuilderTrait; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -480,5 +481,37 @@ class PodcastController extends Controller
         }
 
         return $this->successResponse(['podcasts' => $podcast], 'Podcast liked successfully', 200);
+    }
+
+    protected $popularityCalculator;
+    public function __construct(PopularityCalculator $popularityCalculator)
+    {
+        $this->popularityCalculator = $popularityCalculator;
+    }
+
+    public function getPopularPodasts(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $currentPage = $request->input('page', 1);
+        $paginatedData = $this->popularityCalculator->getPopularContent('podcasts', $perPage, $currentPage);
+
+        if ($paginatedData === null) {
+            return $this->errorResponse('Нет популярных подкастов', [], 404);
+        }
+
+        $paginationData = $this->makePaginationData($paginatedData);
+
+        return $this->successResponse($paginatedData->items(), $paginationData, 200);
+    }
+
+    public function getPopularPodcastsByTime(Request $request)
+    {
+        $limit = $request->get('limit', 1);
+        $popularPodcasts = $this->popularityCalculator->getPopularContentByTime('podcasts', $limit);
+
+        if ($popularPodcasts === null) {
+            return $this->errorResponse('Нет популярных подкастов за установленный промежуток', [], 404);
+        }
+        return $this->successResponse($popularPodcasts, 200);
     }
 }

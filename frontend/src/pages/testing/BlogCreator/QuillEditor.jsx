@@ -5,9 +5,10 @@ import React, { useEffect, useRef } from 'react';
 import 'quill/dist/quill.bubble.css';
 import 'quill/dist/quill.snow.css';
 // Своя тема для редактора. Переопределять и менять тут.
+import { Sheet } from '@mui/joy';
 import './editor.css';
 
-function QuillEditor({ value, onDataSend }) {
+function QuillEditor({ value, onDataSend, isLoading }) {
 	const editorRef = useRef(null);
 	const quillRef = useRef(null);
 
@@ -18,19 +19,24 @@ function QuillEditor({ value, onDataSend }) {
 			theme: 'snow',
 			modules: {
 				toolbar: [
-					[{ header: [1, 2, 3, 4, 5, 6, false] }],
-					['bold', 'italic', 'underline', 'strike'],
-					['blockquote', 'code-block'],
-					['link', 'image', 'video', 'formula'],
+					[
+						{ header: [1, 2, 3, 4, 5, 6, false] },
+						{ size: ['small', false, 'large', 'huge'] },
+						{ font: [] },
+						{ align: [] },
+					],
+					[
+						'bold',
+						'italic',
+						'underline',
+						'strike',
+						{ color: [] },
+						{ background: [] },
+					],
+					['blockquote', 'code-block', 'link', 'image', 'video', 'formula'],
 					[{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
 					[{ script: 'sub' }, { script: 'super' }],
-					[{ indent: '-1' }, { indent: '+1' }],
 					[{ direction: 'rtl' }],
-					[{ size: ['small', false, 'large', 'huge'] }],
-					[{ color: [] }, { background: [] }],
-					[{ font: [] }],
-					[{ align: [] }],
-					['clean'],
 				],
 			},
 		});
@@ -69,11 +75,21 @@ function QuillEditor({ value, onDataSend }) {
 		};
 	}, [onDataSend, value]);
 
+	useEffect(() => {
+		if (quillRef.current) {
+			quillRef.current.enable(!isLoading);
+		}
+	}, [isLoading]);
+
 	return (
-		<div
+		<Sheet
 			className='blog-creator'
 			ref={editorRef}
-			style={{ minHeight: '300px', border: '1px solid #ddd' }}
+			sx={{
+				background: 'var(--joy-palette-main-background)',
+				minHeight: '300px',
+				borderRadius: '0 0 20px 20px',
+			}}
 		/>
 	);
 }

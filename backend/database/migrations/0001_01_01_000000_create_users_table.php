@@ -86,6 +86,14 @@ return new class extends Migration {
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
+
+        Schema::create('social_accounts_auth', function (Blueprint $table) { //для авторизации через сторонние сервисы (Vk, Google)
+            $table->id();
+            $table->foreignId('user_id')->constrained('user_login_data')->onDelete('cascade');
+            $table->string('provider');
+            $table->string('provider_user_id');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -96,6 +104,7 @@ return new class extends Migration {
         Schema::dropIfExists('user_metadata');
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('social_accounts_auth');
         Schema::dropIfExists('user_login_data');
     }
 };

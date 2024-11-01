@@ -20,7 +20,7 @@ import { CommentSection } from '../components/comments/commentsSection.jsx';
 import ScrollButton from '../components/common/scrollButton.jsx';
 import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import useProfile from '../hooks/useProfile.js';
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function BlogPage() {
 	const { id } = useParams();

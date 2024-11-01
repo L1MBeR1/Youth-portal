@@ -13,7 +13,9 @@ import { login } from '../../api/authApi.js';
 import { setToken } from '../../utils/authUtils/tokenStorage.js';
 import PasswordField from '../fields/passwordField.jsx';
 
+import { Divider } from '@mui/joy';
 import { jwtDecode } from 'jwt-decode';
+import { VkAuthButton } from '../buttons/auth/vkAuthButton.jsx';
 
 function LoginForm() {
 	const queryClient = useQueryClient();
@@ -66,44 +68,54 @@ function LoginForm() {
 			}}
 		>
 			<form onSubmit={handleSubmit}>
-				<Stack spacing={1.5}>
-					<Box
-						sx={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Typography level='h4'>Вход в аккаунт</Typography>
-					</Box>
-					{error && (
-						<Typography level='body-sm' color='danger'>
-							{error}
-						</Typography>
-					)}
-					<FormControl>
-						<FormLabel>Почта</FormLabel>
-						<Input
-							placeholder='Введите почту'
-							required
-							type='email'
-							value={email}
-							onChange={e => setEmail(e.target.value)}
-						/>
-					</FormControl>
-					<Stack>
-						<PasswordField
-							label={'Пароль'}
-							password={password}
-							setPassword={setPassword}
-						/>
-						<Link to='/recovery'>
-							<Typography level='body-sm'>Забыли пароль?</Typography>
-						</Link>
+				<Stack spacing={2.5}>
+					<Stack spacing={1}>
+						<Box
+							sx={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+							}}
+						>
+							<Typography level='h4'>Вход в аккаунт</Typography>
+						</Box>
+						{error && (
+							<Typography level='body-sm' color='danger'>
+								{error}
+							</Typography>
+						)}
+						<FormControl>
+							<FormLabel>Почта</FormLabel>
+							<Input
+								placeholder='Введите почту'
+								required
+								type='email'
+								value={email}
+								onChange={e => setEmail(e.target.value)}
+							/>
+						</FormControl>
+						<Stack>
+							<PasswordField
+								label={'Пароль'}
+								password={password}
+								setPassword={setPassword}
+							/>
+							<Link to='/recovery'>
+								<Typography level='body-sm'>Забыли пароль?</Typography>
+							</Link>
+						</Stack>
+						<Button loading={Boolean(isLoading)} type='submit'>
+							Войти
+						</Button>
 					</Stack>
-					<Button loading={Boolean(isLoading)} type='submit'>
-						Войти
-					</Button>
+					<Divider />
+					<VkAuthButton
+						label={'Войти через ВКонтакте'}
+						variant={'soft'}
+						navigate={navigate}
+						setErrorMessage={setError}
+						setIsLoading={setIsLoading}
+					/>
 					<Box
 						sx={{
 							display: 'flex',

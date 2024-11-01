@@ -31,6 +31,11 @@ function MenuAvatar({ id, img, roles }) {
 	const handleLink = link => {
 		navigate(link);
 	};
+	const myContentLink = roles.includes('blogger')
+		? '/my-content/blogs'
+		: roles.includes('news_creator')
+		? '/my-content/news'
+		: '/my-content';
 	return (
 		<Box
 			sx={{
@@ -64,7 +69,7 @@ function MenuAvatar({ id, img, roles }) {
 					{(roles.includes('blogger') || roles.includes('news_creator')) && (
 						<MenuItem
 							onClick={() => {
-								handleLink('/my-content');
+								handleLink(myContentLink);
 							}}
 						>
 							{/* <PublishIcon /> */}

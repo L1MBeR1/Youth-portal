@@ -36,7 +36,8 @@ use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
 class AuthController extends Controller
 {
     protected $jwtSecret;
-    private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
+    // private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
+    private $passwordRegexp = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%#*^&-])[A-Za-z\d@$!%#*^&-]{8,}$/";
     private $emailRegexp = "/^[^\s@]+@[^\s@]+\.[^\s@]+$/";
     private $phoneRegexp = "/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/";
 
@@ -321,6 +322,8 @@ class AuthController extends Controller
 
         return $nickname;
     }
+
+
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token');
@@ -351,6 +354,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
 
             //TODO: x
@@ -394,6 +398,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
 
             //TODO: x
@@ -774,6 +779,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
             // TODO: x
             return $this->successResponse([], 'Email verified successfully');
@@ -834,6 +840,7 @@ class AuthController extends Controller
             $user->removeRole('guest');
             $user->assignRole('user');
             $user->save();
+            JWTAuth::setToken($token)->invalidate();
 
             // TODO: x
             return $this->successResponse([], 'Email verified successfully');

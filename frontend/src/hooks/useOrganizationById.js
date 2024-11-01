@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { getOrganization } from '../api/organizationsApi';
-import { getToken } from '../utils/authUtils/tokenStorage';
 
 const useOrganizationById = id => {
 	return useQuery({
 		queryKey: ['organization', id],
 		queryFn: async () => {
-			const { token } = await getToken('useProfile');
-			const response = await getOrganization(token, id);
+			const response = await getOrganization(id);
 			console.log(response);
 			return response.data;
 		},

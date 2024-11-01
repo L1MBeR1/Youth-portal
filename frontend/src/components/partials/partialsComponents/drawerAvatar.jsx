@@ -35,6 +35,11 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 		setOpenDrawer(false);
 	};
 
+	const myContentLink = roles.includes('blogger')
+		? '/my-content/blogs'
+		: roles.includes('news_creator')
+		? '/my-content/news'
+		: '/my-content';
 	return (
 		<Box
 			sx={{
@@ -109,7 +114,7 @@ function DrawerAvatar({ img, id, nickname, roles }) {
 					{(roles.includes('blogger') || roles.includes('news_creator')) && (
 						<ListItemButton
 							onClick={() => {
-								handleLink('/my-content');
+								handleLink(myContentLink);
 							}}
 							sx={theme => ({
 								color: `${theme.vars.palette.neutral['second']}`,

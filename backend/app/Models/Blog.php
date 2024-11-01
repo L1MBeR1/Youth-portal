@@ -2,23 +2,33 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Blog extends Model
 {
     use HasFactory;
 
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('onlyWithExistingAuthors', function (Builder $builder) {
+    //         $builder->whereHas('author', function ($query) {
+    //             $query->whereNull('deleted_at');
+    //         });
+    //     });
+    // }
+
     protected $casts = [
         'description' => 'array',
-        'status' => 'string', 
-        'created_at' => 'datetime', 
-        'updated_at' => 'datetime', 
+        'status' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected $guarded = [
-        'id', 
+        'id',
         // 'author_id', // для черновиков
-        'created_at', 
+        'created_at',
         // 'updated_at',
     ];
 
@@ -44,7 +54,8 @@ class Blog extends Model
         return $this->belongsToMany(Comment::class, 'comment_to_resource', 'blog_id', 'comment_id');
     }
 
-    public function author(){
+    public function author()
+    {
 
         return $this->belongsTo(User::class, 'author_id');
     }
@@ -57,6 +68,11 @@ class Blog extends Model
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 }
 

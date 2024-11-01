@@ -12,7 +12,7 @@ import useProjectById from '../hooks/useProjectById.js';
 import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
 
 import ProjectEventsSection from '../components/projectsComponents/projectEventsSection.jsx';
-import { mainMargin } from '../themes/mainMargin.js';
+import { mainMargin } from '../themes/margins.js';
 
 function ProjectPage() {
 	const { id } = useParams();
@@ -30,7 +30,7 @@ function ProjectPage() {
 	}, [data]);
 
 	const createMarkup = html => {
-		return { __html: DOMPurify.sanitize(html) }; //TODO: Использовать DOMPurify
+		return { __html: DOMPurify.sanitize(html) };
 	};
 
 	return (
@@ -154,7 +154,13 @@ function ProjectPage() {
 								maxWidth={{ xs: '100%', md: '50%' }}
 								sx={{ paddingTop: '15px' }}
 							>
-								<Typography level='body-lg'>{data.description.desc}</Typography>
+								<Typography level='body-lg'>
+									<Box
+										dangerouslySetInnerHTML={createMarkup(
+											data.description.desc
+										)}
+									/>
+								</Typography>
 							</Stack>
 						</Stack>
 						{data.events && data.events.length > 0 && (

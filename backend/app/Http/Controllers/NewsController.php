@@ -6,12 +6,13 @@ use App\Models\News;
 use Illuminate\Http\Request;
 use App\Services\FileService;
 use App\Traits\PaginationTrait;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use App\Traits\QueryBuilderTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreNewsRequest;
 use App\Http\Requests\UpdateNewsRequest;
+use App\Services\PopularityCalculator;
 use Symfony\Component\HttpFoundation\Response;
 
 class NewsController extends Controller
@@ -469,6 +470,41 @@ class NewsController extends Controller
         $news->delete();
 
         return $this->successResponse($news, 'News deleted successfully', 200);
+    }
+
+
+
+    protected $popularityCalculator;
+    public function __construct(PopularityCalculator $popularityCalculator)
+    {
+        $this->popularityCalculator = $popularityCalculator;
+    }
+
+    public function getPopularNews(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $currentPage = $request->input('page', 1);
+        $paginatedData = $this->popularityCalculator->getPopularContent('news', $perPage, $currentPage);
+
+        if ($paginatedData === null) {
+            return $this->errorResponse('Нет популярных новостей', [], 404);
+        }
+
+        $paginationData = $this->makePaginationData($paginatedData);
+
+        return $this->successResponse($paginatedData->items(), $paginationData, 200);
+    }
+
+    public function getPopularNewsByTime(Request $request)
+    {
+        $limit = $request->get('limit', 1);
+        $popularNews = $this->popularityCalculator->getPopularContentByTime('news', $limit);
+
+        if ($popularNews === null) {
+            return $this->errorResponse('Нет популярных новостей за установленный промежуток', [], 404);
+        }
+
+        return $this->successResponse($popularNews, 200);
     }
 }
 

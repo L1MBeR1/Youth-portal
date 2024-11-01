@@ -23,9 +23,11 @@ class UpdatePodcastRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
+            'description.desc' => 'string',
+            'description.meta' => 'array',
+            'description.meta.*' => 'string',
+            'cover_uri' => 'required|string',
+            'audio_uri' => 'required|string',
             'status' => 'nullable|string|max:255',
             'views' => 'nullable|integer',
             'likes' => 'nullable|integer',

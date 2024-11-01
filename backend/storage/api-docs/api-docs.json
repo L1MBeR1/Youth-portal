@@ -1,15 +1,246 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API для Youth-portal",
+        "title": "Документация API",
         "description": "Документация API",
-        "version": "1.0.0"
+        "version": "0.1.0"
     },
+    "servers": [
+        {
+            "url": "http://localhost:8000/",
+            "description": "API сервер"
+        }
+    ],
     "paths": {
+        "/api/blogs/{id}": {
+            "get": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Получить блог по ID",
+                "description": "Возвращает блог по требуемому ID",
+                "operationId": "getBlogById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID блога",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/blogs/": {
+            "get": {
+                "tags": [
+                    "Blogs"
+                ],
+                "summary": "Поиск блогов",
+                "description": "Получение списка блогов с фильтрацией и пагинацией",
+                "operationId": "e0222db56136b22204d322c5e502c97d",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Номер страницы",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Количество элементов на странице",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "searchFields",
+                        "in": "query",
+                        "description": "Массив столбцов для поиска",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "example": [
+                                "title",
+                                "content"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "searchValues",
+                        "in": "query",
+                        "description": "Массив значений для поиска",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "example": [
+                                "Laravel",
+                                "Swagger"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tagFilter",
+                        "in": "query",
+                        "description": "Фильтр по тегу в meta описания",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "tech"
+                        }
+                    },
+                    {
+                        "name": "crtFrom",
+                        "in": "query",
+                        "description": "Дата начала (формат: Y-m-d H:i:s или Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-01"
+                        }
+                    },
+                    {
+                        "name": "crtTo",
+                        "in": "query",
+                        "description": "Дата окончания (формат: Y-m-d H:i:s или Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-31"
+                        }
+                    },
+                    {
+                        "name": "crtDate",
+                        "in": "query",
+                        "description": "Дата создания (формат: Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-06-01"
+                        }
+                    },
+                    {
+                        "name": "updFrom",
+                        "in": "query",
+                        "description": "Дата начала обновления (формат: Y-m-d H:i:s или Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-01-01"
+                        }
+                    },
+                    {
+                        "name": "updTo",
+                        "in": "query",
+                        "description": "Дата окончания обновления (формат: Y-m-d H:i:s или Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-12-31"
+                        }
+                    },
+                    {
+                        "name": "updDate",
+                        "in": "query",
+                        "description": "Дата обновления (формат: Y-m-d)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2023-06-01"
+                        }
+                    },
+                    {
+                        "name": "operator",
+                        "in": "query",
+                        "description": "Логический оператор для условий поиска ('and' или 'or')",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "and",
+                                "or"
+                            ],
+                            "example": "and"
+                        }
+                    },
+                    {
+                        "name": "authorId",
+                        "in": "query",
+                        "description": "Фильтрация по пользователю",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "currentUser",
+                        "in": "query",
+                        "description": "Результат для текущего (авторизованного) пользователя",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный поиск"
+                    },
+                    "401": {
+                        "description": "Неавторизован"
+                    },
+                    "404": {
+                        "description": "Блоги не найдены"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/users": {
             "get": {
                 "summary": "Получить список пользователей",
-                "operationId": "88efa537f220b5745f7dceb6b2cf1cfb",
+                "operationId": "e00c851de07eee72b259011112a64622",
                 "responses": {
                     "200": {
                         "description": "Успешный ответ"
@@ -17,5 +248,11 @@
                 }
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Blogs",
+            "description": "Blogs"
+        }
+    ]
 }

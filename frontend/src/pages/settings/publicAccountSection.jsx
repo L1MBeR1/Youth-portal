@@ -12,10 +12,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import EditIcon from '@mui/icons-material/Edit';
-import usePersonalData from '../../../hooks/usePersonalData';
-import { removeToken } from '../../../utils/authUtils/tokenStorage';
-import ChangeNickname from '../modals/changeNickname';
-import ChangeProfileImage from '../modals/changeProfileImage';
+import ChangeNickname from '../../components/settingsComponents/modals/changeNickname';
+import ChangeProfileImage from '../../components/settingsComponents/modals/changeProfileImage';
+import usePersonalData from '../../hooks/usePersonalData';
+import { removeToken } from '../../utils/authUtils/tokenStorage';
 function PublicAccountSection() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();

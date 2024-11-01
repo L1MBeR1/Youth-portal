@@ -202,14 +202,6 @@ function Header() {
 						alignItems='center'
 						spacing={1}
 					>
-						{/* <Button
-							variant='plain'
-							onClick={() => {
-								handleLink('/blogs');
-							}}
-						>
-							<Typography level={'headerButton'}>Блоги</Typography>
-						</Button> */}
 						<Dropdown>
 							<MenuButton
 								slots={{ root: Button }}

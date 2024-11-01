@@ -16,7 +16,7 @@ class FileController extends Controller
     private const MAX_FILE_COUNT_PER_DIRECTORY = 100;
 
     /**
-     * Загрузка файла
+     * Выгрузка файла на сервер
      * 
      * Загружает новый файл на сервер и сохраняет его с именем на основе MD5-хэша.
      * 
@@ -140,7 +140,7 @@ class FileController extends Controller
 
 
     /**
-     * Загрузка файла
+     * Скачивание файла с сервера
      * 
      * Скачивает файл с сервера по его имени.
      * 

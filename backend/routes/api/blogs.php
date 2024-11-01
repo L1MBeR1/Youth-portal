@@ -32,6 +32,8 @@ Route::group([
     'middleware' => ['api'],
     'prefix' => 'blogs'
 ], function () {
+    Route::get('popular/by_time', [BlogController::class, 'getPopularBlogsByTime'])->withoutMiddleware('auth');
+    Route::get('popular', [BlogController::class, 'getPopularBlogs'])->withoutMiddleware('auth'); // Новый маршрут для популярных новостей
     Route::get('published', [BlogController::class, 'getPublishedBlogs'])->withoutMiddleware('auth'); 
     Route::get('tags/', [BlogController::class, 'getTags'])->withoutMiddleware('auth');
     Route::get('{id}', [BlogController::class, 'getBlogById'])->withoutMiddleware('auth'); 

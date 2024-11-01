@@ -71,7 +71,9 @@ class VKAuthController extends Controller
                 $payload = JWTAuth::factory()->customClaims($customPayload)->make();
                 $token = JWTAuth::encode($payload)->get();
                 $refreshToken = $this->generateRefreshToken($user);
-                return $this->respondWithToken($token, $refreshToken);
+                return redirect('/?token=' . $token . '&refresh_token=' . $refreshToken);
+
+
 
                 // return response()->json([
                 //     // 'status' => 'success',

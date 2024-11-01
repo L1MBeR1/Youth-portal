@@ -371,7 +371,7 @@ class BlogController extends Controller
         // Log::info($request->input("description"));
 
         $blog = Blog::create($request->validated() + [
-            'status' => 'unsaved',
+            'status' => 'moderating',
             'author_id' => Auth::id(),
         ]);
 

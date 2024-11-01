@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Requests;
-use Illuminate\Support\Facades\Log;
+
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePodcastRequest extends FormRequest
+class UpdateReportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,32 +19,23 @@ class StorePodcastRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'description.desc' => 'string',
-            'description.meta' => 'array',
-            'description.meta.*' => 'string',
-            // 'content' => 'required|string',
-            'cover_uri' => 'nullable|string',
-            'audio_uri' => 'nullable|string',
-            'status' => 'nullable|string|max:255',
-            'views' => 'nullable|integer',
-            'likes' => 'nullable|integer',
-            'reposts' => 'nullable|integer',
+            // 'resource_type' => 'required|string|in:blog,news,podcast,comment,user',
+            // 'resource_id' => 'required|integer',
+            // 'report_id' => 'required|integer',
+            'reason' => 'required|string',
+            'details' => 'nullable|string'
         ];
     }
 
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {
-        Log::info('Validation failed: ', $validator->errors()->toArray());
-
         $response = response()->json([
             'message' => 'Validation Error',
             'errors' => $validator->errors(),
         ], 422);
-
         throw new \Illuminate\Http\Exceptions\HttpResponseException($response);
     }
 }

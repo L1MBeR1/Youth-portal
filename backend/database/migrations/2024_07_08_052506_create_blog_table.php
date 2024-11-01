@@ -13,9 +13,9 @@ return new class extends Migration {
         Schema::create('blogs', function (Blueprint $table) {
             $table->increments('id');
             $table->text('title');
-            $table->jsonb('description');
-            $table->text('content');
-            $table->text('cover_uri');
+            $table->jsonb('description')->nullable();
+            $table->text('content')->nullable();
+            $table->text('cover_uri')->nullable();
             $table->enum('status', ['moderating', 'published', 'archived', 'pending']);
             $table->integer('views')->unsigned()->default(0);
             $table->integer('likes')->unsigned()->default(0);

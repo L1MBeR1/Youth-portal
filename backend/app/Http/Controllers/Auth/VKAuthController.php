@@ -12,10 +12,132 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Http;
+
 
 //команда для запуска ngrok - ngrok http http://localhost:8000 
 class VKAuthController extends Controller
 {
+    function generateCodeVerifier($minLength, $maxLength) {
+        $length = rand($minLength, $maxLength);
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-';
+        $charactersLength = strlen($characters);
+        $codeVerifier = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $codeVerifier .= $characters[rand(0, $charactersLength - 1)];
+        }
+    
+        return $codeVerifier;
+    }
+    
+    //Для тестирования без фронта 
+    /*public function initiateVkAuth()
+    {
+        $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
+        $hashcode = hash('sha256', $codeVerifier, true);
+
+        $codeChallenge = rtrim(strtr(base64_encode($hashcode), '+/', '-_'), '=');
+        Log::info('hash', ['codeChallenge' => $codeChallenge]);
+        
+        $state = Str::random(16);
+        Log::info('state', ['state' => $state]);
+
+        $params = [
+            'response_type' => 'code',
+            'client_id' => env('VK_CLIENT_ID'),
+            'redirect_uri' => env('VK_REDIRECT_URI'), 
+            'state' => $state,
+            'code_challenge' => $codeChallenge,
+            'code_challenge_method' => 's256', 
+        ];
+
+        $url = 'https://id.vk.com/authorize?' . http_build_query($params);
+        return redirect($url);
+    }*/
+
+    
+    public function initiateVkAuth()
+    {
+        // Генерация code_verifier
+        $codeVerifier = $this->generateCodeVerifier(64,128);
+        $hashcode = hash('sha256', $codeVerifier, true);
+
+        // Кодирование в Base64 URL-safe
+        $codeChallenge = rtrim(strtr(base64_encode($hashcode), '+/', '-_'), '=');
+        Log::info('hash', ['codeChallenge' => $codeChallenge]);
+        
+        // Генерация state
+        $state = Str::random(16);
+        Log::info('state', ['state' => $state]);
+
+        return response()->json([
+            'status' => 'success',
+            'code_verifier' => $codeVerifier,
+            'code_challenge' => $codeChallenge,
+            'state' => $state,
+            'client_id' => env('VK_CLIENT_ID'),
+            'redirect_uri' => env('VK_REDIRECT_URI'),
+            'code_challenge_method' => 's256'
+        ]);
+    }
+
+
+    public function handleVkAnswer(Request $request)
+    {
+        $code = $request->input('code');
+        $deviceId = $request->input('device_id');
+        $codeVerifier = $request->input('code_verifier');
+
+        //$codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
+
+        //$response = Http::asForm()->post('https://id.vk.com/oauth2/auth', [ //TODO расскоментировать в проде
+        $response = Http::withOptions(['verify' => false])->asForm()->post('https://id.vk.com/oauth2/auth', [  //TODO закоментить в проде(только для разработки)
+            'grant_type' => 'authorization_code',
+            'code_verifier' => $codeVerifier,
+            'redirect_uri' => env('VK_REDIRECT_URI'),
+            'code' => $code,
+            'client_id' => env('VK_CLIENT_ID'),
+            'device_id' => $deviceId,      
+            'state' => ($state = Str::random(16)),
+        ]);
+
+        // Проверяем ответ
+        if ($response->successful()) {
+            $tokens = $response->json();
+            if (isset($tokens['state']) && $tokens['state'] !== $state) {
+                return response()->json(['error' => 'Несоответствие состояний'], 400);
+            }
+            Log::info('Полученные токены:', $tokens);
+
+            $accessToken = $tokens['access_token'];
+
+            // Запрос данных о пользователе
+            //TODO В проде убрать >withOptions(['verify' => false])
+            $userResponse = Http::withToken($accessToken)->withOptions(['verify' => false])->get('https://api.vk.com/method/users.get', [
+                'fields' => 'id,first_name,last_name,photo_200', // Указываем, какие поля хотим получить
+                'v' => '5.131' // Версия API
+            ]);
+
+            if ($userResponse->successful()) {
+                $userData = $userResponse->json();
+                Log::info('Данные пользователя:', $userData);
+
+                // Возвращаем данные о пользователе
+                return response()->json($userData);
+            } else {
+                Log::error('Ошибка при получении данных о пользователе:', [
+                    'status' => $userResponse->status(),
+                    'body' => $userResponse->body(),
+                ]);
+                return response()->json(['error' => 'Failed to obtain user data'], 400);
+            }
+                return response()->json($tokens);
+        } else {
+            return response()->json(['error' => 'Не удалось получить токены'], 400);
+        }
+    }
+    /*
     public function handleAuth(Request $request)
     {
         Log::info('Handling VKontakte authentication');
@@ -140,5 +262,6 @@ class VKAuthController extends Controller
         $user->save();
 
         return $refreshToken;
-    }
+    }*/
+        
 }

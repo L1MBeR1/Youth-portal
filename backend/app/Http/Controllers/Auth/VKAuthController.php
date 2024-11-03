@@ -30,9 +30,14 @@ class VKAuthController extends Controller
     
         return $codeVerifier;
     }
+
+    function generateRandomState($minLength, $maxLength) {
+        $length = rand($minLength, $maxLength);   
+        return Str::random($length);
+    }
     
     //Для тестирования без фронта 
-    /*public function initiateVkAuth()
+    public function initiateVkAuth()
     {
         $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
         $hashcode = hash('sha256', $codeVerifier, true);
@@ -40,13 +45,13 @@ class VKAuthController extends Controller
         $codeChallenge = rtrim(strtr(base64_encode($hashcode), '+/', '-_'), '=');
         Log::info('hash', ['codeChallenge' => $codeChallenge]);
         
-        $state = Str::random(16);
+        $state = $this->generateRandomState(64, 128);
         Log::info('state', ['state' => $state]);
 
         $params = [
             'response_type' => 'code',
             'client_id' => env('VK_CLIENT_ID'),
-            'redirect_uri' => env('VK_REDIRECT_URI'), 
+            'redirect_uri' => env('VK_REDIRECT_URI'),
             'state' => $state,
             'code_challenge' => $codeChallenge,
             'code_challenge_method' => 's256', 
@@ -54,10 +59,10 @@ class VKAuthController extends Controller
 
         $url = 'https://id.vk.com/authorize?' . http_build_query($params);
         return redirect($url);
-    }*/
+    }
 
     
-    public function initiateVkAuth()
+    /*public function initiateVkAuth()
     {
         // Генерация code_verifier
         $codeVerifier = $this->generateCodeVerifier(64,128);
@@ -68,7 +73,7 @@ class VKAuthController extends Controller
         Log::info('hash', ['codeChallenge' => $codeChallenge]);
         
         // Генерация state
-        $state = Str::random(16);
+        $state = $this->generateRandomState(64, 128);
         Log::info('state', ['state' => $state]);
 
         return response()->json([
@@ -77,10 +82,9 @@ class VKAuthController extends Controller
             'code_challenge' => $codeChallenge,
             'state' => $state,
             'client_id' => env('VK_CLIENT_ID'),
-            'redirect_uri' => env('VK_REDIRECT_URI'),
             'code_challenge_method' => 's256'
         ]);
-    }
+    }*/
 
 
     public function handleVkAnswer(Request $request)
@@ -89,7 +93,7 @@ class VKAuthController extends Controller
         $deviceId = $request->input('device_id');
         $codeVerifier = $request->input('code_verifier');
 
-        //$codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
+        $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
 
         //$response = Http::asForm()->post('https://id.vk.com/oauth2/auth', [ //TODO расскоментировать в проде
         $response = Http::withOptions(['verify' => false])->asForm()->post('https://id.vk.com/oauth2/auth', [  //TODO закоментить в проде(только для разработки)
@@ -99,7 +103,7 @@ class VKAuthController extends Controller
             'code' => $code,
             'client_id' => env('VK_CLIENT_ID'),
             'device_id' => $deviceId,      
-            'state' => ($state = Str::random(16)),
+            'state' => ($state = $this->generateRandomState(64, 128)),
         ]);
 
         // Проверяем ответ
@@ -120,11 +124,54 @@ class VKAuthController extends Controller
             ]);
 
             if ($userResponse->successful()) {
-                $userData = $userResponse->json();
+                $userData = $userResponse->json()['response'][0]; // Получаем данные пользователя
                 Log::info('Данные пользователя:', $userData);
+        
+                // Сохранение данных о пользователе в БД
+                $user = User::firstOrCreate(
+                    ['email' => $userData['id'] . '@vk.com'], // Используем ID пользователя как email
+                    [
+                        'password' => bcrypt('password'), // Убедитесь, что пароль хэшируется
+                        'phone' => null,
+                    ]
+                );
+        
+                SocialAccount::updateOrCreate(
+                    ['user_id' => $user->id, 'provider' => 'vk'],
+                    ['provider_user_id' => $userData['id']]
+                );
+        
+                UserMetadata::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'first_name' => $userData['first_name'] ?? null,
+                        'last_name' => $userData['last_name'] ?? null,
+                        'nickname' => null, // Если у вас нет ника, можно оставить null
+                        'profile_image_uri' => $userData['photo_200'] ?? null, // URL изображения профиля
+                    ]
+                );
+        
+                // Проверяем, если пользователь новый, то присваиваем роль
+                if ($user->wasRecentlyCreated) {
+                    $user->assignRole('user');
+                }
+        
+                Auth::login($user, true);
+        
+                // Генерация токена
+                $customPayload = [
+                    'sub' => $user->id,
+                    'iat' => now()->timestamp,
+                    'exp' => now()->addMinutes(15)->timestamp,
+                ];
+        
+                $payload = JWTAuth::factory()->customClaims($customPayload)->make();
+                $token = JWTAuth::encode($payload)->get();
+                $refreshToken = $this->generateRefreshToken($user);
 
-                // Возвращаем данные о пользователе
-                return response()->json($userData);
+                return $this->respondWithToken($token, $refreshToken);
+        
+                //return redirect('/?token=' . $token . '&refresh_token=' . $refreshToken);
             } else {
                 Log::error('Ошибка при получении данных о пользователе:', [
                     'status' => $userResponse->status(),
@@ -132,11 +179,52 @@ class VKAuthController extends Controller
                 ]);
                 return response()->json(['error' => 'Failed to obtain user data'], 400);
             }
-                return response()->json($tokens);
         } else {
             return response()->json(['error' => 'Не удалось получить токены'], 400);
         }
     }
+
+    protected function respondWithToken($token, $refreshToken = null)
+    {
+        $response = response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+        ]);
+
+
+        if ($refreshToken) {
+            $cookie = cookie(
+                'refresh_token',
+                $refreshToken,
+                60 * 24 * 7,
+                '/',
+                null,
+                false, // Secure
+                true, // HttpOnly
+                false, // Raw
+                // 'Lax',
+            );
+            $response->withCookie($cookie);
+        }
+
+        return $response;
+    }
+
+
+    // TODO: Позже сделаю класс или трейт
+    protected function generateRefreshToken($user, $ttl = 7 * 24 * 60 * 60)
+    {
+        $uuid = (string) Str::uuid();
+        $expiresAt = now()->addSeconds($ttl)->timestamp;
+
+        $refreshToken = base64_encode($uuid . '.' . $expiresAt);
+
+        $user->remember_token = $refreshToken;
+        $user->save();
+
+        return $refreshToken;
+    }
+
     /*
     public function handleAuth(Request $request)
     {

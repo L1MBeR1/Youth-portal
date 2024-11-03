@@ -93,7 +93,7 @@ class VKAuthController extends Controller
         $deviceId = $request->input('device_id');
         $codeVerifier = $request->input('code_verifier');
 
-        $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
+        //$codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
 
         //$response = Http::asForm()->post('https://id.vk.com/oauth2/auth', [ //TODO расскоментировать в проде
         $response = Http::withOptions(['verify' => false])->asForm()->post('https://id.vk.com/oauth2/auth', [  //TODO закоментить в проде(только для разработки)
@@ -129,7 +129,7 @@ class VKAuthController extends Controller
         
                 // Сохранение данных о пользователе в БД
                 $user = User::firstOrCreate(
-                    ['email' => $userData['id'] . '@vk.com'], // Используем ID пользователя как email
+                    ['email' => $userData['id'] . '@vk.com'], //TODO поменять просто на получение почты пользователя
                     [
                         'password' => bcrypt('password'), // Убедитесь, что пароль хэшируется
                         'phone' => null,
@@ -146,7 +146,7 @@ class VKAuthController extends Controller
                     [
                         'first_name' => $userData['first_name'] ?? null,
                         'last_name' => $userData['last_name'] ?? null,
-                        'nickname' => null, // Если у вас нет ника, можно оставить null
+                        'nickname' => null, // Если у вас нет ника, можно оставить null//TODO генерировать случайный ник а не брать с вк
                         'profile_image_uri' => $userData['photo_200'] ?? null, // URL изображения профиля
                     ]
                 );
@@ -209,7 +209,6 @@ class VKAuthController extends Controller
 
         return $response;
     }
-
 
     // TODO: Позже сделаю класс или трейт
     protected function generateRefreshToken($user, $ttl = 7 * 24 * 60 * 60)

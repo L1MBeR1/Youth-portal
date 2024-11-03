@@ -24,6 +24,8 @@ export default function AuthCallback() {
 				if (token) {
 					await setToken(token);
 					const decoded = jwtDecode(token);
+					await new Promise(resolve => setTimeout(resolve, 2000));
+					await queryClient.refetchQueries(['profile']);
 					if (decoded.roles.includes('admin')) {
 						navigate('/admin');
 					} else if (decoded.roles.includes('moderator')) {
@@ -33,7 +35,6 @@ export default function AuthCallback() {
 					} else {
 						navigate('/');
 					}
-					await queryClient.refetchQueries(['profile']);
 				}
 			} else {
 				navigate(`/login?error=service_error`);

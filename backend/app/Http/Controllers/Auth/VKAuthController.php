@@ -37,7 +37,7 @@ class VKAuthController extends Controller
     }
     
     //Для тестирования без фронта 
-    public function initiateVkAuth()
+    /*public function initiateVkAuth()
     {
         $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8';
         $hashcode = hash('sha256', $codeVerifier, true);
@@ -59,10 +59,10 @@ class VKAuthController extends Controller
 
         $url = 'https://id.vk.com/authorize?' . http_build_query($params);
         return redirect($url);
-    }
+    }*/
 
     
-    /*public function initiateVkAuth()
+    public function initiateVkAuth()
     {
         // Генерация code_verifier
         $codeVerifier = $this->generateCodeVerifier(64,128);
@@ -84,7 +84,7 @@ class VKAuthController extends Controller
             'client_id' => env('VK_CLIENT_ID'),
             'code_challenge_method' => 's256'
         ]);
-    }*/
+    }
 
 
     public function handleVkAnswer(Request $request)

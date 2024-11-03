@@ -1,10 +1,13 @@
 import { jwtDecode } from 'jwt-decode';
 import { refresh } from '../../api/authApi.js';
 
-export const setToken = async token => {
-	if (token) {
-		localStorage.setItem('accessToken', token);
-	}
+export const setToken = token => {
+	return new Promise(resolve => {
+		if (token) {
+			localStorage.setItem('accessToken', token);
+		}
+		resolve();
+	});
 };
 
 let refreshPromise = null;

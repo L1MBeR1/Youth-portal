@@ -22,9 +22,8 @@ export default function AuthCallback() {
 			if (data) {
 				const token = data.access_token;
 				if (token) {
-					setToken(token);
+					await setToken(token);
 					const decoded = jwtDecode(token);
-					await queryClient.refetchQueries(['profile']);
 					if (decoded.roles.includes('admin')) {
 						navigate('/admin');
 					} else if (decoded.roles.includes('moderator')) {
@@ -34,6 +33,7 @@ export default function AuthCallback() {
 					} else {
 						navigate('/');
 					}
+					await queryClient.refetchQueries(['profile']);
 				}
 			} else {
 				navigate(`/login?error=service_error`);

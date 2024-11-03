@@ -22,10 +22,9 @@ export default function AuthCallback() {
 			if (data) {
 				const token = data.access_token;
 				if (token) {
-					queryClient.invalidateQueries(['profile']);
 					setToken(token);
 					const decoded = jwtDecode(token);
-					// await new Promise(resolve => setTimeout(resolve, 2000));
+					await new Promise(resolve => setTimeout(resolve, 2000));
 					await queryClient.refetchQueries(['profile']);
 					if (decoded.roles.includes('admin')) {
 						navigate('/admin');

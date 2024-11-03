@@ -7,19 +7,21 @@ import Input from '@mui/joy/Input';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { login } from '../../api/authApi.js';
 import { setToken } from '../../utils/authUtils/tokenStorage.js';
 import PasswordField from '../fields/passwordField.jsx';
 
-import { Divider } from '@mui/joy';
+import { CircularProgress, Divider } from '@mui/joy';
 import { jwtDecode } from 'jwt-decode';
 import { VkAuthButton } from '../buttons/auth/vkAuthButton.jsx';
 
 function LoginForm() {
 	const queryClient = useQueryClient();
+	const location = useLocation();
 	const [isLoading, setIsLoading] = useState(false);
+	const [isFormLoading, setIsFormLoading] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
@@ -55,7 +57,17 @@ function LoginForm() {
 			setIsLoading(false);
 		}
 	};
-
+	useEffect(() => {
+		const params = new URLSearchParams(location.search);
+		const auth = sessionStorage.getItem('auth');
+		const redirect = params.get('redirect');
+		const error = params.get('error');
+		if (error) setError('Ошибка авторизации.');
+		if (redirect) {
+			if (auth) setIsFormLoading(true);
+			else navigate(`/login`);
+		}
+	}, [location.search, navigate]);
 	return (
 		<Card
 			variant='plain'
@@ -69,68 +81,80 @@ function LoginForm() {
 		>
 			<form onSubmit={handleSubmit}>
 				<Stack spacing={2.5}>
-					<Stack spacing={1}>
-						<Box
-							sx={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-							}}
-						>
-							<Typography level='h4'>Вход в аккаунт</Typography>
-						</Box>
-						{error && (
-							<Typography level='body-sm' color='danger'>
-								{error}
-							</Typography>
-						)}
-						<FormControl>
-							<FormLabel>Почта</FormLabel>
-							<Input
-								placeholder='Введите почту'
-								required
-								type='email'
-								value={email}
-								onChange={e => setEmail(e.target.value)}
-							/>
-						</FormControl>
-						<Stack>
-							<PasswordField
-								label={'Пароль'}
-								password={password}
-								setPassword={setPassword}
-							/>
-							<Link to='/recovery'>
-								<Typography level='body-sm'>Забыли пароль?</Typography>
-							</Link>
-						</Stack>
-						<Button loading={Boolean(isLoading)} type='submit'>
-							Войти
-						</Button>
-					</Stack>
-					<Divider />
-					<VkAuthButton
-						label={'Войти через ВКонтакте'}
-						variant={'soft'}
-						navigate={navigate}
-						setErrorMessage={setError}
-						setIsLoading={setIsLoading}
-					/>
 					<Box
 						sx={{
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
-							flexDirection: 'row',
-							paddingTop: '5px',
-							gap: '5px',
 						}}
 					>
-						<Typography level='body-sm'>Нет аккаунта?</Typography>
-						<Link to='/registration'>
-							<Typography level='body-sm'>Зарегистрироваться</Typography>
-						</Link>
+						<Typography level='h4'>Вход в аккаунт</Typography>
 					</Box>
+					{isFormLoading ? (
+						<Stack
+							justifyContent='center'
+							alignItems='center'
+							sx={{ width: '100%', height: '40vh' }}
+						>
+							<CircularProgress />
+						</Stack>
+					) : (
+						<>
+							<Stack spacing={1}>
+								{error && (
+									<Typography level='body-sm' color='danger'>
+										{error}
+									</Typography>
+								)}
+								<FormControl>
+									<FormLabel>Почта</FormLabel>
+									<Input
+										placeholder='Введите почту'
+										required
+										type='email'
+										value={email}
+										onChange={e => setEmail(e.target.value)}
+									/>
+								</FormControl>
+								<Stack>
+									<PasswordField
+										label={'Пароль'}
+										password={password}
+										setPassword={setPassword}
+									/>
+									<Link to='/recovery'>
+										<Typography level='body-sm'>Забыли пароль?</Typography>
+									</Link>
+								</Stack>
+								<Button loading={Boolean(isLoading)} type='submit'>
+									Войти
+								</Button>
+							</Stack>
+							<Divider />
+							<VkAuthButton
+								label={'Войти через ВКонтакте'}
+								variant={'soft'}
+								navigate={navigate}
+								setErrorMessage={setError}
+								setIsLoading={setIsLoading}
+							/>
+							<Box
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									flexDirection: 'row',
+									paddingTop: '5px',
+									gap: '5px',
+								}}
+							>
+								<Typography level='body-sm'>Нет аккаунта?</Typography>
+								<Link to='/registration'>
+									<Typography level='body-sm'>Зарегистрироваться</Typography>
+								</Link>
+							</Box>
+						</>
+					)}
 				</Stack>
 			</form>
 		</Card>

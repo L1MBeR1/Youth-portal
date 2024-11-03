@@ -113,9 +113,22 @@ export const postResetPassword = async (
 	}
 };
 
-export const vkAuth = async () => {
+export const vkTokens = async () => {
 	try {
 		const response = await axios.get(`${API_URL}/vk`);
+		return response.data;
+	} catch (error) {
+		console.error('Error vk tokens', error);
+		throw error;
+	}
+};
+
+export const vkAuth = async params => {
+	try {
+		const response = await axios.get(`${API_URL}/vk/auth`, {
+			params,
+		});
+		console.log(response);
 		return response.data;
 	} catch (error) {
 		console.error('Error vk auth', error);

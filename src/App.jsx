@@ -57,6 +57,7 @@ import './css/App.css';
 //Тема
 import { Toaster } from 'sonner';
 
+import AuthCallback from './pages/authCallback';
 import BlogRoleRequest from './pages/blogRoleRequest';
 import BlogsSection from './pages/my-content/blogsSection';
 import CreateBlog from './pages/my-content/createBlog';
@@ -194,7 +195,10 @@ function App() {
 						<Route path='/test_blog_creator_v2' element={<BlogCreatorV2 />} />
 						<Route path='/blog_creator' element={<BlogCreator />} /> */}
 					</Route>
-
+					<Route
+						path='auth/callback'
+						element={<GuestRoute element={<AuthCallback />} />}
+					/>
 					<Route
 						path='/admin'
 						element={<PrivateRoute element={<Admin />} roles={['admin']} />}

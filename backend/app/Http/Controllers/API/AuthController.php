@@ -700,7 +700,7 @@ class AuthController extends Controller
         $payload = JWTAuth::factory()->customClaims($customPayload)->make();
         $token = JWTAuth::encode($payload)->get();
 
-        // Формируем URL для сброса пароля (React-страница)
+        // Формируем URL для сброса пароля (веб-страница)
         $resetUrl = env('APP_URL') . "/reset-password?token=" . $token;
 
         // Отправляем письмо

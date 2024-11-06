@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
@@ -137,16 +138,16 @@ class VKAuthController extends Controller
         $deviceId = $request->input('device_id');
         $codeVerifier = $request->input('code_verifier');
 
-        $codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8'; // !Для тестов без фронта
+        //$codeVerifier = 'x15uja156VNy_6gI281TwJIf53qOKLhVDG05En3T-4vTJ8y-i7YbMYIx7sJjBtV8'; // !Для тестов без фронта
 
-        //$response = Http::asForm()->post('https://id.vk.com/oauth2/auth', [ // !Для продакшена
-        $response = Http::withOptions(['verify' => false])->asForm()->post('https://id.vk.com/oauth2/auth', [  // !Для локального тестирования
+        $response = Http::asForm()->post('https://id.vk.com/oauth2/auth', [ // !Для продакшена
+        //$response = Http::withOptions(['verify' => false])->asForm()->post('https://id.vk.com/oauth2/auth', [  // !Для локального тестирования
             'grant_type' => 'authorization_code',
             'code_verifier' => $codeVerifier,
             'redirect_uri' => env('VK_REDIRECT_URI'),
             'code' => $code,
             'client_id' => env('VK_CLIENT_ID'),
-            'device_id' => $deviceId,    
+            'device_id' => $deviceId,
             'state' => ($state = $this->generateRandomState(64, 128)),
         ]);
 
@@ -161,60 +162,78 @@ class VKAuthController extends Controller
             $accessToken = $tokens['access_token'];
 
             // Запрос данных о пользователе       
-            $userResponse = Http::withToken($accessToken)->withOptions(['verify' => false])->get('https://api.vk.com/method/users.get', [  // !для локального тестирования
-            //$userResponse = Http::withToken($accessToken)->get('https://api.vk.com/method/users.get', [  // !для продакшена
-                'fields' => 'id,first_name,last_name,photo_200,email,bdate', // Указываем, какие поля хотим получить
-                'v' => '5.131' // Версия API
+            //$userResponse = Http::withOptions(['verify' => false])->post('https://id.vk.com/oauth2/user_info', [//! Для локального тестирования
+            $userResponse = Http::post('https://id.vk.com/oauth2/user_info', [ // ! Для продакшенна
+                'client_id' => env('VK_CLIENT_ID'),
+                'access_token' => $accessToken,
             ]);
 
             if ($userResponse->successful()) {
-                $userData = $userResponse->json()['response'][0];
-                Log::info('Данные пользователя:', $userData);
-        
-                // Сохранение данных о пользователе в БД
-                $user = User::firstOrCreate(
-                    ['email' => $userData['email'] ?? 'default@example.com'], //TODO Что делаем если почты нет? Дефолт ставим?
-                    [
-                        'password' => bcrypt('password'),
-                        'phone' => null,
-                    ]
-                );
-        
-                SocialAccount::updateOrCreate(
-                    ['user_id' => $user->id, 'provider' => 'vk'],
-                    ['provider_user_id' => $userData['id']]
-                );
-        
-                UserMetadata::updateOrCreate(
-                    ['user_id' => $user->id],
-                    [
+                $userData = $userResponse->json()['user'];
+
+                // Проверяем наличие vk_id в SocialAccount
+                $socialAccount = SocialAccount::where('provider_user_id', $userData['user_id'])->first();
+
+                if (!$socialAccount) {
+                    // Если аккаунта нет, создаем пользователя
+                    $user = User::firstOrCreate(
+                        [
+                            'password' => bcrypt('password'),
+                        ]
+                    );
+
+                    // Создаем запись в SocialAccount
+                    SocialAccount::create([
+                        'user_id' => $user->id,
+                        'provider' => 'vk',
+                        'provider_user_id' => $userData['user_id'],
+                    ]);
+
+                    // Создаем запись в UserMetadata
+                    $nickname = $this->getRandomNickname();
+                    UserMetadata::create([
+                        'user_id' => $user->id,
+                        'nickname' => $nickname,
                         'first_name' => $userData['first_name'] ?? null,
                         'last_name' => $userData['last_name'] ?? null,
-                        'nickname' => $this->getRandomNickname(), // Генерируем случайный ник
-                        'profile_image_uri' => $userData['photo_200'] ?? null, // URL изображения профиля
-                    ]
-                );
-        
-                // Если пользователь новый, то присваиваем роль
-                if ($user->wasRecentlyCreated) {
+                        'profile_image_uri' => $userData['avatar'] ?? null,
+                        'gender' => $userData['sex'] === 1 ? 'f' : ($userData['sex'] === 2 ? 'm' : null),
+                        'birthday' => !empty($userData['birthday']) ? Carbon::createFromFormat('d.m.Y', $userData['birthday'])->format('Y-m-d') : null,
+                    ]);
+
+                    // Присваиваем роль
                     $user->assignRole('user');
+                    Auth::login($user, true);
+                } else {
+                    // Если SocialAccount уже существует, обновляем данные в UserMetadata
+                    $userMetadata = UserMetadata::where('user_id', $socialAccount->user_id)->first();
+
+                    if ($userMetadata) {
+                        $userMetadata->first_name = $userData['first_name'] ?? null;
+                        $userMetadata->last_name = $userData['last_name'] ?? null;
+                        $userMetadata->profile_image_uri = $userData['avatar'] ?? null; 
+                        $userMetadata->gender = $userData['sex'] === 1 ? 'f' : ($userData['sex'] === 2 ? 'm' : null);
+                        $userMetadata->birthday = !empty($userData['birthday']) ? Carbon::createFromFormat('d.m.Y', $userData['birthday'])->format('Y-m-d') : null;
+                        $userMetadata->save();
+                    }
+
+                    // Вход в систему, если пользователь уже существует
+                    $user = User::find($socialAccount->user_id);
+                    Auth::login($user, true);
                 }
-        
-                Auth::login($user, true);
-        
+
                 // Генерация токена
                 $customPayload = [
                     'sub' => $user->id,
                     'iat' => now()->timestamp,
                     'exp' => now()->addMinutes(15)->timestamp,
                 ];
-        
+
                 $payload = JWTAuth::factory()->customClaims($customPayload)->make();
                 $token = JWTAuth::encode($payload)->get();
                 $refreshToken = $this->generateRefreshToken($user);
 
                 return $this->respondWithToken($token, $refreshToken);
-        
             } else {
                 Log::error('Ошибка при получении данных о пользователе:', [
                     'status' => $userResponse->status(),

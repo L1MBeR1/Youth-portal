@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getBlog } from '../api/blogsApi.js';
 import { formatDate } from '../utils/timeAndDate/formatDate.js';
+
+import { Button, Modal, ModalClose, ModalDialog, ModalOverflow, DialogContent, DialogTitle } from '@mui/joy';
+import ReportResourceForm from '../components/forms/reportResourceForm.jsx';
 
 import usePublicationById from '../hooks/usePublicationById.js';
 
@@ -26,6 +29,11 @@ function BlogPage() {
 	const { id } = useParams();
 	const { data, isFetching } = usePublicationById('blog', getBlog, id);
 	const { data: profileData } = useProfile();
+	const [isReportFormDisplayed, setIsReportFormDisplayed] = useState(false);
+
+	const switchReportFormDisplay = () => {
+		setIsReportFormDisplayed(!isReportFormDisplayed);
+	};
 
 	console.log(data);
 
@@ -103,6 +111,39 @@ function BlogPage() {
 									profileData={profileData}
 								/>
 							</Box>
+
+
+
+							<Button
+								variant='plain'
+								color='neutral'
+								size='sm'
+								sx={{
+									borderRadius: '40px',
+									fontSize: 'clamp(0.8rem,3vw, 1rem)',
+								}}
+								disabled={profileData ? false : true}
+								onClick={switchReportFormDisplay}
+							>
+								{isReportFormDisplayed ? 'Отмена' : "Пожаловаться ( /!\\ )"}
+							</Button>
+							<Modal open={!!isReportFormDisplayed} onClose={() => setIsReportFormDisplayed(false)}>
+								<ModalOverflow>
+									<ModalDialog variant={'outlined'}>
+										<ModalClose />
+										<DialogTitle>Создание жалобы</DialogTitle>
+										<DialogContent>
+											<ReportResourceForm
+												resourceType={'blog'}
+												resourceId={data.id}
+											/>
+										</DialogContent>
+									</ModalDialog>
+								</ModalOverflow>
+							</Modal>
+
+
+
 							<CommentSection
 								type={'blog'}
 								id={data.id}

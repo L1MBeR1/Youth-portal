@@ -3,6 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserPublications } from '../components/profileComponents/userPublications';
 
+
+import { Modal, ModalClose, ModalDialog, ModalOverflow, DialogContent, DialogTitle} from '@mui/joy';
+import ReportResourceForm from '../components/forms/reportResourceForm';
+
 import useUser from '../hooks/useUser';
 
 import Avatar from '@mui/joy/Avatar';
@@ -17,11 +21,18 @@ import PersonIcon from '@mui/icons-material/Person';
 import PlaceIcon from '@mui/icons-material/Place';
 
 function Profile() {
+	const [isReportFormDisplayed, setIsReportFormDisplayed] = useState(false);
 	const queryClient = useQueryClient();
 	const { id } = useParams();
 	// const navigate = useNavigate();
 	const { data: userData, isLoading } = useUser(id);
 	const [profileData, setProfileData] = useState(null);
+
+
+	const switchReportFormDisplay = () => {
+		setIsReportFormDisplayed(!isReportFormDisplayed);
+	};
+
 
 	useEffect(() => {
 		const cachedProfileData = queryClient.getQueryData(['profile']);
@@ -100,6 +111,41 @@ function Profile() {
 									gap: '5px',
 								}}
 							>
+
+
+
+
+								<Button
+									variant='plain'
+									color='neutral'
+									size='sm'
+									sx={{
+										borderRadius: '40px',
+										fontSize: 'clamp(0.8rem,3vw, 1rem)',
+									}}
+									disabled={profileData ? false : true} // TODO: Тут нужна проверка, что посетитель авторизован
+									onClick={switchReportFormDisplay}
+								>
+									{isReportFormDisplayed ? 'Отмена' : "Пожаловаться ( /!\\ )"}
+								</Button>
+								<Modal open={!!isReportFormDisplayed} onClose={() => setIsReportFormDisplayed(false)}>
+									<ModalOverflow>
+										<ModalDialog variant={'outlined'}>
+											<ModalClose />
+											<DialogTitle>Создание жалобы</DialogTitle>
+											<DialogContent>
+												<ReportResourceForm
+													resourceType={'user'}
+													resourceId={id}
+												/>
+											</DialogContent>
+										</ModalDialog>
+									</ModalOverflow>
+								</Modal>
+
+
+
+
 								<Typography level='h2'>{userData.nickname}</Typography>
 								<Typography level='title-md'>Какой то статус</Typography>
 								<Stack direction='row' spacing={0.5} alignItems='center'>

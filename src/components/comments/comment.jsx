@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import ModalDialog from '@mui/joy/ModalDialog';
+import DialogTitle from '@mui/joy/DialogTitle';
+import ModalOverflow from '@mui/joy/ModalOverflow';
+import DialogContent from '@mui/joy/DialogContent';
 import Button from '@mui/joy/Button';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
@@ -12,6 +18,8 @@ import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 import { CommentInput } from './commentInput';
 
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+
+import ReportResourceForm from '../forms/reportResourceForm';
 
 import { likeTheComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
@@ -24,12 +32,18 @@ export const Comment = ({
 }) => {
 	const navigate = useNavigate();
 	const [openInput, setOpenInput] = useState(false);
+	const [isReportFormDisplayed, setIsReportFormDisplayed] = useState(false);
 	const [isLiked, setIsLiked] = useState(comment.is_liked);
 	const [likesCounter, setLikesCounter] = useState(comment.likes);
 
-	const handelOpenInput = () => {
+	const handleOpenInput = () => {
 		setOpenInput(!openInput);
 	};
+
+	const switchReportFormDisplay = () => {
+		setIsReportFormDisplayed(!isReportFormDisplayed);
+	};
+
 	function cleanAllTags(dirtyHTML) {
 		console.log('sanitize');
 		return DOMPurify.sanitize(dirtyHTML, {
@@ -58,126 +72,157 @@ export const Comment = ({
 		navigate(`/profile/${id}`);
 	};
 	return (
-		<Sheet
-			sx={{
-				width: '100%',
-			}}
-		>
-			<Stack
-				direction='row'
-				justifyContent='flex-start'
-				alignItems='flex-start'
-				spacing={2}
+		<>
+			<Sheet
+				sx={{
+					width: '100%',
+				}}
 			>
-				<Avatar
-					src={comment.profile_image_uri}
-					alt={comment.nickname}
-					variant='outlined'
-					size='md'
-					sx={{
-						cursor: 'pointer',
-					}}
-					onClick={() => {
-						handleToProfile(comment.user_id);
-					}}
-				/>
 				<Stack
-					direction={'column'}
-					spacing={0.5}
-					sx={{
-						maxWidth: 'calc(100% - 40px - 16px)',
-						flexGrow: 1,
-					}}
+					direction='row'
+					justifyContent='flex-start'
+					alignItems='flex-start'
+					spacing={2}
 				>
-					<Stack
-						direction='row'
-						justifyContent='flex-start'
-						alignItems='center'
-						spacing={1}
-					>
-						<Typography
-							fontSize={'clamp(0.85rem,3vw, 1rem)'}
-							level='title-md'
-							sx={{
-								cursor: 'pointer',
-							}}
-							onClick={() => {
-								handleToProfile(comment.user_id);
-							}}
-						>
-							{comment.nickname}
-						</Typography>
-						<Typography level='body-xs' fontSize={'clamp(0.69rem,2vw, 0.8rem)'}>
-							{timeAgo(comment.created_at)}
-						</Typography>
-					</Stack>
-					<Box
-						sx={{ wordWrap: 'break-word', maxWidth: '100%', hyphens: 'auto' }}
-					>
-						{comment.parent ? (
-							<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
-								{comment.parent.name + ', ' + cleanAllTags(comment.content)}
-							</Typography>
-						) : (
-							<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
-								{cleanAllTags(comment.content)}
-							</Typography>
-						)}
-					</Box>
-					<Stack
-						direction='row'
-						justifyContent='flex-start'
-						alignItems='center'
-						spacing={1}
+					<Avatar
+						src={comment.profile_image_uri}
+						alt={comment.nickname}
+						variant='outlined'
+						size='md'
 						sx={{
-							marginLeft: '-10px',
+							cursor: 'pointer',
+						}}
+						onClick={() => {
+							handleToProfile(comment.user_id);
+						}}
+					/>
+					<Stack
+						direction={'column'}
+						spacing={0.5}
+						sx={{
+							maxWidth: 'calc(100% - 40px - 16px)',
+							flexGrow: 1,
 						}}
 					>
-						<Button
-							variant='plain'
-							color='neutral'
-							size='sm'
-							sx={{
-								borderRadius: '40px',
-								fontSize: 'clamp(0.8rem,3vw, 1rem)',
-							}}
-							disabled={profileData ? false : true}
-							onClick={handelOpenInput}
-						>
-							{openInput ? 'Отмена' : 'Ответить'}
-						</Button>
-
-						<Button
-							variant={isLiked ? 'soft' : 'plain'}
-							color={isLiked ? 'primary' : 'neutral'}
-							size='sm'
-							disabled={profileData ? false : true}
-							sx={{
-								borderRadius: '50px',
-								'--Button-gap': '5px',
-							}}
-							startDecorator={<ThumbUpOffAltIcon />}
-							onClick={handleLikeTheComment}
+						<Stack
+							direction='row'
+							justifyContent='flex-start'
+							alignItems='center'
+							spacing={1}
 						>
 							<Typography
-								fontSize='12px'
-								color={isLiked ? 'primary' : 'neutral'}
+								fontSize={'clamp(0.85rem,3vw, 1rem)'}
+								level='title-md'
+								sx={{
+									cursor: 'pointer',
+								}}
+								onClick={() => {
+									handleToProfile(comment.user_id);
+								}}
 							>
-								{likesCounter}
+								{comment.nickname}
 							</Typography>
-						</Button>
+							<Typography level='body-xs' fontSize={'clamp(0.69rem,2vw, 0.8rem)'}>
+								{timeAgo(comment.created_at)}
+							</Typography>
+						</Stack>
+						<Box
+							sx={{ wordWrap: 'break-word', maxWidth: '100%', hyphens: 'auto' }}
+						>
+							{comment.parent ? (
+								<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+									{comment.parent.name + ', ' + cleanAllTags(comment.content)}
+								</Typography>
+							) : (
+								<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+									{cleanAllTags(comment.content)}
+								</Typography>
+							)}
+						</Box>
+						<Stack
+							direction='row'
+							justifyContent='flex-start'
+							alignItems='center'
+							spacing={1}
+							sx={{
+								marginLeft: '-10px',
+							}}
+						>
+							<Button
+								variant='plain'
+								color='neutral'
+								size='sm'
+								sx={{
+									borderRadius: '40px',
+									fontSize: 'clamp(0.8rem,3vw, 1rem)',
+								}}
+								disabled={profileData ? false : true}
+								onClick={handleOpenInput}
+							>
+								{openInput ? 'Отмена' : 'Ответить'}
+							</Button>
+
+							<Button
+								variant={isLiked ? 'soft' : 'plain'}
+								color={isLiked ? 'primary' : 'neutral'}
+								size='sm'
+								disabled={profileData ? false : true}
+								sx={{
+									borderRadius: '50px',
+									'--Button-gap': '5px',
+								}}
+								startDecorator={<ThumbUpOffAltIcon />}
+								onClick={handleLikeTheComment}
+							>
+								<Typography
+									fontSize='12px'
+									color={isLiked ? 'primary' : 'neutral'}
+								>
+									{likesCounter}
+								</Typography>
+							</Button>
+
+							<Button
+								variant='plain'
+								color='neutral'
+								size='sm'
+								sx={{
+									borderRadius: '40px',
+									fontSize: 'clamp(0.8rem,3vw, 1rem)',
+								}}
+								disabled={profileData ? false : true}
+								onClick={switchReportFormDisplay}
+							>
+								{isReportFormDisplayed ? 'Отмена' : "Пожаловаться ( /!\\ )"}
+							</Button>
+						</Stack>
+						{openInput && (
+							<CommentInput
+								replyTo={comment.id}
+								resourceId={resourceId}
+								resourceType={resourceType}
+								refresh={refetch}
+								profileData={profileData}
+							/>
+						)}
 					</Stack>
-					{openInput && (
-						<CommentInput
-							replyTo={comment.id}
-							resourceId={resourceId}
-							resourceType={resourceType}
-							refresh={refetch}
-							profileData={profileData}
-						/>
-					)}
 				</Stack>
-			</Stack>
-		</Sheet>
+
+			</Sheet>
+			<Modal open={!!isReportFormDisplayed} onClose={() => setIsReportFormDisplayed(false)}>
+				<ModalOverflow>
+					<ModalDialog variant={'outlined'}>
+						<ModalClose />
+						<DialogTitle>Создание жалобы</DialogTitle>
+						<DialogContent>
+							<ReportResourceForm
+								resourceType={'comment'}
+								resourceId={comment.id}
+							/>
+						</DialogContent>
+					</ModalDialog>
+				</ModalOverflow>
+			</Modal>
+		</>
 	);
 };

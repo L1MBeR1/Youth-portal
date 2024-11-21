@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 
+import FlagIcon from '@mui/icons-material/Flag';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Modal from '@mui/joy/Modal';
-import ModalClose from '@mui/joy/ModalClose';
-import ModalDialog from '@mui/joy/ModalDialog';
-import DialogTitle from '@mui/joy/DialogTitle';
-import ModalOverflow from '@mui/joy/ModalOverflow';
-import DialogContent from '@mui/joy/DialogContent';
 import Button from '@mui/joy/Button';
 import Sheet from '@mui/joy/Sheet';
 import Stack from '@mui/joy/Stack';
@@ -17,12 +13,10 @@ import { useNavigate } from 'react-router-dom';
 import { timeAgo } from '../../utils/timeAndDate/timeAgo';
 import { CommentInput } from './commentInput';
 
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-
-import ReportResourceForm from '../forms/reportResourceForm';
-
+import { IconButton } from '@mui/joy';
 import { likeTheComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
+import ReportResourceModal from '../modals/reportResourceModal';
 export const Comment = ({
 	comment,
 	resourceType,
@@ -32,16 +26,12 @@ export const Comment = ({
 }) => {
 	const navigate = useNavigate();
 	const [openInput, setOpenInput] = useState(false);
-	const [isReportFormDisplayed, setIsReportFormDisplayed] = useState(false);
+	const [reportModalOpen, setReportModalOpen] = useState(false);
 	const [isLiked, setIsLiked] = useState(comment.is_liked);
 	const [likesCounter, setLikesCounter] = useState(comment.likes);
 
 	const handleOpenInput = () => {
 		setOpenInput(!openInput);
-	};
-
-	const switchReportFormDisplay = () => {
-		setIsReportFormDisplayed(!isReportFormDisplayed);
 	};
 
 	function cleanAllTags(dirtyHTML) {
@@ -73,6 +63,12 @@ export const Comment = ({
 	};
 	return (
 		<>
+			<ReportResourceModal
+				id={comment.id}
+				resourceType={'comment'}
+				setOpen={setReportModalOpen}
+				open={reportModalOpen}
+			/>
 			<Sheet
 				sx={{
 					width: '100%',
@@ -122,7 +118,10 @@ export const Comment = ({
 							>
 								{comment.nickname}
 							</Typography>
-							<Typography level='body-xs' fontSize={'clamp(0.69rem,2vw, 0.8rem)'}>
+							<Typography
+								level='body-xs'
+								fontSize={'clamp(0.69rem,2vw, 0.8rem)'}
+							>
 								{timeAgo(comment.created_at)}
 							</Typography>
 						</Stack>
@@ -130,11 +129,17 @@ export const Comment = ({
 							sx={{ wordWrap: 'break-word', maxWidth: '100%', hyphens: 'auto' }}
 						>
 							{comment.parent ? (
-								<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+								<Typography
+									level='body-md'
+									fontSize={'clamp(0.85rem,3vw, 1rem)'}
+								>
 									{comment.parent.name + ', ' + cleanAllTags(comment.content)}
 								</Typography>
 							) : (
-								<Typography level='body-md' fontSize={'clamp(0.85rem,3vw, 1rem)'}>
+								<Typography
+									level='body-md'
+									fontSize={'clamp(0.85rem,3vw, 1rem)'}
+								>
 									{cleanAllTags(comment.content)}
 								</Typography>
 							)}
@@ -182,19 +187,17 @@ export const Comment = ({
 								</Typography>
 							</Button>
 
-							<Button
+							<IconButton
 								variant='plain'
 								color='neutral'
 								size='sm'
-								sx={{
-									borderRadius: '40px',
-									fontSize: 'clamp(0.8rem,3vw, 1rem)',
+								disabled={!profileData}
+								onClick={() => {
+									setReportModalOpen(true);
 								}}
-								disabled={profileData ? false : true}
-								onClick={switchReportFormDisplay}
 							>
-								{isReportFormDisplayed ? 'Отмена' : "Пожаловаться ( /!\\ )"}
-							</Button>
+								<FlagIcon />
+							</IconButton>
 						</Stack>
 						{openInput && (
 							<CommentInput
@@ -207,22 +210,7 @@ export const Comment = ({
 						)}
 					</Stack>
 				</Stack>
-
 			</Sheet>
-			<Modal open={!!isReportFormDisplayed} onClose={() => setIsReportFormDisplayed(false)}>
-				<ModalOverflow>
-					<ModalDialog variant={'outlined'}>
-						<ModalClose />
-						<DialogTitle>Создание жалобы</DialogTitle>
-						<DialogContent>
-							<ReportResourceForm
-								resourceType={'comment'}
-								resourceId={comment.id}
-							/>
-						</DialogContent>
-					</ModalDialog>
-				</ModalOverflow>
-			</Modal>
 		</>
 	);
 };

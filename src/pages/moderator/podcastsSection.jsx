@@ -1,42 +1,58 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import Chip from '@mui/joy/Chip';
+import Dropdown from '@mui/joy/Dropdown';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Input from '@mui/joy/Input';
-import Modal from '@mui/joy/Modal';
-import ModalClose from '@mui/joy/ModalClose';
-import ModalDialog from '@mui/joy/ModalDialog';
+import Menu from '@mui/joy/Menu';
+import MenuButton from '@mui/joy/MenuButton';
+import MenuItem from '@mui/joy/MenuItem';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
 import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import { getProjectsByPage } from '../../../../api/projectsApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
-function ProjectsSection() {
-	const [openProject, setOpenProject] = useState(false);
+import {
+	changePodcastStatus,
+	getPodcastsByPage,
+} from '../../api/podcastsApi.js';
+import ChangeStatusModal from '../../components/workspaceComponents/shared/modals/changeStatusModal.jsx';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import useServiceData from '../../hooks/service/useServiceData.js';
+import { getToken } from '../../utils/authUtils/tokenStorage.js';
+
+function ModeratorPodcastsSection() {
+	const navigate = useNavigate();
+	const [openPodcast, setOpenPodcast] = useState(false);
+
+	const [changeId, setChangeId] = useState();
+	const [openChangeModal, setOpenChangeModal] = useState(false);
 
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState();
 	const [searchTerm, setSearchTerm] = useState('');
-
 	const [crtFrom, setСrtFrom] = useState('');
 	const [crtTo, setСrtTo] = useState('');
 
+	const [updFrom, setUpdFrom] = useState('');
+	const [updTo, setUpdTo] = useState('');
+
+	const [status, setStatus] = useState('');
 	const [filtersCleared, setFiltersCleared] = useState(false);
 	const searchFields = [
-		'name',
+		'title',
 		'first_name',
 		'last_name',
 		'patronymic',
@@ -44,23 +60,37 @@ function ProjectsSection() {
 	];
 	const [searchValues, setSearchValues] = useState([]);
 	const {
-		data: projects,
+		data: podcasts,
 		isLoading,
 		refetch,
-	} = useServiceData(['admin/projects'], getProjectsByPage, setLastPage, {
+	} = useServiceData(['moderator/podcasts'], getPodcastsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,
 		searchValues: searchValues,
 		crtFrom: crtFrom,
 		crtTo: crtTo,
+		updFrom: updFrom,
+		updTo: updTo,
 		operator: 'or',
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	});
+	const changeStauts = async status => {
+		const { token, needsRedirect } = await getToken('BloggerSection');
+		if (needsRedirect) {
+			navigate('/login');
+		}
+		console.log(status);
+		const response = await changePodcastStatus(token, changeId, status);
+		if (response) {
+			console.log(response);
+			await refetch();
+		}
+	};
+
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
-
 	const getStatus = status => {
 		switch (status) {
 			case 'moderating':
@@ -101,24 +131,42 @@ function ProjectsSection() {
 				setFromDate={setСrtFrom}
 				setToDate={setСrtTo}
 			/>
+			<DatePopOver
+				label={'Дата обновления'}
+				fromDate={updFrom}
+				toDate={updTo}
+				setFromDate={setUpdFrom}
+				setToDate={setUpdTo}
+			/>
 		</>
 	);
-	// function RowMenu() {
-	//   return (
-	//     <Dropdown>
-	//       <MenuButton
-	//         slots={{ root: IconButton }}
-	//         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-	//       >
-	//         <MoreVertIcon />
-	//       </MenuButton>
-	//       <Menu size="sm" sx={{ minWidth: 140 }}>
-	//         <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
-	//         <MenuItem>Изменить</MenuItem>
-	//       </Menu>
-	//     </Dropdown>
-	//   );
-	// }
+	function RowMenu({ id }) {
+		const handleStatusChange = id => {
+			setChangeId(id);
+			setOpenChangeModal(true);
+		};
+		return (
+			<Dropdown>
+				<MenuButton
+					slots={{ root: IconButton }}
+					slotProps={{
+						root: { variant: 'plain', color: 'neutral', size: 'sm' },
+					}}
+				>
+					<MoreVertIcon />
+				</MenuButton>
+				<Menu size='sm' placement='bottom-end'>
+					<MenuItem disabled onClick={() => setOpenPodcast(true)}>
+						Просмотреть
+					</MenuItem>
+					<MenuItem onClick={() => handleStatusChange(id)}>
+						<EditIcon />
+						Изменить статус
+					</MenuItem>
+				</Menu>
+			</Dropdown>
+		);
+	}
 	useEffect(() => {
 		if (filtersCleared) {
 			refetch();
@@ -128,6 +176,8 @@ function ProjectsSection() {
 	const clearFilters = () => {
 		setСrtTo('');
 		setСrtFrom('');
+		setUpdTo('');
+		setUpdFrom('');
 		setSearchTerm('');
 		setSearchValues([]);
 		setFiltersCleared(true);
@@ -145,7 +195,15 @@ function ProjectsSection() {
 
 	const columns = [
 		{ field: 'id', headerName: 'ID', width: '80px' },
-		{ field: 'name', headerName: 'Название', width: '140px' },
+		{
+			field: 'author',
+			headerName: 'Автор',
+			width: '140px',
+			render: item =>
+				item.last_name + ' ' + item.first_name + ' ' + item.patronymic,
+		},
+		{ field: 'nickname', headerName: 'Никнейм', width: '120px' },
+		{ field: 'title', headerName: 'Название', width: '200px' },
 		{
 			field: 'description',
 			headerName: 'Описание',
@@ -153,51 +211,37 @@ function ProjectsSection() {
 			render: item => item.description.desc,
 		},
 		{
-			field: 'author',
-			headerName: 'Организатор',
-			width: '140px',
-			render: item =>
-				item.last_name + ' ' + item.first_name + ' ' + item.patronymic,
-		},
-		{ field: 'location', headerName: 'Адрес', width: '200px' },
-		{
 			field: 'created_at',
 			headerName: 'Дата создания',
 			width: '90px',
 			render: item => new Date(item.created_at).toLocaleDateString(),
 		},
+		{
+			field: 'updated_at',
+			headerName: 'Дата создания',
+			width: '90px',
+			render: item => new Date(item.updated_at).toLocaleDateString(),
+		},
+		{
+			field: 'status',
+			headerName: 'Статус',
+			width: '120px',
+			render: item => getStatus(item.status),
+		},
+		{ field: 'menu', width: '50px', render: item => <RowMenu id={item.id} /> },
 	];
 
 	return (
 		<>
-			<Modal
-				aria-labelledby='close-modal-title'
-				open={openProject}
-				onClose={() => {
-					setOpenProject(false);
-				}}
-				sx={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<ModalDialog>
-					<EditIcon />
-					<ModalClose variant='outlined' />
-					<Typography
-						component='h2'
-						id='close-modal-title'
-						level='h4'
-						textColor='inherit'
-						fontWeight='lg'
-					>
-						Modal title
-					</Typography>
-				</ModalDialog>
-			</Modal>
+			<ChangeStatusModal
+				func={changeStauts}
+				message={`Вы действительно хотите изменить статус подкаста с id: ${changeId} на`}
+				id={changeId}
+				isOpen={openChangeModal}
+				setIsOpen={setOpenChangeModal}
+			/>
 			<Typography fontWeight={700} fontSize={30}>
-				Проекты
+				Подкасты
 			</Typography>
 			<Box
 				sx={{
@@ -209,7 +253,7 @@ function ProjectsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск по названию </FormLabel>
+					<FormLabel>Поиск по названию</FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'
@@ -254,18 +298,19 @@ function ProjectsSection() {
 					>
 						<CustomTable
 							columns={columns}
-							data={projects}
+							data={podcasts}
 							// rowMenu={RowMenu()}
 						/>
 					</Sheet>
 					<CustomList
 						columns={columns}
-						data={projects}
+						data={podcasts}
 						// rowMenu={RowMenu()}
-						colTitle={'name'}
+						colTitle={'title'}
 						colAuthor={'author'}
 						colDescription={'description'}
 						colDate={'created_at'}
+						colStatus={'status'}
 					/>
 				</>
 			)}
@@ -274,4 +319,4 @@ function ProjectsSection() {
 	);
 }
 
-export default ProjectsSection;
+export default ModeratorPodcastsSection;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
+import Chip from '@mui/joy/Chip';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
@@ -12,20 +13,19 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
+import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import EditIcon from '@mui/icons-material/Edit';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
-
-import { getEventsByPage } from '../../../../api/eventsApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
-function EventsSection() {
-	const [openEvents, setOpenEvents] = useState(false);
+import { getProjectsByPage } from '../../api/projectsApi.js';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import useServiceData from '../../hooks/service/useServiceData.js';
+function ProjectsSection() {
+	const [openProject, setOpenProject] = useState(false);
 
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState();
@@ -34,10 +34,6 @@ function EventsSection() {
 	const [crtFrom, setСrtFrom] = useState('');
 	const [crtTo, setСrtTo] = useState('');
 
-	const [updFrom, setUpdFrom] = useState('');
-	const [updTo, setUpdTo] = useState('');
-
-	const [status, setStatus] = useState('');
 	const [filtersCleared, setFiltersCleared] = useState(false);
 	const searchFields = [
 		'name',
@@ -47,23 +43,54 @@ function EventsSection() {
 		'nickname',
 	];
 	const [searchValues, setSearchValues] = useState([]);
-
 	const {
-		data: events,
+		data: projects,
 		isLoading,
 		refetch,
-	} = useServiceData(['su/events'], getEventsByPage, setLastPage, {
+	} = useServiceData(['admin/projects'], getProjectsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,
 		searchValues: searchValues,
 		crtFrom: crtFrom,
 		crtTo: crtTo,
-		updFrom: updFrom,
-		updTo: updTo,
 		operator: 'or',
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	});
+	useEffect(() => {
+		refetch();
+	}, [page, refetch]);
+
+	const getStatus = status => {
+		switch (status) {
+			case 'moderating':
+				return (
+					<Chip color='warning' size='sm' variant='soft'>
+						На проверке
+					</Chip>
+				);
+			case 'published':
+				return (
+					<Chip color='success' size='sm' variant='soft'>
+						Опубликован
+					</Chip>
+				);
+			case 'archived':
+				return (
+					<Chip color='neutral' size='sm' variant='soft'>
+						Архивирован
+					</Chip>
+				);
+			case 'pending':
+				return (
+					<Chip color='danger' size='sm' variant='soft'>
+						На доработке
+					</Chip>
+				);
+			default:
+				return <Chip size='sm'>{status}</Chip>;
+		}
+	};
 
 	const renderFilters = () => (
 		<>
@@ -74,19 +101,8 @@ function EventsSection() {
 				setFromDate={setСrtFrom}
 				setToDate={setСrtTo}
 			/>
-			<DatePopOver
-				label={'Дата обновления'}
-				fromDate={updFrom}
-				toDate={updTo}
-				setFromDate={setUpdFrom}
-				setToDate={setUpdTo}
-			/>
 		</>
 	);
-	useEffect(() => {
-		refetch();
-	}, [page, refetch]);
-
 	// function RowMenu() {
 	//   return (
 	//     <Dropdown>
@@ -97,7 +113,7 @@ function EventsSection() {
 	//         <MoreVertIcon />
 	//       </MenuButton>
 	//       <Menu size="sm" sx={{ minWidth: 140 }}>
-	//         <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
+	//         <MenuItem onClick={() => setOpenProject(true)}>Просмотреть</MenuItem>
 	//         <MenuItem>Изменить</MenuItem>
 	//       </Menu>
 	//     </Dropdown>
@@ -112,8 +128,6 @@ function EventsSection() {
 	const clearFilters = () => {
 		setСrtTo('');
 		setСrtFrom('');
-		setUpdTo('');
-		setUpdFrom('');
 		setSearchTerm('');
 		setSearchValues([]);
 		setFiltersCleared(true);
@@ -130,7 +144,7 @@ function EventsSection() {
 	};
 
 	const columns = [
-		{ field: 'id', headerName: 'ID', width: '60px' },
+		{ field: 'id', headerName: 'ID', width: '80px' },
 		{ field: 'name', headerName: 'Название', width: '140px' },
 		{
 			field: 'description',
@@ -152,27 +166,15 @@ function EventsSection() {
 			width: '90px',
 			render: item => new Date(item.created_at).toLocaleDateString(),
 		},
-		{
-			field: 'updated_at',
-			headerName: 'Дата создания',
-			width: '90px',
-			render: item => new Date(item.updated_at).toLocaleDateString(),
-		},
-		{
-			field: 'start_time',
-			headerName: 'Дата начала',
-			width: '90px',
-			render: item => new Date(item.start_time).toLocaleDateString(),
-		},
 	];
 
 	return (
 		<>
 			<Modal
 				aria-labelledby='close-modal-title'
-				open={openEvents}
+				open={openProject}
 				onClose={() => {
-					setOpenEvents(false);
+					setOpenProject(false);
 				}}
 				sx={{
 					display: 'flex',
@@ -195,7 +197,7 @@ function EventsSection() {
 				</ModalDialog>
 			</Modal>
 			<Typography fontWeight={700} fontSize={30}>
-				Мероприятия
+				Проекты
 			</Typography>
 			<Box
 				sx={{
@@ -207,7 +209,7 @@ function EventsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск по названию или организатору</FormLabel>
+					<FormLabel>Поиск по названию </FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'
@@ -250,16 +252,20 @@ function EventsSection() {
 							maxHeight: '100%',
 						}}
 					>
-						<CustomTable columns={columns} data={events} />
+						<CustomTable
+							columns={columns}
+							data={projects}
+							// rowMenu={RowMenu()}
+						/>
 					</Sheet>
 					<CustomList
 						columns={columns}
-						data={events}
+						data={projects}
 						// rowMenu={RowMenu()}
 						colTitle={'name'}
 						colAuthor={'author'}
 						colDescription={'description'}
-						colDate={'start_time'}
+						colDate={'created_at'}
 					/>
 				</>
 			)}
@@ -268,4 +274,4 @@ function EventsSection() {
 	);
 }
 
-export default EventsSection;
+export default ProjectsSection;

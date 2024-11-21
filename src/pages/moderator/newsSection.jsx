@@ -15,34 +15,35 @@ import MenuItem from '@mui/joy/MenuItem';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
-import EditIcon from '@mui/icons-material/Edit';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import {
-	changePodcastStatus,
-	getPodcastsByPage,
-} from '../../../../api/podcastsApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-function PodcastsSection() {
+import ChangeStatusModal from '../../components/workspaceComponents/shared/modals/changeStatusModal.jsx';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+
+import { changeNewStatus, getNewsByPage } from '../../api/newsApi.js';
+import useServiceData from '../../hooks/service/useServiceData.js';
+import { getToken } from '../../utils/authUtils/tokenStorage.js';
+
+function ModeratorNewsSection() {
 	const navigate = useNavigate();
-	const [openPodcast, setOpenPodcast] = useState(false);
+	const [openNews, setOpenNews] = useState(false);
 
 	const [changeId, setChangeId] = useState();
 	const [openChangeModal, setOpenChangeModal] = useState(false);
 
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState();
+
 	const [searchTerm, setSearchTerm] = useState('');
+
 	const [crtFrom, setСrtFrom] = useState('');
 	const [crtTo, setСrtTo] = useState('');
 
@@ -60,10 +61,10 @@ function PodcastsSection() {
 	];
 	const [searchValues, setSearchValues] = useState([]);
 	const {
-		data: podcasts,
+		data: news,
 		isLoading,
 		refetch,
-	} = useServiceData(['moderator/podcasts'], getPodcastsByPage, setLastPage, {
+	} = useServiceData(['moderator/news'], getNewsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,
@@ -75,22 +76,23 @@ function PodcastsSection() {
 		operator: 'or',
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	});
+	useEffect(() => {
+		refetch();
+	}, [page, refetch]);
+
 	const changeStauts = async status => {
 		const { token, needsRedirect } = await getToken('BloggerSection');
 		if (needsRedirect) {
 			navigate('/login');
 		}
 		console.log(status);
-		const response = await changePodcastStatus(token, changeId, status);
+		const response = await changeNewStatus(token, changeId, status);
 		if (response) {
 			console.log(response);
 			await refetch();
 		}
 	};
 
-	useEffect(() => {
-		refetch();
-	}, [page, refetch]);
 	const getStatus = status => {
 		switch (status) {
 			case 'moderating':
@@ -156,7 +158,7 @@ function PodcastsSection() {
 					<MoreVertIcon />
 				</MenuButton>
 				<Menu size='sm' placement='bottom-end'>
-					<MenuItem disabled onClick={() => setOpenPodcast(true)}>
+					<MenuItem disabled onClick={() => setOpenNews(true)}>
 						Просмотреть
 					</MenuItem>
 					<MenuItem onClick={() => handleStatusChange(id)}>
@@ -192,7 +194,6 @@ function PodcastsSection() {
 		]);
 		setFiltersCleared(true);
 	};
-
 	const columns = [
 		{ field: 'id', headerName: 'ID', width: '80px' },
 		{
@@ -235,13 +236,13 @@ function PodcastsSection() {
 		<>
 			<ChangeStatusModal
 				func={changeStauts}
-				message={`Вы действительно хотите изменить статус подкаста с id: ${changeId} на`}
+				message={`Вы действительно хотите изменить статус новости с id: ${changeId} на`}
 				id={changeId}
 				isOpen={openChangeModal}
 				setIsOpen={setOpenChangeModal}
 			/>
 			<Typography fontWeight={700} fontSize={30}>
-				Подкасты
+				Новости
 			</Typography>
 			<Box
 				sx={{
@@ -253,7 +254,7 @@ function PodcastsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск по названию</FormLabel>
+					<FormLabel>Поиск по названию или автору</FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'
@@ -287,6 +288,7 @@ function PodcastsSection() {
 			) : (
 				<>
 					<Sheet
+						className='OrderTableContainer'
 						variant='outlined'
 						sx={{
 							display: { xs: 'none', sm: 'flex' },
@@ -298,13 +300,13 @@ function PodcastsSection() {
 					>
 						<CustomTable
 							columns={columns}
-							data={podcasts}
+							data={news}
 							// rowMenu={RowMenu()}
 						/>
 					</Sheet>
 					<CustomList
 						columns={columns}
-						data={podcasts}
+						data={news}
 						// rowMenu={RowMenu()}
 						colTitle={'title'}
 						colAuthor={'author'}
@@ -319,4 +321,4 @@ function PodcastsSection() {
 	);
 }
 
-export default PodcastsSection;
+export default ModeratorNewsSection;

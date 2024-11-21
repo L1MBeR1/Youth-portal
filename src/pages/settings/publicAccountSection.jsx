@@ -12,8 +12,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import EditIcon from '@mui/icons-material/Edit';
-import ChangeNickname from '../../components/settingsComponents/modals/changeNickname';
-import ChangeProfileImage from '../../components/settingsComponents/modals/changeProfileImage';
+
+import ChangeNicknameModal from '../../components/modals/changeNicknameModal';
+import ChangeProfileImageModal from '../../components/modals/changeProfileImageModal';
 import usePersonalData from '../../hooks/usePersonalData';
 import { removeToken } from '../../utils/authUtils/tokenStorage';
 function PublicAccountSection() {
@@ -37,12 +38,12 @@ function PublicAccountSection() {
 	const [changeNicknameOpen, setChangeNicknameOpen] = useState(false);
 	return (
 		<>
-			<ChangeProfileImage
+			<ChangeProfileImageModal
 				id={userData?.id}
 				open={changeProfileImageOpen}
 				setOpen={setChangeProfileImageOpen}
 			/>
-			<ChangeNickname
+			<ChangeNicknameModal
 				id={userData?.id}
 				open={changeNicknameOpen}
 				setOpen={setChangeNicknameOpen}

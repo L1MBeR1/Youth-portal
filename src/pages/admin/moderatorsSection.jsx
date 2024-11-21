@@ -22,22 +22,18 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import AddRoleModal from '../../shared/modals/addRoleModal.jsx';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
-import SuccessNotification from '../../shared/modals/successNotification.jsx';
-import WarningModal from '../../shared/modals/warningModal.jsx';
+import AddRoleModal from '../../components/workspaceComponents/shared/modals/addRoleModal.jsx';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import SuccessNotification from '../../components/workspaceComponents/shared/modals/successNotification.jsx';
+import WarningModal from '../../components/workspaceComponents/shared/modals/warningModal.jsx';
 
-import {
-	addModerator,
-	deleteModerator,
-	getUsers,
-} from '../../../../api/usersApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
+import { addModerator, deleteModerator, getUsers } from '../../api/usersApi.js';
+import useServiceData from '../../hooks/service/useServiceData.js';
+import { getToken } from '../../utils/authUtils/tokenStorage.js';
 
 function ModeratorsSection() {
 	const navigate = useNavigate();

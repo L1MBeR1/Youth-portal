@@ -12,7 +12,8 @@ import Typography from '@mui/joy/Typography';
 
 import DOMPurify from 'dompurify';
 import { CommentSection } from '../components/comments/commentsSection.jsx';
-import ScrollButton from '../components/common/scrollButton.jsx';
+
+import ScrollButton from '../components/buttons/scrollButton.jsx';
 import { PublicationStatistic } from '../components/publicationsComponents/publicationStatistic.jsx';
 import useProfile from '../hooks/useProfile.js';
 import { mainMargin } from '../themes/margins.js';

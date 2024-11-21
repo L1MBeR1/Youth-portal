@@ -22,24 +22,22 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import AddRoleModal from '../../shared/modals/addRoleModal.jsx';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
-import SuccessNotification from '../../shared/modals/successNotification.jsx';
-import WarningModal from '../../shared/modals/warningModal.jsx';
+import AddModeratorModal from '../../components/workspaceComponents/shared/modals/addRoleModal.jsx';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import SuccessNotification from '../../components/workspaceComponents/shared/modals/successNotification.jsx';
+import WarningModal from '../../components/workspaceComponents/shared/modals/warningModal.jsx';
 
-import {
-	addModerator,
-	deleteModerator,
-	getUsers,
-} from '../../../../api/usersApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-function ModeratorsSection() {
+import { addBlogger, deleteBlogger, getUsers } from '../../api/usersApi.js';
+import useServiceData from '../../hooks/service/useServiceData.js';
+import { getToken } from '../../utils/authUtils/tokenStorage.js';
+
+function BloggersSection() {
 	const navigate = useNavigate();
+
 	const [openModerator, setOpenModerator] = useState(false);
 
 	const [deleteId, setDeleteId] = useState();
@@ -63,11 +61,11 @@ function ModeratorsSection() {
 	];
 	const [searchValues, setSearchValues] = useState([]);
 	const {
-		data: moderators,
+		data: bloggers,
 		isLoading,
 		refetch,
-	} = useServiceData(['su/moderators'], getUsers, setLastPage, {
-		role_name: 'moderator',
+	} = useServiceData(['admin/bloggers'], getUsers, setLastPage, {
+		role_name: 'blogger',
 		page: page,
 		searchFields: searchFields,
 		searchValues: searchValues,
@@ -75,27 +73,25 @@ function ModeratorsSection() {
 		bdFrom: bdFrom,
 		operator: 'or',
 	});
-	const addNewModerator = async email => {
+	const addNewBlogger = async email => {
 		const { token, needsRedirect } = await getToken('BloggerSection');
-		console.log(token, needsRedirect);
 		if (needsRedirect) {
 			navigate('/login');
 		}
-		const response = await addModerator(token, email);
+		const response = await addBlogger(token, email);
 		if (response) {
 			console.log(response);
 			refetch();
 		}
 	};
 
-	const delModerator = async confirmed => {
+	const delBlogger = async confirmed => {
 		if (confirmed) {
 			const { token, needsRedirect } = await getToken('BloggerSection');
-			console.log(token, needsRedirect);
 			if (needsRedirect) {
 				navigate('/login');
 			}
-			const response = await deleteModerator(token, deleteId);
+			const response = await deleteBlogger(token, deleteId);
 			if (response) {
 				console.log(response);
 				setIsSuccess(true);
@@ -177,6 +173,7 @@ function ModeratorsSection() {
 		]);
 		setFiltersCleared(true);
 	};
+
 	const columns = [
 		{ field: 'id', headerName: 'ID', width: '80px' },
 		{
@@ -214,12 +211,12 @@ function ModeratorsSection() {
 			/>
 			<WarningModal
 				message={`Вы действительно хотите удалить модератора с ID: ${deleteId}?`}
-				onConfirm={delModerator}
+				onConfirm={delBlogger}
 				open={openDeleteModal}
 				setOpen={setOpenDeleteModal}
 			/>
 			<Typography fontWeight={700} fontSize={30}>
-				Модераторы
+				Блогеры
 			</Typography>
 			<Box
 				sx={{
@@ -231,7 +228,7 @@ function ModeratorsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск</FormLabel>
+					<FormLabel>Поиск по почте или ФИО</FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'
@@ -260,11 +257,11 @@ function ModeratorsSection() {
 				>
 					<SearchOffIcon />
 				</IconButton>
-				<AddRoleModal
-					label={'Добавление модератора'}
-					func={addNewModerator}
-					message={'Вы точно хотите добавить модератора с почтой: '}
-					successMessage={'Модератор успешно добавлен'}
+				<AddModeratorModal
+					label={'Добавление блогера'}
+					func={addNewBlogger}
+					message={'Вы точно хотите добавить блогера с почтой: '}
+					successMessage={'Блогер успешно добавлен'}
 				/>
 			</Box>
 			{isLoading ? (
@@ -282,15 +279,11 @@ function ModeratorsSection() {
 							maxHeight: '100%',
 						}}
 					>
-						<CustomTable
-							columns={columns}
-							data={moderators}
-							RowMenu={RowMenu}
-						/>
+						<CustomTable columns={columns} data={bloggers} RowMenu={RowMenu} />
 					</Sheet>
 					<CustomList
 						columns={columns}
-						data={moderators}
+						data={bloggers}
 						colMenu={'menu'}
 						colAvatar={'avatar'}
 						colTitle={'fullName'}
@@ -305,4 +298,4 @@ function ModeratorsSection() {
 	);
 }
 
-export default ModeratorsSection;
+export default BloggersSection;

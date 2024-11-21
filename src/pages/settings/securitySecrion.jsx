@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import ChangePassword from '../../components/settingsComponents/modals/changePassword';
+import ChangePasswordModal from '../../components/modals/changePasswordModal';
 import usePersonalData from '../../hooks/usePersonalData';
 import { removeToken } from '../../utils/authUtils/tokenStorage';
 function SecuritySection() {
@@ -29,7 +29,7 @@ function SecuritySection() {
 	return (
 		<>
 			<Box>
-				<ChangePassword
+				<ChangePasswordModal
 					id={userData?.id}
 					open={changePasswordOpen}
 					setOpen={setChangePasswordOpen}

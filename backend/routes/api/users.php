@@ -13,7 +13,10 @@ Route::group([
 ], function () {
     Route::get('delete_account/', [UserController::class, 'deleteAccount'])->withoutMiddleware('auth');
     Route::get('{userId}', [UserController::class, 'getUserById'])->withoutMiddleware('auth');
-    
+    Route::get('{user_id}/posts/count', [UserController::class, 'getCountOfPostedResources'])->withoutMiddleware('auth');
+    Route::get('{user_id}/rating', [UserController::class, 'getRating'])->withoutMiddleware('auth');
+    Route::get('{user_id}/posts/views', [UserController::class, 'getViewsOnResources'])->withoutMiddleware('auth');
+    Route::get('{user_id}/comments/count', [UserController::class, 'getCountOfPostedComments'])->withoutMiddleware('auth');
 });
 
 

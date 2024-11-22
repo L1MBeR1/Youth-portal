@@ -30,6 +30,12 @@ class ReportController extends Controller
             return $this->errorResponse('Нет прав на просмотр', [], 403);
         }
 
+        $grouped = $request->boolean('grouped');
+
+        if ($grouped) {
+            return $this->getAllReportsGroupedByResource($request);
+        }
+
         $reports = Report::query();
 
         if ($request->has('resource_type')) {
@@ -50,19 +56,11 @@ class ReportController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreReportRequest $request)
     {
-       
+
 
         $reportable = null;
 
@@ -111,21 +109,13 @@ class ReportController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Report $report)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateReportRequest $request, $report_id)
     {
         $user = Auth::user();
         $report = Report::findOrFail($report_id);
-        
+
         // Проверяем права пользователя на редактирование отчета
         if (!$user->can('update', $report)) {
             return $this->errorResponse('Нет прав на редактирование', [], 403);
@@ -146,7 +136,7 @@ class ReportController extends Controller
     public function destroy($report_id)
     {
         $report = Report::findOrFail($report_id);
-        
+
         // Проверяем права пользователя на удаление отчета
         if (!Auth::user()->can('delete', $report)) {
             return $this->errorResponse('Нет прав на удаление', [], 403);
@@ -157,4 +147,80 @@ class ReportController extends Controller
 
         return $this->successResponse(null, 'Жалоба успешно удалена', Response::HTTP_NO_CONTENT);
     }
+
+
+    public function getAllReportsGroupedByResource(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+
+        $groupedReports = Report::query()
+            ->selectRaw('
+            reportable_type,
+            reportable_id,
+            COUNT(*) as reports_count,
+            JSON_AGG(JSON_BUILD_OBJECT(
+                \'author_id\', user_id,
+                \'reason\', reason,
+                \'details\', details
+            )) as reports_details
+        ')
+            ->groupBy('reportable_type', 'reportable_id')
+            ->orderByDesc('reports_count')
+            ->paginate($perPage);
+
+        $paginationData = $this->makePaginationData($groupedReports);
+
+        foreach ($groupedReports as $key => $value) {
+            // Извлекаем имя ресурса
+            $resourceType = explode('\\', $value->reportable_type)[2];
+
+            // Загрузка ресурса на основе типа и ID
+            $resource = $value->reportable_type::find($value->reportable_id);
+
+            // Проверяем, если ресурс найден
+            if ($resource) {
+                // Получаем имя ресурса в зависимости от типа
+                $resourceName = $this->getResourceName($resourceType, $resource);
+
+                // Добавляем в результат
+                $value['reportable_type_label'] = $this->getResourceTypeName($resourceType);
+                $value['reportable_type'] = $resourceType;
+                $value['reportable_name'] = $resourceName;
+            }
+        }
+
+        $result = $groupedReports->items();
+
+        return $this->successResponse($result, $paginationData, Response::HTTP_OK);
+    }
+
+    protected function getResourceTypeName($type)
+    { 
+        return match ($type) {
+            'Blog' => 'Блог',
+            'Podcast' => 'Подкаст',
+            'News' => 'Новость',
+            'Comment' => 'Комментарий',
+            'User' => 'Пользователь',
+        };
+    }
+
+    /**
+     * Получение имени ресурса в зависимости от типа ресурса
+     */
+    protected function getResourceName($resourceType, $resource)
+    {
+        switch ($resourceType) {
+            case 'Blog':
+            case 'Podcast':
+            case 'News':
+                return $resource->title;
+            case 'Comment':
+                return $resource->content;
+            default:
+                return method_exists($resource, 'nickname') ? $resource->nickname() : 'Unknown';
+        }
+    }
+
+
 }

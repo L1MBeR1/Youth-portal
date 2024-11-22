@@ -4,7 +4,8 @@ import Stack from '@mui/joy/Stack';
 
 import { Outlet } from 'react-router-dom';
 import '../../css/App.css';
-import CookieAccept from '../modals/cookieAccept';
+
+import CookieAcceptModal from '../modals/cookieAcceptModal';
 import Footer from '../partials/footer';
 import Header from '../partials/header';
 
@@ -20,7 +21,7 @@ function MainLayout() {
 			<main className='layout-main'>
 				<Outlet />
 			</main>
-			<CookieAccept />
+			<CookieAcceptModal />
 			<Footer />
 		</Stack>
 	);

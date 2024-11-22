@@ -41,11 +41,11 @@ class Controller extends BaseController
         ], $status);
     }
 
-    protected function errorResponse($message, $errors = [], $status = 400)
+    protected function errorResponse($error, $messages = [], $status = 400)
     {
         return response()->json([
-            'error' => $message, //TODO: подумать над этим
-            'messages' => $errors
+            'error' => $error,
+            'messages' => $messages
         ], $status);
     }
 

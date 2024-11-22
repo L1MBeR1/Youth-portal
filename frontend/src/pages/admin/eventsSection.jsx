@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
-import Chip from '@mui/joy/Chip';
-import Dropdown from '@mui/joy/Dropdown';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Input from '@mui/joy/Input';
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import ModalDialog from '@mui/joy/ModalDialog';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
@@ -19,29 +16,19 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 import EditIcon from '@mui/icons-material/Edit';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import ChangeStatusModal from '../../shared/modals/changeStatusModal.jsx';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
-
-import { changeNewStatus, getNewsByPage } from '../../../../api/newsApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import { getToken } from '../../../../utils/authUtils/tokenStorage.js';
-
-function NewsSection() {
-	const navigate = useNavigate();
-	const [openNews, setOpenNews] = useState(false);
-
-	const [changeId, setChangeId] = useState();
-	const [openChangeModal, setOpenChangeModal] = useState(false);
+import { getEventsByPage } from '../../api/eventsApi.js';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import useServiceData from '../../hooks/service/useServiceData.js';
+function EventsSection() {
+	const [openEvents, setOpenEvents] = useState(false);
 
 	const [page, setPage] = useState(1);
 	const [lastPage, setLastPage] = useState();
-
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const [crtFrom, setСrtFrom] = useState('');
@@ -53,18 +40,19 @@ function NewsSection() {
 	const [status, setStatus] = useState('');
 	const [filtersCleared, setFiltersCleared] = useState(false);
 	const searchFields = [
-		'title',
+		'name',
 		'first_name',
 		'last_name',
 		'patronymic',
 		'nickname',
 	];
 	const [searchValues, setSearchValues] = useState([]);
+
 	const {
-		data: news,
+		data: events,
 		isLoading,
 		refetch,
-	} = useServiceData(['moderator/news'], getNewsByPage, setLastPage, {
+	} = useServiceData(['admin/events'], getEventsByPage, setLastPage, {
 		withAuthors: true,
 		page: page,
 		searchFields: searchFields,
@@ -76,53 +64,6 @@ function NewsSection() {
 		operator: 'or',
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	});
-	useEffect(() => {
-		refetch();
-	}, [page, refetch]);
-
-	const changeStauts = async status => {
-		const { token, needsRedirect } = await getToken('BloggerSection');
-		if (needsRedirect) {
-			navigate('/login');
-		}
-		console.log(status);
-		const response = await changeNewStatus(token, changeId, status);
-		if (response) {
-			console.log(response);
-			await refetch();
-		}
-	};
-
-	const getStatus = status => {
-		switch (status) {
-			case 'moderating':
-				return (
-					<Chip color='warning' size='sm' variant='soft'>
-						На проверке
-					</Chip>
-				);
-			case 'published':
-				return (
-					<Chip color='success' size='sm' variant='soft'>
-						Опубликован
-					</Chip>
-				);
-			case 'archived':
-				return (
-					<Chip color='neutral' size='sm' variant='soft'>
-						Архивирован
-					</Chip>
-				);
-			case 'pending':
-				return (
-					<Chip color='danger' size='sm' variant='soft'>
-						На доработке
-					</Chip>
-				);
-			default:
-				return <Chip size='sm'>{status}</Chip>;
-		}
-	};
 
 	const renderFilters = () => (
 		<>
@@ -142,33 +83,26 @@ function NewsSection() {
 			/>
 		</>
 	);
-	function RowMenu({ id }) {
-		const handleStatusChange = id => {
-			setChangeId(id);
-			setOpenChangeModal(true);
-		};
-		return (
-			<Dropdown>
-				<MenuButton
-					slots={{ root: IconButton }}
-					slotProps={{
-						root: { variant: 'plain', color: 'neutral', size: 'sm' },
-					}}
-				>
-					<MoreVertIcon />
-				</MenuButton>
-				<Menu size='sm' placement='bottom-end'>
-					<MenuItem disabled onClick={() => setOpenNews(true)}>
-						Просмотреть
-					</MenuItem>
-					<MenuItem onClick={() => handleStatusChange(id)}>
-						<EditIcon />
-						Изменить статус
-					</MenuItem>
-				</Menu>
-			</Dropdown>
-		);
-	}
+	useEffect(() => {
+		refetch();
+	}, [page, refetch]);
+
+	// function RowMenu() {
+	//   return (
+	//     <Dropdown>
+	//       <MenuButton
+	//         slots={{ root: IconButton }}
+	//         slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+	//       >
+	//         <MoreVertIcon />
+	//       </MenuButton>
+	//       <Menu size="sm" sx={{ minWidth: 140 }}>
+	//         <MenuItem onClick={() => setOpenEvents(true)}>Просмотреть</MenuItem>
+	//         <MenuItem>Изменить</MenuItem>
+	//       </Menu>
+	//     </Dropdown>
+	//   );
+	// }
 	useEffect(() => {
 		if (filtersCleared) {
 			refetch();
@@ -194,23 +128,24 @@ function NewsSection() {
 		]);
 		setFiltersCleared(true);
 	};
+
 	const columns = [
-		{ field: 'id', headerName: 'ID', width: '80px' },
-		{
-			field: 'author',
-			headerName: 'Автор',
-			width: '140px',
-			render: item =>
-				item.last_name + ' ' + item.first_name + ' ' + item.patronymic,
-		},
-		{ field: 'nickname', headerName: 'Никнейм', width: '120px' },
-		{ field: 'title', headerName: 'Название', width: '200px' },
+		{ field: 'id', headerName: 'ID', width: '60px' },
+		{ field: 'name', headerName: 'Название', width: '140px' },
 		{
 			field: 'description',
 			headerName: 'Описание',
 			width: '200px',
 			render: item => item.description.desc,
 		},
+		{
+			field: 'author',
+			headerName: 'Организатор',
+			width: '140px',
+			render: item =>
+				item.last_name + ' ' + item.first_name + ' ' + item.patronymic,
+		},
+		{ field: 'location', headerName: 'Адрес', width: '200px' },
 		{
 			field: 'created_at',
 			headerName: 'Дата создания',
@@ -224,25 +159,43 @@ function NewsSection() {
 			render: item => new Date(item.updated_at).toLocaleDateString(),
 		},
 		{
-			field: 'status',
-			headerName: 'Статус',
-			width: '120px',
-			render: item => getStatus(item.status),
+			field: 'start_time',
+			headerName: 'Дата начала',
+			width: '90px',
+			render: item => new Date(item.start_time).toLocaleDateString(),
 		},
-		{ field: 'menu', width: '50px', render: item => <RowMenu id={item.id} /> },
 	];
 
 	return (
 		<>
-			<ChangeStatusModal
-				func={changeStauts}
-				message={`Вы действительно хотите изменить статус новости с id: ${changeId} на`}
-				id={changeId}
-				isOpen={openChangeModal}
-				setIsOpen={setOpenChangeModal}
-			/>
+			<Modal
+				aria-labelledby='close-modal-title'
+				open={openEvents}
+				onClose={() => {
+					setOpenEvents(false);
+				}}
+				sx={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				<ModalDialog>
+					<EditIcon />
+					<ModalClose variant='outlined' />
+					<Typography
+						component='h2'
+						id='close-modal-title'
+						level='h4'
+						textColor='inherit'
+						fontWeight='lg'
+					>
+						Modal title
+					</Typography>
+				</ModalDialog>
+			</Modal>
 			<Typography fontWeight={700} fontSize={30}>
-				Новости
+				Мероприятия
 			</Typography>
 			<Box
 				sx={{
@@ -254,7 +207,7 @@ function NewsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск по названию или автору</FormLabel>
+					<FormLabel>Поиск по названию или организатору</FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'
@@ -288,7 +241,6 @@ function NewsSection() {
 			) : (
 				<>
 					<Sheet
-						className='OrderTableContainer'
 						variant='outlined'
 						sx={{
 							display: { xs: 'none', sm: 'flex' },
@@ -298,21 +250,16 @@ function NewsSection() {
 							maxHeight: '100%',
 						}}
 					>
-						<CustomTable
-							columns={columns}
-							data={news}
-							// rowMenu={RowMenu()}
-						/>
+						<CustomTable columns={columns} data={events} />
 					</Sheet>
 					<CustomList
 						columns={columns}
-						data={news}
+						data={events}
 						// rowMenu={RowMenu()}
-						colTitle={'title'}
+						colTitle={'name'}
 						colAuthor={'author'}
 						colDescription={'description'}
-						colDate={'created_at'}
-						colStatus={'status'}
+						colDate={'start_time'}
 					/>
 				</>
 			)}
@@ -321,4 +268,4 @@ function NewsSection() {
 	);
 }
 
-export default NewsSection;
+export default EventsSection;

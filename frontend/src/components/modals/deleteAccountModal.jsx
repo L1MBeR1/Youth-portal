@@ -13,10 +13,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { deleteUser } from '../../../api/usersApi';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../fields/passwordField';
+import { deleteUser } from '../../api/usersApi';
+import { logoutFunc } from '../../utils/authUtils/logout';
+import { getToken } from '../../utils/authUtils/tokenStorage';
+import PasswordField from '../fields/passwordField';
 function DeleteAccountModal({ id, unique, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();

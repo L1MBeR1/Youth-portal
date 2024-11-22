@@ -14,7 +14,7 @@ import { postComment, postReplyComment } from '../../api/commentsApi';
 import { getToken } from '../../utils/authUtils/tokenStorage';
 
 import { Typography } from '@mui/joy';
-import EmojiPicker from '../common/emojiPicker';
+import EmojiPicker from '../pickers/emojiPicker';
 
 export const CommentInput = ({
 	resourceType,

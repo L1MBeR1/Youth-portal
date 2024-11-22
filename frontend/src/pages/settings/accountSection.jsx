@@ -19,17 +19,16 @@ import { useNavigate } from 'react-router-dom';
 
 import usePersonalData from '../../hooks/usePersonalData';
 
-import ChangeEmail from '../../components/settingsComponents/modals/changeEmail';
-import DeleteAccountModal from '../../components/settingsComponents/modals/deleteAccount';
+import DeleteAccountModal from '../../components/modals/deleteAccountModal';
 import { logoutFunc } from '../../utils/authUtils/logout';
-
-import DatePicker from '../../components/common/datePicker';
 
 import Man2Icon from '@mui/icons-material/Man2';
 import Woman2Icon from '@mui/icons-material/Woman2';
 
 import { toast } from 'sonner';
 import { updateUser } from '../../api/usersApi';
+import ChangeEmailModal from '../../components/modals/changeEmailModal';
+import DatePicker from '../../components/pickers/datePicker';
 import { getToken, removeToken } from '../../utils/authUtils/tokenStorage';
 function AccountSection() {
 	const queryClient = useQueryClient();
@@ -135,7 +134,7 @@ function AccountSection() {
 					setOpen={setDeleteModalOpen}
 				/>
 
-				<ChangeEmail
+				<ChangeEmailModal
 					id={userData?.id}
 					open={changeEmailOpen}
 					setOpen={setChangeEmailOpen}

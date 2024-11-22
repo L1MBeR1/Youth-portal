@@ -18,11 +18,11 @@ import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getCheckNickName, updateUserNickname } from '../../../api/usersApi';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
+import { getCheckNickName, updateUserNickname } from '../../api/usersApi';
+import { logoutFunc } from '../../utils/authUtils/logout';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 
-function ChangeNickname({ id, open, setOpen }) {
+function ChangeNicknameModal({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
@@ -174,4 +174,4 @@ function ChangeNickname({ id, open, setOpen }) {
 	);
 }
 
-export default ChangeNickname;
+export default ChangeNicknameModal;

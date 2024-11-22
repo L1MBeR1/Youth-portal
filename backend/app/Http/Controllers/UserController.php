@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\User;
 use App\Models\Blog;
 use App\Models\News;
+use App\Models\User;
+use App\Models\Comment;
 use App\Models\Podcast;
 use App\Mail\AccountDelete;
 use App\Models\UserMetadata;
@@ -351,7 +352,7 @@ class UserController extends Controller
             return $this->errorResponse('User not deleted', [], 500);
         } /*else if () {
 
-       }*/ else {
+      }*/ else {
             return $this->errorResponse('Нет прав на удаление', [], 403);
         }
     }
@@ -394,16 +395,16 @@ class UserController extends Controller
 
             $user->delete();
 
-                $user->remember_token = null;
-                    // $user->save();
-                    Auth::logout();
-                //     $response = response()->json(['message' => 'User deleted successfully.']);
-                //     $response->withCookie(cookie()->forget('refresh_token'));
-                //     return $response;
+            $user->remember_token = null;
+            // $user->save();
+            Auth::logout();
+            //     $response = response()->json(['message' => 'User deleted successfully.']);
+            //     $response->withCookie(cookie()->forget('refresh_token'));
+            //     return $response;
 
-                $response = response()->json(['message' => 'User deleted successfully.']);
-                $response->withCookie(cookie()->forget('refresh_token'));
-                return $response;
+            $response = response()->json(['message' => 'User deleted successfully.']);
+            $response->withCookie(cookie()->forget('refresh_token'));
+            return $response;
             // return response()->view('emails.thanks');
         } catch (Exception $e) {
             return $this->errorResponse('Invalid or expired token', [], 400);
@@ -483,9 +484,10 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:user_metadata,nickname,' . $user->id . ',user_id'],
+                'unique:user_metadata,nickname,' . $user->id . ',user_id'
+            ],
         ]);
-        
+
 
         if ($validator->fails()) {
             return $this->errorResponse('Validation Error', $validator->errors(), 422);
@@ -514,5 +516,70 @@ class UserController extends Controller
         }
 
         return response()->json(true);
+    }
+
+
+
+    public function getCountOfPostedComments($user_id)
+    {
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+        return $this->successResponse(['count' => $user->comments()->count()]);
+    }
+
+    public function getCountOfPostedResources($user_id)
+    {
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+        $blogsCount = $user->blogs()->count();
+        $newsCount = $user->news()->count();
+        $podcastCount = $user->podcasts()->count();
+
+        $result = $blogsCount + $newsCount + $podcastCount;
+
+        return $this->successResponse(['count' => $result]);
+    }
+
+    public function getRating($user_id)
+    {
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+        $likesOnComments = Comment::where('user_id', $user_id)->sum('likes');
+        $likesOnBlogs = Blog::where('author_id', $user_id)->sum('likes');
+        $likesOnNews = News::where('author_id', $user_id)->sum('likes');
+        $likesOnPodcasts = Podcast::where('author_id', $user_id)->sum('likes');
+
+        $rating = $likesOnComments / 2 + $likesOnBlogs * 2 + $likesOnNews * 2 + $likesOnPodcasts * 2;
+
+        Log::info('Rating', ['rating' => $rating, 'user_id' => $user_id, 'likesOnComments' => $likesOnComments, 'likesOnBlogs' => $likesOnBlogs, 'likesOnNews' => $likesOnNews, 'likesOnPodcasts' => $likesOnPodcasts]);
+
+        return $this->successResponse(['rating' => $rating]);
+    }
+
+    public function getViewsOnResources($user_id)
+    {
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return $this->errorResponse('User not found', [], 404);
+        }
+
+        $viewsOnBlogs = Blog::where('author_id', $user_id)->sum('views');
+        $viewsOnNews = News::where('author_id', $user_id)->sum('views');
+        $viewsOnPodcasts = Podcast::where('author_id', $user_id)->sum('views');
+
+        return $this->successResponse(['count' => $viewsOnBlogs + $viewsOnNews + $viewsOnPodcasts]);
     }
 }

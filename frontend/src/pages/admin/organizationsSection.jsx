@@ -12,13 +12,13 @@ import Typography from '@mui/joy/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
-import CustomList from '../../shared/workSpaceList.jsx';
-import Pagination from '../../shared/workSpacePagination.jsx';
-import CustomTable from '../../shared/workSpaceTable.jsx';
+import CustomList from '../../components/workspaceComponents/shared/workSpaceList.jsx';
+import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
+import CustomTable from '../../components/workspaceComponents/shared/workSpaceTable.jsx';
 
-import { getOrganizationsByPage } from '../../../../api/organizationsApi.js';
-import useServiceData from '../../../../hooks/service/useServiceData.js';
-import DatePopOver from '../../shared/modals/datePopOver.jsx';
+import { getOrganizationsByPage } from '../../api/organizationsApi.js';
+import DatePopOver from '../../components/workspaceComponents/shared/modals/datePopOver.jsx';
+import useServiceData from '../../hooks/service/useServiceData.js';
 
 function OrganizationsSection() {
 	const [page, setPage] = useState(1);
@@ -40,7 +40,7 @@ function OrganizationsSection() {
 		isLoading,
 		refetch,
 	} = useServiceData(
-		['su/organizations'],
+		['admin/organizations'],
 		getOrganizationsByPage,
 		setLastPage,
 		{
@@ -55,26 +55,6 @@ function OrganizationsSection() {
 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		}
 	);
-	// const addNewModerator = async (email) => {
-	//   const token = getCookie('token');
-	//   const response = await addModerator(token, email)
-	//   if (response) {
-	//     console.log(response);
-	//     refetch()
-	//   }
-	// };
-
-	// const delModerator = async (confirmed) => {
-	//   if (confirmed) {
-	//     const token = getCookie('token');
-	//     const response = await deleteModerator(token, deleteId)
-	//     if (response) {
-	//       console.log(response);
-	//       setIsSuccess(true);
-	//       refetch()
-	//     }
-	//   }
-	// };
 
 	// const RowMenu = ({id}) => {
 	//   const handleRowDelete = (id) => {
@@ -192,7 +172,7 @@ function OrganizationsSection() {
 				}}
 			>
 				<FormControl sx={{ flex: 1 }} size='sm'>
-					<FormLabel>Поиск по почте или ФИО</FormLabel>
+					<FormLabel>Поиск</FormLabel>
 					<Input
 						size='sm'
 						placeholder='Search'

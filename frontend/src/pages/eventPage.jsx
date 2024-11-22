@@ -6,11 +6,10 @@ import CardOverflow from '@mui/joy/CardOverflow';
 import Stack from '@mui/joy/Stack';
 import Typography from '@mui/joy/Typography';
 import DOMPurify from 'dompurify';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import EventMap from '../components/maps/eventMap.jsx';
 import useEventById from '../hooks/useEventById.js';
-import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
 import { formatDate } from '../utils/timeAndDate/formatDate.js';
 
 import EventIcon from '@mui/icons-material/Event';
@@ -21,17 +20,17 @@ import { mainMargin } from '../themes/margins.js';
 function EventPage() {
 	const { id } = useParams();
 	const { data, isFetching } = useEventById(id);
-	const [pastelColor, setPastelColor] = useState('#ffffff');
+	// const [pastelColor, setPastelColor] = useState('#ffffff');
 
-	useEffect(() => {
-		async function fetchPastelColor() {
-			const color = await getBackgroundColor(data.cover_uri);
-			setPastelColor(color);
-		}
-		if (data) {
-			fetchPastelColor();
-		}
-	}, [data]);
+	// useEffect(() => {
+	// 	async function fetchPastelColor() {
+	// 		const color = await getBackgroundColor(data.cover_uri);
+	// 		setPastelColor(color);
+	// 	}
+	// 	if (data) {
+	// 		fetchPastelColor();
+	// 	}
+	// }, [data]);
 
 	const createMarkup = html => {
 		return { __html: DOMPurify.sanitize(html) };

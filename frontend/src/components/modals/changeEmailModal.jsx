@@ -16,12 +16,12 @@ import validator from 'validator';
 
 import { Stack } from '@mui/joy';
 import { toast } from 'sonner';
-import { updateUserEmail } from '../../../api/usersApi';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../fields/passwordField';
+import { updateUserEmail } from '../../api/usersApi';
+import { logoutFunc } from '../../utils/authUtils/logout';
+import { getToken } from '../../utils/authUtils/tokenStorage';
+import PasswordField from '../fields/passwordField';
 
-function ChangeEmail({ id, open, setOpen }) {
+function ChangeEmailModal({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState('');
@@ -126,4 +126,4 @@ function ChangeEmail({ id, open, setOpen }) {
 	);
 }
 
-export default ChangeEmail;
+export default ChangeEmailModal;

@@ -67,7 +67,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return $this->hasMany(News::class, 'author_id');
     }
 
-    public function podcast()
+    public function podcasts()
     {
         return $this->hasMany(Podcast::class, 'author_id');
     }
@@ -80,6 +80,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function reports()
     {
         return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function comments() {
+        return $this->hasMany(Comment::class, 'user_id');
+    }
+
+    public function nickname() {
+        $meta = $this->metadata;
+        // dd($meta->nickname);
+        return $meta->nickname;
     }
 
     /**

@@ -13,14 +13,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { loadProfileImage, updateProfileImage } from '../../../api/usersApi';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
+import { loadProfileImage, updateProfileImage } from '../../api/usersApi';
+import { logoutFunc } from '../../utils/authUtils/logout';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 
 const MAX_FILE_SIZE_MB = process.env.REACT_APP_MAX_IMG_SIZE || 2;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-function ChangeProfileImage({ id, open, setOpen }) {
+function ChangeProfileImageModal({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
@@ -229,4 +229,4 @@ function ChangeProfileImage({ id, open, setOpen }) {
 	);
 }
 
-export default ChangeProfileImage;
+export default ChangeProfileImageModal;

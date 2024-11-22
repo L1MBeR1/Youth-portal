@@ -19,7 +19,7 @@ class CommentFactory extends Factory
         return [       
             'content' => $this->faker->realText(10) . $this->faker->emoji() . $this->faker->sentence(3),
             'user_id' => $this->faker->numberBetween(1, 50),
-            'likes' => $this->faker->numberBetween(-50000, 1000000),
+            'likes' => $this->faker->numberBetween(0, 99),
             // 'created_at' => $this->faker->dateTimeBetween('-11 month', 'now'),
             // 'updated_at' => $this->faker->dateTimeBetween('-11 month', 'now'),
         ];

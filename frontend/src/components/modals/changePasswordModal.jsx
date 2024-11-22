@@ -18,12 +18,12 @@ import { useNavigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
 
 import { toast } from 'sonner';
-import { updateUserPassword } from '../../../api/usersApi';
-import { logoutFunc } from '../../../utils/authUtils/logout';
-import { getToken } from '../../../utils/authUtils/tokenStorage';
-import PasswordField from '../../fields/passwordField';
+import { updateUserPassword } from '../../api/usersApi';
+import { logoutFunc } from '../../utils/authUtils/logout';
+import { getToken } from '../../utils/authUtils/tokenStorage';
+import PasswordField from '../fields/passwordField';
 
-function ChangePassword({ id, open, setOpen }) {
+function ChangePasswordModal({ id, open, setOpen }) {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [password, setPassword] = useState('');
@@ -248,4 +248,4 @@ function ChangePassword({ id, open, setOpen }) {
 	);
 }
 
-export default ChangePassword;
+export default ChangePasswordModal;

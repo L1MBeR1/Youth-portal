@@ -4,7 +4,7 @@ import Stack from '@mui/joy/Stack';
 import React, { useEffect, useState } from 'react';
 import { getCookie, setCookie } from '../../utils/cookie/cookieUtils';
 
-const CookieAccept = () => {
+const CookieAcceptModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	useEffect(() => {
@@ -61,4 +61,4 @@ const CookieAccept = () => {
 	);
 };
 
-export default CookieAccept;
+export default CookieAcceptModal;

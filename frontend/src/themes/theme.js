@@ -88,7 +88,7 @@ const theme = extendTheme({
 		},
 		h3: {
 			fontWeight: '600',
-			fontSize: 'clamp(2.5rem,3vw, 5.5rem)', //TODO:Настроить
+			fontSize: 'clamp(1.6rem,2.5vw, 3.5rem)', //TODO:Настроить
 			lineHeight: '1.2',
 		},
 		'publications-h1': {

@@ -65,6 +65,7 @@ import ProjectsSection from './pages/admin/projectsSection';
 import AuthCallback from './pages/authCallback';
 import BlogRoleRequest from './pages/blogRoleRequest';
 import ModeratorBlogsSection from './pages/moderator/blogsSection';
+import ModeratorReportsSection from './pages/moderator/reportsSection';
 import ModeratorNewsSection from './pages/moderator/newsSection';
 import ModeratorPodcastsSection from './pages/moderator/podcastsSection';
 import BlogsSection from './pages/my-content/blogsSection';
@@ -224,6 +225,7 @@ function App() {
 						<Route path='blogs' element={<ModeratorBlogsSection />} />
 						<Route path='news' element={<ModeratorNewsSection />} />
 						<Route path='podcasts' element={<ModeratorPodcastsSection />} />
+						<Route path='reports' element={<ModeratorReportsSection />} />
 					</Route>
 
 					<Route

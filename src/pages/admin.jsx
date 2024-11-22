@@ -11,6 +11,7 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import ArticleIcon from '@mui/icons-material/Article';
 import BusinessIcon from '@mui/icons-material/Business';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
@@ -141,6 +142,17 @@ function Admin() {
 										<DesignServicesIcon />
 										<ListItemContent>
 											<Typography level='title-sm'>Проекты</Typography>
+										</ListItemContent>
+									</ListItemButton>
+								</ListItem>
+								<ListItem>
+									<ListItemButton
+										selected={isActive('/admin/reports')}
+										onClick={() => handleNavigate('/admin/reports')}
+									>
+										<ReportProblemIcon />
+										<ListItemContent>
+											<Typography level='title-sm'>Жалобы</Typography>
 										</ListItemContent>
 									</ListItemButton>
 								</ListItem>

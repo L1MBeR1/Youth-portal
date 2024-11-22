@@ -9,7 +9,7 @@ import ListItemButton from '@mui/joy/ListItemButton';
 import ListItemContent from '@mui/joy/ListItemContent';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
@@ -94,6 +94,17 @@ function Moderator() {
 									'--ListItem-radius': theme => theme.vars.radius.sm,
 								}}
 							>
+								<ListItem>
+									<ListItemButton
+										selected={isActive('/admin/reports')}
+										onClick={() => handleNavigate('/admin/reports')}
+									>
+										<ReportProblemIcon />
+										<ListItemContent>
+											<Typography level='title-sm'>Жалобы</Typography>
+										</ListItemContent>
+									</ListItemButton>
+								</ListItem>
 								<ListItem>
 									<ListItemButton
 										selected={isActive('/moderator/blogs')}

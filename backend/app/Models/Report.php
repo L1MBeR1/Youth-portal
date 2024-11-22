@@ -11,6 +11,11 @@ class Report extends Model
 
     protected $fillable = ['user_id', 'reason', 'details'];
 
+    protected $casts = [
+        'reports_details' => 'array', // Автоматическое преобразование JSON в массив
+    ];
+    
+
     public function reportable()
     {
         return $this->morphTo();

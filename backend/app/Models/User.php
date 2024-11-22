@@ -86,6 +86,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return $this->hasMany(Comment::class, 'user_id');
     }
 
+    public function nickname() {
+        $meta = $this->metadata;
+        // dd($meta->nickname);
+        return $meta->nickname;
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

@@ -144,25 +144,25 @@ const theme = extendTheme({
 		},
 		'title-lg': {
 			fontWeight: '600',
-			fontSize: 'clamp(1rem,2.5vw, 1.2rem)',
+			fontSize: 'clamp(0.9rem,2.5vw, 1.1rem)',
 			lineHeight: '1.1',
 		},
 		'title-md': {
 			fontWeight: '600',
-			fontSize: 'clamp(1rem,2.5vw, 1.05rem)',
+			fontSize: 'clamp(0.85rem,2.5vw, 1.05rem)',
 			lineHeight: '1.1',
 		},
 		'body-lg': {
 			fontWeight: '400',
-			fontSize: 'clamp(1rem,2.4vw, 1.2rem)',
+			fontSize: 'clamp(0.9rem,2.4vw, 1.1rem)',
 		},
 		'body-md': {
 			fontWeight: '400',
-			fontSize: 'clamp(1rem,2.2vw, 1.1rem)',
+			fontSize: 'clamp(0.85rem,2.2vw, 1.05rem)',
 		},
 		'body-sm': {
 			fontWeight: '400',
-			fontSize: 'clamp(0.8rem,2.1vw, 1.05rem)',
+			fontSize: 'clamp(0.8rem,2.1vw, 1rem)',
 		},
 		info: {
 			fontWeight: '400',

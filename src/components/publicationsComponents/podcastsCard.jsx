@@ -19,9 +19,12 @@ const PodcastsCard = ({ data }) => {
 			variant='plain'
 			sx={{
 				display: 'flex',
+				flexDirection: 'column',
 				// maxWidth:'200px',
 				p: 0,
+				flexGrow: '1',
 				cursor: 'pointer',
+				height: '100%',
 				'--Card-radius': '20px',
 				transition: 'transform 0.3s',
 				'&:hover .cover': {
@@ -51,23 +54,32 @@ const PodcastsCard = ({ data }) => {
 					flexGrow={1}
 					justifyContent='space-between'
 				>
-					<Stack spacing={1}>
+					<Box
+						sx={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+							whiteSpace: 'normal',
+						}}
+					>
 						<Typography level='title-lg'>{data.title}</Typography>
-						<Box
-							sx={{
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								display: '-webkit-box',
-								WebkitLineClamp: 2,
-								WebkitBoxOrient: 'vertical',
-								whiteSpace: 'normal',
-							}}
-						>
-							<Typography level='body-md'>
-								{data.description ? data.description.desc : <></>}
-							</Typography>
-						</Box>
-					</Stack>
+					</Box>
+					<Box
+						sx={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+							whiteSpace: 'normal',
+						}}
+					>
+						<Typography level='body-md'>
+							{data.description ? data.description.desc : <></>}
+						</Typography>
+					</Box>
 				</Stack>
 			</Stack>
 		</Card>

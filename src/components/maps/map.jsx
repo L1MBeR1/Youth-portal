@@ -23,7 +23,7 @@ const CustomAttribution = () => {
 const Map = () => {
 	const endFrom = new Date().toISOString().split('T')[0];
 	const endDate = new Date();
-	endDate.setMonth(endDate.getMonth() + 6);
+	endDate.setMonth(endDate.getMonth() + 12);
 	const endTo = endDate.toISOString().split('T')[0];
 	const { data, isLoading } = useMapEvents({
 		per_page: 200,

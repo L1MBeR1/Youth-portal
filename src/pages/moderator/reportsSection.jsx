@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import ModalClose from "@mui/joy/ModalClose";
-import Input from "@mui/joy/Input";
-import Select from "@mui/joy/Select";
-import Option from "@mui/joy/Option";
 import Sheet from "@mui/joy/Sheet";
 import Table from "@mui/joy/Table";
 import Typography from "@mui/joy/Typography";
 import Pagination from '../../components/workspaceComponents/shared/workSpacePagination.jsx';
-import { getReport } from "../../api/reportsApi.js";
+import { getReport, blockResource, excludeResource } from "../../api/reportsApi.js";
 import useServiceData from '../../hooks/service/useServiceData.js';
 import { useNavigate, createPath } from "react-router-dom";
 
@@ -20,11 +16,10 @@ function ReportsSection() {
     const navigate = useNavigate();
     const [selectedResource, setSelectedResource] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [lastPage, setLastPage] = useState();
     const [filterType, setFilterType] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState();
 
     const perPage = 10;
 
@@ -32,10 +27,14 @@ function ReportsSection() {
         data: resources,
         isLoading,
         refetch,
-    } = useServiceData(['admin/reports'], getReport, setLastPage, {
+    } = useServiceData(["admin/reports"], getReport, setTotalPages, {
         page: currentPage,
         grouped: true,
     });
+
+    useEffect(() => {
+        refetch();
+    }, [currentPage, refetch]);
 
     useEffect(() => {
         getReport();
@@ -48,43 +47,34 @@ function ReportsSection() {
 
 
     const handleOpenInNewTab = () => {
-        console.log("Кнопка 'Открыть в новой вкладке' нажата");
+        console.log(totalPages);
+        const resourceType = selectedResource.reportable_type.toLowerCase();
+        const catalog = resourceType === 'user' ? 'profile' : resourceType;
+        const url = `${window.location.origin}/${catalog}/${selectedResource.reportable_id}`;
 
-        let catalog = selectedResource.reportable_type.toLowerCase();
-        // catalog = catalog[catalog.length - 1] !== 's' ? catalog + 's' : catalog;
-
-        switch (catalog) {
-            case 'user':
-                catalog = 'profile';
-                break;
-            default:
-                break;
-        }
-
-        // const path = `/${catalog}/${selectedResource.reportable_id}`;
-        // console.log(path);
-
-        // Открыть новую вкладку
-        const fullPath = `${window.location.origin}/${catalog}/${selectedResource.reportable_id}`;
-        console.log(fullPath);
-        window.open(fullPath, '_blank');
-
+        window.open(url, '_blank');
     };
 
 
-    const handleExclude = () => {
+
+    const handleExclude = () => { //TODO: TOKEN
+        excludeResource(null, selectedResource.reportable_type, selectedResource.reportable_id)
         console.log("Кнопка 'Исключить' нажата");
+        // TODO: действие после
     };
 
-    const handleBlock = () => {
+    const handleBlock = () => { //TODO: TOKEN
+        blockResource(null, selectedResource.reportable_type, selectedResource.reportable_id);
         console.log("Кнопка 'Заблокировать' нажата");
+        // TODO: действие после
     };
 
     return (
-        <Box sx={{ p: 3, gap: 2, /*bgcolor: "#fff",*/ borderRadius: "8px", boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)" }}>
+        <Box>
             <Typography fontWeight={700} fontSize={30} sx={{ mb: 2 }}>
                 Жалобы
             </Typography>
+
             {/* TODO: Наверно не надо фильтровать */}
             {/* Resources Table */}
             <Sheet
@@ -94,8 +84,8 @@ function ReportsSection() {
                     overflow: "auto",
                     p: 2,
                     mb: 2,
-                    // bgcolor: "#f9f9f9",
                     border: "1px solid #ddd",
+                    //TODO: Настроить высоту
                 }}
             >
                 {isLoading ? (
@@ -114,9 +104,6 @@ function ReportsSection() {
                                 <tr
                                     key={resource.reportable_id}
                                     onClick={() => handleResourceClick(resource)}
-                                    style={{ cursor: "pointer", /*backgroundColor: "#fff",*/ transition: "0.3s" }}
-                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f1f1f1"}
-                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#fff"}
                                 >
                                     <td>{resource.reportable_type_label}</td>
                                     <td>{resource.reportable_name}</td>
@@ -130,9 +117,9 @@ function ReportsSection() {
 
             {/* Pagination */}
             <Pagination
-                count={totalPages}
+                lastPage={totalPages}
                 page={currentPage}
-                onChange={(e, page) => setCurrentPage(page)}
+                onPageChange={setCurrentPage}
                 size="sm"
                 sx={{ alignSelf: "center" }}
             />
@@ -141,10 +128,11 @@ function ReportsSection() {
             <Modal open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
                 <ModalDialog
                     aria-labelledby="resource-details"
-                    sx={{ maxWidth: 600, /*bgcolor: "#fff",*/ borderRadius: "8px", p: 2 }}
+                    sx={{ maxWidth: 600, borderRadius: "8px", p: 2 }}
                     layout="center"
                 >
                     <ModalClose />
+
                     <Typography id="resource-details" level="h5" fontWeight="lg">
                         Подробности
                     </Typography>
@@ -171,11 +159,11 @@ function ReportsSection() {
                             gap: 1,
                         }}
                     >
-                        <Button variant="plain" color="info" onClick={handleOpenInNewTab}>
+                        <Button variant="solid" color="primary" onClick={handleOpenInNewTab}>
                             Открыть в новой вкладке
                         </Button>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                            <Button variant="soft" color="success" onClick={handleExclude}>
+                            <Button variant="soft" color="primary" onClick={handleExclude}>
                                 Исключить
                             </Button>
                             <Button variant="solid" color="danger" onClick={handleBlock}>
@@ -192,7 +180,6 @@ function ReportsSection() {
                             mt: 2,
                             overflow: "auto",
                             maxHeight: "200px",
-                            // bgcolor: "#f9f9f9",
                         }}
                     >
                         <Table hoverRow>

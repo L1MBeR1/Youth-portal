@@ -56,12 +56,9 @@ export const deleteReport = async (token) => {
 	}
 };
 
-export const blockResource = async (token, resource_type, resource_id) => {
+export const blockResource = async (token, r_type, r_id) => {
 	try {
-
-		return "ТУТ БУДЕТ БЛОКИРОВКА РЕСУРСА";
-
-		const response = await axios.post(`${API_URL}/reports/${resource_type}/${resource_id}/block`, null, {
+		const response = await axios.post(`${API_URL}/reports/bans/${r_type}/${r_id}`, null, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -72,9 +69,14 @@ export const blockResource = async (token, resource_type, resource_id) => {
 	}
 };
 
-export const excludeResource = (token, resource_type, resource_id) => {
+export const excludeResource = async (token, r_type, r_id) => {
 	try {
-		return "ТУТ БУДЕТ ИСКЛЮЧЕНИЕ ИЗ ЖАЛОБ";
+		const response = await axios.post(`${API_URL}/reports/exclusions/${r_type}/${r_id}`, null, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		return response.data;
 	} catch (error) {
 		// console.error(error);
 	}

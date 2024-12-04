@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import EventFilterDrawer from '../components/drawers/eventFilterDrawer';
 import SearchField from '../components/fields/searchField';
 import EventCard from '../components/homeComponents/eventContainer/eventCard';
+import EventHorizontalCard from '../components/homeComponents/eventContainer/eventHorizontalCard';
 import Map from '../components/maps/map';
 import Pagination from '../components/workspaceComponents/shared/workSpacePagination';
 import useCities from '../hooks/useCities';
@@ -29,7 +30,8 @@ function Events() {
 	const [searchValues, setSearchValues] = useState([]);
 	const { data: events, refetch } = useEvents(setLastPage, {
 		page,
-		end_date: endDateString,
+		endFrom: start_date,
+		endTo: endDateString,
 		per_page,
 		country,
 		city,
@@ -149,7 +151,7 @@ function Events() {
 				</Stack>
 			</Stack>
 
-			<Box sx={{ display: { xs: 'block', md: 'none' } }}>
+			<Box sx={{ display: { xs: 'block', lg: 'none' } }}>
 				<Stack direction={'column'} spacing={2}>
 					{events && (
 						<>
@@ -165,7 +167,7 @@ function Events() {
 							</Stack>
 							<Grid container spacing={2}>
 								{events.map((event, index) => (
-									<Grid xs={12} sm={6} mdx={6} key={event.id}>
+									<Grid xs={12} sm={6} mdx={4} lg={4} key={event.id}>
 										<EventCard key={index} data={event} />
 									</Grid>
 								))}
@@ -180,9 +182,9 @@ function Events() {
 				</Stack>
 			</Box>
 
-			<Box sx={{ display: { xs: 'none', md: 'block' } }}>
+			<Box sx={{ display: { xs: 'none', lg: 'block' } }}>
 				<Stack
-					height={'75vh'}
+					height={'70vh'}
 					gap={2}
 					sx={{
 						flexDirection: 'row',
@@ -207,7 +209,7 @@ function Events() {
 										overflowY: 'scroll',
 									}}
 								>
-									<Grid container spacing={2}>
+									<Stack direction={'column'} spacing={2}>
 										{events.map((event, index) => (
 											<Grid
 												xs={12}
@@ -217,10 +219,10 @@ function Events() {
 												xxl={6}
 												key={event.id}
 											>
-												<EventCard key={index} data={event} />
+												<EventHorizontalCard key={index} data={event} />
 											</Grid>
 										))}
-									</Grid>
+									</Stack>
 								</Stack>
 								<Pagination
 									page={page}

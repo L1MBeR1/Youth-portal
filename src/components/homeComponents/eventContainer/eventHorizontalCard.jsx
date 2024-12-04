@@ -9,10 +9,14 @@ import Typography from '@mui/joy/Typography';
 
 import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
-
+import { useNavigate } from 'react-router-dom';
 import BlankImage from '../../../img/blank.png';
 import { formatDate } from '../../../utils/timeAndDate/formatDate';
 function EventHorizontalCard({ data }) {
+	const navigate = useNavigate();
+	const handleRedirect = id => {
+		navigate(`/event/${id}`);
+	};
 	const fullAddress = `${data.address.country}, ${data.address.city}, ${data.address.street}, ${data.address.house}`;
 	return (
 		<>
@@ -28,20 +32,21 @@ function EventHorizontalCard({ data }) {
 			>
 				<CardOverflow>
 					<AspectRatio
-						minHeight='200px'
-						maxHeight='200px'
-						sx={{
-							overflow: 'hidden',
-							position: 'relative',
-							'& img': {
-								transition: 'transform 0.4s',
-							},
-							borderRadius: '30px',
-						}}
+						flex={true}
+						sx={{ flexBasis: 200, width: '150px' }}
+						// sx={{
+						// 	width: '200px',
+						// 	height: '100%',
+						// 	overflow: 'hidden',
+						// 	position: 'relative',
+						// 	'& img': {
+						// 		transition: 'transform 0.4s',
+						// 	},
+						// }}
 					>
 						<img
 							className={'cover'}
-							src={BlankImage}
+							src={data.cover_uri ? data.cover_uri : BlankImage}
 							alt={data.title}
 							loading='lazy'
 						/>
@@ -82,19 +87,34 @@ function EventHorizontalCard({ data }) {
 								<Typography level='body-md'>{data.description}</Typography>
 							</Box>
 						</Stack>
-						<Stack direction={'column'}>
-							<Stack direction={'row'} spacing={0.5}>
-								<EventIcon />
-								<Typography level='body-sm'>
-									{formatDate(data.start_time)}
-								</Typography>
+						<Stack direction={'row'} justifyContent={'space-between'}>
+							<Stack direction={'column'}>
+								<Stack direction={'row'} spacing={0.5}>
+									<EventIcon />
+									<Typography level='body-sm'>
+										{formatDate(data.start_time)}
+									</Typography>
+								</Stack>
+								<Stack direction={'row'} spacing={0.5}>
+									<RoomIcon />
+									<Typography level='body-sm'>{fullAddress}</Typography>
+								</Stack>
 							</Stack>
-							<Stack direction={'row'} spacing={0.5}>
-								<RoomIcon />
-								<Typography level='body-sm'>{fullAddress}</Typography>
+							<Stack
+								direction={'column'}
+								justifyContent={'flex-end'}
+								alignContent={'flex-end'}
+							>
+								<Button
+									variant='soft'
+									onClick={() => {
+										handleRedirect(data.id);
+									}}
+								>
+									Подробнее
+								</Button>
 							</Stack>
 						</Stack>
-						<Button variant='soft'>Подробнее</Button>
 					</Stack>
 				</CardContent>
 			</Card>

@@ -114,7 +114,7 @@ function ChangeProfileImageModal({ id, open, setOpen }) {
 			<Modal open={open} onClose={handleClose}>
 				<ModalDialog variant='outlined' role='alertdialog'>
 					<DialogTitle>
-						<Typography level='title-lg'>Изменение аватара</Typography>
+						<Typography level='title-lg'>Изменение картинки профиля</Typography>
 					</DialogTitle>
 					<Divider />
 					<DialogContent>

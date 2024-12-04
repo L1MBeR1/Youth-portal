@@ -120,7 +120,16 @@ function Podcasts() {
 			{!isLoading && podcasts && (
 				<Grid container spacing={'50px'}>
 					{podcasts.map(podcast => (
-						<Grid xs={12} sm={6} md={4} lg={3} lgx={2} xxl={2} key={podcast.id}>
+						<Grid
+							xs={12}
+							sm={6}
+							md={4}
+							lg={3}
+							lgx={3}
+							xl={2}
+							xxl={2}
+							key={podcast.id}
+						>
 							<PodcastsCard data={podcast} />
 						</Grid>
 					))}

@@ -11,13 +11,12 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import ArticleIcon from '@mui/icons-material/Article';
-import BusinessIcon from '@mui/icons-material/Business';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
 import EventIcon from '@mui/icons-material/Event';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import PublishIcon from '@mui/icons-material/Publish';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import ShieldIcon from '@mui/icons-material/Shield';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Toggler from '../components/toggler';
@@ -120,17 +119,6 @@ function Admin() {
 										<ArticleIcon />
 										<ListItemContent>
 											<Typography level='title-sm'>Блогеры</Typography>
-										</ListItemContent>
-									</ListItemButton>
-								</ListItem>
-								<ListItem>
-									<ListItemButton
-										selected={isActive('/admin/organizations')}
-										onClick={() => handleNavigate('/admin/organizations')}
-									>
-										<BusinessIcon />
-										<ListItemContent>
-											<Typography level='title-sm'>Организации</Typography>
 										</ListItemContent>
 									</ListItemButton>
 								</ListItem>

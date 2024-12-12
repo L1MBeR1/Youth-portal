@@ -4,7 +4,7 @@ import { getHomeEvents } from '../api/eventsApi';
 const useHomeEvents = () => {
 	const startDate = new Date().toISOString().split('T')[0];
 	const endDate = new Date();
-	endDate.setMonth(endDate.getMonth() + 2);
+	endDate.setMonth(endDate.getMonth() + 3);
 	const endDateString = endDate.toISOString().split('T')[0];
 	const perPage = 10;
 
@@ -13,8 +13,8 @@ const useHomeEvents = () => {
 		queryFn: async () => {
 			console.log(startDate, endDateString, perPage);
 			const response = await getHomeEvents({
-				start_date: startDate,
-				end_date: endDateString,
+				endFrom: startDate,
+				endTo: endDateString,
 				per_page: perPage,
 			});
 

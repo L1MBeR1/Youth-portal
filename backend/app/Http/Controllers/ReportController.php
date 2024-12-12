@@ -60,7 +60,7 @@ class ReportController extends Controller
      */
     public function store(StoreReportRequest $request)
     {
-
+        Log::info("DBG_001");
 
         $reportable = null;
 
@@ -186,16 +186,21 @@ class ReportController extends Controller
                 $value['reportable_type_label'] = $this->getResourceTypeName($resourceType);
                 $value['reportable_type'] = $resourceType;
                 $value['reportable_name'] = $resourceName;
+
+                // Преобразуем reports_details в массив
+                $value['reports_details'] = json_decode($value['reports_details'], true);
             }
         }
 
         $result = $groupedReports->items();
 
+        Log::info($result);
+
         return $this->successResponse($result, $paginationData, Response::HTTP_OK);
     }
 
     protected function getResourceTypeName($type)
-    { 
+    {
         return match ($type) {
             'Blog' => 'Блог',
             'Podcast' => 'Подкаст',
@@ -222,5 +227,78 @@ class ReportController extends Controller
         }
     }
 
+
+    public function excludeResourceFromReports($resource_type, $resource_id)
+    {
+        $report = Report::where('reportable_type', $resource_type)
+            ->where('reportable_id', $resource_id)
+            ->delete();
+        return $this->successResponse($report, 'Ресурс успешно исключён из жалоб', Response::HTTP_OK);
+    }
+
+
+
+    public function blockResource($resource_type, $resource_id)
+    {
+        $resource = null;
+
+        switch ($resource_type) {
+            case 'Blog':
+                $resource = Blog::findOrFail($resource_id);
+                break;
+            case 'Podcast':
+                $resource = Podcast::findOrFail($resource_id);
+                break;
+            case 'News':
+                $resource = News::findOrFail($resource_id);
+                break;
+            case 'Comment':
+                $resource = Comment::findOrFail($resource_id);
+                break;
+            // case 'User':
+            //     $resource = User::findOrFail($resource_id);
+            //     break;
+        }
+
+        if (!$resource) {
+            return $this->errorResponse('Ресурса нет или действия не разрешены', [], Response::HTTP_NOT_FOUND);
+        }
+
+        switch ($resource_type) {
+            case 'Blog':
+                $resource->status = 'blocked';
+                $resource->save();
+                break;
+            case 'Podcast':
+                $resource->status = 'blocked';
+                $resource->save();
+                break;
+            case 'News':
+                $resource->status = 'blocked';
+                $resource->save();
+                break;
+            case 'Comment':
+                $messages = [
+                    "Этот комментарий был похищен инопланетянами для изучения.",
+                    "Этот комментарий исчез в результате магического заклинания.",
+                    "Этот текст был удален, чтобы не испугать котиков.",
+                    "Этот комментарий отправился в кругосветное путешествие.",
+                ];
+                $resource->content = $messages[array_rand($messages)];
+                $resource->save();
+                break;
+            case 'User':
+                $resource->blocked_at = now();
+                $resource->save();
+                break;
+        }
+
+        $deleted = Report::where('reportable_type', "App\Models\\".$resource_type)
+            ->where('reportable_id', $resource_id)
+            ->delete();
+
+        return $this->successResponse($deleted, 'Ресурс успешно заблокирован', Response::HTTP_OK);
+
+    }
 
 }

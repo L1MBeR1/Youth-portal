@@ -60,14 +60,13 @@ import { Toaster } from 'sonner';
 import BloggersSection from './pages/admin/bloggersSection';
 import EventsSection from './pages/admin/eventsSection';
 import ModeratorsSection from './pages/admin/moderatorsSection';
-import OrganizationsSection from './pages/admin/organizationsSection';
 import ProjectsSection from './pages/admin/projectsSection';
 import AuthCallback from './pages/authCallback';
 import BlogRoleRequest from './pages/blogRoleRequest';
 import ModeratorBlogsSection from './pages/moderator/blogsSection';
-import ModeratorReportsSection from './pages/moderator/reportsSection';
 import ModeratorNewsSection from './pages/moderator/newsSection';
 import ModeratorPodcastsSection from './pages/moderator/podcastsSection';
+import ModeratorReportsSection from './pages/moderator/reportsSection';
 import BlogsSection from './pages/my-content/blogsSection';
 import CreateBlog from './pages/my-content/createBlog';
 import CreateNews from './pages/my-content/createNews';
@@ -77,6 +76,7 @@ import PodcastsSection from './pages/my-content/podcastsSection';
 import AccountSection from './pages/settings/accountSection';
 import PublicAccountSection from './pages/settings/publicAccountSection';
 import SecuritySection from './pages/settings/securitySecrion';
+import OrganizationsSection from './pages/su/organizationsSection';
 import theme from './themes/theme';
 
 function App() {
@@ -219,7 +219,6 @@ function App() {
 						<Route index element={<Navigate to='/admin/moderators' />} />
 						<Route path='moderators' element={<ModeratorsSection />} />
 						<Route path='bloggers' element={<BloggersSection />} />
-						<Route path='organizations' element={<OrganizationsSection />} />
 						<Route path='projects' element={<ProjectsSection />} />
 						<Route path='events' element={<EventsSection />} />
 						<Route path='blogs' element={<ModeratorBlogsSection />} />

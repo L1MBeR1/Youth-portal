@@ -1,3 +1,7 @@
+import EventIcon from '@mui/icons-material/Event';
+import RoomIcon from '@mui/icons-material/Room';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import { Avatar } from '@mui/joy';
 import Box from '@mui/joy/Box';
 import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
@@ -10,12 +14,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import EventMap from '../components/maps/eventMap.jsx';
 import useEventById from '../hooks/useEventById.js';
-import { formatDate } from '../utils/timeAndDate/formatDate.js';
-
-import EventIcon from '@mui/icons-material/Event';
-import RoomIcon from '@mui/icons-material/Room';
-import { Avatar } from '@mui/joy';
 import { mainMargin } from '../themes/margins.js';
+import { formatDate } from '../utils/timeAndDate/formatDate.js';
 
 function EventPage() {
 	const { id } = useParams();
@@ -139,19 +139,43 @@ function EventPage() {
 											flexDirection: { xs: 'column', md: 'row' },
 										}}
 									>
-										<Stack direction={'row'} spacing={1} alignItems={'center'}>
-											<EventIcon
-												sx={{
-													color: 'var(--joy-staticColors-mainLight)',
-													fontSize: '22px',
-												}}
-											/>
-											<Typography
-												level='title-md'
-												sx={{ color: 'var(--joy-staticColors-mainLight)' }}
+										<Stack direction={'column'} spacing={1}>
+											<Stack
+												direction={'row'}
+												spacing={1}
+												alignItems={'center'}
 											>
-												{formatDate(data.start_time, true)}
-											</Typography>
+												<EventIcon
+													sx={{
+														color: 'var(--joy-staticColors-mainLight)',
+														fontSize: '22px',
+													}}
+												/>
+												<Typography
+													level='title-md'
+													sx={{ color: 'var(--joy-staticColors-mainLight)' }}
+												>
+													{formatDate(data.start_time, true)}
+												</Typography>
+											</Stack>
+											<Stack
+												direction={'row'}
+												spacing={1}
+												alignItems={'center'}
+											>
+												<SportsScoreIcon
+													sx={{
+														color: 'var(--joy-staticColors-mainLight)',
+														fontSize: '22px',
+													}}
+												/>
+												<Typography
+													level='title-md'
+													sx={{ color: 'var(--joy-staticColors-mainLight)' }}
+												>
+													{formatDate(data.end_time, true)}
+												</Typography>
+											</Stack>
 										</Stack>
 										<Stack direction={'row'} spacing={1} alignItems={'center'}>
 											<RoomIcon

@@ -170,7 +170,7 @@ class CommentController extends Controller
 
         $user = Auth::user();
 
-        if ($user->can('setLikes', $comment)) {
+        if (!$user->can('set likes', $comment)) {
             return $this->errorResponse('Нет прав на лайки', [], Response::HTTP_FORBIDDEN);
         }
 

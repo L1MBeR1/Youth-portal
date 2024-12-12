@@ -105,7 +105,7 @@ export const CommentInput = ({
 							borderRadius: '20px',
 							display: 'flex',
 							flexDirection: 'column',
-							padding: { xs: '4px 20px', md: '12px 20px' },
+							padding: { xs: '16px 20px', md: '12px 20px' },
 						}}
 					>
 						<textarea

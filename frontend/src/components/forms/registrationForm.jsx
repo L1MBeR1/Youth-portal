@@ -250,7 +250,13 @@ function RegistrationForm() {
 						</Button>
 					</Stack>
 					<Divider />
-					<VkAuthButton label={'Продолжить через Вконтакте'} variant={'soft'} />
+					<VkAuthButton
+						label={'Продолжить через Вконтакте'}
+						variant={'soft'}
+						navigate={navigate}
+						setErrorMessage={setError}
+						setIsLoading={setIsLoading}
+					/>
 					<Box
 						sx={{
 							display: 'flex',

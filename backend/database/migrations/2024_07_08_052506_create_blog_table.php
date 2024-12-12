@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->jsonb('description')->nullable();
             $table->text('content')->nullable();
             $table->text('cover_uri')->nullable();
-            $table->enum('status', ['moderating', 'published', 'archived', 'pending']);
+            $table->enum('status', ['moderating', 'published', 'archived', 'pending', 'blocked']);
             $table->integer('views')->unsigned()->default(0);
             $table->integer('likes')->unsigned()->default(0);
             $table->integer('reposts')->unsigned()->default(0);

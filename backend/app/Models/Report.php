@@ -12,7 +12,7 @@ class Report extends Model
     protected $fillable = ['user_id', 'reason', 'details'];
 
     protected $casts = [
-        'reports_details' => 'array', // Автоматическое преобразование JSON в массив
+        // 'reports_details' => 'array', // Автоматическое преобразование JSON в массив
     ];
     
 

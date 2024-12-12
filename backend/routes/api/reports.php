@@ -16,8 +16,14 @@ Route::group([
     'prefix' => 'reports'
 ], function () {
     Route::post('', [ReportController::class, 'store']);
+    Route::post('/bans/{resource_type}/{resource_id}', [ReportController::class, 'blockResource']);
+    // Route::delete('{resource_type}/{resource_id}', [ReportController::class, 'blockResource']);
+    Route::post('/exclusions/{resource_type}/{resource_id}', [ReportController::class, 'excludeResourceFromReports']);
+
+
     Route::get('', [ReportController::class, 'index']);
     Route::delete('{id}', [ReportController::class, 'destroy']);
+
     Route::put('{id}', [ReportController::class, 'update']);
 });
 

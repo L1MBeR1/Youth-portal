@@ -93,13 +93,13 @@ const theme = extendTheme({
 		},
 		'publications-h1': {
 			fontWeight: '600',
-			fontSize: 'clamp(2.5rem,3.4vw, 4.5rem)',
+			fontSize: 'clamp(2rem,3.4vw, 4.5rem)',
 			color: 'var(--joy-palette-main-text)',
 			lineHeight: '1.2',
 		},
 		'publications-h1-white': {
 			fontWeight: '900',
-			fontSize: 'clamp(2.5rem,3.4vw, 4.5rem)',
+			fontSize: 'clamp(2rem,3.4vw, 4.5rem)',
 			color: 'var(--joy-staticColors-mainLight)',
 			lineHeight: '1.2',
 		},

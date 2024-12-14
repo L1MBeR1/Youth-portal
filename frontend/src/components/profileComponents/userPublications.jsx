@@ -60,19 +60,19 @@ export const UserPublications = ({ id }) => {
 						<ListItemDecorator>
 							<NewspaperIcon />
 						</ListItemDecorator>
-						Блоги
+						<Typography level='body-sm'>Блоги</Typography>
 					</Tab>
 					<Tab disableIndicator>
 						<ListItemDecorator>
 							<PodcastsIcon />
 						</ListItemDecorator>
-						Подкасты
+						<Typography level='body-sm'>Подкасты</Typography>
 					</Tab>
 					<Tab disableIndicator>
 						<ListItemDecorator>
 							<TextSnippetIcon />
 						</ListItemDecorator>
-						Новости
+						<Typography level='body-sm'>Новости</Typography>
 					</Tab>
 				</TabList>
 			</Tabs>

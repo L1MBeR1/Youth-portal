@@ -10,10 +10,10 @@ import DOMPurify from 'dompurify';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { postComment, postReplyComment } from '../../api/commentsApi';
-import { getToken } from '../../utils/authUtils/tokenStorage';
-
 import { Typography } from '@mui/joy';
+import { postComment, postReplyComment } from '../../api/commentsApi';
+import profileBlank from '../../img/profileBlank.png';
+import { getToken } from '../../utils/authUtils/tokenStorage';
 import EmojiPicker from '../pickers/emojiPicker';
 
 export const CommentInput = ({
@@ -90,7 +90,7 @@ export const CommentInput = ({
 					sx={{ paddingBottom: '10px' }}
 				>
 					<Avatar
-						src={profileData.profile_image_uri}
+						src={profileData.profile_image_uri || profileBlank}
 						alt={profileData.nickname}
 						variant='outlined'
 						sx={{

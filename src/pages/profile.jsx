@@ -18,6 +18,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PlaceIcon from '@mui/icons-material/Place';
 import ReportResourceModal from '../components/modals/reportResourceModal.jsx';
 import useProfile from '../hooks/useProfile.js';
+import profileBlank from '../img/profileBlank.png';
 import { mainMargin } from '../themes/margins.js';
 import { getBackgroundColor } from '../utils/colors/getBackgroundColor.js';
 function Profile() {
@@ -97,7 +98,7 @@ function Profile() {
 							}}
 						>
 							<Avatar
-								src={userData?.profile_image_uri || ''}
+								src={userData?.profile_image_uri || profileBlank}
 								sx={{
 									boxSizing: 'content-box',
 									border: '5px solid white',
@@ -118,7 +119,11 @@ function Profile() {
 								gap: '20px',
 							}}
 						>
-							<Stack direction='row' justifyContent='space-between'>
+							<Stack
+								justifyContent='space-between'
+								spacing={2}
+								sx={{ flexDirection: { xs: 'column', md: 'row' } }}
+							>
 								<Stack
 									direction={'column'}
 									gap={1.5}
@@ -131,65 +136,95 @@ function Profile() {
 										},
 									}}
 								>
-									<Typography level='h3'>{userData.nickname}</Typography>
+									<Typography level='h3'>
+										{userData.nickname
+											? userData.nickname
+											: 'Новый пользователь'}
+									</Typography>
+
 									<Stack direction='row' spacing={0.5} alignItems='center'>
 										<PersonIcon sx={{ fontSize: 18 }} />
 										<Typography level='body-md'>
-											{userData.last_name +
-												' ' +
-												userData.first_name +
-												' ' +
-												userData.patronymic}
+											{[
+												userData.last_name,
+												userData.first_name,
+												userData.patronymic,
+											]
+												.filter(Boolean)
+												.join(' ')}
 										</Typography>
 									</Stack>
-									<Stack direction='row' spacing={0.5} alignItems='center'>
-										<PlaceIcon sx={{ fontSize: 18 }} />
-										<Typography level='body-md'>{userData.city}</Typography>
-									</Stack>
+
+									{userData.city && (
+										<Stack direction='row' spacing={0.5} alignItems='center'>
+											<PlaceIcon sx={{ fontSize: 18 }} />
+											<Typography level='body-md'>{userData.city}</Typography>
+										</Stack>
+									)}
+
 									{profileData &&
-										userData &&
-										profileData.user_id === userData.user_id && (
-											<Stack margin={'5px 0 0 0'} direction='row' spacing={2}>
-												<Button
-													sx={{ borderRadius: '40px' }}
-													variant='soft'
-													size='md'
-													onClick={() => {
-														navigate(`/settings/public`);
-													}}
-												>
-													Редактировать
-												</Button>
-											</Stack>
-										)}
+									userData &&
+									profileData.user_id === userData.user_id ? (
+										<Stack margin={'5px 0 0 0'} direction='row' spacing={2}>
+											<Button
+												sx={{ borderRadius: '40px' }}
+												variant='soft'
+												size='md'
+												onClick={() => {
+													navigate(`/settings/public`);
+												}}
+											>
+												Редактировать
+											</Button>
+										</Stack>
+									) : (
+										<Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+											<Button
+												variant='soft'
+												color='danger'
+												size='md'
+												disabled={!profileData}
+												startDecorator={<FlagIcon />}
+												onClick={() => {
+													setReportModalOpen(true);
+												}}
+											>
+												Пожаловаться
+											</Button>
+										</Box>
+									)}
 								</Stack>
 								<Stack
 									spacing={4}
-									alignItems='flex-end'
+									alignItems={{ xs: 'center', md: 'flex-end' }}
+									justifyContent={'center'}
 									direction='column'
-									sx={{
-										paddingTop: '20px',
-									}}
 								>
-									<IconButton
-										variant='soft'
-										color='danger'
-										size='md'
-										disabled={!profileData}
-										onClick={() => {
-											setReportModalOpen(true);
-										}}
-									>
-										<FlagIcon />
-									</IconButton>
+									{profileData &&
+										userData &&
+										profileData.user_id !== userData.user_id && (
+											<IconButton
+												sx={{ display: { xs: 'none', md: 'block' } }}
+												variant='soft'
+												color='danger'
+												size='md'
+												disabled={!profileData}
+												onClick={() => {
+													setReportModalOpen(true);
+												}}
+											>
+												<FlagIcon />
+											</IconButton>
+										)}
+
 									<Stack
 										direction='row'
 										justifyContent='center'
 										alignItems='center'
 										spacing={3}
-										sx={{
-											display: { xs: 'none', md: 'flex' },
-										}}
+										// sx={{
+										// 	display: { xs: 'none', md: 'flex' },
+										// }}
 									>
 										<Stack direction='column' alignItems='center'>
 											<Typography level='title-sm'>Публикаций</Typography>

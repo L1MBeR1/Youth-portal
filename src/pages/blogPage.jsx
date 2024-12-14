@@ -74,34 +74,24 @@ function BlogPage() {
 										<Typography level='publications-h1'>
 											{data.title}
 										</Typography>
-										<Stack
-											direction={'row'}
-											spacing={2}
-											justifyContent={'space-between'}
-										>
-											<Stack direction={'row'} spacing={2}>
-												<Stack
-													direction={'row'}
-													alignItems={'center'}
-													spacing={2}
-												>
-													<Avatar
-														size='lg'
-														src={data.profile_image_uri}
-														alt={data.nickname}
-													/>
-													<Typography level='title-md'>
-														{data.nickname}
-													</Typography>
-												</Stack>
-												<Stack
-													direction={'row'}
-													spacing={0.75}
-													alignItems={'center'}
-												>
-													<VisibilityIcon fontSize='14px' />
-													<Typography level='body-md'>{data.views}</Typography>
-												</Stack>
+
+										<Stack direction={'row'} alignItems={'center'} spacing={2}>
+											<Avatar
+												size='lg'
+												src={data.profile_image_uri}
+												alt={data.nickname}
+											/>
+											<Typography level='title-md'>{data.nickname}</Typography>
+										</Stack>
+
+										<Stack direction={'row'} spacing={4}>
+											<Stack
+												direction={'row'}
+												spacing={0.75}
+												alignItems={'center'}
+											>
+												<VisibilityIcon fontSize='14px' />
+												<Typography level='body-md'>{data.views}</Typography>
 											</Stack>
 											<Stack direction={'row'} alignItems={'center'}>
 												<Typography level='body-md'>

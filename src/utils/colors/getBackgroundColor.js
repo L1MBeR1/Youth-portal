@@ -22,6 +22,6 @@ export async function getBackgroundColor(imageSrc) {
 		return pastelColor;
 	} catch (error) {
 		console.error('Ошибка получения доминирующего цвета:', error);
-		return '#ffffff';
+		return '#bebebe';
 	}
 }

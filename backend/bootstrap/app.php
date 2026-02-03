@@ -14,10 +14,9 @@ use PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate as JWTAuthenticate;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: function () {
-            Route::middleware('api')->group(function () {
-                require base_path('routes/api.php');
-            });
+            using: function (\Illuminate\Routing\Router $router) {
+            $router->middleware('api')
+                ->group(base_path('routes/api.php'));
         },
         commands: __DIR__.'/../routes/console.php',
         health: '/up',

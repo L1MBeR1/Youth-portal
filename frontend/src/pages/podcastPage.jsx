@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { getPodcast } from '../api/podcastsApi.js';
-import AudioPlayer from '../components/players/audio/audioPlayer.jsx';
+import AudioPlayer from '../components/players/audio/AudioPlayer.jsx';
 import usePublicationsById from '../hooks/usePublicationById.js';
 import { mainMargin } from '../themes/margins.js';
 

@@ -53,11 +53,12 @@ const Carousel = ({ data, swiperRef, onPrevSlide, onNextSlide, Card }) => {
 			}}
 			className='mySwiper'
 		>
-			{data.map((item, index) => (
-				<SwiperSlide key={index}>
-					<Card data={item} />
-				</SwiperSlide>
-			))}
+			{Array.isArray(data) &&
+				data.map((item, index) => (
+					<SwiperSlide key={index}>
+						<Card data={item} />
+					</SwiperSlide>
+				))}
 		</Swiper>
 	);
 };

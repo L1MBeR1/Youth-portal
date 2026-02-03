@@ -2,6 +2,7 @@
 	"name": "youth-portal",
 	"version": "0.1.0",
 	"private": true,
+	"proxy": "http://46.173.24.22/",
 	"dependencies": {
 		"@editorjs/editorjs": "^2.30.5",
 		"@emoji-mart/data": "^1.2.1",

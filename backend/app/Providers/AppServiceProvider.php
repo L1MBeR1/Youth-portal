@@ -22,12 +22,12 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(SocialiteFactory $socialite)
+    public function boot(/*SocialiteFactory $socialite*/)
     {
-        $socialite->extend('vkontakte', function ($app) use ($socialite) {
+        /*$socialite->extend('vkontakte', function ($app) use ($socialite) {
             $config = $app['config']['services.vkontakte'];
             return $socialite->buildProvider(\SocialiteProviders\VKontakte\Provider::class, $config);
-        });
+        });*/
     }
 }
 

@@ -96,12 +96,12 @@ class ImageSeeder
 
             $filename = $this->generateUniqueFilename($attachment, $folder);
 
-            if (Storage::disk('sftp')->exists($filename)) {
+            if (Storage::disk('public')->exists($filename)) {
                 $uploadedFiles[] = ['filename' => $filename, 'message' => 'File already exists'];
                 continue;
             }
 
-            if ($error = $this->saveFileToSFTP($filename, $attachment['file'])) {
+            if ($error = $this->saveFileTopublic($filename, $attachment['file'])) {
                 throw new \RuntimeException($error);
             }
 
@@ -133,24 +133,24 @@ class ImageSeeder
             return 'Media directory capacity exceeded';
         }
 
-        $fileCount = count(Storage::disk('sftp')->files('media/' . $folder));
+        $fileCount = count(Storage::disk('public')->files('media/' . $folder));
         if ($fileCount >= self::MAX_FILE_COUNT_PER_DIRECTORY) {
             return 'File limit in the current directory exceeded';
         }
 
-        if (!$this->checkSFTPConnection()) {
-            return 'SFTP is not available';
+        if (!$this->checkpublicConnection()) {
+            return 'public is not available';
         }
 
         return null;
     }
 
-    private function checkSFTPConnection(): bool
+    private function checkpublicConnection(): bool
     {
         try {
-            return Storage::disk('sftp')->exists('/');
+            return Storage::disk('public')->exists('/');
         } catch (Exception $e) {
-            Log::error('SFTP connection error: ' . $e->getMessage());
+            Log::error('public connection error: ' . $e->getMessage());
             return false;
         }
     }
@@ -164,10 +164,10 @@ class ImageSeeder
         return 'media/' . $folder . '/' . $md5Hash . '.' . $extension;
     }
 
-    private function saveFileToSFTP(string $filePath, string $fileContent): ?string
+    private function saveFileTopublic(string $filePath, string $fileContent): ?string
     {
         try {
-            Storage::disk('sftp')->put($filePath, $fileContent);
+            Storage::disk('public')->put($filePath, $fileContent);
             return null;
         } catch (Exception $e) {
             Log::error('File upload error: ' . $e->getMessage());
@@ -192,10 +192,10 @@ class ImageSeeder
     private function getDirectorySize(string $directory): int
     {
         $size = 0;
-        $files = Storage::disk('sftp')->allFiles($directory);
+        $files = Storage::disk('public')->allFiles($directory);
 
         foreach ($files as $file) {
-            $size += Storage::disk('sftp')->size($file);
+            $size += Storage::disk('public')->size($file);
         }
 
         return $size;
